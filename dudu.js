@@ -10,11 +10,9 @@
 
 	
 
-function Sound(intervals, tonic, _scale) {
+function Dududu(_tonic, _melody, _scale) {
 
-	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
-
-	var MIDI_NUM_NAMES = [
+	const MIDI = [
 		"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
 		"C0", "C#0", "D0", "D#0", "E0", "F0", "F#0", "G0", "G#0", "A0", "A#0", "B0",
 		"C1", "C#1", "D1", "D#1", "E1", "F1", "F#1", "G1", "G#1", "A1", "A#1", "B1",
@@ -81,6 +79,13 @@ function Sound(intervals, tonic, _scale) {
 	let harmonyChoices = [4, 5];
 	let addHarmonyChoices = shuffle([2, 3, 6, 7]);
 
+	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
+	const melody = typeof _melody[0] === 'string' ?
+		_melody :
+		_melody.map(note => MIDI[note]);
+	let tonic = typeof _tonic === 'string' ?
+		_tonic :
+		MIDI[_tonic];
 
 	function mutate() {
 
@@ -150,7 +155,6 @@ function Sound(intervals, tonic, _scale) {
 	}
 
 	function playTheme() {
-		// Tone.Transport.bpm.value = 128;
 
 		loops.forEach(loop => loop.stop());
 		Tone.Transport.stop();
@@ -165,29 +169,31 @@ function Sound(intervals, tonic, _scale) {
 		let delay = mutations == 0 ? 0 : Cool.random(startDelays);
 
 		// console.log('num loops', num);
-		loops.push(makeLoop(dur, len, idx, delay, getMelody(tonic))); 
-		for (let i = 1; i < num; i++) {
-			let mel = (chance(0.6) || num == 2) ?
-				getHarmony(tonic, Cool.random(harmonyChoices)) :
-				getMelody(tonic);
+		loops.push(makeLoop(dur, len, idx, delay, getMelody(tonic)));
+		loops.push(makeLoop(dur, len, idx, delay, getHarmony(tonic, 4)));
 
-			idx = Cool.random([idx, idx + indexJump.min, idx - indexJump.max]);
-			dur = dur * Cool.random(durJumps);
-			if (mutations > 3) {
-				delay = Cool.random([...startDelays, ...longDelays]);
-				if (chance(0.1)) delay += 't';
-				if (chance(0.25) && delay != 0) delay += '.';
-			}
-			len = Cool.random(lens);
-			if (dur > 8) len *= 2;
-			loops.push(makeLoop(dur, len, idx, delay, mel));
-		}
+		// for (let i = 1; i < num; i++) {
+		// 	let mel = (chance(0.6) || num == 2) ?
+		// 		getHarmony(tonic, Cool.random(harmonyChoices)) :
+		// 		getMelody(tonic);
+
+		// 	idx = Cool.random([idx, idx + indexJump.min, idx - indexJump.max]);
+		// 	dur = dur * Cool.random(durJumps);
+		// 	if (mutations > 3) {
+		// 		delay = Cool.random([...startDelays, ...longDelays]);
+		// 		if (chance(0.1)) delay += 't';
+		// 		if (chance(0.25) && delay != 0) delay += '.';
+		// 	}
+		// 	len = Cool.random(lens);
+		// 	if (dur > 8) len *= 2;
+		// 	loops.push(makeLoop(dur, len, idx, delay, mel));
+		// }
 		
 		Tone.Transport.start('+0.1');
 		mutate();
 	}
 
-	function makeLoop(dur, len, idx, delay, melody) {
+	function makeLoop(dur, len, idx, delay, notes) {
 		// console.log('loop length', melody.length * len, 'dur', `${dur}n`);
 		const sampler = getSampler();
 		let count = idx || 0;
@@ -201,13 +207,13 @@ function Sound(intervals, tonic, _scale) {
 		const loop = new Tone.Loop((time) => {
 			// console.log(count, attack, dur, len, idx, delay);
 			if (chance(0.95)) { // 5% chance of rest
-				const note = melody[Math.floor(count) % melody.length];
+				const note = notes[Math.floor(count) % notes.length];
 				sampler.triggerAttackRelease(note, `${durPlay}n`, undefined, attack);
 			}
 			attack += Cool.random(...attackJump.range);
 			attack.clamp(0.1, 1);
 			count += counter;
-			if (count >= melody.length * len + idx) {
+			if (count >= notes.length * len + idx) {
 				loop.stop();
 				if (loops.every(loop => { return loop.state == 'stopped'})) {
 					playTheme();
@@ -218,45 +224,27 @@ function Sound(intervals, tonic, _scale) {
 	}
 
 	function getMelody(startNote) {
-		let melody = [];
-		for (let i = 0; i < intervals.length; i++) {
-			if (intervals[i] !== null) {
-				const note = startNote + intervals[i];
-				melody.push(MIDI_NUM_NAMES[note]);
-			} else {
-				melody.push(null);
-			}
-		}
-		// console.log(melody);
-		return melody;
+		return melody.map(note => {
+			return note === null ? null :
+				MIDI[MIDI.indexOf(startNote) + (MIDI.indexOf(note) - MIDI.indexOf(melody[0]))];
+		});
 	}
 
 	function getHarmony(startNote, interval) {
-		interval -= 1; // offset
-		let harmony = [];
-		for (let i = 0; i < intervals.length; i++) {
-			const int = intervals[i];
-			if (int !== null) {
-
-				// find where in the scale this note goes
-				let index;
-				let offset = Math.floor(Math.abs(int) / 12) * 12 * (int < 0 ? -1 : 1);
-				
-				if (int < 0) { // interval below tonic
-					index = scale.indexOf(12 - (Math.abs(int) % 12));
-				} else { // interval above tonic
-					index = scale.indexOf(int % 12);
-				}
-
-				let harm = scale[(index + interval) % scale.length];
-				const note = startNote + harm + offset;
-				harmony.push(MIDI_NUM_NAMES[note]);
+		return melody.map(note => {
+			if (note === null) {
+				return null;
 			} else {
-				harmony.push(null);
+				const int = MIDI.indexOf(note) - MIDI.indexOf(melody[0]);
+				// find where in the scale this note goes
+				let offset = Math.floor(Math.abs(int) / 12) * 12 * (int < 0 ? -1 : 1);
+				let idx = int < 0 ?
+					scale.indexOf(12 - (Math.abs(int) % 12)) : // interval below tonic
+					scale.indexOf(int % 12); // interval above tonic
+				let harm = scale[(idx + interval - 1) % scale.length];
+				return MIDI[MIDI.indexOf(startNote) + harm + offset];
 			}
-		}
-		// console.log(harmony);
-		return harmony;
+		});
 	}
 
 	function getSampler() {
@@ -269,13 +257,6 @@ function Sound(intervals, tonic, _scale) {
 			const note = noteNames[i];
 			samples[note] = choirSamples.get(`${voice}-${note}`);
 		}
-
-		// samples = {
-		// 	C4: choirSamples.get('C4');
-		// 	A3: choirSamples.get(A3);
-		// 	G3: choirSamples.get(G3);
-		// 	'Eb4': choirSamples.get('Eb4');
-		// };
 
 		const sampler = new Tone.Sampler({
 			urls: samples,
@@ -350,6 +331,10 @@ function Sound(intervals, tonic, _scale) {
 
 	this.play = function() {
 		playTheme();
+	};
+
+	this.stop = function() {
+		Tone.Transport.stop();
 	};
 
 	this.mutie = function() {
