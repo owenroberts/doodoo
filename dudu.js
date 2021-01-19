@@ -10,7 +10,7 @@
 
 	
 
-function Dududu(_tonic, _melody, _scale) {
+function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 	const MIDI = [
 		"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
@@ -65,7 +65,7 @@ function Dududu(_tonic, _melody, _scale) {
 
 	let lens = [1];
 
-	let durs = [1];
+	let durs = [_startDuration];
 	let addDurs = [1, 4, 8];
 	let durJumps = [1];
 	let addDurJumps = [0.5, 2, 4, 0.25];
@@ -101,7 +101,7 @@ function Dududu(_tonic, _melody, _scale) {
 		let ch = 0.35;
 
 		// random start index
-		if (chance(ch) && mutations > 2 && startIndex.max < intervals.length) {
+		if (chance(ch) && mutations > 2 && startIndex.max < melody.length) {
 			startIndex.max++;
 		}
 
@@ -136,17 +136,16 @@ function Dududu(_tonic, _melody, _scale) {
 			if (chance(ch)) lens.push(Cool.random(lens) * Cool.random([0.25, 0.5, 1.5]));
 
 			if (chance(ch)) {
-				let index = Cool.random(intervals.length);
-				let slice = intervals.slice(index, index + Cool.random(5));
-				intervals.push(...slice);
-				// console.log('intervals', intervals);
+				let index = Cool.random(melody.length);
+				let slice = melody.slice(index, index + Cool.random(5));
+				melody.push(...slice);
 			}
 
-			if (chance(0.5) && intervals.length > 4) intervals.shift();
+			if (chance(0.5) && melody.length > 4) melody.shift();
 		}
 
 		mutations++;
-
+		console.log('mutations', mutations);
 		// console.log('mutations', mutations, 'tonic', tonic);
 		// console.log('harmonies', harmonyChoices);
 		// console.log('loopNum', loopNum);
@@ -170,24 +169,23 @@ function Dududu(_tonic, _melody, _scale) {
 
 		// console.log('num loops', num);
 		loops.push(makeLoop(dur, len, idx, delay, getMelody(tonic)));
-		loops.push(makeLoop(dur, len, idx, delay, getHarmony(tonic, 4)));
 
-		// for (let i = 1; i < num; i++) {
-		// 	let mel = (chance(0.6) || num == 2) ?
-		// 		getHarmony(tonic, Cool.random(harmonyChoices)) :
-		// 		getMelody(tonic);
+		for (let i = 1; i < num; i++) {
+			let mel = (chance(0.6) || num == 2) ?
+				getHarmony(tonic, Cool.random(harmonyChoices)) :
+				getMelody(tonic);
 
-		// 	idx = Cool.random([idx, idx + indexJump.min, idx - indexJump.max]);
-		// 	dur = dur * Cool.random(durJumps);
-		// 	if (mutations > 3) {
-		// 		delay = Cool.random([...startDelays, ...longDelays]);
-		// 		if (chance(0.1)) delay += 't';
-		// 		if (chance(0.25) && delay != 0) delay += '.';
-		// 	}
-		// 	len = Cool.random(lens);
-		// 	if (dur > 8) len *= 2;
-		// 	loops.push(makeLoop(dur, len, idx, delay, mel));
-		// }
+			idx = Cool.random([idx, idx + indexJump.min, idx - indexJump.max]);
+			dur = dur * Cool.random(durJumps);
+			if (mutations > 3) {
+				delay = Cool.random([...startDelays, ...longDelays]);
+				if (chance(0.1)) delay += 't';
+				if (chance(0.25) && delay != 0) delay += '.';
+			}
+			len = Cool.random(lens);
+			if (dur > 8) len *= 2;
+			loops.push(makeLoop(dur, len, idx, delay, mel));
+		}
 		
 		Tone.Transport.start('+0.1');
 		mutate();
@@ -206,8 +204,8 @@ function Dududu(_tonic, _melody, _scale) {
 		}
 		const loop = new Tone.Loop((time) => {
 			// console.log(count, attack, dur, len, idx, delay);
-			if (chance(0.95)) { // 5% chance of rest
-				const note = notes[Math.floor(count) % notes.length];
+			const note = notes[Math.floor(count) % notes.length];
+			if (chance(0.95) && note !== null) { // 5% chance of rest
 				sampler.triggerAttackRelease(note, `${durPlay}n`, undefined, attack);
 			}
 			attack += Cool.random(...attackJump.range);
