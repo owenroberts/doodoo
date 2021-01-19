@@ -12,6 +12,8 @@
 
 function Sound(intervals, tonic, _scale) {
 
+	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
+
 	var MIDI_NUM_NAMES = [
 		"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
 		"C0", "C#0", "D0", "D#0", "E0", "F0", "F#0", "G0", "G#0", "A0", "A#0", "B0",
@@ -24,8 +26,6 @@ function Sound(intervals, tonic, _scale) {
 		"C7", "C#7", "D7", "D#7", "E7", "F7", "F#7", "G7", "G#7", "A7", "A#7", "B7",
 		"C8", "C#8", "D8", "D#8", "E8", "F8", "F#8", "G8", "G#8", "A8", "A#8", "B8",
 		"C9", "C#9", "D9", "D#9", "E9", "F9", "F#9", "G9"];
-
-	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
 
 	// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 	function shuffle(array) {
@@ -44,6 +44,17 @@ function Sound(intervals, tonic, _scale) {
 		return Cool.random(1) < n;
 	}
 
+	class Range {
+		constructor(min, max) {
+			this.min = min;
+			this.max = max;
+		}
+
+		get range() {
+			return [this.min, this.max];
+		}
+	}
+
 	let noteNames = [];
 	let choirSamples;
 	let loops = [];
@@ -51,8 +62,8 @@ function Sound(intervals, tonic, _scale) {
 	let mutations = 0;
 	let lastGameLevel = 0; // change tonic based on game level
 	
-	let loopNum = { min: 1, max: 1 };  // starts at 1
-	let startIndex = { min: 0, max: 0};
+	let loopNum = new Range(1, 1);  // starts at 1
+	let startIndex = new Range(0, 0);
 
 	let lens = [1];
 
@@ -64,21 +75,14 @@ function Sound(intervals, tonic, _scale) {
 	let startDelays = [0, '1n', '2n', '4n', '8n', '1m', '2m'];
 	let longDelays = ['3m', '4m'];
 	
-	let indexJump = { min: 0, max: 0 };
-	let attackStart = { min: 0.25, max: 0.75 };
-	let attackJump = { min: -0.2, max: 0.2 };
+	let indexJump = new Range(0, 0);
+	let attackStart = new Range(0.25, 0.7);
+	let attackJump = new Range(-0.2, 0.2);
 	let harmonyChoices = [4, 5];
 	let addHarmonyChoices = shuffle([2, 3, 6, 7]);
 
 
 	function mutate() {
-
-		// tonic moves up or down each level - do it randomly ??? 
-		if (tonic > 17 && gme.lvl !== lastGameLevel) { // 17 is lowest note can be played
-			// jump by 1 2 or 3
-			tonic += (lastGameLevel - gme.lvl) * Cool.random([1,2,3]);
-			lastGameLevel = gme.lvl;
-		}
 
 		// change number of loops
 		if (mutations == 0) {
@@ -152,12 +156,12 @@ function Sound(intervals, tonic, _scale) {
 		Tone.Transport.stop();
 
 		// console.log('mutations num', mutations);
-		let num = Cool.randomInt(loopNum.min, loopNum.max); // number of loops
+		let num = Cool.randomInt(...loopNum.range); // number of loops
 		if (mutations == 1) num = 2; // harmony on second play through
 		// how many loops is too many loops?
 		let dur = Cool.random(durs); // start duration
 		let len = Cool.random(lens);
-		let idx = Cool.randomInt(startIndex.min, startIndex.max); // start index
+		let idx = Cool.randomInt(...startIndex.range); // start index
 		let delay = mutations == 0 ? 0 : Cool.random(startDelays);
 
 		// console.log('num loops', num);
@@ -187,7 +191,7 @@ function Sound(intervals, tonic, _scale) {
 		// console.log('loop length', melody.length * len, 'dur', `${dur}n`);
 		const sampler = getSampler();
 		let count = idx || 0;
-		let attack = Cool.random(attackStart.min, attackStart.max);
+		let attack = Cool.random(...attackStart.range);
 		let counter = 1;
 		let durPlay = dur;
 		if (dur > 4 && dur < 32 && chance(0.25)) {
@@ -200,7 +204,7 @@ function Sound(intervals, tonic, _scale) {
 				const note = melody[Math.floor(count) % melody.length];
 				sampler.triggerAttackRelease(note, `${durPlay}n`, undefined, attack);
 			}
-			attack += Cool.random(attackJump.min, attackJump.max);
+			attack += Cool.random(...attackJump.range);
 			attack.clamp(0.1, 1);
 			count += counter;
 			if (count >= melody.length * len + idx) {
@@ -345,11 +349,11 @@ function Sound(intervals, tonic, _scale) {
 	}
 
 	this.play = function() {
-		this.playTheme();
+		playTheme();
 	};
 
 	this.mutie = function() {
-		this.mutate();
+		mutate();
 	};
 
 	(async () => {
