@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<button id="play">Play</button>
+	<script src="cool/cool.js"></script>
+	<script src="tone/Tone.js"></script>
+	<script src="sound.js"></script>
+	<script>
+		document.getElementById('play').addEventListener('click', play);
+
+		function play() {
+			const intervals = [0, -3, -5, 2, 4, 7, 9, 12, 0, 14, 12, 14];
+			const midi = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
+			const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
+			const tonic = 54; // C4 is 60
+
+			const sound = new Sound(intervals, tonic);
+			sound.setBPM(128);
+
+			// debugging
+			document.addEventListener('keydown', ev => {
+				if (ev.code == 'x') sound.play();
+				if (ev.code == 'm') sound.mutie();
+				if (ev.code == 's') sound.stop();
+			});
+		}
+	</script>
+</body>
+</html>
+
+<!--  remember to add tone/ and samples/ -->
