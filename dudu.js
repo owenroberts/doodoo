@@ -75,7 +75,6 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 		_tonic :
 		MIDI[_tonic];
 
-
 	Tone.Transport.start('+0.1');
 
 	function mutate() {
@@ -155,6 +154,7 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 		let delay = mutations == 0 ? 0 : Cool.random(startDelays);
 
 		// console.log('num loops', num);
+		// console.log(getMelody(tonic));
 		loops.push(makeLoop(dur, len, idx, delay, getMelody(tonic)));
 
 		for (let i = 1; i < num; i++) {
@@ -218,9 +218,20 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 	function getMelody(startNote) {
 		return melody.map(note => {
-			return note === null ? null :
-				MIDI[MIDI.indexOf(startNote) + (MIDI.indexOf(note) - MIDI.indexOf(melody[0]))];
+			if (note === null) {
+				return null;
+			} else {
+				let midiNoteNum = MIDI.indexOf(startNote) + (MIDI.indexOf(note) - MIDI.indexOf(melody[0]));
+				return MIDI[midiNoteNum];
+			}
 		});
+	}
+
+	function constrainNoteRante(midiNoteNum) {
+		if (midiNoteNum < 12 || midiNoteNum > 127) console.log('** constrain **'); // test to see if this breaks anything
+		while (midiNoteNum < 12) midiNoteNum += 12;
+		while (midiNoteNum > 127) midiNoteNum -= 12;
+		return midiNoteNum;
 	}
 
 	function getHarmony(startNote, interval) {
@@ -235,7 +246,8 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 					scale.indexOf(12 - (Math.abs(int) % 12)) : // interval below tonic
 					scale.indexOf(int % 12); // interval above tonic
 				let harm = scale[(idx + interval - 1) % scale.length];
-				return MIDI[MIDI.indexOf(startNote) + harm + offset];
+				let midiNoteNum = MIDI.indexOf(startNote) + harm + offset;
+				return MIDI[midiNoteNum];
 			}
 		});
 	}
