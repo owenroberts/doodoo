@@ -1,15 +1,3 @@
-// https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html
-// http://www.myriad-online.com/resources/docs/manual/english/gregorien.htm
-
-// https://en.wikibooks.org/wiki/IB_Music/Music_History/Medieval_Period#:~:text=The%20Gregorian%20chant%20began%20to,independently%20of%20the%20original%20chant.
-/*
-	The Gregorian chant began to evolve around 700. From 700 - 900, composers would write a line in parallel motion to the chant at a fixed interval of a fifth or a fourth above the original line. This technique evolved further from 900 - 1200. During this period, the upper line moved independently of the original chant. After 1100, upper lines even began gaining rhythmic independence.
-*/
-
-// https://github.com/saebekassebil/teoria
-
-	
-
 function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 	const MIDI = [
@@ -87,6 +75,9 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 		_tonic :
 		MIDI[_tonic];
 
+
+	Tone.Transport.start('+0.1');
+
 	function mutate() {
 
 		// change number of loops
@@ -155,10 +146,6 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 	function playTheme() {
 
-		loops.forEach(loop => loop.stop());
-		Tone.Transport.stop();
-
-		// console.log('mutations num', mutations);
 		let num = Cool.randomInt(...loopNum.range); // number of loops
 		if (mutations == 1) num = 2; // harmony on second play through
 		// how many loops is too many loops?
@@ -187,7 +174,7 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 			loops.push(makeLoop(dur, len, idx, delay, mel));
 		}
 		
-		Tone.Transport.start('+0.1');
+		// Tone.Transport.start('+0.1');
 		mutate();
 	}
 
@@ -203,19 +190,27 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 			durPlay /= 2;
 		}
 		const loop = new Tone.Loop((time) => {
-			// console.log(count, attack, dur, len, idx, delay);
-			const note = notes[Math.floor(count) % notes.length];
-			if (chance(0.95) && note !== null) { // 5% chance of rest
-				sampler.triggerAttackRelease(note, `${durPlay}n`, undefined, attack);
-			}
-			attack += Cool.random(...attackJump.range);
-			attack.clamp(0.1, 1);
-			count += counter;
 			if (count >= notes.length * len + idx) {
 				loop.stop();
+				sampler.dispose();
 				if (loops.every(loop => { return loop.state == 'stopped'})) {
 					playTheme();
 				}
+				loop.dispose();
+			} else {
+				// console.log(count, attack, dur, len, idx, delay);
+				const note = notes[Math.floor(count) % notes.length];
+				if (chance(0.95) && note !== null) { // 5% chance of rest
+					try {
+						sampler.triggerAttackRelease(note, `${durPlay}n`, undefined, attack);
+					} catch(err) {
+						console.warn('sampler error', err);
+						console.log(note, `${durPlay}n`, attack);
+					}
+				}
+				attack += Cool.random(...attackJump.range);
+				attack.clamp(0.1, 1);
+				count += counter;
 			}
 		}, `${dur}n`).start(delay);
 		return loop;
@@ -246,7 +241,6 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 	}
 
 	function getSampler() {
-		// const voice = 'U'; // 
 		const voice = mutations < 3 ? 
 			'U' :
 			Cool.random('AEIOU'.split(''));
@@ -258,7 +252,8 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 		const sampler = new Tone.Sampler({
 			urls: samples,
-			volume: -6
+			volume: -6,
+			release: 1,
 		}).toDestination();
 
 		// const freeverb = new Tone.Freeverb().toDestination();
@@ -295,13 +290,9 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 		return sampler;
 	}
 
-	function setup(callback) {
+	function load(callback) {
 
-		for (let i = 2; i <= 4; i++) {
-			'ABCDEFG'.split('').forEach(letter => {
-				noteNames.push(`${letter}${i}`);
-			});
-		}
+		noteNames = [2,3,4].flatMap(n => 'ABCDEFG'.split('').map(letter => `${letter}${n}`));
 
 		let urls = {};
 		for (let i = 0; i < noteNames.length; i++) {
@@ -341,6 +332,17 @@ function Dududu(_tonic, _melody, _startDuration, _scale) {
 
 	(async () => {
 		await Tone.start();
-		setup(playTheme);
+		load(playTheme);
 	})();
 }
+
+// https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html
+// http://www.myriad-online.com/resources/docs/manual/english/gregorien.htm
+
+// https://en.wikibooks.org/wiki/IB_Music/Music_History/Medieval_Period#:~:text=The%20Gregorian%20chant%20began%20to,independently%20of%20the%20original%20chant.
+/*
+	The Gregorian chant began to evolve around 700. From 700 - 900, composers would write a line in parallel motion to the chant at a fixed interval of a fifth or a fourth above the original line. This technique evolved further from 900 - 1200. During this period, the upper line moved independently of the original chant. After 1100, upper lines even began gaining rhythmic independence.
+*/
+
+// https://github.com/saebekassebil/teoria
+
