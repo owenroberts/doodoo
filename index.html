@@ -15,8 +15,9 @@
 	<button id="play">Play</button>
 	<script src="cool/cool.js"></script>
 	<script src="tone/Tone.js"></script>
-	<script src="dudu.js"></script>
-	<script>
+	<script type='module'>
+		import Dududu from './dudu.js';
+
 		document.getElementById('play').addEventListener('click', play);
 		document.addEventListener('keydown', ev => {
 			if (ev.key == 'Enter') play();
@@ -36,7 +37,7 @@
 			];
 
 			// window.dudu = new Dududu(tonic, [...part1, ...part1, ...part1, ...part1, ...part2], 4);
-			window.dudu = new Dududu(tonic, part1, 4);
+			window.dudu = new Dududu(tonic, [part1, part2], 4);
 
 			dudu.setBPM(180);
 
