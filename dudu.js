@@ -7,7 +7,7 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 
 	let noteNames = [];
 	let choirSamples;
-	let loops = [];
+	
 
 	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
@@ -19,7 +19,7 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 		const melody = typeof part[0] === 'string' ?
 			part :
 			part.map(note => MIDI[note]);
-		return new Mutation(melody, _startDuration);
+		return new Mutation(melody, _startDuration, debug);
 	});
 
 	let currentPart = 0;
@@ -30,14 +30,29 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 	const attackStep = new Range(-0.2, 0.2);
 	// this is really velocity
 
+	let toneLoop;
+	let loops = [];
+	let loopDuration = _startDuration;
+	console.log(Tone.Transport.bpm.value);
+
+
+	function start() {
+		toneLoop = new Tone.Loop(loop, `${loopDuration}n`);
+		Tone.Transport.start();
+		toneLoop.start(0);
+		playTheme();
+		console.log(toneLoop);
+	}
 
 	function playTheme() {
-		if (Tone.Transport.state != 'started') Tone.Transport.start('+0.1');
-		
 		parts[currentPart].getLoops().forEach(params => {
 			loops.push(makeLoop(params));
+			// console.log(loops[loops.length - 1].melody);
 		});
-		
+	
+
+		// change toneLoop duration if anything is lower ... 
+
 		parts[currentPart].update();
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
@@ -46,52 +61,80 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 
 	function makeLoop(params) {
 
-		let melody = params.harmony === 0 ? 
-				getMelody(params.melody, tonic) :
-				getHarmony(params.melody, tonic, params.harmony, scale);
-
-		const sampler = getSampler();
-
-		let count = params.startIndex || 0;
-		let attack = attackStart.random;
-		let counter = 1;
 		let noteDuration = params.duration;
+		let counter = 1;
+
 		if (params.duration > 4 && params.duration < 32 && chance(0.5)) {
 			counter = 1 / params.duration;
 			noteDuration /= 2;
 		}
-		let endScheduled = false;
-		const loop = new Tone.Loop((time) => {
-			if (count >= melody.length * params.melodyRepeat + params.startIndex) {
-				if (!endScheduled) {
-					endScheduled = true;
-					Tone.Transport.scheduleOnce(() => {
-						loop.stop();
-						if (loops.every(loop => { return loop.state == 'stopped'})) {
-							playTheme();
-							sampler.dispose();
-							loop.dispose();
-						}
-						
-					}, '+1m');
-					sampler.releaseAll(Tone.now());
-				}
-			} else {
-				const note = melody[Math.floor(count) % melody.length];
-				if (chance(0.95) && note !== null) { // 5% chance of rest
-					try {
-						sampler.triggerAttackRelease(note, `${noteDuration}n`, undefined, attack);
-					} catch(err) {
-						console.warn('sampler error', err);
-						console.log(note, `${noteDuration}n`, attack);
-					}
-				}
-				attack += attackStep.random;
-				attack.clamp(0.1, 1);
-				count += counter;
+
+		if (noteDuration > loopDuration) {
+			console.log('>', noteDuration, _startDuration);
+			loopDuration = noteDuration;
+			toneLoop.interval = `${loopDuration}n`;
+		}
+
+		if (noteDuration != loopDuration) {
+			counter = counter * (loopDuration / noteDuration);
+		}
+
+		console.log(noteDuration, params.startDelay);
+		
+		return {
+			melody: params.harmony === 0 ? 
+				getMelody(params.melody, tonic) :
+				getHarmony(params.melody, tonic, params.harmony, scale),
+			sampler: getSampler(),
+			
+			attack: attackStart.random,
+			noteDuration: noteDuration,
+			startIndex: params.startIndex,
+			startDelay: params.startDelay,
+			count: params.startIndex || 0,
+			counter: counter,
+			repeat: params.melodyRepeat,
+			ended: false,
+		};
+	}
+
+	function loop(time) {
+		let attack = attackStart.random;
+		for (let i = 0; i < loops.length; i++) {
+			const loop = loops[i];
+
+			const { melody, noteDuration, sampler } = loops[i];
+			
+
+			if (loop.count > melody.length * loop.repeat + loop.startIndex + loop.startDelay) {
+				loop.ended = true;
 			}
-		}, `${params.duration}n`).start(params.startDelay);
-		return loop;
+			
+
+			// need to calculate duration
+			// convert starty delay to silent counts
+
+			const note = melody[Math.floor(loop.count - loop.startDelay) % melody.length];
+			if (!loop.ended && loop.count > loop.startDelay &&
+				/* chance(0.95) && */ note !== null) { // 5% chance of rest
+				try { // maybe dont need this anymore with midi clamp
+					sampler.triggerAttackRelease(note, `${noteDuration}n`, time, attack);
+				} catch(err) {
+					console.warn('sampler error', err);
+					console.log(note, `${noteDuration}n`, attack);
+				}
+			}
+
+			
+			loop.count += loop.counter;
+		}
+		attack += attackStep.random;
+		attack.clamp(0.1, 1);
+
+		if (loops.every(l => l.ended)) {
+			playTheme();
+			console.log('play new theme');
+		}
 	}
 
 	function getSampler() {
@@ -184,7 +227,7 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 
 	(async () => {
 		await Tone.start();
-		load(playTheme);
+		load(start);
 	})();
 }
 
