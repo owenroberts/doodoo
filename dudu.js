@@ -3,7 +3,7 @@ import { MIDI, getMelody, getHarmony } from './lib/midi.js';
 import Mutation from './lib/Mutation.js';
 
 // export default function Dududu(_tonic, _melody, _startDuration, _scale) {
-export default function Dududu(_tonic, _parts, _startDuration, _scale) {
+export default function Dududu(_tonic, _parts, _scale) {
 
 	let noteNames = [];
 	let choirSamples;
@@ -19,7 +19,7 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 		const melody = typeof part[0] === 'string' ?
 			part :
 			part.map(note => MIDI[note]);
-		return new Mutation(melody, _startDuration, debug);
+		return new Mutation(melody, false);
 	});
 
 	let currentPart = 0;
@@ -32,24 +32,19 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 
 	let toneLoop;
 	let loops = [];
-	let loopDuration = _startDuration;
-	console.log(Tone.Transport.bpm.value);
-
 
 	function start() {
-		toneLoop = new Tone.Loop(loop, `${loopDuration}n`);
-		Tone.Transport.start();
+		toneLoop = new Tone.Loop(loop, '4n');
+		Tone.Transport.start('+0.1');
 		toneLoop.start(0);
 		playTheme();
-		console.log(toneLoop);
 	}
 
 	function playTheme() {
 		parts[currentPart].getLoops().forEach(params => {
 			loops.push(makeLoop(params));
-			// console.log(loops[loops.length - 1].melody);
+			// console.log('loops', loops);
 		});
-	
 
 		// change toneLoop duration if anything is lower ... 
 
@@ -63,23 +58,9 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 
 		let noteDuration = params.duration;
 		let counter = 1;
-
-		if (params.duration > 4 && params.duration < 32 && chance(0.5)) {
-			counter = 1 / params.duration;
-			noteDuration /= 2;
+		if (noteDuration < 4) {
+			counter = noteDuration / 4;
 		}
-
-		if (noteDuration > loopDuration) {
-			console.log('>', noteDuration, _startDuration);
-			loopDuration = noteDuration;
-			toneLoop.interval = `${loopDuration}n`;
-		}
-
-		if (noteDuration != loopDuration) {
-			counter = counter * (loopDuration / noteDuration);
-		}
-
-		console.log(noteDuration, params.startDelay);
 		
 		return {
 			melody: params.harmony === 0 ? 
@@ -93,6 +74,7 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 			startDelay: params.startDelay,
 			count: params.startIndex || 0,
 			counter: counter,
+			doubler: params.doubler,
 			repeat: params.melodyRepeat,
 			ended: false,
 		};
@@ -103,37 +85,37 @@ export default function Dududu(_tonic, _parts, _startDuration, _scale) {
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
 
-			const { melody, noteDuration, sampler } = loops[i];
+			const { melody, noteDuration, sampler, counter, doubler, repeat, startIndex, startDelay } = loops[i];
 			
 
-			if (loop.count > melody.length * loop.repeat + loop.startIndex + loop.startDelay) {
+			if (loop.count > (melody.length - 1) * repeat + startIndex + startDelay) {
 				loop.ended = true;
 			}
-			
 
-			// need to calculate duration
-			// convert starty delay to silent counts
-
-			const note = melody[Math.floor(loop.count - loop.startDelay) % melody.length];
-			if (!loop.ended && loop.count > loop.startDelay &&
-				/* chance(0.95) && */ note !== null) { // 5% chance of rest
-				try { // maybe dont need this anymore with midi clamp
-					sampler.triggerAttackRelease(note, `${noteDuration}n`, time, attack);
-				} catch(err) {
-					console.warn('sampler error', err);
-					console.log(note, `${noteDuration}n`, attack);
+			if (!loop.ended) {
+				let n = (counter * noteDuration) / 4;
+				for (let j = 0; j < n; j++) {
+					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
+						const note = melody[Math.floor(loop.count - startDelay) % melody.length];
+						if (note != null) {
+							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0;
+							console.log(note, noteDuration, n, loop.count, counter);
+							// console.log('time', time, 't', t);
+							sampler.triggerAttackRelease(note, `${noteDuration}n`, time + t, attack);
+						}
+						if (doubler && loop.count < melody.length - 1) loop.count += counter;
+					}
 				}
+				if (!doubler) loop.count += counter;
 			}
-
-			
-			loop.count += loop.counter;
 		}
-		attack += attackStep.random;
-		attack.clamp(0.1, 1);
 
 		if (loops.every(l => l.ended)) {
-			playTheme();
-			console.log('play new theme');
+			// playTheme();
+			// console.log('play new theme');
+		} else {
+			attack += attackStep.random;
+			attack.clamp(0.1, 1);
 		}
 	}
 

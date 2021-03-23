@@ -26,7 +26,7 @@
 		function play() {
 			// const midi = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
 			// const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
-			const tonic = 'C3';
+			const tonic = 'C4';
 			const part1 = [
 				'C4', 'D4', 'E4', 'E4', 'E4', 'E4', 'E4', null, 
 				'A3', 'B3', 'F3', 'D4', 'E4', 'E4', 'E4', null,
@@ -37,9 +37,9 @@
 			];
 
 			// window.dudu = new Dududu(tonic, [...part1, ...part1, ...part1, ...part1, ...part2], 4);
-			window.dudu = new Dududu(tonic, [part1, part2], 4);
+			window.dudu = new Dududu(tonic, [part1, part2]);
 
-			dudu.setBPM(180);
+			// dudu.setBPM(180);
 
 			// debugging
 			document.addEventListener('keydown', ev => {
