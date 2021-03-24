@@ -1,13 +1,15 @@
-import { random, randInt, shuffle, chance, Range } from './lib/helpers.js';
+import { random, randInt, shuffle, chance, Range } from './lib/cool.js';
 import { MIDI, getMelody, getHarmony } from './lib/midi.js';
 import Mutation from './lib/Mutation.js';
 
-// export default function Dududu(_tonic, _melody, _startDuration, _scale) {
-export default function Dududu(_tonic, _parts, _scale) {
+Number.prototype.clamp = function(min, max) {
+	return Math.min(Math.max(this, min), max);
+};
+
+export default function Doodoo(_tonic, _parts, _scale) {
 
 	let noteNames = [];
 	let choirSamples;
-	
 
 	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
@@ -121,7 +123,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 	function getSampler() {
 		const voice = totalPlays < 3 ? 
 			'U' :
-			Cool.random('AEIOU'.split(''));
+			random('AEIOU'.split(''));
 		const samples = {};
 		for (let i = 0; i < noteNames.length; i++) {
 			const note = noteNames[i];
@@ -140,7 +142,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 		if (totalPlays > 8) {
 			let effect;
 			if (chance(0.25)) {
-				const dist = Cool.random(0.05, 0.2);
+				const dist = random(0.05, 0.2);
 				effect = new Tone.Distortion(dist).toDestination();
 				// console.log('Distortion', dist);
 			}
@@ -149,13 +151,13 @@ export default function Dududu(_tonic, _parts, _scale) {
 				// console.log('Chorus')
 			}
 			else if (chance(0.25)) {
-				const bits = Cool.random([4,8,12]);
+				const bits = random([4,8,12]);
 				effect = new Tone.BitCrusher(bits).toDestination();
 				// console.log('BitCrusher', bits);
 			}
 			else if (chance(0.25)) {
-				const freq = Cool.random(0.5, 1);
-				const depth = Cool.random(0.1, 1);
+				const freq = random(0.5, 1);
+				const depth = random(0.1, 1);
 				effect = new Tone.Tremolo(freq, depth).toDestination();
 				// console.log('Tremolo', freq, depth);
 			}

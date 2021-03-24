@@ -13,10 +13,9 @@
 </head>
 <body>
 	<button id="play">Play</button>
-	<script src="cool/cool.js"></script>
 	<script src="tone/Tone.js"></script>
 	<script type='module'>
-		import Dududu from './dudu.js';
+		import Doodoo from './Doodoo.js';
 
 		document.getElementById('play').addEventListener('click', play);
 		document.addEventListener('keydown', ev => {
@@ -36,10 +35,8 @@
 				'F5', 'G5', 'F5', 'E5', 'D5', 'C5', 'B5', 'C5',
 			];
 
-			// window.dudu = new Dududu(tonic, [...part1, ...part1, ...part1, ...part1, ...part2], 4);
-			window.dudu = new Dududu(tonic, [part1, part2]);
-
-			dudu.setBPM(160);
+			const doodoo = new Doodoo(tonic, [part1, part2]);
+			doodoo.setBPM(160);
 
 			// debugging
 			document.addEventListener('keydown', ev => {
