@@ -26,6 +26,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 	let totalPlays = 0;
 
 	// global so it doesn't jump all over the place
+	// actually resets with each loop anyway ... 
 	const attackStart = new Range(0.25, 0.7);
 	const attackStep = new Range(-0.2, 0.2);
 	// this is really velocity
@@ -35,14 +36,14 @@ export default function Dududu(_tonic, _parts, _scale) {
 
 	const useMetro = true;
 	const metro = new Tone.MetalSynth({
-		volume: -24,
+		volume: -48,
 		frequency: 250,
 		envelope: {
 			attack: 0.01,
 			decay: 0.01,
 			release: 0.2
 		},
-		harmonicity: 5.1,
+		harmonicity: 3.1,
 		modulationIndex: 32,
 		resonance: 4000,
 		octaves: 1.5,
@@ -57,7 +58,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 
 	function playTheme() {
 		parts[currentPart].getLoops().forEach(params => {
-			console.log(params);
+			console.log(params.harmony);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -86,7 +87,6 @@ export default function Dududu(_tonic, _parts, _scale) {
 
 			const { melody, noteDuration, sampler, counter, doubler, doublerCounter, repeat, startIndex, startDelay } = loops[i];
 			
-			console.log(loop.count,(melody.length - 1) * repeat)
 			if (loop.count > (melody.length - 1) * repeat + startDelay) {
 				loop.ended = true;
 			}
@@ -98,7 +98,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 						const note = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (note != null) {
 							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0;
-							// console.log(note, noteDuration, n, loop.count, counter);
+							console.log(note, noteDuration, n, loop.count, counter);
 							// console.log('time', time, 't', t);
 							sampler.triggerAttackRelease(note, `${noteDuration}n`, time + t, attack);
 						}
@@ -110,7 +110,7 @@ export default function Dududu(_tonic, _parts, _scale) {
 		}
 
 		if (loops.every(l => l.ended)) {
-			// playTheme();
+			playTheme();
 			// console.log('play new theme');
 		} else {
 			attack += attackStep.random;
