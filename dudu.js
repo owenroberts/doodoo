@@ -57,8 +57,9 @@ export default function Dududu(_tonic, _parts, _scale) {
 	}
 
 	function playTheme() {
+		loops = [];
 		parts[currentPart].getLoops().forEach(params => {
-			console.log(params.harmony);
+			console.log(params);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -98,20 +99,19 @@ export default function Dududu(_tonic, _parts, _scale) {
 						const note = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (note != null) {
 							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0;
-							console.log(note, noteDuration, n, loop.count, counter);
+							// console.log(note, noteDuration, n, loop.count, counter);
 							// console.log('time', time, 't', t);
 							sampler.triggerAttackRelease(note, `${noteDuration}n`, time + t, attack);
 						}
 						if (doublerCounter) loop.count += counter;
 					}
 				}
-				if (!doublerCounter) loop.count += counter;
+				if (!doublerCounter || loop.count < startDelay) loop.count += counter;
 			}
 		}
 
 		if (loops.every(l => l.ended)) {
 			playTheme();
-			// console.log('play new theme');
 		} else {
 			attack += attackStep.random;
 			attack.clamp(0.1, 1);
@@ -202,7 +202,9 @@ export default function Dududu(_tonic, _parts, _scale) {
 	};
 
 	this.mutie = function() {
-		mutate();
+		parts.forEach(part => {
+			part.update();
+		});
 	};
 
 	(async () => {
