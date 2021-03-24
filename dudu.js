@@ -33,17 +33,41 @@ export default function Dududu(_tonic, _parts, _scale) {
 	let toneLoop;
 	let loops = [];
 
+	const useMetro = true;
+	const metro = new Tone.MetalSynth({
+		volume: -24,
+		frequency: 250,
+		envelope: {
+			attack: 0.01,
+			decay: 0.01,
+			release: 0.2
+		},
+		harmonicity: 5.1,
+		modulationIndex: 32,
+		resonance: 4000,
+		octaves: 1.5,
+	}).toDestination(); 
+
 	function start() {
 		toneLoop = new Tone.Loop(loop, '4n');
-		Tone.Transport.start('+0.1');
+		Tone.Transport.start();
 		toneLoop.start(0);
 		playTheme();
 	}
 
 	function playTheme() {
 		parts[currentPart].getLoops().forEach(params => {
-			loops.push(makeLoop(params));
-			// console.log('loops', loops);
+			console.log(params);
+			const part = {
+				...params,
+				melody: params.harmony === 0 ? 
+					getMelody(params.melody, tonic) :
+					getHarmony(params.melody, tonic, params.harmony, scale),
+				sampler: getSampler(),
+				attack: attackStart.random,
+				ended: false,
+			};
+			loops.push(part);
 		});
 
 		// change toneLoop duration if anything is lower ... 
@@ -54,59 +78,34 @@ export default function Dududu(_tonic, _parts, _scale) {
 		totalPlays++;
 	}
 
-	function makeLoop(params) {
-
-		let noteDuration = params.duration;
-		let counter = 1;
-		if (noteDuration < 4) {
-			counter = noteDuration / 4;
-		}
-		
-		return {
-			melody: params.harmony === 0 ? 
-				getMelody(params.melody, tonic) :
-				getHarmony(params.melody, tonic, params.harmony, scale),
-			sampler: getSampler(),
-			
-			attack: attackStart.random,
-			noteDuration: noteDuration,
-			startIndex: params.startIndex,
-			startDelay: params.startDelay,
-			count: params.startIndex || 0,
-			counter: counter,
-			doubler: params.doubler,
-			repeat: params.melodyRepeat,
-			ended: false,
-		};
-	}
-
 	function loop(time) {
+		if (useMetro) metro.triggerAttackRelease('c4', '32n', time, 0.3);
 		let attack = attackStart.random;
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
 
-			const { melody, noteDuration, sampler, counter, doubler, repeat, startIndex, startDelay } = loops[i];
+			const { melody, noteDuration, sampler, counter, doubler, doublerCounter, repeat, startIndex, startDelay } = loops[i];
 			
-
-			if (loop.count > (melody.length - 1) * repeat + startIndex + startDelay) {
+			console.log(loop.count,(melody.length - 1) * repeat)
+			if (loop.count > (melody.length - 1) * repeat + startDelay) {
 				loop.ended = true;
 			}
 
 			if (!loop.ended) {
-				let n = (counter * noteDuration) / 4;
+				let n = doubler ? (counter * noteDuration) / 4 : 1;
 				for (let j = 0; j < n; j++) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
-						const note = melody[Math.floor(loop.count - startDelay) % melody.length];
+						const note = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (note != null) {
 							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0;
-							console.log(note, noteDuration, n, loop.count, counter);
+							// console.log(note, noteDuration, n, loop.count, counter);
 							// console.log('time', time, 't', t);
 							sampler.triggerAttackRelease(note, `${noteDuration}n`, time + t, attack);
 						}
-						if (doubler && loop.count < melody.length - 1) loop.count += counter;
+						if (doublerCounter) loop.count += counter;
 					}
 				}
-				if (!doubler) loop.count += counter;
+				if (!doublerCounter) loop.count += counter;
 			}
 		}
 
@@ -134,7 +133,6 @@ export default function Dududu(_tonic, _parts, _scale) {
 			volume: -6,
 			release: 1,
 		}).toDestination();
-		sampler.sync();
 
 		const reverb = new Tone.Reverb({ decay: 5 }).toDestination();
 		sampler.connect(reverb);
