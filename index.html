@@ -13,9 +13,10 @@
 </head>
 <body>
 	<button id="play">Play</button>
-	<script src="tone/Tone.js"></script>
+	<!-- <script src="tone/Tone.js"></script> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.15/Tone.js"></script>
 	<script type='module'>
-		import Doodoo from './Doodoo.js';
+		import Doodoo from './doodoo.js';
 
 		document.getElementById('play').addEventListener('click', play);
 		document.addEventListener('keydown', ev => {
