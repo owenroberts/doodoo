@@ -6,8 +6,9 @@ Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
 };
 
-export default function Doodoo(_tonic, _parts, _scale) {
+export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 
+	let debug = false;
 	let noteNames = [];
 	let choirSamples;
 
@@ -17,6 +18,7 @@ export default function Doodoo(_tonic, _parts, _scale) {
 		_tonic :
 		MIDI[_tonic];
 
+	if (typeof _parts[0] == 'string')_parts = [_parts]; // single melody array
 	const parts = _parts.map(part => {
 		const melody = typeof part[0] === 'string' ?
 			part :
@@ -36,32 +38,36 @@ export default function Doodoo(_tonic, _parts, _scale) {
 	let toneLoop;
 	let loops = [];
 
-	const useMetro = true;
-	const metro = new Tone.MetalSynth({
-		volume: -48,
-		frequency: 250,
-		envelope: {
-			attack: 0.01,
-			decay: 0.01,
-			release: 0.2
-		},
-		harmonicity: 3.1,
-		modulationIndex: 32,
-		resonance: 4000,
-		octaves: 1.5,
-	}).toDestination(); 
+	const useMetro = false;
+	let metro;
 
 	function start() {
-		toneLoop = new Tone.Loop(loop, '4n');
+		toneLoop = new Tone.Loop(loop, _startDuration || '4n');
 		Tone.Transport.start();
 		toneLoop.start(0);
 		playTheme();
+
+		if (useMetro) {
+			metro = new Tone.MetalSynth({
+			volume: -48,
+			frequency: 250,
+			envelope: {
+				attack: 0.01,
+				decay: 0.01,
+				release: 0.2
+			},
+			harmonicity: 3.1,
+			modulationIndex: 32,
+			resonance: 4000,
+			octaves: 1.5,
+		}).toDestination(); 
+		}
 	}
 
 	function playTheme() {
 		loops = [];
 		parts[currentPart].getLoops().forEach(params => {
-			console.log(params);
+			if (debug) console.log(params);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -183,7 +189,7 @@ export default function Doodoo(_tonic, _parts, _scale) {
 		console.time('load choir samples');
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: "./samples/choir/",
+			baseUrl: "./doodoo/samples/choir/",
 			onload: () => {
 				console.timeEnd('load choir samples');
 				callback();
