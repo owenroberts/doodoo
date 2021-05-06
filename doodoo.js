@@ -11,6 +11,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 	let debug = false;
 	let noteNames = [];
 	let choirSamples;
+	let defaultDuration = _startDuration || '4n';
 
 	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
@@ -18,11 +19,13 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 		_tonic :
 		MIDI[_tonic];
 
-	if (typeof _parts[0] == 'string')_parts = [_parts]; // single melody array
+	if (typeof _parts[0] == 'string') _parts = [_parts]; // single melody array
+	console.log(typeof _parts[0], typeof _parts[0][0], typeof _parts[0][0][0]);
 	const parts = _parts.map(part => {
-		const melody = typeof part[0] === 'string' ?
-			part :
-			part.map(note => MIDI[note]);
+		let melody;
+		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
+		if (typeof part[0] == 'number') melody = part.map(note => [MIDI[note], defaultDuration]);
+		if (typeof part[0] == 'object') melody = part;
 		return new Mutation(melody, false);
 	});
 
@@ -41,8 +44,10 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 	const useMetro = false;
 	let metro;
 
+	console.log(parts);
+
 	function start() {
-		toneLoop = new Tone.Loop(loop, _startDuration || '4n');
+		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
 		toneLoop.start(0);
 		playTheme();
@@ -80,12 +85,24 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 			loops.push(part);
 		});
 
-		// change toneLoop duration if anything is lower ... 
+		loops.forEach(loop => {
+			let n = [];
+			loop.melody.forEach(beat => {
+				const [note, duration] = beat;
+				let beats = +defaultDuration[0] / +duration[0];
+				n.push(beat);
+				for (let i = 1; i < beats; i++) {
+					n.push([null, defaultDuration]);
+				}
+			});
+			loop.melody = n;
+		});
 
 		parts[currentPart].update();
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
+		
 	}
 
 	function loop(time) {
@@ -104,12 +121,12 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 				let n = doubler ? (counter * noteDuration) / 4 : 1;
 				for (let j = 0; j < n; j++) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
-						const note = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
-						if (note != null) {
-							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0;
-							// console.log(note, noteDuration, n, loop.count, counter);
-							// console.log('time', time, 't', t);
-							sampler.triggerAttackRelease(note, `${noteDuration}n`, time + t, attack);
+						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
+						if (beat[0] != null) {
+							const [note, duration] = beat;
+							// time offset for doubles
+							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0; 
+							sampler.triggerAttackRelease(note, duration, time + t, attack);
 						}
 						if (doublerCounter) loop.count += counter;
 					}
@@ -189,7 +206,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 		console.time('load choir samples');
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: "./doodoo/samples/choir/",
+			baseUrl: './samples/choir/',
 			onload: () => {
 				console.timeEnd('load choir samples');
 				callback();
