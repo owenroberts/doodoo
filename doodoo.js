@@ -20,7 +20,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 		MIDI[_tonic];
 
 	if (typeof _parts[0] == 'string') _parts = [_parts]; // single melody array
-	console.log(typeof _parts[0], typeof _parts[0][0], typeof _parts[0][0][0]);
+	// console.log(typeof _parts[0], typeof _parts[0][0], typeof _parts[0][0][0]);
 	const parts = _parts.map(part => {
 		let melody;
 		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
@@ -44,7 +44,6 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 	const useMetro = false;
 	let metro;
 
-	console.log(parts);
 
 	function start() {
 		toneLoop = new Tone.Loop(loop, defaultDuration);
@@ -72,7 +71,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 	function playTheme() {
 		loops = [];
 		parts[currentPart].getLoops().forEach(params => {
-			if (debug) console.log(params);
+			// if (debug) console.log(params);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -206,7 +205,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 		console.time('load choir samples');
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: './samples/choir/',
+			baseUrl: './doodoo/samples/choir/',
 			onload: () => {
 				console.timeEnd('load choir samples');
 				callback();
