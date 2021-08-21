@@ -121,7 +121,12 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 				for (let j = 0; j < n; j++) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
 						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
-						if (beat[0] != null) {
+						if (!beat) {
+							console.log('beat', beat);
+							console.log(melody, loop, startDelay, startIndex);
+							continue;
+						}
+						if (beat[0] !== null) {
 							const [note, duration] = beat;
 							// time offset for doubles
 							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0; 
