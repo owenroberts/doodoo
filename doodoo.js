@@ -6,21 +6,24 @@ Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
 };
 
-export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
+export default function Doodoo(params, callback) {
+	// params -- _tonic, _parts, _startDuration, _scale
 
 	let debug = false;
 	let noteNames = [];
 	let choirSamples;
-	let defaultDuration = _startDuration || '4n';
+	let defaultDuration = params.startDuration || '4n';
 
-	const scale = _scale || [0, 2, 4, 5, 7, 9, 11]; // major
+	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
-	let tonic = typeof _tonic === 'string' ?
-		_tonic :
-		MIDI[_tonic];
+	let tonic = typeof params.tonic === 'string' ?
+		params.tonic :
+		MIDI[params.tonic];
 
-	if (typeof _parts[0] == 'string') _parts = [_parts]; // single melody array
-	// console.log(typeof _parts[0], typeof _parts[0][0], typeof _parts[0][0][0]);
+	const _parts = typeof params.parts[0] === 'string' ?
+		[params.parts] :
+		params.parts;
+
 	const parts = _parts.map(part => {
 		let melody;
 		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
@@ -46,6 +49,7 @@ export default function Doodoo(_tonic, _parts, _startDuration, _scale) {
 
 
 	function start() {
+		if (callback) callback();
 		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
 		toneLoop.start(0);
