@@ -54,21 +54,20 @@ export default function Doodoo(params, callback) {
 		Tone.Transport.start();
 		toneLoop.start(0);
 		playTheme();
-
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
-			volume: -48,
-			frequency: 250,
-			envelope: {
-				attack: 0.01,
-				decay: 0.01,
-				release: 0.2
-			},
-			harmonicity: 3.1,
-			modulationIndex: 32,
-			resonance: 4000,
-			octaves: 1.5,
-		}).toDestination(); 
+				volume: -48,
+				frequency: 250,
+				envelope: {
+					attack: 0.01,
+					decay: 0.01,
+					release: 0.2
+				},
+				harmonicity: 3.1,
+				modulationIndex: 32,
+				resonance: 4000,
+				octaves: 1.5,
+			}).toDestination(); 
 		}
 	}
 
@@ -105,7 +104,8 @@ export default function Doodoo(params, callback) {
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
-		
+
+		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 	}
 
 	function loop(time) {
@@ -226,8 +226,9 @@ export default function Doodoo(params, callback) {
 		Tone.Transport.bpm.value = bpm; // starts 128
 	}
 
+
 	this.play = function() {
-		playTheme();
+		if (Tone.Transport.state === 'stopped') playTheme();
 	};
 
 	this.stop = function() {
