@@ -126,8 +126,8 @@ export default function Doodoo(params, callback) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
 						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (!beat) {
-							console.log('beat', beat);
-							console.log(melody, loop, startDelay, startIndex);
+							// console.log('beat', beat);
+							// console.log(melody, loop, startDelay, startIndex);
 							continue;
 						}
 						if (beat[0] !== null) {
