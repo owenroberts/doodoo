@@ -212,7 +212,6 @@ export default function Doodoo(params, callback) {
 
 		// add ee and aa
 		console.time('load choir samples');
-		console.log(params);
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
 			baseUrl: params.samples || './doodoo/samples/choir/',
