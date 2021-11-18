@@ -47,6 +47,11 @@ export default function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
+	// start tone using async func to wait for tone
+	(async () => {
+		await Tone.start();
+		load(start);
+	})();
 
 	function start() {
 		if (callback) callback();
@@ -104,7 +109,8 @@ export default function Doodoo(params, callback) {
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
-
+		console.log(loops.map(l => l.melody.map(n => n[0])).join(', '));
+		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 	}
 
@@ -234,17 +240,34 @@ export default function Doodoo(params, callback) {
 		Tone.Transport.stop();
 	};
 
-	this.mutie = function() {
+	this.mutate = function() {
 		parts.forEach(part => {
 			part.update();
 		});
 	};
 
-	(async () => {
-		await Tone.start();
-		load(start);
-	})();
 }
+
+/*
+	
+	melodies can be written just as notes
+	parts: [
+		'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
+		'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
+	], // from garden
+
+	or including durations
+	const part1 = [
+		['C#6', '2n'], ['D#6', '2n'], [null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
+		['C#6', '2n'], ['D#6', '2n'], ['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
+		['E6', '2n'], ['F#6', '2n'], ['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
+		['C#7', '8n'], [null, '8n'], ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
+	]; // from
+
+	use midi notes or letter notes
+	// const melody = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
+	// const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
+*/
 
 // https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html
 // http://www.myriad-online.com/resources/docs/manual/english/gregorien.htm
