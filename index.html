@@ -5,13 +5,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>doodoo</title>
 	<style>
-		body { text-align: center; }
+		body { 
+			text-align: center; 
+			background: radial-gradient(plum, lightblue);
+		}
 	</style>
 </head>
 <body>
 	<button id="play">play doodoo</button>
+	<button id="stop">stop doodoo</button>
+
 	<!--  ** remember to add tone/ and samples/  ** -->
-	<script src="tone/Tone.js"></script>
+	<script src="../dist/doodoo/tone/Tone.js"></script>
 	<script type='module'>
 		import Doodoo from './doodoo.js';
 
@@ -21,28 +26,28 @@
 		});
 
 		function play() {
-			// const midi = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
-			// const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
-			const tonic = 'C#6';
-			const part1 = [
-				['C#6', '2n'], ['D#6', '2n'], [null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
-				['C#6', '2n'], ['D#6', '2n'], ['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
-				['E6', '2n'], ['F#6', '2n'], ['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
-				['C#7', '8n'], [null, '8n'], ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
-			];
-
-			// can't add multiple times like 2n + 8n
-			// have to manually enter shortest note duration
 			
-
-			const doodoo = new Doodoo(tonic, [part1], '8n');
+			const doodoo = new Doodoo({
+				tonic: 'C#4',
+				parts: [
+					'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
+					'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
+				],
+				startDuration: '8n',
+				samples: '../dist/doodoo/samples/choir/'
+			});
 			doodoo.setBPM(112);
 
 			// debugging
 			document.addEventListener('keydown', ev => {
-				if (ev.key == 'a') doodoo.play();
-				if (ev.key == 's') doodoo.stop();
-				if (ev.key == 'd') doodoo.mutie();
+				if (ev.key === 'a') doodoo.play();
+				if (ev.key === 's') doodoo.stop();
+				if (ev.key === 'd') doodoo.mutate();
+				if (ev.key === 'p') doodoo.printLoops(); // debug
+			});
+
+			document.getElementById('stop').addEventListener('click', ev => {
+				doodoo.stop();
 			});
 		}
 	</script>

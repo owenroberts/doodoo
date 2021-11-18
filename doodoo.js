@@ -7,7 +7,7 @@ Number.prototype.clamp = function(min, max) {
 };
 
 export default function Doodoo(params, callback) {
-	// params -- _tonic, _parts, _startDuration, _scale
+	// params -- tonic, parts,_startDuration, scale, samples
 
 	let debug = false;
 	let noteNames = [];
@@ -47,6 +47,11 @@ export default function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
+	// start tone using async func to wait for tone
+	(async () => {
+		await Tone.start();
+		load(start);
+	})();
 
 	function start() {
 		if (callback) callback();
@@ -74,7 +79,6 @@ export default function Doodoo(params, callback) {
 	function playTheme() {
 		loops = [];
 		parts[currentPart].getLoops().forEach(params => {
-			// if (debug) console.log(params);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -104,7 +108,6 @@ export default function Doodoo(params, callback) {
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
-
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 	}
 
@@ -126,10 +129,11 @@ export default function Doodoo(params, callback) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
 						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (!beat) {
-							console.log('beat', beat);
-							console.log(melody, loop, startDelay, startIndex);
+							// think i fixed this
+							console.log('beat', beat, startIndex);
+							console.log('loop', i, loop)
 							continue;
-						}
+						} 
 						if (beat[0] !== null) {
 							const [note, duration] = beat;
 							// time offset for doubles
@@ -214,7 +218,7 @@ export default function Doodoo(params, callback) {
 		console.time('load choir samples');
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: './doodoo/samples/choir/',
+			baseUrl: params.samples || './doodoo/samples/choir/',
 			onload: () => {
 				console.timeEnd('load choir samples');
 				callback();
@@ -222,10 +226,13 @@ export default function Doodoo(params, callback) {
 		});
 	}
 
-	this.setBPM = function(bpm) {
-		Tone.Transport.bpm.value = bpm; // starts 128
+	this.printLoops = function() {
+		console.log('loops', loops); // debug
 	}
 
+	this.setBPM = function(bpm) {
+		Tone.Transport.bpm.value = bpm; // starts 128
+	};
 
 	this.play = function() {
 		if (Tone.Transport.state === 'stopped') playTheme();
@@ -235,17 +242,34 @@ export default function Doodoo(params, callback) {
 		Tone.Transport.stop();
 	};
 
-	this.mutie = function() {
+	this.mutate = function() {
 		parts.forEach(part => {
 			part.update();
 		});
 	};
 
-	(async () => {
-		await Tone.start();
-		load(start);
-	})();
 }
+
+/*
+	
+	melodies can be written just as notes
+	parts: [
+		'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
+		'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
+	], // from garden
+
+	or including durations
+	const part1 = [
+		['C#6', '2n'], ['D#6', '2n'], [null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
+		['C#6', '2n'], ['D#6', '2n'], ['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
+		['E6', '2n'], ['F#6', '2n'], ['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
+		['C#7', '8n'], [null, '8n'], ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
+	]; // from
+
+	use midi notes or letter notes
+	// const melody = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
+	// const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
+*/
 
 // https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html
 // http://www.myriad-online.com/resources/docs/manual/english/gregorien.htm
