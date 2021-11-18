@@ -79,7 +79,6 @@ export default function Doodoo(params, callback) {
 	function playTheme() {
 		loops = [];
 		parts[currentPart].getLoops().forEach(params => {
-			// if (debug) console.log(params);
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
@@ -109,8 +108,6 @@ export default function Doodoo(params, callback) {
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
-		console.log(loops.map(l => l.melody.map(n => n[0])).join(', '));
-		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 	}
 
@@ -132,10 +129,11 @@ export default function Doodoo(params, callback) {
 					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
 						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
 						if (!beat) {
-							// console.log('beat', beat);
-							// console.log(melody, loop, startDelay, startIndex);
+							// think i fixed this
+							console.log('beat', beat, startIndex);
+							console.log('loop', i, loop)
 							continue;
-						}
+						} 
 						if (beat[0] !== null) {
 							const [note, duration] = beat;
 							// time offset for doubles
@@ -226,6 +224,10 @@ export default function Doodoo(params, callback) {
 				callback();
 			}
 		});
+	}
+
+	this.printLoops = function() {
+		console.log('loops', loops); // debug
 	}
 
 	this.setBPM = function(bpm) {

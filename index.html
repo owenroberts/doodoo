@@ -28,7 +28,7 @@
 		function play() {
 			
 			const doodoo = new Doodoo({
-				tonic: 'C#6',
+				tonic: 'C#4',
 				parts: [
 					'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
 					'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
@@ -40,9 +40,10 @@
 
 			// debugging
 			document.addEventListener('keydown', ev => {
-				if (ev.key == 'a') doodoo.play();
-				if (ev.key == 's') doodoo.stop();
-				if (ev.key == 'd') doodoo.mutate();
+				if (ev.key === 'a') doodoo.play();
+				if (ev.key === 's') doodoo.stop();
+				if (ev.key === 'd') doodoo.mutate();
+				if (ev.key === 'p') doodoo.printLoops(); // debug
 			});
 
 			document.getElementById('stop').addEventListener('click', ev => {
