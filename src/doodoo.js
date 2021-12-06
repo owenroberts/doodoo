@@ -1,17 +1,19 @@
-import { random, randInt, shuffle, chance, Range } from './lib/cool.js';
-import { MIDI, getMelody, getHarmony } from './lib/midi.js';
-import Mutation from './lib/Mutation.js';
+import * as Tone from 'tone';
+import { random, randInt, shuffle, chance, Range } from './cool.js';
+import { MIDI, getMelody, getHarmony } from './midi.js';
+import Mutation from './Mutation.js';
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
 };
 
-export default function Doodoo(params, callback) {
+function Doodoo(params, callback) {
 	// params -- tonic, parts,_startDuration, scale, samples
 
 	let debug = false;
 	let noteNames = [];
 	let choirSamples;
+	const samples = params.samples;
 	let defaultDuration = params.startDuration || '4n';
 
 	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
@@ -47,10 +49,13 @@ export default function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
+
 	// start tone using async func to wait for tone
 	(async () => {
 		await Tone.start();
-		load(start);
+		console.log(samples);
+		if (samples) load(start);
+		else start();
 	})();
 
 	function start() {
@@ -84,7 +89,7 @@ export default function Doodoo(params, callback) {
 				melody: params.harmony === 0 ? 
 					getMelody(params.melody, tonic) :
 					getHarmony(params.melody, tonic, params.harmony, scale),
-				sampler: getSampler(),
+				sampler: samples ? getSampler() : getSynth(),
 				attack: attackStart.random,
 				ended: false,
 			};
@@ -153,6 +158,11 @@ export default function Doodoo(params, callback) {
 			attack += attackStep.random;
 			attack.clamp(0.1, 1);
 		}
+	}
+
+	function getSynth() {
+		const fmSynth = new Tone.FMSynth().toDestination();
+		return fmSynth;
 	}
 
 	function getSampler() {
@@ -247,8 +257,11 @@ export default function Doodoo(params, callback) {
 			part.update();
 		});
 	};
-
 }
+
+export default { 
+	Doodoo: Doodoo
+};
 
 /*
 	

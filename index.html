@@ -16,9 +16,11 @@
 	<button id="stop">stop doodoo</button>
 
 	<!--  ** remember to add tone/ and samples/  ** -->
-	<script src="../dist/doodoo/tone/Tone.js"></script>
-	<script type='module'>
-		import Doodoo from './doodoo.js';
+	<!-- <script src="../dist/doodoo/tone/Tone.js"></script> -->
+	<script src="./build/doodoo.min.js"></script>
+	<script type="module">
+
+		const { Doodoo } = doodooLib; // import lib
 
 		document.getElementById('play').addEventListener('click', play);
 		document.addEventListener('keydown', ev => {
