@@ -2,13 +2,6 @@
   "name": "doodoo",
   "version": "0.0.1",
   "description": "infinite background music",
-  "main": "doodoo.js",
-  "directories": {
-    "lib": "lib"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/owenroberts/doodoo.git"
