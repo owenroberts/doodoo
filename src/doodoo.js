@@ -53,7 +53,6 @@ function Doodoo(params, callback) {
 	// start tone using async func to wait for tone
 	(async () => {
 		await Tone.start();
-		console.log(samples);
 		if (samples) load(start);
 		else start();
 	})();

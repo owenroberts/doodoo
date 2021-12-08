@@ -1,12 +1,11 @@
 const { src, dest, watch, series, parallel, task } = require('gulp');
 
 const webpack = require('webpack-stream');
-const sourcemaps = require('gulp-sourcemaps');
 const browserSync = require('browser-sync').create();
-const notify = require('gulp-notify');
+const gulpif = require('gulp-if');
 
 function browserSyncTask() {
-	browserSync.init({
+	return browserSync.init({
 		port: 8080,
 		server: {
 			baseDir: './',
@@ -14,14 +13,12 @@ function browserSyncTask() {
 	});
 }
 
-function reload(done) {
-	browserSync.reload();
-	done();
+function reload() {
+	return browserSync.reload();
 }
 
-function doodooTask(done) {
-	src('./src/doodoo.js')
-		.pipe(sourcemaps.init())
+function jsTask(done, sourcePath, buildPath, useBrowserSync) {
+	return src(sourcePath)
 		.pipe(webpack({
 			devtool: 'source-map',
 			mode: 'production',
@@ -43,12 +40,17 @@ function doodooTask(done) {
 				]
 			}
 		}))
-		.on('error', function handleError() {
-			this.emit('end'); // Recover from errors
-		})
-		.pipe(dest('./build'))
-		.pipe(browserSync.stream());
-	done();
+		.pipe(dest(buildPath))
+		.pipe(gulpif(useBrowserSync, browserSync.stream()));
+}
+
+
+function doodooTask() {
+	return jsTask(null, './src/doodoo.js', './build', true);
+}
+
+function exportTask() {
+	return jsTask(null, './doodoo/src/doodoo.js', './doodoo/build', false);
 }
 
 function watchTask(){
@@ -59,3 +61,8 @@ task('doodoo', doodooTask);
 task('default', doodooTask);
 task('watchJS', watchTask);
 task('watch', parallel(browserSyncTask, watchTask));
+
+module.exports = {
+	exportTask: exportTask,
+	files: [ './doodoo/src/**/*.js' ]
+};

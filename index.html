@@ -16,10 +16,8 @@
 	<button id="play">play doodoo</button>
 	<button id="stop">stop doodoo</button>
 
-	<!--  ** remember to add tone/ and samples/  ** -->
-	<!-- <script src="../dist/doodoo/tone/Tone.js"></script> -->
 	<script src="./build/doodoo.min.js"></script>
-	<script type="module">
+	<script>
 
 		const { Doodoo } = doodooLib; // import lib
 
@@ -37,7 +35,7 @@
 					'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
 				],
 				startDuration: '8n',
-				// samples: '../dist/doodoo/samples/choir/'
+				// samples: '../dist/doodoo/samples/choir/' // -- add samples for sampler
 			});
 			doodoo.setBPM(112);
 
