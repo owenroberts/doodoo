@@ -31,7 +31,7 @@ function constrainNoteRange(midiNoteNum) {
 }
 
 function getMelody(melody, startNote) {
-	return melody.map(beat => {
+	const m = melody.map(beat => {
 		const [note, duration] = beat;
 		if (note === null) {
 			return beat;
@@ -42,6 +42,7 @@ function getMelody(melody, startNote) {
 			return [MIDI[constrainNoteRange(midiNoteNum)], duration];
 		}
 	});
+	return m;
 }
 
 function getHarmony(melody, startNote, interval, scale) {

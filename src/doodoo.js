@@ -11,6 +11,7 @@ function Doodoo(params, callback) {
 	// params -- tonic, parts,_startDuration, scale, samples
 
 	let debug = false;
+	this.isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
 	const samples = params.samples;
@@ -78,6 +79,7 @@ function Doodoo(params, callback) {
 				octaves: 1.5,
 			}).toDestination(); 
 		}
+		this.isPlaying = true;
 	}
 
 	function playTheme() {
@@ -235,9 +237,23 @@ function Doodoo(params, callback) {
 		});
 	}
 
+	this.moveTonic = function(dir) {
+		let n = MIDI.indexOf(tonic) + dir;
+		tonic = MIDI[n];
+	};
+
+	this.setTonic = function(note) {
+		tonic = note;
+	};
+
 	this.printLoops = function() {
 		console.log('loops', loops); // debug
-	}
+	};
+
+	this.moveBPM = function(n) {
+		let b = Tone.Transport.bpm.value;
+		Tone.Transport.bpm.value = b + n;
+	};
 
 	this.setBPM = function(bpm) {
 		Tone.Transport.bpm.value = bpm; // starts 128
@@ -245,10 +261,12 @@ function Doodoo(params, callback) {
 
 	this.play = function() {
 		if (Tone.Transport.state === 'stopped') playTheme();
+		this.isPlaying = true;
 	};
 
 	this.stop = function() {
 		Tone.Transport.stop();
+		this.isPlaying = false;
 	};
 
 	this.mutate = function() {
