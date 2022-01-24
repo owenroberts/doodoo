@@ -1,5 +1,5 @@
-import * as Tone from 'tone';
-import { random, randInt, shuffle, chance, Range } from './cool.js';
+// import * as Tone from 'tone';
+import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI, getMelody, getHarmony } from './midi.js';
 import Mutation from './Mutation.js';
 
@@ -35,13 +35,15 @@ function Doodoo(params, callback) {
 		return new Mutation(melody, false);
 	});
 
+	// console.log(tonic, parts);
+
 	let currentPart = 0;
 	let totalPlays = 0;
 
 	// global so it doesn't jump all over the place
 	// actually resets with each loop anyway ... 
-	const attackStart = new Range(0.25, 0.7);
-	const attackStep = new Range(-0.2, 0.2);
+	const attackStart = new ValueRange(0.25, 0.7);
+	const attackStep = new ValueRange(-0.2, 0.2);
 	// this is really velocity
 
 	let toneLoop;
@@ -50,10 +52,12 @@ function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
+	console.log('tonic', tonic);
 
 	// start tone using async func to wait for tone
 	(async () => {
 		await Tone.start();
+		console.log('async', this);
 		if (samples) load(start);
 		else start();
 	})();
@@ -79,6 +83,7 @@ function Doodoo(params, callback) {
 				octaves: 1.5,
 			}).toDestination(); 
 		}
+		console.log(this);
 		this.isPlaying = true;
 	}
 

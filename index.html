@@ -16,6 +16,7 @@
 	<button id="play">play doodoo</button>
 	<button id="stop">stop doodoo</button>
 
+	<script src="./build/lib/tone/build/Tone.js"></script>
 	<script src="./build/doodoo.min.js"></script>
 	<script>
 
@@ -29,12 +30,13 @@
 		function play() {
 			
 			const doodoo = new Doodoo({
-				tonic: 'C#4',
-				parts: [
-					'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
-					'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
-				],
-				startDuration: '8n',
+				tonic: '54',
+				// parts: [
+				// 	'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
+				// 	'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
+				// ],
+				parts: ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'],
+				startDuration: '4n',
 				// samples: '../dist/doodoo/samples/choir/' // -- add samples for sampler
 			});
 			doodoo.setBPM(112);

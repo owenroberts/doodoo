@@ -1,17 +1,18 @@
-import { random, randInt, shuffle, chance, Range, ValuesList } from './cool.js';
+import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
 
 export default function Mutation(melody, debug) {
+
 	let mutations = 0;
 
-	const loopNums = new Range(1);
-	const harmonies = new ValuesList([4, 5], shuffle([2, 3, 6, 7]));
-	const startIndexes = new Range(0);
-	const indexStep = new Range(0);
+	const loopNums = new ValueRange(1);
+	const harmonies = new ValueList([4, 5], shuffle([2, 3, 6, 7]));
+	const startIndexes = new ValueRange(0);
+	const indexStep = new ValueRange(0);
 
 	// duration of loop, whole note, half note etc.
-	const durations = new ValuesList([2, 4], [1, 8, 16, 32]); 
+	const durations = new ValueList([2, 4], [1, 8, 16, 32]); 
 
-	const startDelays = new ValuesList(
+	const startDelays = new ValueList(
 		[0, 1, 2, 4, 0.5, 8],
 		[12, 16, 3, 5, 7, 11]
 	);

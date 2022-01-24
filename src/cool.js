@@ -34,7 +34,7 @@ function chance(n) {
 	return random(1) < n;
 }
 
-class Range {
+class ValueRange {
 	constructor(min, max) {
 		this.min = min;
 		this.max = typeof max === 'undefined' ? min : max;
@@ -63,7 +63,7 @@ class Range {
 }
 
 
-class ValuesList {
+class ValueList {
 	constructor(startValues, addValues) {
 		this.values = startValues;
 		this.addValues = addValues || [];
@@ -84,4 +84,4 @@ class ValuesList {
 	}
 }
 
-export { random, randInt, shuffle, chance, Range, ValuesList };
+export { random, randInt, shuffle, chance, ValueRange, ValueList };
