@@ -35,8 +35,6 @@ function Doodoo(params, callback) {
 		return new Mutation(melody, false);
 	});
 
-	// console.log(tonic, parts);
-
 	let currentPart = 0;
 	let totalPlays = 0;
 
@@ -52,12 +50,9 @@ function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
-	console.log('tonic', tonic);
-
 	// start tone using async func to wait for tone
 	(async () => {
 		await Tone.start();
-		console.log('async', this);
 		if (samples) load(start);
 		else start();
 	})();

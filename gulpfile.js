@@ -33,8 +33,8 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 				hints: false,
 			},
 			externals: {
-					tone: 'tone',
-				},
+				tone: 'tone',
+			},
 			module: {
 				rules: [
 					{
