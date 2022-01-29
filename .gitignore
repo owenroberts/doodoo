@@ -1,9 +1,11 @@
 .DS_Store
 node_modules/
 samples/
-tone/
 dudu2.js
 notes.txt
 mulabs/
 **/*.map
 SEEDS/
+build/lib/tone/build/esm/
+build/lib/tone/docs/
+build/lib/tone/Tone/
