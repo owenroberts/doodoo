@@ -1,5 +1,5 @@
 const debug = false;
-const MIDI = [
+const MIDI_NOTES = [
 	"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
 	"C0", "C#0", "D0", "D#0", "E0", "F0", "F#0", "G0", "G#0", "A0", "A#0", "B0",
 	"C1", "C#1", "D1", "D#1", "E1", "F1", "F#1", "G1", "G#1", "A1", "A#1", "B1",
@@ -38,8 +38,8 @@ function getMelody(melody, startNote) {
 		} else {
 			// interval based on start of melody (not key or tonic ...)
 			// should i just add tonal or theoria or whatever?
-			let midiNoteNum = MIDI.indexOf(startNote) + (MIDI.indexOf(note) - MIDI.indexOf(melody[0][0]));
-			return [MIDI[constrainNoteRange(midiNoteNum)], duration];
+			let midiNoteNum = MIDI_NOTES.indexOf(startNote) + (MIDI_NOTES.indexOf(note) - MIDI_NOTES.indexOf(melody[0][0]));
+			return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
 		}
 	});
 	return m;
@@ -51,17 +51,17 @@ function getHarmony(melody, startNote, interval, scale) {
 		if (note === null) {
 			return beat;
 		} else {
-			const int = MIDI.indexOf(note) - MIDI.indexOf(melody[0][0]);
+			const int = MIDI_NOTES.indexOf(note) - MIDI_NOTES.indexOf(melody[0][0]);
 			// find where in the scale this note goes
 			let offset = Math.floor(Math.abs(int) / 12) * 12 * (int < 0 ? -1 : 1);
 			let idx = int < 0 ?
 				scale.indexOf(12 - (Math.abs(int) % 12)) : // interval below tonic
 				scale.indexOf(int % 12); // interval above tonic
 			let harm = scale[(idx + interval - 1) % scale.length];
-			let midiNoteNum = MIDI.indexOf(startNote) + harm + offset;
-			return [MIDI[constrainNoteRange(midiNoteNum)], duration];
+			let midiNoteNum = MIDI_NOTES.indexOf(startNote) + harm + offset;
+			return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
 		}
 	});
 }
 
-export { MIDI, getMelody, getHarmony };
+export { MIDI_NOTES, getMelody, getHarmony };

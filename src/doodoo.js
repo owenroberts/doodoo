@@ -1,6 +1,6 @@
 // import * as Tone from 'tone';
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
-import { MIDI, getMelody, getHarmony } from './midi.js';
+import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Mutation from './Mutation.js';
 
 Number.prototype.clamp = function(min, max) {
@@ -8,10 +8,10 @@ Number.prototype.clamp = function(min, max) {
 };
 
 function Doodoo(params, callback) {
-	// params -- tonic, parts,_startDuration, scale, samples
+	// params -- tonic, parts,_startDuration, scale, samples, bpm
 
 	let debug = false;
-	this.isPlaying = false;
+	let isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
 	const samples = params.samples;
@@ -21,7 +21,7 @@ function Doodoo(params, callback) {
 	
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
-		MIDI[params.tonic];
+		MIDI_NOTES[params.tonic];
 
 	const _parts = typeof params.parts[0] === 'string' ?
 		[params.parts] :
@@ -30,7 +30,7 @@ function Doodoo(params, callback) {
 	const parts = _parts.map(part => {
 		let melody;
 		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
-		if (typeof part[0] == 'number') melody = part.map(note => [MIDI[note], defaultDuration]);
+		if (typeof part[0] == 'number') melody = part.map(note => [MIDI_NOTES[note], defaultDuration]);
 		if (typeof part[0] == 'object') melody = part;
 		return new Mutation(melody, false);
 	});
@@ -51,7 +51,7 @@ function Doodoo(params, callback) {
 	let metro;
 
 	// start tone using async func to wait for tone
-	(async () => {
+	(async function() {
 		await Tone.start();
 		if (samples) load(start);
 		else start();
@@ -61,11 +61,12 @@ function Doodoo(params, callback) {
 		if (callback) callback();
 		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
+		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(0);
 		playTheme();
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
-				volume: -48,
+				volume: -12,
 				frequency: 250,
 				envelope: {
 					attack: 0.01,
@@ -78,8 +79,7 @@ function Doodoo(params, callback) {
 				octaves: 1.5,
 			}).toDestination(); 
 		}
-		console.log(this);
-		this.isPlaying = true;
+		isPlaying = true;
 	}
 
 	function playTheme() {
@@ -118,7 +118,7 @@ function Doodoo(params, callback) {
 	}
 
 	function loop(time) {
-		if (useMetro) metro.triggerAttackRelease('c4', '32n', time, 0.3);
+		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.3);
 		let attack = attackStart.random;
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
@@ -238,8 +238,9 @@ function Doodoo(params, callback) {
 	}
 
 	this.moveTonic = function(dir) {
-		let n = MIDI.indexOf(tonic) + dir;
-		tonic = MIDI[n];
+		let n = MIDI_NOTES.indexOf(tonic) + dir;
+		tonic = MIDI_NOTES[n];
+		tonic = MIDI_NOTES[n];
 	};
 
 	this.setTonic = function(note) {
@@ -259,14 +260,18 @@ function Doodoo(params, callback) {
 		Tone.Transport.bpm.value = bpm; // starts 128
 	};
 
+	this.getIsPlaying = function() {
+		return isPlaying;
+	};
+
 	this.play = function() {
 		if (Tone.Transport.state === 'stopped') playTheme();
-		this.isPlaying = true;
+		isPlaying = true;
 	};
 
 	this.stop = function() {
 		Tone.Transport.stop();
-		this.isPlaying = false;
+		isPlaying = false;
 	};
 
 	this.mutate = function() {
