@@ -1,6 +1,5 @@
 .DS_Store
 node_modules/
-samples/
 dudu2.js
 notes.txt
 mulabs/
