@@ -29,12 +29,12 @@
 	</style>
 </head>
 <body>
-	<h1>Doo Doo Doo</h1>
+	<h1>Doo Doo</h1>
 	<div id='doodoos'>
 		<p>Some examples of theme music from my games.</p>
 	</div>
 	<div id="composition">
-		<h2>Compose with Doo Doo Doo</h2>
+		<h2>Compose with Doo Doo</h2>
 		<p>
 			<label for="tonic">Tonic (MIDI)</label><input name='tonic' id='tonic' type="text" placeholder="C4">
 			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="text" placeholder="120">
@@ -143,7 +143,6 @@
 			]]			
 		};
 
-
 		const comps = [infiniteHell, garden, infiniteHell2, zoo];
 		const doodooDiv = document.getElementById('doodoos');
 		let doodoo;
@@ -185,7 +184,6 @@
 			synthOption.value = 'synth';
 
 			synthSelect.addEventListener('change', ev => {
-				console.log(synthSelect, synthSelect.value);
 				samples = synthSelect.value;
 			});
 
@@ -211,9 +209,7 @@
 					doodoo = new Doodoo({ ...comp, samples: samples });
 					doodoo.title = comp.title;
 				} else if (doodoo.title !== comp.title) {
-					console.log(doodoo.title, comp.title);
 					doodoo.stop();
-					console.log(Tone);
 					Tone.Transport.cancel();
 					doodoo = new Doodoo({ ...comp, samples: samples });
 					doodoo.title = comp.title;
@@ -241,15 +237,38 @@
 		const durationInput = document.getElementById('duration-input');
 		const addNoteBtn = document.getElementById('add-note');
 		const melodyComp = document.getElementById('comp-melody');
+		const notes = document.getElementsByClassName('note');
+		
+		
+		playCompBtn.addEventListener('click', () => {
+			composition.parts = [Array.from(notes).map(n => {
+				return [n.dataset.note, n.dataset.duration];
+			})];
+			if (doodoo) {
+				doodoo.stop();
+				Tone.Transport.cancel();
+			}
+			doodoo = new Doodoo(composition);
+			doodoo.play();
+		});
+
+		stopCompBtn.addEventListener('click', () => {
+			doodoo.stop();
+		});
+
+		mutateCompBtn.addEventListener('click', () => {
+			doodoo.mutate();
+		})
 
 		addNoteBtn.addEventListener('click', addNote);
-
 		function addNote() {
 			let note = melodyInput.value;
 			let duration = durationInput.value;
 
 			let span = document.createElement('span');
 			span.classList.add('note');
+			span.dataset.note = note;
+			span.dataset.duration = duration;
 			melodyComp.appendChild(span);
 			
 			let noteEdit = document.createElement('input');
