@@ -5,7 +5,7 @@ dudu2.js
 notes.txt
 mulabs/
 **/*.map
-SEEDS/
+doc/
 build/lib/tone/build/esm/
 build/lib/tone/docs/
 build/lib/tone/Tone/

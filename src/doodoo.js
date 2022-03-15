@@ -14,7 +14,7 @@ function Doodoo(params, callback) {
 	let isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
-	const samples = params.samples;
+	let samples = params.samples || 'synth';
 	let defaultDuration = params.startDuration || '4n';
 
 	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
@@ -53,7 +53,7 @@ function Doodoo(params, callback) {
 	// start tone using async func to wait for tone
 	(async function() {
 		await Tone.start();
-		if (samples) load(start);
+		if (samples !== 'synth') load(start);
 		else start();
 	})();
 
@@ -90,7 +90,7 @@ function Doodoo(params, callback) {
 				melody: params.harmony === 0 ? 
 					getMelody(params.melody, tonic) :
 					getHarmony(params.melody, tonic, params.harmony, scale),
-				sampler: samples ? getSampler() : getSynth(),
+				sampler: samples !== 'synth' ? getSampler() : getSynth(),
 				attack: attackStart.random,
 				ended: false,
 			};
