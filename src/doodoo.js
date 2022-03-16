@@ -110,7 +110,8 @@ function Doodoo(params, callback) {
 			loop.melody = n;
 		});
 
-		parts[currentPart].update();
+		let mutationCount = parts[currentPart].update();
+		if (params.onMutate) params.onMutate(mutationCount);
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;

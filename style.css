@@ -1,0 +1,31 @@
+body { 
+	/*text-align: center; */
+	background: radial-gradient(plum, lightblue);
+	font-family: verdana;
+	color: slateblue;
+	font-size:  18px;
+}
+
+button, input, select {
+	font-size:  18px;
+}
+
+button + button, button + select, span + button {
+	margin-left: 1em;
+}
+
+input {
+	width: 40px;
+}
+
+input[type='number'] {
+	width: 50px;
+}
+
+input.scale-input {
+	width: 36px;
+}
+
+.note {
+	margin-right: 0.5em;
+}

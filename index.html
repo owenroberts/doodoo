@@ -4,48 +4,27 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" href="./favicon.ico" >
+	<link href="style.css" type="text/css" rel="stylesheet">
 	<title>Doo Doo Doo</title>
-	<style>
-		body { 
-			/*text-align: center; */
-			background: radial-gradient(plum, lightblue);
-			font-family: verdana;
-			color: slateblue;
-			font-size:  18px;
-		}
-
-		button, input, select {
-			font-size:  18px;
-		}
-
-		button + button, button + select, span + button {
-			margin-left: 1em;
-		}
-
-		input {
-			width: 40px;
-		}
-		
-	</style>
 </head>
 <body>
 	<h1>Doo Doo</h1>
 	<div id='doodoos'>
-		<p>Some examples of theme music from my games.</p>
+		<p>Some examples of theme music from web games.</p>
 	</div>
 	<div id="composition">
 		<h2>Compose with Doo Doo</h2>
 		<p>
 			<label for="tonic">Tonic (MIDI)</label><input name='tonic' id='tonic' type="text" placeholder="C4">
-			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="text" placeholder="120">
-			<select>
+			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="number" placeholder="120" value="120">
+			<select id="synth-select">
 				<option value="./samples/choir/">Choir</option>
 				<option value="synth" selected>FMSynth</option>
 			</select>
 		</p>
 		<p>
-			<label for="bpm">(Default) Note Duration</label>
-			<select name="note-duratoin" id="note-duration">
+			<label for="note-duration">(Default) Note Duration</label>
+			<select name="note-duration" id="note-duration">
 				<option value="1n">Whole 1n</option>
 				<option value="2n">Half 2n</option>
 				<option value="4n" selected>Quarter 4n</option>
@@ -54,26 +33,27 @@
 		</p>
 		<p>
 			<label for="">Scale (intervals)</label>
-			<input class='scale-input' type="text" placeholder="0" value="0">
-			<input class='scale-input' type="text" placeholder="2" value="2">
-			<input class='scale-input' type="text" placeholder="4" value="4">
-			<input class='scale-input' type="text" placeholder="5" value="5">
-			<input class='scale-input' type="text" placeholder="7" value="7">
-			<input class='scale-input' type="text" placeholder="9" value="9">
-			<input class='scale-input' type="text" placeholder="11" value="11">
+			<input class='scale-input' type="number" placeholder="0" value="0">
+			<input class='scale-input' type="number" placeholder="2" value="2">
+			<input class='scale-input' type="number" placeholder="4" value="4">
+			<input class='scale-input' type="number" placeholder="5" value="5">
+			<input class='scale-input' type="number" placeholder="7" value="7">
+			<input class='scale-input' type="number" placeholder="9" value="9">
+			<input class='scale-input' type="number" placeholder="11" value="11">
 		</p>
 		<p>
-			<label>Melody (use midi notes, eg C4, <a href="https://github.com/Tonejs/Tone.js/wiki/Time" target="_blank">tone.js durations</a> eg, 2n = half note, null for rest)</label>
-			<input id='melody-input' type="text" placeholder="Note (MIDI)">
-			<input id='duration-input' type="text" placeholder="Duration">
+			<label>Melody (use MIDI notes, eg C4/C#4, <a href="https://github.com/Tonejs/Tone.js/wiki/Time" target="_blank">tone.js durations</a> eg, 2n = half note, null for rest)</label>
+			<input id='melody-input' type="text" placeholder="C4">
+			<input id='duration-input' type="text" placeholder="4n">
 			<button id='add-note'>+</button>
+			<button id='clear-comp'>Clear</button>
 		</p>
 		<p id="comp-melody"></p>
 		<p>
 			<button id='play-comp'>Play</button>
 			<button id='stop-comp'>Stop</button>
 			<button id='mutate-comp'>Mutate</button>
-			<!-- <span id='mutation-count'>Mutation: 0</span> -->
+			<span id='mutation-count'>Mutation: 0</span>
 		</p>
 	</div>
 	<!-- <button id="play">play doodoo</button> -->
@@ -81,214 +61,7 @@
 
 	<script src="./build/lib/tone/build/Tone.js"></script>
 	<script src="./build/doodoo.min.js"></script>
-	<script>
-
-		const { Doodoo } = doodooLib; // import lib
-
-		// examples
-		const infiniteHell = {
-			title: 'Infinite Hell',
-			tonic: 54,
-			parts: ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'],
-			startDuration: '4n',
-			samples: './samples/choir/', // -- add samples for sampler
-			bpm: 112
-		};
-
-		const garden = {
-			title: 'Garden',
-			tonic: 'C#4',
-			parts: [
-				'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
-				'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
-			],
-			samples: './samples/choir/',
-		};
-
-		const infiniteHell2 = {
-			title: 'Infinite Hell 2',
-			tonic: 'F#4',
-			scale: [-4, -2, 0, 1, 3, 5, 7],
-			startDuration: '8n',
-			samples: './samples/choir/',
-			bpm: 120,
-			parts: [[
-				['F#5', '2n'], [null, '4n'], [null, '8n'], ['C#5', '8n'],
-				['D5', '8n'], ['E5', '8n'], ['F#5', '8n'], ['D5', '8n'], 
-				['E5', '8n'], ['F#5', '8n'], ['A5', '8n'], ['E5', '8n'], 
-				['F#5', '8n'], ['G5', '8n'], ['B5', '8n'], [null, '8n'], 
-				['B5', '4n'], ['F#5', '4n'], ['D5', '4n'], ['B4', '4n'], 
-				['D4', '2n'], [null, '4n'], ['F#5', '4n'], ['D5', '4n'], 
-				['G4', '8n'], ['A4', '8n'], ['B4', '4n'], ['D5', '8n'], 
-				['D5', '8n'], ['F#4', '8n'], ['D4', '8n'], ['D4', '8n'], 
-				['D5', '8n'], ['F#4', '8n'], ['D4', '2n'],
-			]]
-		};
-
-		const zoo = {
-			title: 'Zoo',
-			tonic: 'C#4', 
-			startDuration: '8n',
-			bpm: 138,
-			samples: './samples/choir/',
-			parts: [[
-				['C#6', '2n'], ['D#6', '2n'], 
-				[null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
-				['C#6', '2n'], ['D#6', '2n'], 
-				['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
-				['E6', '2n'], ['F#6', '2n'], 
-				['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
-				['C#7', '4n'], [null, '8n'],  ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], 
-				['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
-			]]			
-		};
-
-		const comps = [infiniteHell, garden, infiniteHell2, zoo];
-		const doodooDiv = document.getElementById('doodoos');
-		let doodoo;
-
-		// debugging
-		document.addEventListener('keydown', ev => {
-			if (ev.key === 'a') doodoo.play();
-			if (ev.key === 's') doodoo.stop();
-			if (ev.key === 'd') doodoo.mutate();
-			if (ev.key === 'p') doodoo.printLoops(); // debug
-		});
-
-		comps.forEach(comp => {
-			
-			const div = document.createElement('p');
-			div.classList.add('comp');
-			doodooDiv.appendChild(div);
-
-			const title = document.createElement('span');
-			title.textContent = comp.title;
-			div.appendChild(title);
-
-			const playBtn = document.createElement('button');
-			const stopBtn = document.createElement('button');
-			const mutateBtn = document.createElement('button');
-
-			let samples = './samples/choir/';
-			const synthSelect = document.createElement('select');
-			const choirOption = document.createElement('option');
-			const synthOption = document.createElement('option');
-
-			synthSelect.appendChild(choirOption);
-			synthSelect.appendChild(synthOption);
-
-			choirOption.textContent = 'Choir';
-			choirOption.value = './samples/choir/';
-
-			synthOption.textContent = 'FMSynth';
-			synthOption.value = 'synth';
-
-			synthSelect.addEventListener('change', ev => {
-				samples = synthSelect.value;
-			});
-
-			playBtn.textContent = 'Play';
-			stopBtn.textContent = 'Stop';
-			mutateBtn.textContent = 'Mutate';
-
-			div.appendChild(playBtn);
-			div.appendChild(stopBtn);
-			div.appendChild(mutateBtn);
-			div.appendChild(synthSelect);
-
-			playBtn.addEventListener('click', play);
-			stopBtn.addEventListener('click', ev => {
-				doodoo.stop();
-			});
-			mutateBtn.addEventListener('click', () => {
-				doodoo.mutate();
-			});
-
-			function play() {
-				if (!doodoo) {
-					doodoo = new Doodoo({ ...comp, samples: samples });
-					doodoo.title = comp.title;
-				} else if (doodoo.title !== comp.title) {
-					doodoo.stop();
-					Tone.Transport.cancel();
-					doodoo = new Doodoo({ ...comp, samples: samples });
-					doodoo.title = comp.title;
-				} else {
-					doodoo.play()
-				}
-			}
-		});
-
-		// comp controls
-		const composition = {
-			tonic: 'C4',
-			scale: [0, 2, 4, 5, 7, 9, 11],
-			startDuration:  '4n',
-			bpm: 120,
-			samples: 'synth',
-			parts: []
-		};
-
-		const playCompBtn = document.getElementById('play-comp');
-		const stopCompBtn = document.getElementById('stop-comp');
-		const mutateCompBtn = document.getElementById('mutate-comp');
-		// const mutateCount = document.getElementById('mutate-count');
-		const melodyInput = document.getElementById('melody-input');
-		const durationInput = document.getElementById('duration-input');
-		const addNoteBtn = document.getElementById('add-note');
-		const melodyComp = document.getElementById('comp-melody');
-		const notes = document.getElementsByClassName('note');
-		
-		
-		playCompBtn.addEventListener('click', () => {
-			composition.parts = [Array.from(notes).map(n => {
-				return [n.dataset.note, n.dataset.duration];
-			})];
-			if (doodoo) {
-				doodoo.stop();
-				Tone.Transport.cancel();
-			}
-			doodoo = new Doodoo(composition);
-			doodoo.play();
-		});
-
-		stopCompBtn.addEventListener('click', () => {
-			doodoo.stop();
-		});
-
-		mutateCompBtn.addEventListener('click', () => {
-			doodoo.mutate();
-		})
-
-		addNoteBtn.addEventListener('click', addNote);
-		function addNote() {
-			let note = melodyInput.value;
-			let duration = durationInput.value;
-
-			let span = document.createElement('span');
-			span.classList.add('note');
-			span.dataset.note = note;
-			span.dataset.duration = duration;
-			melodyComp.appendChild(span);
-			
-			let noteEdit = document.createElement('input');
-			noteEdit.value = note;
-			let durationEdit = document.createElement('input');
-			durationEdit.value = duration;
-			let remove = document.createElement('button');
-			remove.textContent = 'X';
-
-			span.appendChild(noteEdit);
-			span.appendChild(durationEdit);
-			span.appendChild(remove);
-		}
-
-
-
-
-
-		
-	</script>
+	<script src='./index.js'></script>
 </body>
 </html>
 
