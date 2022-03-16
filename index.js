@@ -68,7 +68,7 @@ document.addEventListener('keydown', ev => {
 	if (ev.key === 'a') doodoo.play();
 	if (ev.key === 's') doodoo.stop();
 	if (ev.key === 'd') doodoo.mutate();
-	if (ev.key === 'p') doodoo.printLoops(); // debug
+	if (ev.key === 'f') doodoo.printLoops(); // debug
 });
 
 comps.forEach(comp => {
@@ -135,7 +135,6 @@ comps.forEach(comp => {
 	}
 });
 
-
 const playCompBtn = document.getElementById('play-comp');
 const stopCompBtn = document.getElementById('stop-comp');
 const mutateCompBtn = document.getElementById('mutate-comp');
@@ -162,42 +161,54 @@ const synthSelect = document.getElementById('synth-select');
 const noteDurationSelect = document.getElementById('note-duration');
 const scaleInputs = document.getElementsByClassName('scale-input');
 
+function midiFormat(note) {
+	if (note.length === 1 || note.length > 3) return false;
+	let letter = note[0].toUpperCase();
+	let number = note[note.length - 1];
+	let sharp = note.includes('#') ? '#' : '';
+
+	if (isNaN(+number) || !'ABCDEFG'.includes(letter)) {
+		return false;
+	}
+
+	return letter + sharp + number;
+}
+
 playCompBtn.addEventListener('click', () => {
 	if (Array.from(notes).length === 0) return alert('add some notes to the melody');
 	
 	let badFormatting = false;
-
 	composition.parts = [Array.from(notes).map(n => {
-		let note = n.dataset.note;
-		let letter, sharp, number, noteFormatted;
-		if (note.length === 2) {
-			[letter, number] = note;
-			if (isNaN(+number) || !'ABCDEFG'.includes(letter.toUpperCase())) {
-				badFormatting = true;
-			}
-			noteFormatted = [letter.toUpperCase(), number].join('')
-		} else if (note.length === 3) {
-			[letter, sharp, number] = note;
-			if (isNaN(+number) || !'ABCDEFG'.includes(letter.toUpperCase())) {
-				badFormatting = true;
-			}
-			noteFormatted = [letter.toUpperCase(), sharp, number].join('')
-		} else if (note === 'null') {
-			noteFormatted = 'null';
+		let { note, duration } = n.dataset;
+		let noteFormatted;
+
+		if (['null', 'rest'].includes(note)) {
+			noteFormatted = null;
 		} else {
-			badFormatting = true;
+			noteFormatted = midiFormat(note);
+			if (!noteFormatted) badFormatting = true;
 		}
-		
-		return [noteFormatted, n.dataset.duration];
+
+		if (duration.length > 3) badFormatting = true;
+		if (isNaN(+duration[0])) badFormatting = true;
+		if (duration.length === 1) duration += 'n';
+
+		return [noteFormatted, duration];
 	})];
 
-	if (badFormatting) return alert('use notes in MIDI format like C4 or C#4');
+	if (badFormatting) return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
 
 	composition.scale = Array.from(scaleInputs).map(n => n.value);
-	composition.tonic = tonicInput.value || tonicInput.placeholder;
-	composition.bpm = bpmInput.value || 120;
+	
+	composition.tonic = midiFormat(tonicInput.value || tonicInput.placeholder) || tonicInput.placeholder;
+	tonicInput.value = composition.tonic;
+	composition.bpm = (bpmInput.value > 60 && bpmInput.value < 200) ? bpmInput.value || 120 : 120;
+	bpmInput.value = composition.bpm;
+
 	composition.samples = synthSelect.value;
 	composition.startDuration = noteDurationSelect.value;
+
+	console.log(composition);
 
 	if (doodoo) {
 		doodoo.stop();

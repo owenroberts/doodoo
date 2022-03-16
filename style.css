@@ -10,7 +10,7 @@ button, input, select {
 	font-size:  18px;
 }
 
-button + button, button + select, span + button {
+button + button, button + select, span + button, button + span {
 	margin-left: 1em;
 }
 

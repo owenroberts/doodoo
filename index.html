@@ -16,7 +16,7 @@
 		<h2>Compose with Doo Doo</h2>
 		<p>
 			<label for="tonic">Tonic (MIDI)</label><input name='tonic' id='tonic' type="text" placeholder="C4">
-			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="number" placeholder="120" value="120">
+			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="number" placeholder="120" value="120" min="60" max="200">
 			<select id="synth-select">
 				<option value="./samples/choir/">Choir</option>
 				<option value="synth" selected>FMSynth</option>
@@ -33,16 +33,18 @@
 		</p>
 		<p>
 			<label for="">Scale (intervals)</label>
-			<input class='scale-input' type="number" placeholder="0" value="0">
-			<input class='scale-input' type="number" placeholder="2" value="2">
-			<input class='scale-input' type="number" placeholder="4" value="4">
-			<input class='scale-input' type="number" placeholder="5" value="5">
-			<input class='scale-input' type="number" placeholder="7" value="7">
-			<input class='scale-input' type="number" placeholder="9" value="9">
-			<input class='scale-input' type="number" placeholder="11" value="11">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="0" value="0">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="2" value="2">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="4" value="4">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="5" value="5">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="7" value="7">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="9" value="9">
+			<input class='scale-input' type="number" min="-11" max="11" placeholder="11" value="11">
 		</p>
 		<p>
 			<label>Melody (use MIDI notes, eg C4/C#4, <a href="https://github.com/Tonejs/Tone.js/wiki/Time" target="_blank">tone.js durations</a> eg, 2n = half note, null for rest)</label>
+		</p>
+		<p>
 			<input id='melody-input' type="text" placeholder="C4">
 			<input id='duration-input' type="text" placeholder="4n">
 			<button id='add-note'>+</button>
