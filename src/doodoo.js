@@ -179,7 +179,7 @@ function Doodoo(params, callback) {
 
 		const sampler = new Tone.Sampler({
 			urls: samples,
-			volume: -6,
+			volume: typeof params.volume !== 'undefined' ? params.volume : -6,
 			release: 1,
 		}).toDestination();
 
