@@ -62,7 +62,7 @@ function exportTask() {
 }
 
 function watchTask(){
-	watch('src/**/*.js', series('doodoo'));
+	watch(['index.js', 'src/**/*.js'], series('doodoo'));
 }
 
 task('doodoo', doodooTask);
