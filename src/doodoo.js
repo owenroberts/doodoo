@@ -17,11 +17,11 @@ function Doodoo(params, callback) {
 	let samples = params.samples || 'synth';
 	let defaultDuration = params.startDuration || '4n';
 	let withRecording = params.withRecording;
-	let recorder;
+	let recorder, recordingMutationCount;
 
 	if (withRecording) {
 		recorder = new Tone.Recorder();
-		console.log(recorder);
+		recordingMutationCount = +prompt('Record number of mutations?', 10);
 	}
 
 	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
@@ -127,11 +127,19 @@ function Doodoo(params, callback) {
 		});
 
 		let mutationCount = parts[currentPart].update();
+
 		if (params.onMutate) params.onMutate(mutationCount);
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
+
+		console.log(mutationCount, recordingMutationCount);
+		if (mutationCount > recordingMutationCount) {
+			Tone.Transport.stop();
+			isPlaying = false;
+			saveRecording();
+		}
 	}
 
 	function loop(time) {
@@ -257,6 +265,7 @@ function Doodoo(params, callback) {
 	}
 
 	async function saveRecording() {
+		console.log(this);
 		const recording = await recorder.stop();
 		const url = URL.createObjectURL(recording);
 		const anchor = document.createElement("a");
