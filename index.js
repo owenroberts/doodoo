@@ -82,6 +82,7 @@ comps.forEach(comp => {
 	div.appendChild(title);
 
 	const playBtn = document.createElement('button');
+	const recordBtn = document.createElement('button');
 	const stopBtn = document.createElement('button');
 	const mutateBtn = document.createElement('button');
 
@@ -104,15 +105,18 @@ comps.forEach(comp => {
 	});
 
 	playBtn.textContent = 'Play';
+	recordBtn.textContent = 'Record';
 	stopBtn.textContent = 'Stop';
 	mutateBtn.textContent = 'Mutate';
 
 	div.appendChild(playBtn);
+	div.appendChild(recordBtn);
 	div.appendChild(stopBtn);
 	div.appendChild(mutateBtn);
 	div.appendChild(synthSelect);
 
-	playBtn.addEventListener('click', play);
+	playBtn.addEventListener('click', () => { play(false); })
+	recordBtn.addEventListener('click', () => { play(true); })
 	stopBtn.addEventListener('click', ev => {
 		doodoo.stop();
 	});
@@ -120,9 +124,9 @@ comps.forEach(comp => {
 		doodoo.mutate();
 	});
 
-	function play() {
+	function play(withRecording) {
 		if (!doodoo) {
-			doodoo = new Doodoo({ ...comp, samples: samples });
+			doodoo = new Doodoo({ ...comp, samples: samples, withRecording: withRecording });
 			doodoo.title = comp.title;
 		} else if (doodoo.title !== comp.title) {
 			doodoo.stop();
@@ -136,6 +140,7 @@ comps.forEach(comp => {
 });
 
 const playCompBtn = document.getElementById('play-comp');
+const recordCompBtn = document.getElementById('record-comp');
 const stopCompBtn = document.getElementById('stop-comp');
 const mutateCompBtn = document.getElementById('mutate-comp');
 const mutateCount = document.getElementById('mutation-count');
@@ -152,7 +157,6 @@ const composition = {
 		mutateCount.textContent = 'Mutation: ' + mutationCount
 	}
 };
-
 
 const notes = document.getElementsByClassName('note');
 const tonicInput = document.getElementById('tonic');
@@ -174,7 +178,11 @@ function midiFormat(note) {
 	return letter + sharp + number;
 }
 
-playCompBtn.addEventListener('click', () => {
+playCompBtn.addEventListener('click', () => { playComp(false); });
+recordCompBtn.addEventListener('click', () => { playComp(true); });
+
+
+function playComp(withRecording) {
 	if (Array.from(notes).length === 0) return alert('add some notes to the melody');
 	
 	let badFormatting = false;
@@ -214,9 +222,9 @@ playCompBtn.addEventListener('click', () => {
 		doodoo.stop();
 		Tone.Transport.cancel();
 	}
-	doodoo = new Doodoo(composition);
+	doodoo = new Doodoo({ ...composition, withRecording: withRecording });
 	// doodoo.play();
-});
+}
 
 noteDurationSelect.addEventListener('change', ev => {
 	composition.startDuration = noteDurationSelect.value;

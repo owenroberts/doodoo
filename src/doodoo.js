@@ -16,6 +16,13 @@ function Doodoo(params, callback) {
 	let choirSamples;
 	let samples = params.samples || 'synth';
 	let defaultDuration = params.startDuration || '4n';
+	let withRecording = params.withRecording;
+	let recorder;
+
+	if (withRecording) {
+		recorder = new Tone.Recorder();
+		console.log(recorder);
+	}
 
 	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
@@ -80,6 +87,8 @@ function Doodoo(params, callback) {
 			}).toDestination(); 
 		}
 		isPlaying = true;
+
+		if (withRecording) recorder.start();
 	}
 
 	function playTheme() {
@@ -164,6 +173,7 @@ function Doodoo(params, callback) {
 
 	function getSynth() {
 		const fmSynth = new Tone.FMSynth().toDestination();
+		if (withRecording) fmSynth.connect(recorder);
 		return fmSynth;
 	}
 
@@ -211,6 +221,7 @@ function Doodoo(params, callback) {
 			if (effect) sampler.connect(effect);
 		}
 		
+		if (withRecording) sampler.connect(recorder);
 		return sampler;
 	}
 
@@ -236,6 +247,16 @@ function Doodoo(params, callback) {
 				callback();
 			}
 		});
+	}
+
+	async function saveRecording() {
+		const recording = await recorder.stop();
+		const url = URL.createObjectURL(recording);
+		const anchor = document.createElement("a");
+		const audioName = prompt('Name clip', "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
+		anchor.download = audioName + ".webm";
+		anchor.href = url;
+		anchor.click();
 	}
 
 	this.moveTonic = function(dir) {
@@ -268,11 +289,13 @@ function Doodoo(params, callback) {
 	this.play = function() {
 		if (Tone.Transport.state === 'stopped') playTheme();
 		isPlaying = true;
+		if (withRecording) recorder.start();
 	};
 
 	this.stop = function() {
 		Tone.Transport.stop();
 		isPlaying = false;
+		if (withRecording) saveRecording();
 	};
 
 	this.mutate = function() {
