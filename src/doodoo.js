@@ -134,7 +134,6 @@ function Doodoo(params, callback) {
 		totalPlays++;
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 
-		console.log(mutationCount, recordingMutationCount);
 		if (mutationCount > recordingMutationCount) {
 			Tone.Transport.stop();
 			isPlaying = false;
@@ -204,7 +203,7 @@ function Doodoo(params, callback) {
 
 		const sampler = new Tone.Sampler({
 			urls: samples,
-			volume: typeof params.volume !== 'undefined' ? params.volume : -6,
+			volume: -6,
 			release: 1,
 		}).toDestination();
 
@@ -265,7 +264,6 @@ function Doodoo(params, callback) {
 	}
 
 	async function saveRecording() {
-		console.log(this);
 		const recording = await recorder.stop();
 		const url = URL.createObjectURL(recording);
 		const anchor = document.createElement("a");
