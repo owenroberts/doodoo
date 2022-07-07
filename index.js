@@ -1,77 +1,34 @@
-const { Doodoo } = doodooLib; // import lib
-
-// examples
-const infiniteHell = {
-	title: 'Infinite Hell',
-	tonic: 54,
-	parts: ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'],
-	startDuration: '4n',
-	samples: './samples/choir/', // -- add samples for sampler
-	bpm: 112
-};
-
-const garden = {
-	title: 'Garden',
-	tonic: 'C#4',
-	parts: [
-		'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
-		'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
-	],
-	samples: './samples/choir/',
-};
-
-const infiniteHell2 = {
-	title: 'Infinite Hell 2',
-	tonic: 'F#4',
-	scale: [-4, -2, 0, 1, 3, 5, 7],
-	startDuration: '8n',
-	samples: './samples/choir/',
-	bpm: 120,
-	parts: [[
-		['F#5', '2n'], [null, '4n'], [null, '8n'], ['C#5', '8n'],
-		['D5', '8n'], ['E5', '8n'], ['F#5', '8n'], ['D5', '8n'], 
-		['E5', '8n'], ['F#5', '8n'], ['A5', '8n'], ['E5', '8n'], 
-		['F#5', '8n'], ['G5', '8n'], ['B5', '8n'], [null, '8n'], 
-		['B5', '4n'], ['F#5', '4n'], ['D5', '4n'], ['B4', '4n'], 
-		['D4', '2n'], [null, '4n'], ['F#5', '4n'], ['D5', '4n'], 
-		['G4', '8n'], ['A4', '8n'], ['B4', '4n'], ['D5', '8n'], 
-		['D5', '8n'], ['F#4', '8n'], ['D4', '8n'], ['D4', '8n'], 
-		['D5', '8n'], ['F#4', '8n'], ['D4', '2n'],
-	]]
-};
-
-const zoo = {
-	title: 'Zoo',
-	tonic: 'C#4', 
-	startDuration: '8n',
-	bpm: 138,
-	samples: './samples/choir/',
-	parts: [[
-		['C#6', '2n'], ['D#6', '2n'], 
-		[null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
-		['C#6', '2n'], ['D#6', '2n'], 
-		['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
-		['E6', '2n'], ['F#6', '2n'], 
-		['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
-		['C#7', '4n'], [null, '8n'],  ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], 
-		['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
-	]]			
-};
-
-const comps = [infiniteHell, garden, infiniteHell2, zoo];
+const { Doodoo, MIDI_NOTES } = doodooLib; // import lib
 const doodooDiv = document.getElementById('doodoos');
-let doodoo;
+let doodoo; // there's only ever one doodoo
 
-// debugging
+// debugging controls
 document.addEventListener('keydown', ev => {
 	if (ev.target.tagName == "INPUT") return;
 	if (ev.key === 'a') doodoo.play();
 	if (ev.key === 's') doodoo.stop();
 	if (ev.key === 'd') doodoo.mutate();
 	if (ev.key === 'f') doodoo.printLoops(); // debug
+	if (ev.key === 'r') doodoo.record();
+	if (ev.key === 'c') console.log(composition);
 });
 
-comps.forEach(comp => {
+// examples
+const compUrls = ['infinite_hell.json', 'garden.json', 'infinite_hell_2.json', 'zoo.json'];
+const comps = [];
+function loadCompositions() {
+	compUrls.forEach(url => {
+		const comp = fetch(`./compositions/${url}`)
+			.then(res => res.json())
+			.then(json => {
+				createCompUI(json);
+			});
+	});
+}
+loadCompositions();
+
+function createCompUI(comp) {
+
 	
 	const div = document.createElement('p');
 	div.classList.add('comp');
@@ -137,16 +94,12 @@ comps.forEach(comp => {
 			doodoo.play()
 		}
 	}
-});
-
-const playCompBtn = document.getElementById('play-comp');
-const recordCompBtn = document.getElementById('record-comp');
-const stopCompBtn = document.getElementById('stop-comp');
-const mutateCompBtn = document.getElementById('mutate-comp');
-const mutateCount = document.getElementById('mutation-count');
+}
 
 // comp controls
+
 const composition = {
+	title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
 	tonic: 'C4',
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	startDuration:  '4n',
@@ -158,12 +111,92 @@ const composition = {
 	}
 };
 
+const playCompBtn = document.getElementById('play-comp');
+const recordCompBtn = document.getElementById('record-comp');
+const stopCompBtn = document.getElementById('stop-comp');
+const saveCompBtn = document.getElementById('save-comp');
+const loadCompInput = document.getElementById('load-file');
+const loadCompBtn = document.getElementById('load-comp');
+const mutateCompBtn = document.getElementById('mutate-comp');
+const mutateCount = document.getElementById('mutation-count');
+
 const notes = document.getElementsByClassName('note');
 const tonicInput = document.getElementById('tonic');
 const bpmInput = document.getElementById('bpm');
 const synthSelect = document.getElementById('synth-select');
 const noteDurationSelect = document.getElementById('note-duration');
 const scaleInputs = document.getElementsByClassName('scale-input');
+const melodyInput = document.getElementById('melody-input');
+const durationInput = document.getElementById('duration-input');
+const addNoteBtn = document.getElementById('add-note');
+const melodyComp = document.getElementById('comp-melody');
+const clearCompBtn = document.getElementById('clear-comp');
+
+loadCompBtn.addEventListener('click', loadComp);
+saveCompBtn.addEventListener('click', saveCompFile);
+
+function loadComp() {
+	for (let i = 0, f; f = loadCompInput.files[i]; i++) {
+		if (!f.type.match('application/json')) continue;
+		const reader = new FileReader();
+		reader.onload = (function(file) {
+			return function(e) {
+				const data = JSON.parse(e.target.result);
+				loadCompData(data);
+			}
+		})(f);
+		reader.readAsText(f);
+	}
+}
+
+function loadCompData(data) {
+	for (const k in data) {
+		composition[k] = data[k];
+	}
+
+	if (data.tonic) {
+		tonicInput.value = typeof data.tonic === 'string' ? data.tonic :
+			getMIDINote(data.tonic);
+	}
+	if (data.startDuration) noteDurationSelect.value = data.startDuration;
+	if (data.scale) data.scale.forEach((index, interval) => {
+		scaleInputs[index] = interval;
+	});
+	if (data.title) composition.title = data.title;
+
+	melodyComp.innerHTML = '';
+
+	if (typeof data.parts[0] === 'object') {
+		if (data.parts.length === 1) {
+			// one part, most cases
+			composition.parts = data.parts[0];
+		}
+	}
+
+	composition.parts.forEach(part => {
+		if (typeof part === 'string') {
+			addNote(part, composition.startDuration);
+		} else {
+			addNote(...part);
+		}
+	});
+}
+
+if (localStorage.getItem('comp')) {
+	loadCompData(JSON.parse(localStorage.getItem('comp')));
+}
+
+function saveComp() {
+	updateComp();
+	localStorage.setItem('comp', JSON.stringify(composition));
+}
+
+function saveCompFile() {
+	saveComp();
+	const json = localStorage.getItem('comp');
+	const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
+	saveAs(blob, prompt("Name composition", composition.title) + '.json');
+}
 
 function midiFormat(note) {
 	if (note.length === 1 || note.length > 3) return false;
@@ -178,13 +211,14 @@ function midiFormat(note) {
 	return letter + sharp + number;
 }
 
+function getMIDINote(noteIndex) {
+	return MIDI_NOTES[noteIndex];
+}
+
 playCompBtn.addEventListener('click', () => { playComp(false); });
 recordCompBtn.addEventListener('click', () => { playComp(true); });
 
-
-function playComp(withRecording) {
-	if (Array.from(notes).length === 0) return alert('add some notes to the melody');
-	
+function updateComp() {
 	let badFormatting = false;
 	composition.parts = [Array.from(notes).map(n => {
 		let { note, duration } = n.dataset;
@@ -215,20 +249,26 @@ function playComp(withRecording) {
 
 	composition.samples = synthSelect.value;
 	composition.startDuration = noteDurationSelect.value;
+}
 
-	console.log(composition);
+function playComp(withRecording) {
+	if (Array.from(notes).length === 0) return alert('add some notes to the melody');
+	
+	updateComp();
 
 	if (doodoo) {
 		doodoo.stop();
 		Tone.Transport.cancel();
 	}
 	doodoo = new Doodoo({ ...composition, withRecording: withRecording });
+	saveComp();
 	// doodoo.play();
 }
 
 noteDurationSelect.addEventListener('change', ev => {
 	composition.startDuration = noteDurationSelect.value;
 	durationInput.placeholder = noteDurationSelect.value;
+	saveComp();
 });
 
 stopCompBtn.addEventListener('click', () => {
@@ -239,20 +279,14 @@ mutateCompBtn.addEventListener('click', () => {
 	doodoo.mutate();
 });
 
-const melodyInput = document.getElementById('melody-input');
-const durationInput = document.getElementById('duration-input');
-const addNoteBtn = document.getElementById('add-note');
-const melodyComp = document.getElementById('comp-melody');
-const clearCompBtn = document.getElementById('clear-comp');
-
 clearCompBtn.addEventListener('click', ev => {
 	melodyComp.innerHTML = '';
 });
 
-addNoteBtn.addEventListener('click', addNote);
-function addNote() {
-	let note = melodyInput.value || melodyInput.placeholder;
-	let duration = durationInput.value || composition.startDuration;
+addNoteBtn.addEventListener('click', () => { addNote(); });
+function addNote(_note, _duration) {
+	let note = _note || melodyInput.value || melodyInput.placeholder;
+	let duration = _duration || durationInput.value || composition.startDuration;
 
 	let span = document.createElement('span');
 	span.classList.add('note');
@@ -281,4 +315,5 @@ function addNote() {
 	span.appendChild(noteEdit);
 	span.appendChild(durationEdit);
 	span.appendChild(remove);
+	saveComp();
 }

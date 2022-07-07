@@ -30,6 +30,13 @@ function Doodoo(params, callback) {
 		params.tonic :
 		MIDI_NOTES[params.tonic];
 
+	/*
+		parts data struture is currently convoluted
+		all compositions have one part so far -- but idea of multiple parts is cool
+		some parts are just notes with no durations ['C4', 'C4', 'A4'] etc
+		some parts are array of arrays [['C4', '4n'], ['A4', '4n']], these go inside another array which is the "part"
+	*/
+
 	const _parts = typeof params.parts[0] === 'string' ?
 		[params.parts] :
 		params.parts;
@@ -306,7 +313,8 @@ function Doodoo(params, callback) {
 }
 
 export default { 
-	Doodoo: Doodoo
+	Doodoo: Doodoo,
+	MIDI_NOTES: MIDI_NOTES
 };
 
 /*

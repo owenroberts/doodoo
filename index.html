@@ -28,7 +28,7 @@
 				<option value="1n">Whole 1n</option>
 				<option value="2n">Half 2n</option>
 				<option value="4n" selected>Quarter 4n</option>
-				<option value="8n">Eigth 8n</option>
+				<option value="8n">Eighth 8n</option>
 			</select>
 		</p>
 		<p>
@@ -58,11 +58,18 @@
 			<button id='mutate-comp'>Mutate</button>
 			<span id='mutation-count'>Mutation: 0</span>
 		</p>
+		<p>
+			<button id="save-comp">Save Composition</button>
+			<input type="file" id="load-file">
+			<button id='load-comp'>Load Composition File</button>
+		</p>
 	</div>
+
 	<!-- <button id="play">play doodoo</button> -->
 	<!-- <button id="stop">stop doodoo</button> -->
 
 	<script src="./build/lib/tone/build/Tone.js"></script>
+	<script src="./build/lib/file-saver/dist/FileSaver.min.js"></script>
 	<script src="./build/doodoo.min.js"></script>
 	<script src='./index.js'></script>
 </body>
