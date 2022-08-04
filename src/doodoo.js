@@ -1,7 +1,7 @@
 // import * as Tone from 'tone';
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
-import Mutation from './Mutation.js';
+import Part from './Part.js';
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -10,7 +10,7 @@ Number.prototype.clamp = function(min, max) {
 function Doodoo(params, callback) {
 	// params -- tonic, parts,_startDuration, scale, samples, bpm
 
-	let debug = false;
+	let debug = params.debug;
 	let isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
@@ -36,19 +36,20 @@ function Doodoo(params, callback) {
 		some parts are just notes with no durations ['C4', 'C4', 'A4'] etc
 		some parts are array of arrays [['C4', '4n'], ['A4', '4n']], these go inside another array which is the "part"
 
-		for now only [] and [[]], figure out [[[]]] later
+		for now use just [] and [[]] figure out [[[]]] later
 	*/
-	const _parts = typeof params.parts[0] === 'string' ?
-		[params.parts] :
-		params.parts;
 
-	const parts = _parts.map(part => {
-		let melody;
-		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
-		if (typeof part[0] == 'number') melody = part.map(note => [MIDI_NOTES[note], defaultDuration]);
-		if (typeof part[0] == 'object') melody = part;
-		return new Part(melody, false);
-	});
+	let parts = [];
+	if (params.parts[0] === 'string') {
+		const melody = params.parts.map(n => [n, defaultDuration]);
+		parts.push(new Part(melody, debug));
+	} else if (typeof params.parts[0] === 'number') {
+		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
+		parts.push(new Part(melody, debug));
+	} else if (Array.isArray(params.parts[0])) {
+		const melody = params.parts;
+		parts.push(new Part(melody, debug));
+	}	
 
 	console.log(parts);
 
@@ -67,13 +68,14 @@ function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
+	// start tone using async func to wait for tone
 	async function loadTone() {
 		await Tone.start();
 		if (samples !== 'synth') load(start);
 		else start();
-	}
+	};
 
-	loadTone();
+	if (params.autoLoad) loadTone();
 
 	function start() {
 		if (callback) callback();
@@ -280,6 +282,7 @@ function Doodoo(params, callback) {
 	this.moveTonic = function(dir) {
 		let n = MIDI_NOTES.indexOf(tonic) + dir;
 		tonic = MIDI_NOTES[n];
+		tonic = MIDI_NOTES[n];
 	};
 
 	this.setTonic = function(note) {
@@ -305,7 +308,6 @@ function Doodoo(params, callback) {
 
 	this.play = function() {
 		if (!params.autoLoad) return loadTone();
-		console.log('load tone');
 		if (Tone.Transport.state === 'stopped') playTheme();
 		isPlaying = true;
 		if (withRecording) recorder.start();
