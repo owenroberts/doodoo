@@ -79,7 +79,6 @@ export default function Mutation(melody, debug) {
 
 		mutations++;
 		if (debug) console.log(`${mutations} mutations`);
-		if (true) console.log(`${mutations} mutations`);
 	}
 
 	this.getTestLoops = function() {

@@ -13,60 +13,8 @@
 		<p>Some examples of theme music from web games.</p>
 	</div>
 	<div id="composition">
-		<h2>Compose with Doo Doo</h2>
-		<p>
-			<label for="tonic">Tonic (MIDI)</label><input name='tonic' id='tonic' type="text" placeholder="C4">
-			<label for="bpm">BPM </label><input name='bpm' id='bpm' type="number" placeholder="120" value="120" min="60" max="200">
-			<select id="synth-select">
-				<option value="./samples/choir/">Choir</option>
-				<option value="synth" selected>FMSynth</option>
-			</select>
-		</p>
-		<p>
-			<label for="note-duration">(Default) Note Duration</label>
-			<select name="note-duration" id="note-duration">
-				<option value="1n">Whole 1n</option>
-				<option value="2n">Half 2n</option>
-				<option value="4n" selected>Quarter 4n</option>
-				<option value="8n">Eighth 8n</option>
-			</select>
-		</p>
-		<p>
-			<label for="">Scale (intervals)</label>
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="0" value="0">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="2" value="2">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="4" value="4">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="5" value="5">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="7" value="7">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="9" value="9">
-			<input class='scale-input' type="number" min="-11" max="11" placeholder="11" value="11">
-		</p>
-		<p>
-			<label>Melody (use MIDI notes, eg C4/C#4, <a href="https://github.com/Tonejs/Tone.js/wiki/Time" target="_blank">tone.js durations</a> eg, 2n = half note, null for rest)</label>
-		</p>
-		<p>
-			<input id='melody-input' type="text" placeholder="C4">
-			<input id='duration-input' type="text" placeholder="4n">
-			<button id='add-note'>+</button>
-			<button id='clear-comp'>Clear</button>
-		</p>
-		<p id="comp-melody"></p>
-		<p>
-			<button id='play-comp'>Play</button>
-			<button id='record-comp'>Record</button>
-			<button id='stop-comp'>Stop</button>
-			<button id='mutate-comp'>Mutate</button>
-			<span id='mutation-count'>Mutation: 0</span>
-		</p>
-		<p>
-			<button id="save-comp">Save Composition</button>
-			<input type="file" id="load-file">
-			<button id='load-comp'>Load Composition File</button>
-		</p>
+		<p><a href="comp">Composer</a></p>
 	</div>
-
-	<!-- <button id="play">play doodoo</button> -->
-	<!-- <button id="stop">stop doodoo</button> -->
 
 	<script src="./build/lib/tone/build/Tone.js"></script>
 	<script src="./build/lib/file-saver/dist/FileSaver.min.js"></script>

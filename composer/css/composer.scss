@@ -1,0 +1,15 @@
+@import '../../ui/css/style.scss';
+
+#melody,
+#melodyInput {
+	font-size: 1.5em;
+	
+	input[type="text"] {
+		font-size: 1.4em;
+		width: 2em;
+	}
+
+	.note-collection {
+		display: flex;
+	}
+}

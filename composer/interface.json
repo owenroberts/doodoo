@@ -1,0 +1,226 @@
+{
+	"playback": {
+		"label": "Play Back",
+		"uis": [
+			{
+				"module": "composition",
+				"list": [
+					{
+						"type": "UIButton",
+						"callback": "play",
+						"key": "space",
+						"params": {
+							"text": "Play",
+							"args": [false]
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "stop",
+						"key": "ctrl-space",
+						"params": {
+							"text": "Stop"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "play",
+						"key": "r",
+						"params": {
+							"text": "Record",
+							"args": [true]
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "mutate",
+						"key": "d",
+						"params": {
+							"text": "Mutate"
+						}
+					},
+					{
+						"row": true,
+						"type": "UIElement",
+						"id": "mutation-count",
+						"face": "mutationCount",
+						"ignoreSettings": true,
+						"params": {
+							"text": "Mutation 0"
+						}
+					}
+				]
+			}
+		]
+	},
+	"composition": {
+		"label": "Composition",
+		"addPanel": true,
+		"uis": [
+			{
+				"module": "composition",
+				"list": [
+					{
+						"type": "UIText",
+						"label": "Title",
+						"string": "title",
+						"face": "title",
+						"params": {
+							"id": "title"
+						}
+					},
+					{
+						"type": "UIText",
+						"string": "tonic",
+						"face": "tonic",
+						"label": "Tonic",
+						"fromModule": {
+							"placeholder": "tonic"
+						}
+					},
+					{
+						"type": "UINumberStep",
+						"number": "bpm",
+						"face": "bpm",
+						"label": "BPM",
+						"fromModule": {
+							"value": "bpm"
+						},
+						"params": {
+							"min": 60,
+							"max": 250
+						}
+					},
+					{
+						"type": "UISelect",
+						"label": "Samples/Voice",
+						"string": "samples",
+						"face": "samples",
+						"params": {
+							"selected": "synth",
+							"options": [
+								{ "value": "./samples/choir", "text": "Choir" },
+								{ "value": "synth", "text": "FMSynth" }
+							]
+						}
+					},
+					{
+						"type": "UISelect",
+						"label": "(Default) Note Duration",
+						"string": "startDuration",
+						"face": "startDuration",
+						"params": {
+							"selected": "4n",
+							"options": [
+								{ "value": "1n", "text": "Whole 1n" },
+								{ "value": "2n", "text": "Half 2n" },
+								{ "value": "4n", "text": "Quarter 4n" },
+								{ "value": "8n", "text": "Eighth 8n" }
+							]
+						}
+					},
+					{
+						"type": "UIRow",
+						"class": "break"
+					},
+					{
+						"type": "UILabel",
+						"params": {
+							"text": "Scale (intervals)"
+						}
+					},
+					{
+						"type": "UIRow",
+						"k": "scaleRow",
+						"class": "break"
+					},
+					{
+						"type": "UIRow",
+						"k": "melodyInput",
+						"params": {
+							"class": "break"
+						}
+					},
+					{
+						"type": "UILabel",
+						"params": {
+							"text": "Melody"
+						}
+					},
+					{
+						"type": "UIButton",
+						"key": "0",
+						"callback": "clear",
+						"params": {
+							"text": "Clear"
+						}
+					},
+					{
+						"type": "UIText",
+						"k": "noteInput",
+						"params": {
+							"placeholder": "C4"
+						}
+					},
+					{
+						"type": "UIText",
+						"k": "durationInput",
+						"params": {
+							"placeholder": "4n"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "addNote",
+						"key": "+",
+						"params": {
+							"text": "+"
+						}
+					},
+					{
+						"type": "UIRow",
+						"k": "melody",
+						"params": {
+							"class": "break"
+						}
+					}
+				]
+			}
+		]
+	},
+	"fio": {
+		"label": "FilesIO",
+		"uis":[
+			{
+				"module": "fio",
+				"list": [
+					{
+						"type": "UIButton",
+						"callback": "saveFile",
+						"key": "s",
+						"params": {
+							"text": "Save File"
+						}
+					},
+					{
+						"type": "UIFile",
+						"callback": "load",
+						"key": "o",
+						"params": {
+							"text": "Load File",
+							"promptDefault": "compositions"
+						}
+					}
+					,
+					{
+						"type": "UIButton",
+						"callback": "clear",
+						"params": {
+							"text": "Clear Local"
+						}
+					}
+				]
+			}
+		]
+	}
+}

@@ -35,8 +35,9 @@ function Doodoo(params, callback) {
 		all compositions have one part so far -- but idea of multiple parts is cool
 		some parts are just notes with no durations ['C4', 'C4', 'A4'] etc
 		some parts are array of arrays [['C4', '4n'], ['A4', '4n']], these go inside another array which is the "part"
-	*/
 
+		for now only [] and [[]], figure out [[[]]] later
+	*/
 	const _parts = typeof params.parts[0] === 'string' ?
 		[params.parts] :
 		params.parts;
@@ -46,8 +47,10 @@ function Doodoo(params, callback) {
 		if (typeof part[0] == 'string') melody = part.map(note => [note, defaultDuration]);
 		if (typeof part[0] == 'number') melody = part.map(note => [MIDI_NOTES[note], defaultDuration]);
 		if (typeof part[0] == 'object') melody = part;
-		return new Mutation(melody, false);
+		return new Part(melody, false);
 	});
+
+	console.log(parts);
 
 	let currentPart = 0;
 	let totalPlays = 0;
@@ -64,12 +67,13 @@ function Doodoo(params, callback) {
 	const useMetro = false;
 	let metro;
 
-	// start tone using async func to wait for tone
-	(async function() {
+	async function loadTone() {
 		await Tone.start();
 		if (samples !== 'synth') load(start);
 		else start();
-	})();
+	}
+
+	loadTone();
 
 	function start() {
 		if (callback) callback();
@@ -276,7 +280,6 @@ function Doodoo(params, callback) {
 	this.moveTonic = function(dir) {
 		let n = MIDI_NOTES.indexOf(tonic) + dir;
 		tonic = MIDI_NOTES[n];
-		tonic = MIDI_NOTES[n];
 	};
 
 	this.setTonic = function(note) {
@@ -301,6 +304,8 @@ function Doodoo(params, callback) {
 	};
 
 	this.play = function() {
+		if (!params.autoLoad) return loadTone();
+		console.log('load tone');
 		if (Tone.Transport.state === 'stopped') playTheme();
 		isPlaying = true;
 		if (withRecording) recorder.start();

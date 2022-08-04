@@ -16,13 +16,20 @@
     "babelify": "^10.0.0",
     "browser-sync": "^2.27.7",
     "browserify": "^17.0.0",
+    "cssnano": "^5.1.12",
     "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-concat": "^2.6.1",
     "gulp-if": "^3.0.0",
     "gulp-notify": "^4.0.0",
     "gulp-npm-dist": "^1.0.3",
     "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^9.0.1",
+    "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
+    "gulp-terser": "^2.1.0",
     "gulp-util": "^3.0.8",
+    "sass": "^1.54.0",
     "webpack-stream": "^7.0.0"
   }
 }
