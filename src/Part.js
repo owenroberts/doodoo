@@ -1,6 +1,6 @@
 import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
 
-export default function Mutation(melody, debug) {
+export default function Part(melody, debug) {
 
 	let mutations = 0;
 

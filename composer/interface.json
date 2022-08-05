@@ -121,7 +121,9 @@
 					},
 					{
 						"type": "UIRow",
-						"class": "break"
+						"params": {
+							"class": "break"
+						}
 					},
 					{
 						"type": "UILabel",

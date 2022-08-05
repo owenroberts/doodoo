@@ -56,7 +56,13 @@ function Composition(app, defaults) {
 			Tone.Transport.cancel();
 		}
 		const comp = self.get();
-		doodoo = new Doodoo({ ...comp, withRecording: withRecording });
+		doodoo = new Doodoo({ 
+			...comp, 
+			withRecording: withRecording,
+			onMutate: count => {
+				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
+			}
+		});
 		doodoo.play();
 		app.fio.saveLocal(comp);
 	};
@@ -70,6 +76,7 @@ function Composition(app, defaults) {
 	};
 
 	this.update = function() {
+		self.parts = [];
 		let badFormatting = false;
 		const children = self.panel.melody.children;
 		const parts = Array.from(children).map(p => {
@@ -90,13 +97,12 @@ function Composition(app, defaults) {
 		});
 
 		if (badFormatting) return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
-		this.parts = parts;
-		// console.log(parts);
+		self.parts = parts;
 		const data = self.get();
-		// app.fio.saveLocal(data);
+		app.fio.saveLocal(data);
 	};
 
-	this.addNote = function(n, d) {
+	this.addNote = function(n, d, skipUpdate) {
 
 		let note = n || self.panel.melodyInput.noteInput.value;
 		let dur = d || self.panel.melodyInput.durationInput.value;
@@ -114,10 +120,8 @@ function Composition(app, defaults) {
 		part.append(durEdit, 'duration');
 		part.append(removeBtn);
 
-		// console.log(n, d, part);
-
 		self.panel.melody.append(part);
-		self.update();
+		if (!skipUpdate) self.update();
 	};
 
 	this.clear = function() {
@@ -132,15 +136,17 @@ function Composition(app, defaults) {
 			samples: this.samples,
 			title: this.title,
 			startDuration: this.startDuration,
+			scale: this.scale,
 		};
 	};
 
 	this.load = function(data) {
-
-		self.clear();
-
 		if (data.title) {
 			app.ui.faces.title.update(data.title);
+		}
+
+		if (data.bpm) {
+			app.ui.faces.bpm.update(data.bpm);
 		}
 		
 		if (data.tonic) {
@@ -161,13 +167,19 @@ function Composition(app, defaults) {
 		}
 
 		if (data.parts) {
+
+			self.clear();
+			self.parts = [];
+
 			data.parts.forEach(part => {
-				if (part === null) return self.addNote('rest', data.startDuration);
+				if (part === null) return self.addNote('rest', data.startDuration, true);
 				const note = typeof part === 'string' ? part : part[0];
 				const duration = typeof part === 'string' ? data.startDuration : part[1];
-				if (note === null) self.addNote('rest', duration);
-				else self.addNote(note, duration);
+				if (note === null) self.addNote('rest', duration, true);
+				else self.addNote(note, duration, true);
 			});
 		}
+
+		self.update();
 	};
 }

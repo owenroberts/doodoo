@@ -8,12 +8,11 @@ Number.prototype.clamp = function(min, max) {
 };
 
 function Doodoo(params, callback) {
-	// params -- tonic, parts,_startDuration, scale, samples, bpm
-
-	let debug = params.debug;
+	
 	let isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
+	let debug = params.debug;
 	let samples = params.samples || 'synth';
 	let defaultDuration = params.startDuration || '4n';
 	let withRecording = params.withRecording;
@@ -50,8 +49,6 @@ function Doodoo(params, callback) {
 		const melody = params.parts;
 		parts.push(new Part(melody, debug));
 	}	
-
-	console.log(parts);
 
 	let currentPart = 0;
 	let totalPlays = 0;
@@ -133,7 +130,6 @@ function Doodoo(params, callback) {
 		});
 
 		let mutationCount = parts[currentPart].update();
-
 		if (params.onMutate) params.onMutate(mutationCount);
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;

@@ -11,10 +11,7 @@ window.addEventListener("load", function() {
 		scale: [0, 2, 4, 5, 7, 9, 11],
 		startDuration:  '4n',
 		bpm: 120,
-		samples: "../samples/choir/",
-		onMutate: function(mutationCount) {
-			app.ui.faces.mutationCount.text = 'Mutation: ' + mutationCount;
-		}
+		samples: "../samples/choir/"
 	};
 	// app.doodoo = new Doodoo(defaults);
 	app.composition = new Composition(app, defaults);

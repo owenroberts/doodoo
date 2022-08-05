@@ -13,6 +13,7 @@ function FilesIO(app) {
 	};
 
 	this.clear = function() {
+		app.composition.clear();
 		localStorage.setItem('comp', '');
 	};
 
@@ -22,7 +23,4 @@ function FilesIO(app) {
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
 		saveAs(blob, prompt("Name composition", composition.title) + '.json');
 	}
-
-	
-
 }
