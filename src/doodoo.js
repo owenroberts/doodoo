@@ -2,7 +2,7 @@
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
-import { defaults } from './Defaults.js';
+import { doodooDefaults, doodooParams } from './Defaults.js';
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -58,13 +58,14 @@ function Doodoo(params, callback) {
 	let totalPlays = 0;
 
 	let doodooParams = params.params;
-	console.log('doodooParams', doodooParams);
+	let defaults = { ...doodooDefaults, ...doodooParams };
 
-	// global so it doesn't jump all over the place
-	// actually resets with each loop anyway ... 
-	const attackStart = new ValueRange(0.25, 0.7);
-	const attackStep = new ValueRange(-0.2, 0.2);
-	// this is really velocity
+	console.log(defaults);
+
+	// attack velocity -- only (?) global params
+	const attackStart = new ValueRange(...defaults.attackStart);
+	const attackStep = new ValueRange(...defaults.attackStep);
+
 
 	let toneLoop;
 	let loops = [];
@@ -192,6 +193,7 @@ function Doodoo(params, callback) {
 			playTheme();
 		} else {
 			attack += attackStep.random;
+			console.log(attack, typeof attack);
 			attack.clamp(0.1, 1);
 		}
 	}
@@ -334,7 +336,8 @@ function Doodoo(params, callback) {
 export default { 
 	Doodoo: Doodoo,
 	MIDI_NOTES: MIDI_NOTES,
-	defaults: defaults
+	doodooDefaults: doodooDefaults,
+	doodooParams: doodooParams
 };
 
 /*

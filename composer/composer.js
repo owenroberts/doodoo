@@ -1,4 +1,4 @@
-const { Doodoo, MIDI_NOTES, defaults } = doodooLib; // import lib
+const { Doodoo, MIDI_NOTES, doodooDefaults, doodooParams } = doodooLib; // import lib
 
 window.addEventListener("load", function() {
 
@@ -14,7 +14,7 @@ window.addEventListener("load", function() {
 		samples: "../samples/choir/"
 	};
 	// app.doodoo = new Doodoo(defaults);
-	app.params = new Params(app, defaults); // doodoo params control
+	app.params = new Params(app, doodooDefaults, doodooParams); // doodoo params control
 	app.composition = new Composition(app, compDefaults);
 
 	app.ui = new Interface(app, {
@@ -32,6 +32,7 @@ window.addEventListener("load", function() {
 		} else {
 			app.composition.load({});
 		}
+		app.params.init();
 
 	});
 

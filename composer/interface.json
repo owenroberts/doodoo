@@ -217,6 +217,7 @@
 	},
 	"params": {
 		"label": "Doodoo Parameters",
+		"addPanel": true,
 		"uis": [
 			{
 				"module": "params",
