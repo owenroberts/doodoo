@@ -9,6 +9,7 @@ function FilesIO(app) {
 	};
 
 	this.saveLocal = function(composition) {
+		if (!composition) composition = app.composition.get();
 		localStorage.setItem('comp', JSON.stringify(composition));
 	};
 
@@ -21,6 +22,6 @@ function FilesIO(app) {
 		app.composition.update(); // updates local storage
 		const json = localStorage.getItem('comp');
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
-		saveAs(blob, prompt("Name composition", composition.title) + '.json');
+		saveAs(blob, prompt("Name composition", app.composition.title) + '.json');
 	}
 }

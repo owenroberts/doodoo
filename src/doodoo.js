@@ -2,6 +2,7 @@
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
+import { defaults } from './Defaults.js';
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -48,10 +49,16 @@ function Doodoo(params, callback) {
 	} else if (Array.isArray(params.parts[0])) {
 		const melody = params.parts;
 		parts.push(new Part(melody, debug));
+
+		const durations = params.parts.map(p => parseInt(p[1]));
+		defaultDuration = Math.max(...durations) + 'n';
 	}	
 
 	let currentPart = 0;
 	let totalPlays = 0;
+
+	let doodooParams = params.params;
+	console.log('doodooParams', doodooParams);
 
 	// global so it doesn't jump all over the place
 	// actually resets with each loop anyway ... 
@@ -62,7 +69,7 @@ function Doodoo(params, callback) {
 	let toneLoop;
 	let loops = [];
 
-	const useMetro = false;
+	const useMetro = params.useMetro;
 	let metro;
 
 	// start tone using async func to wait for tone
@@ -81,6 +88,7 @@ function Doodoo(params, callback) {
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(0);
 		playTheme();
+		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
 				volume: -12,
@@ -96,8 +104,8 @@ function Doodoo(params, callback) {
 				octaves: 1.5,
 			}).toDestination(); 
 		}
-		isPlaying = true;
 
+		isPlaying = true;
 		if (withRecording) recorder.start();
 	}
 
@@ -116,6 +124,7 @@ function Doodoo(params, callback) {
 			loops.push(part);
 		});
 
+		/* play notes on default beat ...*/
 		loops.forEach(loop => {
 			let n = [];
 			loop.melody.forEach(beat => {
@@ -324,7 +333,8 @@ function Doodoo(params, callback) {
 
 export default { 
 	Doodoo: Doodoo,
-	MIDI_NOTES: MIDI_NOTES
+	MIDI_NOTES: MIDI_NOTES,
+	defaults: defaults
 };
 
 /*

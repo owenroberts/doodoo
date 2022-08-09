@@ -25,10 +25,6 @@ function browserSyncTask() {
 	});
 }
 
-function reload() {
-	return browserSync.reload();
-}
-
 function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 	return src(sourcePath)
 		.pipe(webpack({
@@ -54,11 +50,9 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 					}
 				],
 			}
-		}).on('error', error => {
-			console.log('webpack err', error.message);
-			console.log('this', this);
-			this.emit('end');
-		}))
+		}).on('error', function handleError() {
+      		this.emit('end'); // Recover from errors
+    	}))
 		.pipe(dest(buildPath))
 		.pipe(gulpif(useBrowserSync, browserSync.stream()));
 }

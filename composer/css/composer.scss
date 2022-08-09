@@ -1,16 +1,96 @@
 @import '../../ui/css/style.scss';
 
-#melody,
-#melodyInput {
-	font-size: 1.5em;
-	
-	input[type="text"] {
-		font-size: 1.4em;
-		width: 2em;
-	}
+#melody-panel {
+	--ui-scale: 12;
+}
+
+#melody * {
+	font-family: monaco, Consolas;
+	font-size: calc(var(--ui-scale) * 1px);
+}
+
+#melody {
+
+	--note-width: 80;
+	--notes-per-row: 4;
+	--column-width: 80;
+	--num-rows: 1; 
+	--row-height: 60;
+	--default-duration: 4;
+
+	display: grid;
+	grid-template-columns: repeat(
+		var(--notes-per-row), 
+		calc(var(--column-width) * 1px)
+	);
+	// grid-template-rows: repeat(var(--num-rows), calc(var(--row-height) * 1px));
+	// grid-template-rows: repeat(var(--num-rows), auto);
+
 
 	.note-collection {
-		display: flex;
+
+		// border: 1px dotted $text-color;
+		background: $border-color;
+
+		padding: 2px;
+		margin: 2px;
+		position: relative;
+
+		input[type=text] {
+			margin: 0;
+			padding: 0;
+			// min-width: 3em;
+			text-align: left;
+
+			&:focus-visible {
+				border: unset;
+				outline: unset;
+				background: $ui-highlight;
+				color: white;
+			}
+		}
+
+		.note-edit { 
+			&, &:focus-visible {
+				border-bottom: 1px solid $text-color;
+			}
+			input[type=text] { width: 2.5em; }
+			.btn { margin: 0; }
+		}
+
+		.duration-edit {
+			.btn { margin: 0; }
+		}
+
+		.remove-btn {
+			grid-column: 2 / span 1;
+			grid-row: 1 / span 1;
+			background: $bg-color;
+			// color: white;
+			margin: 0.25em;
+			right:  0;
+			bottom: 0;
+			position: absolute;
+			font-size: 0.75em;
+			&:hover {
+				background: $ui-select;
+			}
+		}
+
+		&.d1n { grid-column: span calc(var(--default-duration) / 1); }
+		&.d1ndot { grid-column: span calc(var(--default-duration) / 1 + var(--default-duration) / 2); }
+
+		&.d2n { grid-column: span calc(var(--default-duration) / 2); }
+		&.d2ndot { grid-column: span calc(var(--default-duration) / 2 + var(--default-duration) / 4); }
+		
+		&.d4n { grid-column: span calc(var(--default-duration) / 4); }
+		&.d4ndot { grid-column: span calc(var(--default-duration) / 4 + var(--default-duration) / 8); }
+		
+		&.d8n { grid-column: span calc(var(--default-duration) / 8); }
+		&.d8ndot { grid-column: span calc(var(--default-duration) / 8 + var(--default-duration) / 16); }
+		
+		// &.d16n { grid-column: span calc(var(--default-duration) / 16); }
+		// &.d32n { grid-column: span calc(var(--default-duration) / 32); }
 	}
 }
 

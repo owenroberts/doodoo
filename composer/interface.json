@@ -40,6 +40,13 @@
 						}
 					},
 					{
+						"type": "UIToggleCheck",
+						"label": "Metro",
+						"toggle": "useMetro",
+						"key": "m",
+						"face": "useMetro"
+					},
+					{
 						"row": true,
 						"type": "UIElement",
 						"id": "mutation-count",
@@ -99,7 +106,7 @@
 						"params": {
 							"selected": "synth",
 							"options": [
-								{ "value": "./samples/choir", "text": "Choir" },
+								{ "value": "../samples/choir/", "text": "Choir" },
 								{ "value": "synth", "text": "FMSynth" }
 							]
 						}
@@ -135,7 +142,18 @@
 						"type": "UIRow",
 						"k": "scaleRow",
 						"class": "break"
-					},
+					}
+				]
+			}
+		]
+	},
+	"melody": {
+		"label": "Melody",
+		"addPanel": true,
+		"uis": [
+			{
+				"module": "composition",
+				"list": [
 					{
 						"type": "UIRow",
 						"k": "melodyInput",
@@ -144,10 +162,17 @@
 						}
 					},
 					{
-						"type": "UILabel",
-						"params": {
-							"text": "Melody"
-						}
+						"type": "UINumberStep",
+						"face": "uiScale",
+						"callback": "setUIScale",
+						"label": "Scale"
+					},
+					{
+
+						"type": "UINumberStep",
+						"face": "noteWidth",
+						"callback": "setNoteWidth",
+						"label": "Note Width"
 					},
 					{
 						"type": "UIButton",
@@ -190,6 +215,23 @@
 			}
 		]
 	},
+	"params": {
+		"label": "Doodoo Parameters",
+		"uis": [
+			{
+				"module": "params",
+				"list": [
+					{
+						"type": "UIRow",
+						"k": "doodooParams",
+						"params": {
+							"id": "doodoo-params"
+						}
+					}
+				]
+			}
+		]
+	},
 	"fio": {
 		"label": "FilesIO",
 		"uis":[
@@ -198,8 +240,16 @@
 				"list": [
 					{
 						"type": "UIButton",
-						"callback": "saveFile",
+						"callback": "saveLocal",
 						"key": "s",
+						"params": {
+							"text": "Save Local"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "saveFile",
+						"key": "alt-s",
 						"params": {
 							"text": "Save File"
 						}

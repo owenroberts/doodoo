@@ -5,8 +5,10 @@
 function Composition(app, defaults) {
 	const self = this;
 	let { MIDI_NOTES } = app;
+	let addProp = Object.defineProperty;
 
 	let doodoo;
+	let melodyRow, scaleRow, noteInput, durationInput;
 
 	this.tonic = defaults.tonic;
 	this.bpm = defaults.bpm;
@@ -15,6 +17,19 @@ function Composition(app, defaults) {
 	this.title = defaults.title;
 	this.startDuration = defaults.startDuration;
 	this.parts = [];
+	this.useMetro = false;
+	
+	this.noteWidth = 60;
+	this.uiScale = 12;
+	this.setUIScale = function(value) {
+		self.uiScale = value;
+		if (app.ui.panels.melody) app.ui.panels.melody.setProp('--ui-scale', self.uiScale);
+	};
+
+	this.setNoteWidth = function(value) {
+		self.noteWidth = value;
+		if (melodyRow) self.updateDisplay();
+	};
 
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
@@ -34,16 +49,26 @@ function Composition(app, defaults) {
 	}
 
 	this.init = function() {
+		scaleRow = self.panel.scaleRow;
+		melodyRow = app.ui.panels.melody.melody;
+		noteInput = app.ui.panels.melody.melodyInput.noteInput;
+		durationInput = app.ui.panels.melody.melodyInput.durationInput;
+
+		self.setUIScale(self.uiScale);
+	};
+
+	this.updateScale = function() {
+		scaleRow.clear();
 		for (let i = 0; i < this.scale.length; i++) {
 			let interval = new UINumberStep({
 				value: self.scale[i],
 				min: -11,
 				max: 11,
 				callback: value => {
-					self.scale[i] = value;
+					self.scale[i] = +value;
 				}
 			});
-			self.panel.scaleRow.append(interval, i);
+			scaleRow.append(interval, i);
 		}
 	};
 
@@ -61,7 +86,9 @@ function Composition(app, defaults) {
 			withRecording: withRecording,
 			onMutate: count => {
 				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
-			}
+			},
+			useMetro: self.useMetro,
+			params: app.params.get()
 		});
 		doodoo.play();
 		app.fio.saveLocal(comp);
@@ -78,7 +105,7 @@ function Composition(app, defaults) {
 	this.update = function() {
 		self.parts = [];
 		let badFormatting = false;
-		const children = self.panel.melody.children;
+		const children = melodyRow.children;
 		const parts = Array.from(children).map(p => {
 			let note = p.note.value;
 			let duration = p.duration.value;
@@ -98,42 +125,94 @@ function Composition(app, defaults) {
 
 		if (badFormatting) return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
 		self.parts = parts;
-		const data = self.get();
-		app.fio.saveLocal(data);
+		// console.log(parts);
 	};
 
 	this.addNote = function(n, d, skipUpdate) {
 
-		let note = n || self.panel.melodyInput.noteInput.value;
-		let dur = d || self.panel.melodyInput.durationInput.value;
+		let note = n || noteInput.value;
+		let duration = d || durationInput.value;
 
 		let part = new UICollection({ class: "note-collection" });
-		let noteEdit = new UIText({ value: note });
-		let durEdit = new UIText({ value: dur });
+		part.addClass('d' + duration.replace(/\./g, 'dot'));
+		
+		let noteEdit = new UIListStep({ 
+			value: note, 
+			class: 'note-edit', 
+			list: [...MIDI_NOTES, 'null', 'rest']
+		});
+		
+		let durEdit = new UIListStep({ 
+			value: duration,
+			class: 'duration-edit',
+			callback: value => {
+				if (!value.includes('n')) {
+					if (['1','2','4','8','16','32'].includes(value)) {
+						value += 'n';
+					} else {
+						value = self.startDuration;
+					}
+					durEdit.value = value;
+				}
+				part.el.className = 'note-collection d' + value.replace(/\./g, 'dot');
+				self.update();
+				self.updateDisplay();
+			},
+			list: ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',]
+		});
+		
 		let removeBtn = new UIButton({ 
 			text: "X",
+			class: 'remove-btn',
 			callback: () => {
-				self.panel.melody.remove(part);
+				melodyRow.remove(part);
+				self.update();
+				self.updateDisplay();
 			}
 		});
+		
 		part.append(noteEdit, 'note');
 		part.append(durEdit, 'duration');
 		part.append(removeBtn);
+		melodyRow.append(part);
 
-		self.panel.melody.append(part);
 		if (!skipUpdate) self.update();
+		if (!skipUpdate) self.updateDisplay();
+	};
+
+	this.updateDisplay = function() {
+		const n = self.parts.length;
+		const w = melodyRow.el.getBoundingClientRect().width;
+		// console.log(n, w);
+
+		const durations = self.parts.map(p => p[1]);
+		const noteDivision = Math.max(...durations.map(d => parseInt(d)));
+		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
+		// console.log(noteDivision, self.startDuration);
+
+		// let nw = 60; // note width
+		let npl = 4;
+		while (w / npl > self.noteWidth) {
+			npl += 4;
+		}
+
+		// console.log(npl, w / npl);
+		melodyRow.setProp('--column-width', Math.floor(w / npl));
+		melodyRow.setProp('--notes-per-row', npl);
+		melodyRow.setProp('--default-duration', noteDivision);
 	};
 
 	this.clear = function() {
-		self.panel.melody.clear();
+		melodyRow.clear();
 	};
 
 	this.get = function() {
+		self.update();
 		return {
 			parts: self.parts,
 			tonic: self.tonic,
 			bpm: self.bpm,
-			samples: this.samples,
+			samples: self.samples,
 			title: this.title,
 			startDuration: this.startDuration,
 			scale: this.scale,
@@ -144,6 +223,8 @@ function Composition(app, defaults) {
 		if (data.title) {
 			app.ui.faces.title.update(data.title);
 		}
+
+		// ignore samples for now
 
 		if (data.bpm) {
 			app.ui.faces.bpm.update(data.bpm);
@@ -161,10 +242,9 @@ function Composition(app, defaults) {
 		}
 
 		if (data.scale) {
-			for (let i = 0; i < data.length; i++) {
-				self.panel.scaleRow[i].update(data.scale[i]);
-			}
+			self.scale = data.scale.map(i => +i);
 		}
+		self.updateScale();
 
 		if (data.parts) {
 
@@ -181,5 +261,6 @@ function Composition(app, defaults) {
 		}
 
 		self.update();
+		self.updateDisplay();
 	};
 }
