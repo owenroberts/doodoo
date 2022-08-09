@@ -40,6 +40,7 @@
 						}
 					},
 					{
+						"row": true,
 						"type": "UIToggleCheck",
 						"label": "Metro",
 						"toggle": "useMetro",

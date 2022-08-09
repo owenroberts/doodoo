@@ -2,7 +2,9 @@
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
-import { doodooDefaults, doodooParams } from './Defaults.js';
+import Defaults from './Defaults.js';
+const doodooDefaults = Defaults.defaults;
+const doodooParams = Defaults.params;
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -30,6 +32,10 @@ function Doodoo(params, callback) {
 		params.tonic :
 		MIDI_NOTES[params.tonic];
 
+	let doodooParams = params.params;
+	let defaults = { ...doodooDefaults, ...doodooParams };
+	console.log(defaults);
+
 	/*
 		parts data struture is currently convoluted
 		all compositions have one part so far -- but idea of multiple parts is cool
@@ -42,13 +48,13 @@ function Doodoo(params, callback) {
 	let parts = [];
 	if (params.parts[0] === 'string') {
 		const melody = params.parts.map(n => [n, defaultDuration]);
-		parts.push(new Part(melody, debug));
+		parts.push(new Part(melody, defaults, debug));
 	} else if (typeof params.parts[0] === 'number') {
 		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
-		parts.push(new Part(melody, debug));
+		parts.push(new Part(melody, defaults, debug));
 	} else if (Array.isArray(params.parts[0])) {
 		const melody = params.parts;
-		parts.push(new Part(melody, debug));
+		parts.push(new Part(melody, defaults, debug));
 
 		const durations = params.parts.map(p => parseInt(p[1]));
 		defaultDuration = Math.max(...durations) + 'n';
@@ -57,15 +63,9 @@ function Doodoo(params, callback) {
 	let currentPart = 0;
 	let totalPlays = 0;
 
-	let doodooParams = params.params;
-	let defaults = { ...doodooDefaults, ...doodooParams };
-
-	console.log(defaults);
-
 	// attack velocity -- only (?) global params
 	const attackStart = new ValueRange(...defaults.attackStart);
 	const attackStep = new ValueRange(...defaults.attackStep);
-
 
 	let toneLoop;
 	let loops = [];
@@ -139,6 +139,8 @@ function Doodoo(params, callback) {
 			loop.melody = n;
 		});
 
+		console.log('loops', loops);
+
 		let mutationCount = parts[currentPart].update();
 		if (params.onMutate) params.onMutate(mutationCount);
 		currentPart++;
@@ -193,7 +195,6 @@ function Doodoo(params, callback) {
 			playTheme();
 		} else {
 			attack += attackStep.random;
-			console.log(attack, typeof attack);
 			attack.clamp(0.1, 1);
 		}
 	}

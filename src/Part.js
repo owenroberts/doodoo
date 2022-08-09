@@ -1,11 +1,12 @@
 import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
 
-export default function Part(melody, debug) {
+export default function Part(melody, defaults, debug) {
 
 	let mutations = 0;
 
-	const loopNums = new ValueRange(1);
-	const harmonies = new ValueList([4, 5], shuffle([2, 3, 6, 7]));
+	const loopNums = new ValueRange(...defaults.loopNums);
+	const harmonies = new ValueList(defaults.harmonies.start, defaults.harmonies.add, defaults.harmonies.chance);
+	
 	const startIndexes = new ValueRange(0);
 	const indexStep = new ValueRange(0);
 
@@ -60,7 +61,7 @@ export default function Part(melody, debug) {
 
 	function mutate() {
 		
-		loopNums.update(0.1, 0.2);
+		loopNums.update();
 		harmonies.update(0.2);
 		startIndexes.update(0, 0.3);
 		indexStep.update(-0.2, 0.2);
@@ -111,7 +112,7 @@ export default function Part(melody, debug) {
 	};
 
 	this.getLoops = function() {
-		if (startParams[mutations]) return startParams[mutations];
+		// if (startParams[mutations]) return startParams[mutations];
 
 		const loops = [];
 		const loopNum = mutations == 1 ? 2 : loopNums.randInt;

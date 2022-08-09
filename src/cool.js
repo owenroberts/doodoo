@@ -35,17 +35,19 @@ function chance(n) {
 }
 
 class ValueRange {
-	constructor(min, max) {
+	constructor(min, max, ch1, ch2) {
 		this.min = min;
 		this.max = typeof max === 'undefined' ? min : max;
+		if (ch1) this.ch1 = ch1 || 0.5;
+		if (ch2) this.ch2 = ch2 || 0.5;
 	}
 
-	update(ch1, ch2) {
-		if (chance(Math.abs(ch1)) && this.min < this.max) {
-			this.min += Math.sign(ch1);
+	update() {
+		if (chance(Math.abs(this.ch1)) && this.min < this.max) {
+			this.min += Math.sign(this.ch1);
 		}
-		if (chance(Math.abs(ch2))) {
-			this.max += Math.sign(ch2);
+		if (chance(Math.abs(this.ch2))) {
+			this.max += Math.sign(this.ch2);
 		}
 	}
 
@@ -62,19 +64,19 @@ class ValueRange {
 	}
 }
 
-
 class ValueList {
-	constructor(startValues, addValues) {
+	constructor(startValues, addValues, chance) {
 		this.values = startValues;
 		this.addValues = addValues || [];
+		this.chance = chance || 0.5;
 	}
 
 	add(value) {
 		this.values.push(value);
 	}
 
-	update(pct) {
-		if (chance(pct) && this.addValues.length > 0) {
+	update() {
+		if (chance(this.chance) && this.addValues.length > 0) {
 			this.values.push(this.addValues.pop());
 		}
 	}
