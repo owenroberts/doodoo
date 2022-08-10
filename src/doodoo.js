@@ -34,7 +34,7 @@ function Doodoo(params, callback) {
 
 	let doodooParams = params.params;
 	let defaults = { ...doodooDefaults, ...doodooParams };
-	console.log(defaults);
+	console.log('defaults', defaults);
 
 	/*
 		parts data struture is currently convoluted
@@ -143,9 +143,11 @@ function Doodoo(params, callback) {
 
 		let mutationCount = parts[currentPart].update();
 		if (params.onMutate) params.onMutate(mutationCount);
+
 		currentPart++;
 		if (currentPart >= parts.length) currentPart = 0;
 		totalPlays++;
+		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 
 		if (mutationCount > recordingMutationCount) {

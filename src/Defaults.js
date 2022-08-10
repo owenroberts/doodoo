@@ -5,7 +5,12 @@
 	range [value, chance]
 	step [value, chance]
 
+	value is always starting point, update is how it changes
+	so min max 0, 0 does not mean it always stays at 0, 0
+
+	start params -- fuck
 */
+
 import { shuffle } from './cool.js';
 
 let params = [
@@ -25,9 +30,9 @@ let params = [
 	},
 	{
 		"key": "loopNums",
+		"type": "range",
 		"value": [1, 1, 0.1, 0.2],
 		"range": [1, 32, 0, 1],
-		"type": "range",
 		"step": [1, 0.01],
 	},
 	{
@@ -37,6 +42,56 @@ let params = [
 		"add": [2, 3, 6, 7],
 		"chance": 0.2,
 		"shuffle": true
+	},
+	{
+		"key": "startIndexes",
+		"type": "range",
+		"value": [0, 0, 0, 0.3],
+		"range": [0, 0, 0, 1],
+		"step": [1, 0.01]
+	},
+	{
+		"key": "indexStep",
+		"type": "range",
+		"value": [0, 0, -0.2, 0.2],
+		"range": [0, 8, -1, 1],
+		"step": [1, 0.01]
+	},
+	{
+		"key": "durations",
+		"type": "list",
+		"start": [2, 4],
+		"add": [1, 8, 16, 32],
+		"chance": 0.3
+	},
+	{
+		"key": "startDelays",
+		"type": "list",
+		"start": [0, 1, 2, 4, 0.5, 8],
+		"add": [12, 16, 3, 5, 7, 11],
+		"chance": 0.3
+	},
+	{
+		"key": "sliceChance",
+		"type": "chance",
+		"value": 0.1
+	},
+	{
+		"key": "sliceLength",
+		"type": "int",
+		"value": 3,
+		"range": [1, 8]
+	},
+	{
+		"key": "shiftChance",
+		"type": "chance",
+		"value": 0.2
+	},
+	{
+		"key": "shiftLength",
+		"type": "int",
+		"value": 16,
+		"range": [0, 32]
 	}
 ];
 
@@ -45,6 +100,8 @@ params.forEach(p => {
 	const { key, type } = p;
 	switch(type) {
 		case 'range':
+		case 'chance':
+		case 'int':
 			defaults[key] = p.value;
 		break;
 		case 'list':
@@ -52,7 +109,8 @@ params.forEach(p => {
 				start: p.start,
 				add: p.shuffle ? shuffle(p.add) : p.add,
 				chance: p.chance
-			}
+			};
+		break;
 	}
 });
 

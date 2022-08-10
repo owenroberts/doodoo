@@ -6,17 +6,14 @@ export default function Part(melody, defaults, debug) {
 
 	const loopNums = new ValueRange(...defaults.loopNums);
 	const harmonies = new ValueList(defaults.harmonies.start, defaults.harmonies.add, defaults.harmonies.chance);
-	
-	const startIndexes = new ValueRange(0);
-	const indexStep = new ValueRange(0);
+
+	const startIndexes = new ValueRange(...defaults.startIndexes);
+	const indexStep = new ValueRange(...defaults.indexStep);
 
 	// duration of loop, whole note, half note etc.
-	const durations = new ValueList([2, 4], [1, 8, 16, 32]); 
+	const durations = new ValueList(defaults.durations.start, defaults.durations.add, defaults.durations.chance); 
 
-	const startDelays = new ValueList(
-		[0, 1, 2, 4, 0.5, 8],
-		[12, 16, 3, 5, 7, 11]
-	);
+	const startDelays = new ValueList(defaults.startDelays.start, defaults.startDelays.add, defaults.startDelays.chance);
 
 	// override randomness for a number of loops to setup themes
 	// should be set locally ?
@@ -62,19 +59,19 @@ export default function Part(melody, defaults, debug) {
 	function mutate() {
 		
 		loopNums.update();
-		harmonies.update(0.2);
-		startIndexes.update(0, 0.3);
-		indexStep.update(-0.2, 0.2);
-		durations.update(0.3);
-		startDelays.update(0.3);
+		harmonies.update();
+		startIndexes.update();
+		indexStep.update();
+		durations.update();
+		startDelays.update();
 
-		if (chance(0.1)) {
+		if (chance(defaults.sliceChance)) {
 			let index = random(melody.length);
-			let slice = melody.slice(index, index + random(3));
+			let slice = melody.slice(index, index + random(defaults.sliceLength));
 			melody.push(...slice);
 		}
 
-		if (chance(0.2) && melody.length > 16) {
+		if (chance(defaults.shiftChance) && melody.length > defaults.shiftLength) {
 			melody.shift();
 		}
 
@@ -115,7 +112,8 @@ export default function Part(melody, defaults, debug) {
 		// if (startParams[mutations]) return startParams[mutations];
 
 		const loops = [];
-		const loopNum = mutations == 1 ? 2 : loopNums.randInt;
+		// const loopNum = mutations == 1 ? 2 : loopNums.randInt;
+		const loopNum = loopNums.randInt;
 		let startIndex = startIndexes.randInt;
 		let startDelay = 0; // first loop no delay
 

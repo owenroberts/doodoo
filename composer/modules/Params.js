@@ -14,8 +14,9 @@ function Params(app, defaults, params) {
 		let label = key[0].toUpperCase() + key.substring(1);
 		label = label.replace(/(?=[A-Z])/g, ' ');
 
-		const minLabel = new UILabel({ text: label + ' Min' });
-		const min = new UINumberRange({
+		const paramLabel = new UILabel({ text: label, class: 'break' });
+		const minLabel = new UILabel({ text: 'Min' });
+		const min = new UINumberStep({
 			value: value[0],
 			min: range[0],
 			max: range[1],
@@ -25,8 +26,8 @@ function Params(app, defaults, params) {
 			}
 		});
 
-		const maxLabel = new UILabel({ text: label + ' Max' });
-		const max = new UINumberRange({
+		const maxLabel = new UILabel({ text: 'Max' });
+		const max = new UINumberStep({
 			value: value[1],
 			min: range[0],
 			max: range[1],
@@ -36,13 +37,14 @@ function Params(app, defaults, params) {
 			}
 		});
 
+		row.append(paramLabel);
 		row.append(minLabel);
 		row.append(min);
 		row.append(maxLabel);
 		row.append(max);
 
 		if (value.length > 2) {
-			const updateMinLabel = new UILabel({ text: label + ' Update Min' });
+			const updateMinLabel = new UILabel({ text: 'Min Chance' });
 			const updateMin = new UINumberRange({
 				value: value[2],
 				min: range[2],
@@ -53,7 +55,7 @@ function Params(app, defaults, params) {
 				}
 			});
 
-			const updateMaxLabel = new UILabel({ text: label + ' Update Max' })
+			const updateMaxLabel = new UILabel({ text: 'Max Chance' })
 			const updateMax = new UINumberRange({
 				value: value[3],
 				min: range[2],
@@ -76,29 +78,10 @@ function Params(app, defaults, params) {
 		let label = key[0].toUpperCase() + key.substring(1);
 		label = label.replace(/(?=[A-Z])/g, ' ');
 
-		const startLabel = new UILabel({ text: label + ' Start' });
-		const startList = new UINumberList({
-			list: start,
-			callback: value => {
-				defaults[key].start = value;
-			} 
-		});
+		const paramLabel = new UILabel({ text: label, class: 'break' });
+		row.append(paramLabel);
 
-		row.append(startLabel);
-		row.append(startList);
-
-		const addLabel = new UILabel({ text: label + ' Add' });
-		const addList = new UINumberList({
-			list: add,
-			callback: value => {
-				defaults[key].add = value;
-			} 
-		});
-
-		row.append(addLabel);
-		row.append(addList);
-
-		const chanceLabel = new UILabel({ text: label + ' Chance' });
+		const chanceLabel = new UILabel({ text: 'Chance' });
 		const chanceRange = new UINumberRange({
 			value: chance,
 			min: 0,
@@ -112,6 +95,67 @@ function Params(app, defaults, params) {
 		row.append(chanceLabel);
 		row.append(chanceRange);
 
+		const startLabel = new UILabel({ text: 'Start', class: 'break' });
+		const startList = new UINumberList({
+			list: start,
+			callback: value => {
+				defaults[key].start = value;
+			} 
+		});
+
+		row.append(startLabel);
+		row.append(startList);
+
+		const addLabel = new UILabel({ text: 'Add', class: 'break' });
+		const addList = new UINumberList({
+			list: add,
+			callback: value => {
+				defaults[key].add = value;
+			} 
+		});
+
+		row.append(addLabel);
+		row.append(addList);
+	}
+
+	function addChance(param) {
+		let { key, value} = param;
+		let label = key[0].toUpperCase() + key.substring(1);
+		label = label.replace(/(?=[A-Z])/g, ' ');
+
+		const paramLabel = new UILabel({ text: label + ' Chance', class: 'break' });
+		row.append(paramLabel);
+
+		const chanceRange = new UINumberRange({
+			value: value,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			callback: value => {
+				defaults[key] = value;
+			}
+		});
+		row.append(chanceRange);
+	}
+
+	function addInt(param) {
+		let { key, value, range } = param;
+		let label = key[0].toUpperCase() + key.substring(1);
+		label = label.replace(/(?=[A-Z])/g, ' ');
+
+		const paramLabel = new UILabel({ text: label + ' Value', class: 'break' });
+		row.append(paramLabel);
+
+		const valueRange = new UINumberStep({
+			value: value,
+			min: range[0],
+			max: range[1],
+			step: 1,
+			callback: value => {
+				defaults[key][0] = value;
+			}
+		});
+		row.append(valueRange);
 	}
 
 	this.init = function() {
@@ -124,6 +168,12 @@ function Params(app, defaults, params) {
 				break;
 				case "list":
 					addList(params[i]);
+				break;
+				case "chance":
+					addChance(params[i]);
+				break;
+				case "int":
+					addInt(params[i]);
 				break;
 			}
 		}
