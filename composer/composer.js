@@ -1,4 +1,4 @@
-const { Doodoo, MIDI_NOTES, doodooDefaults, doodooParams } = doodooLib; // import lib
+const { Doodoo, MIDI_NOTES, doodooDefaults, doodooDefaultParams } = doodooLib; // import lib
 
 window.addEventListener("load", function() {
 
@@ -14,7 +14,7 @@ window.addEventListener("load", function() {
 		samples: "../samples/choir/"
 	};
 	// app.doodoo = new Doodoo(defaults);
-	app.params = new Params(app, doodooDefaults, doodooParams); // doodoo params control
+	app.params = new Params(app, doodooDefaults, doodooDefaultParams); // doodoo params control
 	app.composition = new Composition(app, compDefaults);
 
 	app.ui = new Interface(app, {
@@ -26,14 +26,16 @@ window.addEventListener("load", function() {
 	app.ui.load('./interface.json', () => {
 		app.ui.settings.load();
 		app.composition.init();
+		app.params.init();
 		const compData = localStorage.getItem('comp');
 		if (compData && compData !== 'undefined'){
-			app.composition.load(JSON.parse(compData));
+			const data = JSON.parse(compData);
+			app.composition.load(data);
+			app.params.load(data.params);
 		} else {
 			app.composition.load({});
+			app.params.load();
 		}
-		app.params.init();
-
 	});
 
 	console.log(app);

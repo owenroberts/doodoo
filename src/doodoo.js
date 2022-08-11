@@ -4,7 +4,7 @@ import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
 import Defaults from './Defaults.js';
 const doodooDefaults = Defaults.defaults;
-const doodooParams = Defaults.params;
+const doodooDefaultParams = Defaults.params;
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -34,7 +34,7 @@ function Doodoo(params, callback) {
 
 	let doodooParams = params.params;
 	let defaults = { ...doodooDefaults, ...doodooParams };
-	console.log('defaults', defaults);
+	// console.log('defaults', defaults);
 
 	/*
 		parts data struture is currently convoluted
@@ -48,13 +48,13 @@ function Doodoo(params, callback) {
 	let parts = [];
 	if (params.parts[0] === 'string') {
 		const melody = params.parts.map(n => [n, defaultDuration]);
-		parts.push(new Part(melody, defaults, debug));
+		parts.push(new Part(melody, defaults, defaultDuration, debug));
 	} else if (typeof params.parts[0] === 'number') {
 		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
-		parts.push(new Part(melody, defaults, debug));
+		parts.push(new Part(melody, defaults, defaultDuration, debug));
 	} else if (Array.isArray(params.parts[0])) {
 		const melody = params.parts;
-		parts.push(new Part(melody, defaults, debug));
+		parts.push(new Part(melody, defaults, defaultDuration, debug));
 
 		const durations = params.parts.map(p => parseInt(p[1]));
 		defaultDuration = Math.max(...durations) + 'n';
@@ -112,6 +112,7 @@ function Doodoo(params, callback) {
 
 	function playTheme() {
 		loops = [];
+		// console.log(parts[currentPart].getLoops())
 		parts[currentPart].getLoops().forEach(params => {
 			const part = {
 				...params,
@@ -119,7 +120,6 @@ function Doodoo(params, callback) {
 					getMelody(params.melody, tonic) :
 					getHarmony(params.melody, tonic, params.harmony, scale),
 				sampler: samples !== 'synth' ? getSampler() : getSynth(),
-				attack: attackStart.random,
 				ended: false,
 			};
 			loops.push(part);
@@ -340,7 +340,7 @@ export default {
 	Doodoo: Doodoo,
 	MIDI_NOTES: MIDI_NOTES,
 	doodooDefaults: doodooDefaults,
-	doodooParams: doodooParams
+	doodooDefaultParams: doodooDefaultParams
 };
 
 /*

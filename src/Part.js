@@ -1,6 +1,6 @@
 import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
 
-export default function Part(melody, defaults, debug) {
+export default function Part(melody, defaults, defaultDuration, debug) {
 
 	let mutations = 0;
 
@@ -15,46 +15,24 @@ export default function Part(melody, defaults, debug) {
 
 	const startDelays = new ValueList(defaults.startDelays.start, defaults.startDelays.add, defaults.startDelays.chance);
 
-	// override randomness for a number of loops to setup themes
-	// should be set locally ?
-	const startParams = [
-		[{
-				noteDuration: 8,
-				count: 0,
-				counter: 1,
-				doubler: false,
-				doublerCounter: false,
-				repeat: 1,
-				startIndex: 0,
-				startDelay: 0,
-				melody: melody,
-				harmony: 0,
-		}],
-		[{
-				noteDuration: 4,
-				count: 0,
-				counter: 1,
-				doubler: false,
-				doublerCounter: false,
-				repeat: 1,
-				startIndex: 0,
-				startDelay: 0,
-				melody: melody,
-				harmony: 0,
-		},
-		{
-				noteDuration: 4,
-				count: 0,
-				counter: 1,
-				doubler: false,
-				doublerCounter: false,
-				repeat: 1,
-				startIndex: 0,
-				startDelay: 0,
-				melody: melody,
-				harmony: 4,
-		}]
-	];
+	const defaultLoop = {
+		noteDuration: defaultDuration,
+		count: 0,
+		counter: 1,
+		doubler: false,
+		doublerCounter: false,
+		repeat: 1,
+		startIndex: 0,
+		startDelay: 0,
+		harmony: 0,
+		melody: melody
+	};
+	const startLoops = defaults.startLoops.map(count => {
+		return count.map(loop => {
+			return { ...defaultLoop, ...loop };
+		});
+	});
+	console.log('start loops', startLoops);
 
 	function mutate() {
 		
@@ -109,7 +87,7 @@ export default function Part(melody, defaults, debug) {
 	};
 
 	this.getLoops = function() {
-		// if (startParams[mutations]) return startParams[mutations];
+		if (startLoops[mutations]) return startLoops[mutations];
 
 		const loops = [];
 		// const loopNum = mutations == 1 ? 2 : loopNums.randInt;

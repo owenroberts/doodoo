@@ -92,6 +92,17 @@ let params = [
 		"type": "int",
 		"value": 16,
 		"range": [0, 32]
+	},
+	{
+		"key": "startLoops",
+		"type": "loops",
+		"value": [
+			// [{ "noteDuration": 8 }],
+			// [
+				// { "noteDuration": 4, },
+				// { "noteDuration": 4, "harmony": 4 }
+			// ]
+		]
 	}
 ];
 
@@ -102,6 +113,7 @@ params.forEach(p => {
 		case 'range':
 		case 'chance':
 		case 'int':
+		case 'loops':
 			defaults[key] = p.value;
 		break;
 		case 'list':

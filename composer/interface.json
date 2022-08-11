@@ -234,6 +234,25 @@
 			}
 		]
 	},
+	
+	"loops": {
+		"label": "Start Loops",
+		"addPanel": true,
+		"uis": [
+			{
+				"module": "params",
+				"list": [
+					{
+						"type": "UIRow",
+						"k": "startLoops",
+						"params": {
+							"id": "start-loops-row"
+						}
+					}
+				]
+			}
+		]
+	},
 	"fio": {
 		"label": "FilesIO",
 		"uis":[
