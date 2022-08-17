@@ -20,13 +20,16 @@ window.addEventListener("load", function() {
 	app.ui = new Interface(app, {
 		useMain: true
 	});
+	
+	
 	app.ui.settings = new Settings(app, 'doodoo');
 	app.fio = new FilesIO(app);
-
+	
 	app.ui.load('./interface.json', () => {
 		app.ui.settings.load();
 		app.composition.init();
 		app.params.init();
+
 		const compData = localStorage.getItem('comp');
 		if (compData && compData !== 'undefined'){
 			const data = JSON.parse(compData);
@@ -36,6 +39,7 @@ window.addEventListener("load", function() {
 			app.composition.load({});
 			app.params.load();
 		}
+
 	});
 
 	console.log(app);

@@ -166,14 +166,20 @@
 						"type": "UINumberStep",
 						"face": "uiScale",
 						"callback": "setUIScale",
-						"label": "Scale"
+						"label": "Scale",
+						"fromModule": {
+							"value": "uiScale"
+						}
 					},
 					{
 
 						"type": "UINumberStep",
 						"face": "noteWidth",
 						"callback": "setNoteWidth",
-						"label": "Note Width"
+						"label": "Note Width",
+						"fromModule": {
+							"value": "noteWidth"
+						}
 					},
 					{
 						"type": "UIButton",
@@ -217,7 +223,7 @@
 		]
 	},
 	"params": {
-		"label": "Doodoo Parameters",
+		"label": "Doodoo Params",
 		"addPanel": true,
 		"uis": [
 			{
@@ -234,7 +240,6 @@
 			}
 		]
 	},
-	
 	"loops": {
 		"label": "Start Loops",
 		"addPanel": true,

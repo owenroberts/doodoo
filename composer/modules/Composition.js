@@ -5,7 +5,6 @@
 function Composition(app, defaults) {
 	const self = this;
 	let { MIDI_NOTES } = app;
-	let addProp = Object.defineProperty;
 
 	let doodoo;
 	let melodyRow, scaleRow, noteInput, durationInput;
@@ -53,7 +52,6 @@ function Composition(app, defaults) {
 		melodyRow = app.ui.panels.melody.melody;
 		noteInput = app.ui.panels.melody.melodyInput.noteInput;
 		durationInput = app.ui.panels.melody.melodyInput.durationInput;
-
 		self.setUIScale(self.uiScale);
 	};
 
@@ -186,11 +184,10 @@ function Composition(app, defaults) {
 		// console.log(n, w);
 
 		const durations = self.parts.map(p => p[1]);
-		const noteDivision = Math.max(...durations.map(d => parseInt(d)));
+		let noteDivision = Math.max(...durations.map(d => parseInt(d)));
 		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
-		// console.log(noteDivision, self.startDuration);
+		if (noteDivision < 0) noteDivision = '4n';
 
-		// let nw = 60; // note width
 		let npl = 4;
 		while (w / npl > self.noteWidth) {
 			npl += 4;

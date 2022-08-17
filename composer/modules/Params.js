@@ -4,7 +4,7 @@
 function Params(app, defaults, params) {
 	const self = this;
 
-	let row, startLoopsRow;
+	let startLoopsRow;
 
 	// has to match Part.js
 	const defaultLoop = {
@@ -25,7 +25,7 @@ function Params(app, defaults, params) {
 		return label;
 	}
 
-	function addRange(param) {
+	function addRange(param, row) {
 		let { key, value, range, step } = param;
 		let label = labelFromKey(key);
 
@@ -86,7 +86,7 @@ function Params(app, defaults, params) {
 		}
 	}
 
-	function addList(param) {
+	function addList(param, row) {
 		let { key, start, add, chance } = param;
 		let label = labelFromKey(key);
 
@@ -128,7 +128,7 @@ function Params(app, defaults, params) {
 		row.append(addList);
 	}
 
-	function addChance(param) {
+	function addChance(param, row) {
 		let { key, value} = param;
 		let label = labelFromKey(key);
 
@@ -148,7 +148,7 @@ function Params(app, defaults, params) {
 		row.append(chanceRange);
 	}
 
-	function addInt(param) {
+	function addInt(param, row) {
 		let { key, value, range } = param;
 		let label = labelFromKey(key);
 
@@ -285,11 +285,12 @@ function Params(app, defaults, params) {
 	}
 
 	this.init = function(data) {
-		row = self.panel.doodooParams;
+		// row = self.panel.doodooParams;
 		startLoopsRow = app.ui.panels.loops.startLoops;
 	};
 
 	this.load = function(data) {
+		// load local storage or comp data
 		if (data) {
 			params.forEach(p => {
 				if (data[p.key]) {
@@ -310,21 +311,37 @@ function Params(app, defaults, params) {
 		}
 
 		for (let i = 0; i < params.length; i++) {
+
+			const param = params[i];
+			let row;
+			if (param.panel) {
+				const panelName = param.panel;
+				if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
+				else {
+					app.ui.createPanel(panelName, {
+						label: 'Param ' + labelFromKey(panelName)
+					});
+					row = app.ui.panels[panelName].lastRow;
+				}
+			} else {
+				row = self.panel.doodooParams;
+			}
+
 			switch(params[i].type) {
 				case "range":
-					addRange(params[i]);
+					addRange(param, row);
 				break;
 				case "list":
-					addList(params[i]);
+					addList(param, row);
 				break;
 				case "chance":
-					addChance(params[i]);
+					addChance(param, row);
 				break;
 				case "int":
-					addInt(params[i]);
+					addInt(param, row);
 				break;
 				case "loops":
-					addLoops(params[i]);
+					addLoops(param);
 				break;
 			}
 		}
