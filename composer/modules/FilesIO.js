@@ -5,7 +5,7 @@
 function FilesIO(app) {
 
 	this.load = function(data) {
-		console.log(data);
+		// console.log(data);
 		app.composition.load(data);
 		app.params.load(data.params);
 	};
@@ -13,7 +13,7 @@ function FilesIO(app) {
 	this.saveLocal = function(composition, params) {
 		if (!composition) composition = app.composition.get();
 		if (!params) params = app.params.get();
-		console.log(params);
+		// console.log(params);
 		localStorage.setItem('comp', JSON.stringify({ ...composition, params: params }));
 	};
 

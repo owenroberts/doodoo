@@ -139,7 +139,12 @@ function Doodoo(params, callback) {
 			loop.melody = n;
 		});
 
-		console.log('loops', loops);
+		console.log(
+			loops
+				.map(l => l.melody)
+				.map(m => m.map(n => { return n[0] ? n[0] : ''}).join(' '))
+				.join('')
+		);
 
 		let mutationCount = parts[currentPart].update();
 		if (params.onMutate) params.onMutate(mutationCount);

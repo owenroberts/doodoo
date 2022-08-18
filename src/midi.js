@@ -30,6 +30,8 @@ function constrainNoteRange(midiNoteNum) {
 	return midiNoteNum;
 }
 
+
+
 function getMelody(melody, startNote) {
 	const m = melody.map(beat => {
 		const [note, duration] = beat;
@@ -39,7 +41,9 @@ function getMelody(melody, startNote) {
 			// interval based on start of melody (not key or tonic ...)
 			// should i just add tonal or theoria or whatever?
 			let midiNoteNum = MIDI_NOTES.indexOf(startNote) + (MIDI_NOTES.indexOf(note) - MIDI_NOTES.indexOf(melody[0][0]));
-			return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
+			return [MIDI_NOTES[midiNoteNum], duration];
+
+			// return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
 		}
 	});
 	return m;

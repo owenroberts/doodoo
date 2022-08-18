@@ -32,7 +32,7 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 			return { ...defaultLoop, ...loop };
 		});
 	});
-	console.log('start loops', startLoops);
+	// console.log('start loops', startLoops);
 
 	function mutate() {
 		
@@ -87,7 +87,15 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 	};
 
 	this.getLoops = function() {
-		if (startLoops[mutations]) return startLoops[mutations];
+		if (startLoops[mutations]) {
+			console.log( 
+				startLoops[mutations]
+					.map(l => l.melody)
+					.map(m => m.map(n => n[0]).join(' '))
+					.join('')
+			);
+			return startLoops[mutations];
+		}
 
 		const loops = [];
 		// const loopNum = mutations == 1 ? 2 : loopNums.randInt;
