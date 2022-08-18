@@ -10,6 +10,7 @@ function Composition(app, defaults) {
 	let melodyRow, scaleRow, noteInput, durationInput;
 
 	this.tonic = defaults.tonic;
+	this.transform = defaults.transform || defaults.tonic;
 	this.bpm = defaults.bpm;
 	this.samples = defaults.samples;
 	this.scale = defaults.scale;
@@ -208,6 +209,7 @@ function Composition(app, defaults) {
 		return {
 			parts: self.parts,
 			tonic: self.tonic,
+			transform: self.transform,
 			bpm: self.bpm,
 			samples: self.samples,
 			title: this.title,

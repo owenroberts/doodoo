@@ -30,40 +30,44 @@ function constrainNoteRange(midiNoteNum) {
 	return midiNoteNum;
 }
 
-
-
-function getMelody(melody, startNote) {
-	const m = melody.map(beat => {
-		const [note, duration] = beat;
-		if (note === null) {
-			return beat;
-		} else {
-			// interval based on start of melody (not key or tonic ...)
-			// should i just add tonal or theoria or whatever?
-			let midiNoteNum = MIDI_NOTES.indexOf(startNote) + (MIDI_NOTES.indexOf(note) - MIDI_NOTES.indexOf(melody[0][0]));
-			return [MIDI_NOTES[midiNoteNum], duration];
-
-			// return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
+function getMelody(melody, tonic, transform, scale) {
+	return melody.map(beat => {
+		if (beat[0] === null) { return beat; }
+		else {
+			const [note, duration] = beat;
+			const midiTonic = MIDI_NOTES.indexOf(tonic);
+			const midiTransform = MIDI_NOTES.indexOf(transform);
+			const tonicDelta = midiTonic - midiTransform;
+			const midiNote = MIDI_NOTES.indexOf(note) - tonicDelta;
+			return [MIDI_NOTES[midiNote], duration];
 		}
 	});
-	return m;
 }
 
-function getHarmony(melody, startNote, interval, scale) {
+function getHarmony(melody, tonic, transform, interval, scale) {
 	return melody.map(beat => {
-		const [note, duration] = beat;
-		if (note === null) {
-			return beat;
-		} else {
-			const int = MIDI_NOTES.indexOf(note) - MIDI_NOTES.indexOf(melody[0][0]);
-			// find where in the scale this note goes
-			let offset = Math.floor(Math.abs(int) / 12) * 12 * (int < 0 ? -1 : 1);
-			let idx = int < 0 ?
-				scale.indexOf(12 - (Math.abs(int) % 12)) : // interval below tonic
-				scale.indexOf(int % 12); // interval above tonic
-			let harm = scale[(idx + interval - 1) % scale.length];
-			let midiNoteNum = MIDI_NOTES.indexOf(startNote) + harm + offset;
-			return [MIDI_NOTES[constrainNoteRange(midiNoteNum)], duration];
+		if (beat[0] === null) { return beat; }
+		else {
+			const [note, duration] = beat;
+			const midiNote = MIDI_NOTES.indexOf(note);
+			const midiTonic = MIDI_NOTES.indexOf(tonic);
+			const midiTransform = MIDI_NOTES.indexOf(transform);
+			const tonicDelta = midiTonic - midiTransform;
+
+			const diff = midiNote - midiTonic;
+			const scaleIndex = diff < 0 ?
+				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
+				scale.indexOf(diff % 12); // above tonic
+
+			if (scaleIndex === -1) console.log('note note in scale ... ')
+			
+			// what do do here? find closest in scale or just throw out a weird note?
+			// test this!!!!
+
+			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length];
+			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff);
+			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta;
+			return [MIDI_NOTES[returnMidi], duration];
 		}
 	});
 }

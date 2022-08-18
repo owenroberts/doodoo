@@ -32,6 +32,13 @@ function Doodoo(params, callback) {
 		params.tonic :
 		MIDI_NOTES[params.tonic];
 
+	if (!params.transform) params.transform = params.tonic;
+	let transform = typeof params.transform === 'string' ?
+		params.transform :
+		MIDI_NOTES[params.transform];
+
+	console.log(tonic, transform);
+
 	let doodooParams = params.params;
 	let defaults = { ...doodooDefaults, ...doodooParams };
 	// console.log('defaults', defaults);
@@ -112,18 +119,21 @@ function Doodoo(params, callback) {
 
 	function playTheme() {
 		loops = [];
+
 		// console.log(parts[currentPart].getLoops())
+
 		parts[currentPart].getLoops().forEach(params => {
 			const part = {
 				...params,
 				melody: params.harmony === 0 ? 
-					getMelody(params.melody, tonic) :
-					getHarmony(params.melody, tonic, params.harmony, scale),
+					getMelody(params.melody, tonic, transform) :
+					getHarmony(params.melody, tonic, transform, params.harmony, scale),
 				sampler: samples !== 'synth' ? getSampler() : getSynth(),
 				ended: false,
 			};
 			loops.push(part);
 		});
+
 
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
@@ -138,6 +148,7 @@ function Doodoo(params, callback) {
 			});
 			loop.melody = n;
 		});
+
 
 		console.log(
 			loops
@@ -295,13 +306,12 @@ function Doodoo(params, callback) {
 	}
 
 	this.moveTonic = function(dir) {
-		let n = MIDI_NOTES.indexOf(tonic) + dir;
-		tonic = MIDI_NOTES[n];
-		tonic = MIDI_NOTES[n];
+		let n = MIDI_NOTES.indexOf(transform) + dir;
+		transform = MIDI_NOTES[n];
 	};
 
 	this.setTonic = function(note) {
-		tonic = note;
+		transform = note;
 	};
 
 	this.printLoops = function() {

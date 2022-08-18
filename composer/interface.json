@@ -78,12 +78,22 @@
 						}
 					},
 					{
+						"row": true,
 						"type": "UIText",
 						"string": "tonic",
 						"face": "tonic",
 						"label": "Tonic",
 						"fromModule": {
 							"placeholder": "tonic"
+						}
+					},
+					{
+						"type": "UIText",
+						"string": "transform",
+						"face": "transform",
+						"label": "Tonic Transform",
+						"fromModule": {
+							"placeholder": "transform"
 						}
 					},
 					{
