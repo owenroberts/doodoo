@@ -37,8 +37,6 @@ function Doodoo(params, callback) {
 		params.transform :
 		MIDI_NOTES[params.transform];
 
-	console.log(tonic, transform);
-
 	let doodooParams = params.params;
 	let defaults = { ...doodooDefaults, ...doodooParams };
 	// console.log('defaults', defaults);
@@ -76,6 +74,8 @@ function Doodoo(params, callback) {
 
 	let toneLoop;
 	let loops = [];
+	let currentCountTotal = 0;
+	let currentCount = 0;
 
 	const useMetro = params.useMetro;
 	let metro;
@@ -128,8 +128,7 @@ function Doodoo(params, callback) {
 				melody: params.harmony === 0 ? 
 					getMelody(params.melody, tonic, transform) :
 					getHarmony(params.melody, tonic, transform, params.harmony, scale),
-				sampler: samples !== 'synth' ? getSampler() : getSynth(),
-				ended: false,
+				sampler: samples !== 'synth' ? getSampler() : getSynth()
 			};
 			loops.push(part);
 		});
@@ -141,21 +140,29 @@ function Doodoo(params, callback) {
 			loop.melody.forEach(beat => {
 				const [note, duration] = beat;
 				let beats = +defaultDuration[0] / +duration[0];
+				if (duration.includes('.')) beats *= 1.5;
 				n.push(beat);
 				for (let i = 1; i < beats; i++) {
 					n.push([null, defaultDuration]);
 				}
 			});
 			loop.melody = n;
+			loop.countNum = loop.doubler ? (loop.counter * loop.noteDuration) / 4 : 1;
+			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
+			loop.len = loop.melody.length;
+			loop.indexDelay = loop.startDelay + loop.startIndex;
+
 		});
 
+		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
-		console.log(
-			loops
-				.map(l => l.melody)
-				.map(m => m.map(n => { return n[0] ? n[0] : ''}).join(' '))
-				.join('')
-		);
+		// console.log('loops', loops[0].melody);
+		// console.log(
+		// 	loops
+		// 		.map(l => l.melody)
+		// 		.map(m => m.map(n => { return n[0] ? n[0] : ''}).join(' '))
+		// 		.join('')
+		// );
 
 		let mutationCount = parts[currentPart].update();
 		if (params.onMutate) params.onMutate(mutationCount);
@@ -171,50 +178,35 @@ function Doodoo(params, callback) {
 			isPlaying = false;
 			saveRecording();
 		}
+		currentCount = 0;
 	}
 
 	function loop(time) {
-		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.3);
+		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.1);	
 		let attack = attackStart.random;
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
-
-			const { melody, noteDuration, sampler, counter, doubler, doublerCounter, repeat, startIndex, startDelay } = loops[i];
-			
-			if (loop.count > (melody.length - 1) * repeat + startDelay) {
-				loop.ended = true;
-			}
-
-			if (!loop.ended) {
-				let n = doubler ? (counter * noteDuration) / 4 : 1;
-				for (let j = 0; j < n; j++) {
-					if (loop.count >= startDelay && (loop.count % 1 === 0 || doubler)) {
-						const beat = melody[Math.floor(loop.count - startDelay + startIndex) % melody.length];
-						if (!beat) {
-							// think i fixed this
-							console.log('beat', beat, startIndex);
-							console.log('loop', i, loop)
-							continue;
-						} 
-						if (beat[0] !== null) {
-							const [note, duration] = beat;
-							// time offset for doubles
-							let t = j ? Tone.Time(`${noteDuration}n`).toSeconds() * j : 0; 
-							sampler.triggerAttackRelease(note, duration, time + t, attack);
-						}
-						if (doublerCounter) loop.count += counter;
-					}
+			if (loop.count > loop.countEnd) continue;
+			for (let j = 0; j < loop.countNum; j++) {
+				if (loop.count < loop.startDelay) continue;
+				if (loop.count % 1 !== 0 && !loop.doubler) continue;
+				const beat = loop.melody[Math.floor(loop.count - loop.indexDelay) % loop.len];
+				if (beat[0] !== null) {
+					const [note, duration] = beat;
+					// time offset for doubles
+					let t = j ? Tone.Time(`${loop.noteDuration}n`).toSeconds() * j : 0; 
+					loop.sampler.triggerAttackRelease(note, duration, time + t, attack);
 				}
-				if (!doublerCounter || loop.count < startDelay) loop.count += counter;
+				if (loop.doublerCounter) loop.count += loop.counter;
 			}
+			if (!loop.doublerCounter || loop.count < loop.startDelay) loop.count += loop.counter;
 		}
 
-		if (loops.every(l => l.ended)) {
-			playTheme();
-		} else {
-			attack += attackStep.random;
-			attack.clamp(0.1, 1);
-		}
+		attack += attackStep.random;
+		attack.clamp(0.1, 1);
+
+		currentCount++;
+		if (currentCount === currentCountTotal) playTheme();
 	}
 
 	function getSynth() {
@@ -235,7 +227,7 @@ function Doodoo(params, callback) {
 
 		const sampler = new Tone.Sampler({
 			urls: samples,
-			volume: -6,
+			volume: params.volume || 0,
 			release: 1,
 		}).toDestination();
 

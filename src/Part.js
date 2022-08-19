@@ -88,12 +88,12 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 
 	this.getLoops = function() {
 		if (startLoops[mutations]) {
-			console.log(
-				startLoops[mutations]
-					.map(l => l.melody)
-					.map(m => m.map(n => n[0]).join(' '))
-					.join('\n')
-			);
+			// console.log(
+			// 	startLoops[mutations]
+			// 		.map(l => l.melody)
+			// 		.map(m => m.map(n => n[0]).join(' '))
+			// 		.join('\n')
+			// );
 			return startLoops[mutations];
 		}
 
