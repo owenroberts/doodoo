@@ -28,4 +28,24 @@ function FilesIO(app) {
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
 		saveAs(blob, prompt("Name composition", app.composition.title) + '.json');
 	}
+
+	this.loadMidi = function(data, fileName, filePath) {
+		console.log(fileName, filePath);
+		// const midi = new Midi();
+		const midiPromise = new Midi.fromUrl(filePath);
+		midiPromise.then(midiData => {
+			midiData.tracks.forEach(track => {
+				const notes = track.notes;
+				notes.forEach(note => {
+					console.log(note.name, note.duration, note.time);
+					console.log(Tone.Time(note.duration).toNotation());
+					const m1 = Tone.Time('1m').toSeconds();
+					console.log('1m = ', m1)
+					console.log(Math.floor(note.time / m1), Tone.Time(note.time % m1).toNotation());
+
+					// okay getting somewhere ...
+				});
+			});
+		});
+	};
 }

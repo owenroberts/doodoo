@@ -298,14 +298,23 @@
 							"text": "Load File",
 							"promptDefault": "compositions"
 						}
-					}
-					,
+					},
 					{
 						"type": "UIButton",
 						"callback": "clear",
 						"params": {
 							"text": "Clear Local"
 						}
+					},
+					{
+						"type": "UIFile",
+						"callback": "loadMidi",
+						"params": {
+							"text": "Load Midi",
+							"promptDefault": "compositions",
+							"fileType": "audio/midi"
+						}
+
 					}
 				]
 			}
