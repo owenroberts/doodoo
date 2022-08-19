@@ -8,3 +8,4 @@ doc/
 build/lib/tone/build/esm/
 build/lib/tone/docs/
 build/lib/tone/Tone/
+*.Mid
