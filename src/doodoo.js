@@ -72,6 +72,7 @@ function Doodoo(params, callback) {
 	const attackStart = new ValueRange(...defaults.attackStart);
 	const attackStep = new ValueRange(...defaults.attackStep);
 
+
 	let toneLoop;
 	let loops = [];
 	let currentCountTotal = 0;
@@ -118,9 +119,8 @@ function Doodoo(params, callback) {
 	}
 
 	function playTheme() {
+		currentCount = 0;
 		loops = [];
-
-		// console.log(parts[currentPart].getLoops())
 
 		parts[currentPart].getLoops().forEach(params => {
 			const part = {
@@ -132,7 +132,6 @@ function Doodoo(params, callback) {
 			};
 			loops.push(part);
 		});
-
 
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
@@ -178,7 +177,6 @@ function Doodoo(params, callback) {
 			isPlaying = false;
 			saveRecording();
 		}
-		currentCount = 0;
 	}
 
 	function loop(time) {
@@ -191,6 +189,12 @@ function Doodoo(params, callback) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
 				const beat = loop.melody[Math.floor(loop.count - loop.indexDelay) % loop.len];
+				if (!beat) {
+					console.log(beat);
+					console.log(loop.melody, loop.count, loop.indexDelay, loop.len);
+					console.log('no beat loop', loop)
+					continue;
+				}
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
@@ -211,11 +215,13 @@ function Doodoo(params, callback) {
 
 	function getSynth() {
 		const fmSynth = new Tone.FMSynth().toDestination();
+		addEffects(fmSynth);
 		if (withRecording) fmSynth.connect(recorder);
 		return fmSynth;
 	}
 
 	function getSampler() {
+		// specific to chorus
 		const voice = totalPlays < 3 ? 
 			'U' :
 			random('AEIOU'.split(''));
@@ -231,36 +237,44 @@ function Doodoo(params, callback) {
 			release: 1,
 		}).toDestination();
 
-		const reverb = new Tone.Reverb({ decay: 5 }).toDestination();
-		sampler.connect(reverb);
-
-		if (totalPlays > 8) {
-			let effect;
-			if (chance(0.25)) {
-				const dist = random(0.05, 0.2);
-				effect = new Tone.Distortion(dist).toDestination();
-				// console.log('Distortion', dist);
-			}
-			else if (chance(0.25)) {
-				effect = new Tone.Chorus(6, 2.5, 0.5);
-				// console.log('Chorus')
-			}
-			else if (chance(0.25)) {
-				const bits = random([4,8,12]);
-				effect = new Tone.BitCrusher(bits).toDestination();
-				// console.log('BitCrusher', bits);
-			}
-			else if (chance(0.25)) {
-				const freq = random(0.5, 1);
-				const depth = random(0.1, 1);
-				effect = new Tone.Tremolo(freq, depth).toDestination();
-				// console.log('Tremolo', freq, depth);
-			}
-			if (effect) sampler.connect(effect);
-		}
-		
+		addEffects(sampler);
 		if (withRecording) sampler.connect(recorder);
 		return sampler;
+	}
+
+	function addEffects(sampler) {
+		// console.log('defaults', defaults);
+		if (chance(defaults.reverbChance)) {
+			const reverb = new Tone.Reverb({ decay: defaults.reverbDecay }).toDestination();
+			sampler.connect(reverb);
+		}
+
+		if (totalPlays >= defaults.fxDelay) {
+			let effect;
+
+			if (chance(defaults.distortionChance)) {
+				const dist = random(...defaults.distortion);
+				effect = new Tone.Distortion(dist).toDestination();
+			}
+			else if (chance(defaults.bitCrushChance)) {
+				const bits = random(defaults.bitCrushBits.start);
+				effect = new Tone.BitCrusher(bits).toDestination();
+			}
+			
+			// else if (chance(defaults.chorusChance)) {
+			// 	effect = new Tone.Chorus(defaults.chorusFrequency, defaults.chorusDelayTime, defaults.chorusDepth);
+			// }
+
+			// else if (chance(defaults.tremoloChance)) {
+			// 	const freq = random(...defaults.tremoloFrequency);
+			// 	const depth = random(...defaults.tremoloDepth);
+			// 	effect = new Tone.Tremolo(9, 0.75).toDestination();
+				// const oscillator = new Tone.Oscillator().connect(sampler).start();
+				// https://tonejs.github.io/docs/14.7.77/Tremolo fuckin a
+			// }
+
+			if (effect) sampler.connect(effect);
+		}
 	}
 
 	function load(callback) {

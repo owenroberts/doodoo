@@ -25,6 +25,34 @@ function Params(app, defaults, params) {
 		return label;
 	}
 
+	function addChance(param, row) {
+		let { key, value} = param;
+		let label = labelFromKey(key);
+
+		const paramLabel = new UILabel({ text: label, class: 'break-line-up' });
+		row.append(paramLabel);
+
+		const chanceRange = new UIChance({
+			label: 'Chance',
+			value: value,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			callback: value => {
+				defaults[key] = value;
+			}
+		});
+		row.append(chanceRange);
+	}
+
+	function addNumber(param, row) {
+
+	}
+
+	function addList(param, row) {
+		
+	}
+
 	function addRange(param, row) {
 		let { key, value, range, step } = param;
 		let label = labelFromKey(key);
@@ -128,25 +156,9 @@ function Params(app, defaults, params) {
 		row.append(addList);
 	}
 
-	function addChance(param, row) {
-		let { key, value} = param;
-		let label = labelFromKey(key);
 
-		const paramLabel = new UILabel({ text: label, class: 'break-line-up' });
-		row.append(paramLabel);
 
-		const chanceRange = new UIChance({
-			label: 'Chance',
-			value: value,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			callback: value => {
-				defaults[key] = value;
-			}
-		});
-		row.append(chanceRange);
-	}
+	// need simpler thing that just adds a chance and a list if they exist
 
 	function addInt(param, row) {
 		let { key, value, range } = param;
@@ -159,9 +171,9 @@ function Params(app, defaults, params) {
 			value: value,
 			min: range[0],
 			max: range[1],
-			step: 1,
+			step: param.step || 1,
 			callback: value => {
-				defaults[key][0] = value;
+				defaults[key] = value;
 			}
 		});
 		row.append(valueRange);
@@ -178,7 +190,6 @@ function Params(app, defaults, params) {
 			callback: () => {
 				defaults.startLoops.pop();
 				startLoopsRow.removeK('count' + defaults.startLoops.length);
-				console.log(defaults.startLoops);
 			}
 		});
 		startLoopsRow.append(subtractCount);
@@ -293,7 +304,7 @@ function Params(app, defaults, params) {
 		// load local storage or comp data
 		if (data) {
 			params.forEach(p => {
-				if (data[p.key]) {
+				if (data[p.key] !== undefined) {
 					defaults[p.key] = data[p.key];
 					switch(p.type) {
 						case 'list':
@@ -304,14 +315,15 @@ function Params(app, defaults, params) {
 						default:
 							p.value = data[p.key];
 						break;
-
 					}
 				}
 			});
 		}
 
-		for (let i = 0; i < params.length; i++) {
+		const panelData = localStorage.getItem('settings-doodoo') ?
+			JSON.parse(localStorage.getItem('settings-doodoo')).panels : {};
 
+		for (let i = 0; i < params.length; i++) {
 			const param = params[i];
 			let row;
 			if (param.panel) {
@@ -322,6 +334,12 @@ function Params(app, defaults, params) {
 						label: 'Param ' + labelFromKey(panelName)
 					});
 					row = app.ui.panels[panelName].lastRow;
+				}
+				if (panelData[panelName]) {
+					const { gridArea } = panelData[panelName];
+					const panel = app.ui.panels[panelName];
+					panel.setup(panelData[panelName]);
+					app.ui.layout[gridArea].panels.append(panel);
 				}
 			} else {
 				row = self.panel.doodooParams;

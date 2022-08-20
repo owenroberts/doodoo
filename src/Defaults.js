@@ -16,16 +16,16 @@ import { shuffle } from './cool.js';
 let params = [
 	{
 		"key": "attackStart",
-		"value": [0.25, 0.7],
 		"type": "range",
+		"value": [0.25, 0.7],
 		"range": [0, 1],
 		"step": [0.05],
 		"panel": "attack"
 	},
 	{
 		"key": "attackStep",
-		"value": [-0.2, 0.2],
 		"type": "range",
+		"value": [-0.2, 0.2],
 		"range": [-1, 1],
 		"step": [0.05],
 		"panel": "attack"
@@ -69,7 +69,7 @@ let params = [
 		"start": [2, 4],
 		"add": [1, 8, 16, 32],
 		"chance": 0.3,
-		"panel": "index"
+		"panel": "loop"
 	},
 	{
 		"key": "startDelays",
@@ -110,7 +110,112 @@ let params = [
 		"type": "loops",
 		"value": [],
 		"panel": "loops",
-	}
+	},
+	{
+		"key": "fxDelay",
+		"type": "int",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "reverbChance",
+		"type": "chance",
+		"value": 1,
+		"panel": "effects"
+	},
+	{
+		"key": "reverbDecay",
+		"type": "int",
+		"value": 5,
+		"range": [0.5, 32],
+		"step": 0.1,
+		"panel": "effects"
+	},
+	{
+		"key": "distortionChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "distortion",
+		"type": "range",
+		"value": [0.05, 0.2],
+		"range": [0.01, 1],
+		"step": [0.01],
+		"panel": "effects"
+	},
+	{
+		"key": "bitCrushChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "bitCrushBits",
+		"type": "list",
+		"start": [4,8,12],
+		"add": [],
+		"panel": "effects"
+	},
+
+
+	// {
+	// 	"key": "tremoloChance",
+	// 	"type": "chance",
+	// 	"value": 0.25,
+	// 	"panel": "effects"
+	// },
+	// {
+	// 	"key": "tremoloFrequency",
+	// 	"type": "range",
+	// 	"value": [9, 9],
+	// 	"range": [1, 18],
+	// 	"step": 1,
+	// 	"panel": "effects"
+	// },
+	// {
+	// 	"key": "tremoloDepth",
+	// 	"type": "range",
+	// 	"value": [0.1, 1],
+	// 	"range": [0, 1],
+	// 	"step": 0.05,
+	// 	"panel": "effects"
+	// },
+
+	/*
+	{
+		"key": "chorusChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "chorusFrequency",
+		"type": "int",
+		"value": 6,
+		"range": [0.1, 8],
+		"step": 0.1,
+		"panel": "effects"
+	},
+	{
+		"key": "chorusDelayTime",
+		"type": "int",
+		"value": 2.5,
+		"range": [0.1, 8],
+		"step": 0.1,
+		"panel": "effects"
+	},
+	{
+		"key": "chorusDepth",
+		"type": "int",
+		"value": 0.5,
+		"range": [0.1, 1],
+		"step": 0.1,
+		"panel": "effects"
+	},
+	*/
 ];
 
 let defaults = {};
