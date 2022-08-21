@@ -76,7 +76,8 @@ function Doodoo(params, callback) {
 
 	let currentPart = 0;
 	let totalPlays = 0;
-	let simultaneous = params.simultaneous !== undefined ? param.simultaneous : true;
+	let simultaneous = params.simultaneous || false;
+	console.log('simultaneous', simultaneous)
 
 	// attack velocity -- only (?) global params
 	const attackStart = new ValueRange(...defaults.attackStart);
@@ -89,8 +90,6 @@ function Doodoo(params, callback) {
 
 	const useMetro = params.useMetro;
 	let metro;
-
-	console.log(parts);
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
@@ -134,6 +133,7 @@ function Doodoo(params, callback) {
 		loops = [];
 
 		let currentParts = simultaneous ? parts : [parts[currentPart]];
+		console.log(currentParts, currentPart)
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
 				const part = {

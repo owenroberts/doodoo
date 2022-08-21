@@ -190,6 +190,12 @@
 						}
 					},
 					{
+						"type": "UIToggleCheck",
+						"toggle": "simultaneous",
+						"face": "simultaneous",
+						"label": "Simultaneous"
+					},
+					{
 						"type": "UIRow",
 						"params": {
 							"class": "break"

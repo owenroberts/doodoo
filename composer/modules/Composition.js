@@ -17,6 +17,7 @@ function Composition(app, defaults) {
 	this.title = defaults.title;
 	this.startDuration = defaults.startDuration;
 	this.parts = [];
+	this.simultaneous = defaults.simultaneous;
 	this.useMetro = false;
 
 	this.currentPart = 0;
@@ -235,6 +236,7 @@ function Composition(app, defaults) {
 			title: this.title,
 			startDuration: this.startDuration,
 			scale: this.scale,
+			simultaneous: this.simultaneous,
 		};
 	};
 
