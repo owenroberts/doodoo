@@ -31,20 +31,24 @@ function FilesIO(app) {
 
 	this.loadMidi = function(data, fileName, filePath) {
 		console.log(fileName, filePath);
-		// const midi = new Midi();
 		const midiPromise = new Midi.fromUrl(filePath);
 		midiPromise.then(midiData => {
 			midiData.tracks.forEach(track => {
 				const notes = track.notes;
-				notes.forEach(note => {
-					console.log(note.name, note.duration, note.time);
-					console.log(Tone.Time(note.duration).toNotation());
-					const m1 = Tone.Time('1m').toSeconds();
-					console.log('1m = ', m1)
-					console.log(Math.floor(note.time / m1), Tone.Time(note.time % m1).toNotation());
+				for (let i = 0; i < notes.length; i++) {
+					const { name, duration, time } = notes[i];
+					let note = name;
+					let isLastNote = i === notes.length - 1;
+					if (i > 0) {
+						const prev = notes[i - 1];
+						let delta = time - (prev.time + prev.duration);
+						if (delta > 0) {
+							app.composition.addNote('rest', Tone.Time(delta).toNotation(), isLastNote);
+						}
+					}
 
-					// okay getting somewhere ...
-				});
+					app.composition.addNote(note, Tone.Time(duration).toNotation(), isLastNote);
+				}
 			});
 		});
 	};
