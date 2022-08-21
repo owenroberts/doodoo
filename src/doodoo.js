@@ -76,11 +76,11 @@ function Doodoo(params, callback) {
 
 	let currentPart = 0;
 	let totalPlays = 0;
+	let simultaneous = params.simultaneous !== undefined ? param.simultaneous : true;
 
 	// attack velocity -- only (?) global params
 	const attackStart = new ValueRange(...defaults.attackStart);
 	const attackStep = new ValueRange(...defaults.attackStep);
-
 
 	let toneLoop;
 	let loops = [];
@@ -133,15 +133,18 @@ function Doodoo(params, callback) {
 		currentCount = 0;
 		loops = [];
 
-		parts[currentPart].getLoops().forEach(params => {
-			const part = {
-				...params,
-				melody: params.harmony === 0 ? 
-					getMelody(params.melody, tonic, transform) :
-					getHarmony(params.melody, tonic, transform, params.harmony, scale),
-				sampler: samples !== 'synth' ? getSampler() : getSynth()
-			};
-			loops.push(part);
+		let currentParts = simultaneous ? parts : [parts[currentPart]];
+		currentParts.forEach(part => {
+			part.getLoops().forEach(params => {
+				const part = {
+					...params,
+					melody: params.harmony === 0 ? 
+						getMelody(params.melody, tonic, transform) :
+						getHarmony(params.melody, tonic, transform, params.harmony, scale),
+					sampler: samples !== 'synth' ? getSampler() : getSynth()
+				};
+				loops.push(part);
+			});
 		});
 
 		/* play notes on default beat ...*/
@@ -164,19 +167,13 @@ function Doodoo(params, callback) {
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
-		// console.log('loops', loops[0].melody);
-		// console.log(
-		// 	loops
-		// 		.map(l => l.melody)
-		// 		.map(m => m.map(n => { return n[0] ? n[0] : ''}).join(' '))
-		// 		.join('')
-		// );
-
-		let mutationCount = parts[currentPart].update();
+		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 
-		currentPart++;
-		if (currentPart >= parts.length) currentPart = 0;
+		if (!simultaneous) {
+			currentPart++;
+			if (currentPart >= parts.length) currentPart = 0;
+		}
 		totalPlays++;
 		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
