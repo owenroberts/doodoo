@@ -1,1 +1,70 @@
-{"parts":[["C4","4n"],[null,"4n"],["E3","4n"],["F3","4n"],["G3","4n"],[null,"4n"],["D3","4n"],["E3","4n"],["D3","4n"],["F3","4n"],["E3","4n"],["D3","4n"],["F3","4n"],["E3","4n"],["D3","4n"],["F3","4n"]],"tonic":"C#4","bpm":120,"samples":"../samples/choir/","title":"Garden","startDuration":"8n","scale":[0,2,4,5,7,9,11],"params":{"attackStart":[0.25,0.7],"attackStep":[-0.2,0.2],"loopNums":[1,1,0.1,0.2],"harmonies":{"start":[4,5],"add":[7,2,3,6],"chance":0.2},"startIndexes":[0,0,0,0.3],"indexStep":[0,0,-0.2,0.2],"durations":{"start":[2,4],"add":[1,8,16,32],"chance":0.3},"startDelays":{"start":[0,1,2,4,0.5,8],"add":[12,16,3,5,7,11],"chance":0.3},"sliceChance":0.1,"sliceLength":3,"shiftChance":0.2,"shiftLength":16,"startLoops":[[{"noteDuration":8}],[{"noteDuration":4},{"noteDuration":4,"harmony":4}]]}}
+{
+    "parts": [
+        ["C4", "4n"],
+        [null, "4n"],
+        ["E3", "4n"],
+        ["F3", "4n"],
+        ["G3", "4n"],
+        [null, "4n"],
+        ["D3", "4n"],
+        ["E3", "4n"],
+        ["D3", "4n"],
+        ["F3", "4n"],
+        ["E3", "4n"],
+        ["D3", "4n"],
+        ["F3", "4n"],
+        ["E3", "4n"],
+        ["D3", "4n"],
+        ["F3", "4n"]
+    ],
+    "tonic": "C#4",
+    "bpm": 120,
+    "samples": "../samples/choir/",
+    "title": "Garden",
+    "startDuration": "8n",
+    "scale": [0, 2, 4, 5, 7, 9, 11],
+    "params":
+    {
+        "attackStart": [0.25, 0.7],
+        "attackStep": [-0.2, 0.2],
+        "loopNums": [1, 1, 0.1, 0.2],
+        "harmonies":
+        {
+            "start": [4, 5],
+            "add": [7, 2, 3, 6],
+            "chance": 0.2
+        },
+        "startIndexes": [0, 0, 0, 0.3],
+        "indexStep": [0, 0, -0.2, 0.2],
+        "durations":
+        {
+            "start": [2, 4],
+            "add": [1, 8, 16, 32],
+            "chance": 0.3
+        },
+        "startDelays":
+        {
+            "start": [0, 1, 2, 4, 0.5, 8],
+            "add": [12, 16, 3, 5, 7, 11],
+            "chance": 0.3
+        },
+        "sliceChance": 0.1,
+        "sliceLength": 3,
+        "shiftChance": 0.2,
+        "shiftLength": 16,
+        "startLoops": [
+            [
+            {
+                "noteDuration": 8
+            }],
+            [
+            {
+                "noteDuration": 4
+            },
+            {
+                "noteDuration": 4,
+                "harmony": 4
+            }]
+        ]
+    }
+}
