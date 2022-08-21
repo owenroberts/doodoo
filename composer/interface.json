@@ -1,4 +1,56 @@
 {
+	"fio": {
+		"label": "FilesIO",
+		"uis":[
+			{
+				"module": "fio",
+				"list": [
+					{
+						"type": "UIButton",
+						"callback": "saveLocal",
+						"key": "s",
+						"params": {
+							"text": "Save Local"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "saveFile",
+						"key": "alt-s",
+						"params": {
+							"text": "Save File"
+						}
+					},
+					{
+						"type": "UIFile",
+						"callback": "load",
+						"key": "o",
+						"params": {
+							"text": "Load File",
+							"promptDefault": "compositions"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "clear",
+						"params": {
+							"text": "Clear Local"
+						}
+					},
+					{
+						"type": "UIFile",
+						"callback": "loadMidi",
+						"params": {
+							"text": "Load Midi",
+							"promptDefault": "compositions",
+							"fileType": "audio/midi"
+						}
+
+					}
+				]
+			}
+		]
+	},
 	"playback": {
 		"label": "Play Back",
 		"uis": [
@@ -263,58 +315,6 @@
 						"params": {
 							"id": "start-loops-row"
 						}
-					}
-				]
-			}
-		]
-	},
-	"fio": {
-		"label": "FilesIO",
-		"uis":[
-			{
-				"module": "fio",
-				"list": [
-					{
-						"type": "UIButton",
-						"callback": "saveLocal",
-						"key": "s",
-						"params": {
-							"text": "Save Local"
-						}
-					},
-					{
-						"type": "UIButton",
-						"callback": "saveFile",
-						"key": "alt-s",
-						"params": {
-							"text": "Save File"
-						}
-					},
-					{
-						"type": "UIFile",
-						"callback": "load",
-						"key": "o",
-						"params": {
-							"text": "Load File",
-							"promptDefault": "compositions"
-						}
-					},
-					{
-						"type": "UIButton",
-						"callback": "clear",
-						"params": {
-							"text": "Clear Local"
-						}
-					},
-					{
-						"type": "UIFile",
-						"callback": "loadMidi",
-						"params": {
-							"text": "Load Midi",
-							"promptDefault": "compositions",
-							"fileType": "audio/midi"
-						}
-
 					}
 				]
 			}

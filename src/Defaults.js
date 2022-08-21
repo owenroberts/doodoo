@@ -19,7 +19,7 @@ let params = [
 		"type": "range",
 		"value": [0.25, 0.7],
 		"range": [0, 1],
-		"step": [0.05],
+		"step": 0.05,
 		"panel": "attack"
 	},
 	{
@@ -27,32 +27,42 @@ let params = [
 		"type": "range",
 		"value": [-0.2, 0.2],
 		"range": [-1, 1],
-		"step": [0.05],
+		"step": 0.05,
 		"panel": "attack"
 	},
 	{
 		"key": "loopNums",
 		"type": "range",
 		"value": [1, 1, 0.1, 0.2],
-		"range": [1, 32, 0, 1],
-		"step": [1, 0.01],
+		"range": [1, 32],
+		"step": 1,
 		"panel": "loop"
 	},
 	{
-		"key": "harmonies",
+		"key": "harmonyStart",
 		"type": "list",
-		"start": [4, 5],
-		"add": [2, 3, 6, 7],
-		"chance": 0.2,
+		"value": [4, 5],
+		"panel": "harmony"
+	},
+	{
+		"key": "harmonyAdd",
+		"type": "list",
+		"value": [2, 3, 6, 7],
 		"shuffle": true,
-		"panel": "loop"
+		"panel": "harmony"
+	},
+	{
+		"key": "harmonyChance",
+		"type": "chance",
+		"value": 0.2,
+		"panel": "harmony"
 	},
 	{
 		"key": "startIndexes",
 		"type": "range",
 		"value": [0, 0, 0, 0.3],
-		"range": [0, 0, 0, 1],
-		"step": [1, 0.01],
+		"range": [0, 0],
+		"step": 1,
 		"panel": "index"
 	},
 	{
@@ -60,23 +70,45 @@ let params = [
 		"type": "range",
 		"value": [0, 0, -0.2, 0.2],
 		"range": [0, 8, -1, 1],
-		"step": [1, 0.01],
+		"step": 1,
 		"panel": "index"
 	},
 	{
-		"key": "durations",
+		"key": "durationStart",
 		"type": "list",
-		"start": [2, 4],
-		"add": [1, 8, 16, 32],
-		"chance": 0.3,
+		"value": [2, 4],
 		"panel": "loop"
 	},
 	{
-		"key": "startDelays",
+		"key": "durationAdd",
 		"type": "list",
-		"start": [0, 1, 2, 4, 0.5, 8],
-		"add": [12, 16, 3, 5, 7, 11],
-		"chance": 0.3,
+		"value": [1, 8, 16, 32],
+		"shuffle": true,
+		"panel": "loop"
+	},
+	{
+		"key": "durationChance",
+		"type": "chance",
+		"value": 0.3,
+		"panel": "loop"
+	},
+	{
+		"key": "startDelaysStart",
+		"type": "list",
+		"value": [0, 1, 2, 4, 0.5, 8],
+		"panel": "index"
+	},
+	{
+		"key": "startDelaysAdd",
+		"type": "list",
+		"value": [12, 16, 3, 5, 7, 11],
+		"shuffle": true,
+		"panel": "index"
+	},
+	{
+		"key": "startDelaysChance",
+		"type": "chance",
+		"value": 0.3,
 		"panel": "index"
 	},
 	{
@@ -87,7 +119,7 @@ let params = [
 	},
 	{
 		"key": "sliceLength",
-		"type": "int",
+		"type": "number",
 		"value": 3,
 		"range": [1, 8],
 		"panel": "slice"
@@ -100,7 +132,7 @@ let params = [
 	},
 	{
 		"key": "shiftLength",
-		"type": "int",
+		"type": "number",
 		"value": 16,
 		"range": [0, 32],
 		"panel": "slice"
@@ -112,9 +144,9 @@ let params = [
 		"panel": "loops",
 	},
 	{
-		"key": "fxDelay",
-		"type": "int",
-		"value": 8,
+		"key": "fxLimit",
+		"type": "number",
+		"value": 4,
 		"range": [0, 16],
 		"panel": "effects"
 	},
@@ -125,8 +157,15 @@ let params = [
 		"panel": "effects"
 	},
 	{
+		"key": "reberbDelay",
+		"type": "number",
+		"value": 0,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
 		"key": "reverbDecay",
-		"type": "int",
+		"type": "number",
 		"value": 5,
 		"range": [0.5, 32],
 		"step": 0.1,
@@ -139,11 +178,18 @@ let params = [
 		"panel": "effects"
 	},
 	{
+		"key": "distortionDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
 		"key": "distortion",
 		"type": "range",
 		"value": [0.05, 0.2],
 		"range": [0.01, 1],
-		"step": [0.01],
+		"step": 0.01,
 		"panel": "effects"
 	},
 	{
@@ -153,12 +199,166 @@ let params = [
 		"panel": "effects"
 	},
 	{
-		"key": "bitCrushBits",
-		"type": "list",
-		"start": [4,8,12],
-		"add": [],
+		"key": "bitCrushDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
 		"panel": "effects"
 	},
+	{
+		"key": "bitCrushBits",
+		"type": "list",
+		"value": [3, 4, 6, 8, 12, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "autoFilterChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "autoFilterDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "autoFilterFrequency",
+		"type": "list",
+		"value": ['2n', '4n', '8n', '16n', '32n'],
+		"panel": "effects"
+	},
+	{
+		"key": "autoPannerChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "autoPannerDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "autoPannerFrequency",
+		"type": "list",
+		"value": ['2n', '4n', '8n', '16n', '32n'],
+		"panel": "effects"
+	},
+	{
+		"key": "chebyChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "chebyDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "chebyOrder",
+		"type": "number",
+		"value": 16,
+		"range": [1, 100],
+		"panel": "effects"
+	},
+	{
+		"key": "chorusChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "chorusDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "chorusFrequency",
+		"type": "number",
+		"value": 4,
+		"range": [1, 12],
+		"panel": "effects"
+	},
+	{
+		"key": "chorusDelayTime",
+		"type": "number",
+		"value": 2.5,
+		"range": [0.1, 12],
+		"step": 0.1,
+		"panel": "effects"
+	},
+	{
+		"key": "chorusDepth",
+		"type": "number",
+		"value": 0.5,
+		"range": [0, 1],
+		"panel": "effects"
+	},
+	{
+		"key": "feedbackChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "effects"
+	},
+	{
+		"key": "feedbackDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "effects"
+	},
+	{
+		"key": "feedbackDelayTime",
+		"type": "list",
+		"value": ['8n', '4n', '16n', '32n'],
+		"panel": "effects"
+	},
+	{
+		"key": "feedback",
+		"type": "number",
+		"value": 0.5,
+		"range": [0.1, 1],
+		"step": 0.01,
+		"panel": "effects"
+	}
+];
+
+let defaults = {};
+params.forEach(p => {
+	const { key, value, type } = p;
+	switch(type) {
+		case 'range':
+		case 'chance':
+		case 'number':
+		case 'loops':
+			defaults[key] = p.value;
+		break;
+		case 'list':
+			defaults[key] = p.shuffle ? shuffle(value) : value;
+		break;
+	}
+});
+
+export default { params, defaults };
+
+/*
+	default start loops
+	// [{ "noteDuration": 8 }],
+		// [
+			// { "noteDuration": 4, },
+			// { "noteDuration": 4, "harmony": 4 }
+		// ]
+*/
 
 
 	// {
@@ -216,35 +416,3 @@ let params = [
 		"panel": "effects"
 	},
 	*/
-];
-
-let defaults = {};
-params.forEach(p => {
-	const { key, type } = p;
-	switch(type) {
-		case 'range':
-		case 'chance':
-		case 'int':
-		case 'loops':
-			defaults[key] = p.value;
-		break;
-		case 'list':
-			defaults[key] = {
-				start: p.start,
-				add: p.shuffle ? shuffle(p.add) : p.add,
-				chance: p.chance
-			};
-		break;
-	}
-});
-
-export default { params, defaults };
-
-/*
-	default start loops
-	// [{ "noteDuration": 8 }],
-		// [
-			// { "noteDuration": 4, },
-			// { "noteDuration": 4, "harmony": 4 }
-		// ]
-*/

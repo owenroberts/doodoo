@@ -149,8 +149,6 @@ function Doodoo(params, callback) {
 			loop.countNum = loop.doubler ? (loop.counter * loop.noteDuration) / 4 : 1;
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
-			loop.indexDelay = loop.startDelay + loop.startIndex;
-
 		});
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
@@ -188,13 +186,7 @@ function Doodoo(params, callback) {
 			for (let j = 0; j < loop.countNum; j++) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
-				const beat = loop.melody[Math.floor(loop.count - loop.indexDelay) % loop.len];
-				if (!beat) {
-					console.log(beat);
-					console.log(loop.melody, loop.count, loop.indexDelay, loop.len);
-					console.log('no beat loop', loop)
-					continue;
-				}
+				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.len];
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
@@ -243,38 +235,61 @@ function Doodoo(params, callback) {
 	}
 
 	function addEffects(sampler) {
-		// console.log('defaults', defaults);
-		if (chance(defaults.reverbChance)) {
+		let effects = [];
+
+		if (chance(defaults.reverbChance) && totalPlays > defaults.reverbDelay && effects.length <= defaults.fxLimit) {
 			const reverb = new Tone.Reverb({ decay: defaults.reverbDecay }).toDestination();
-			sampler.connect(reverb);
+			effects.push(reverb);
 		}
 
-		if (totalPlays >= defaults.fxDelay) {
-			let effect;
-
-			if (chance(defaults.distortionChance)) {
-				const dist = random(...defaults.distortion);
-				effect = new Tone.Distortion(dist).toDestination();
-			}
-			else if (chance(defaults.bitCrushChance)) {
-				const bits = random(defaults.bitCrushBits.start);
-				effect = new Tone.BitCrusher(bits).toDestination();
-			}
-			
-			// else if (chance(defaults.chorusChance)) {
-			// 	effect = new Tone.Chorus(defaults.chorusFrequency, defaults.chorusDelayTime, defaults.chorusDepth);
-			// }
-
-			// else if (chance(defaults.tremoloChance)) {
-			// 	const freq = random(...defaults.tremoloFrequency);
-			// 	const depth = random(...defaults.tremoloDepth);
-			// 	effect = new Tone.Tremolo(9, 0.75).toDestination();
-				// const oscillator = new Tone.Oscillator().connect(sampler).start();
-				// https://tonejs.github.io/docs/14.7.77/Tremolo fuckin a
-			// }
-
-			if (effect) sampler.connect(effect);
+		if (chance(defaults.distortionChance) && totalPlays > defaults.distortionDelay && effects.length <= defaults.fxLimit) {
+			const dist = random(...defaults.distortion);
+			const effect = new Tone.Distortion(dist).toDestination();
+			effects.push(effect);
 		}
+
+		if (chance(defaults.bitCrushChance) && totalPlays > defaults.bitCrushDelay && effects.length <= defaults.fxLimit) {
+			const bits = random(defaults.bitCrushBits);
+			const effect = new Tone.BitCrusher(bits).toDestination();
+			effects.push(effect);
+		}
+
+		if (chance(defaults.autoFilterChance) && totalPlays > defaults.autoFilterDelay && effects.length <= defaults.fxLimit) {
+			const freq = random(defaults.autoFilterFrequency);
+			const autoFilter = new Tone.AutoFilter(freq).toDestination().start();
+			effects.push(autoFilter);
+		}
+
+		if (chance(defaults.autoPannerChance) && totalPlays > defaults.autoPannerDelay && effects.length <= defaults.fxLimit) {
+			const freq = random(defaults.autoPannerFrequency);
+			const autoPanner = new Tone.AutoPanner(freq).toDestination().start();
+			effects.push(autoPanner);
+		}
+
+		if (chance(defaults.chebyChance) && totalPlays > defaults.chebyDelay && effects.length <= defaults.fxLimit) {
+			const order = randInt(defaults.chebyOrder);
+			const cheby = new Tone.Chebyshev(order).toDestination();
+			effects.push(cheby);
+		}
+
+		if (chance(defaults.chorusChance) && totalPlays > defaults.chorusDelay && effects.length <= defaults.fxLimit) {
+			const freq = randInt(defaults.chorusFrequency);
+			const delay = random(defaults.chorusDelayTime);
+			const depth = random(defaults.chorusDepth);
+			const chorus = new Tone.Chorus(freq, delay, depth).toDestination().start();
+			effects.push(chorus);
+		}
+
+		if (chance(defaults.feedbackChance) && totalPlays > defaults.feedbackDelay && effects.length <= defaults.fxLimit) {
+			const feedback = random(defaults.feedback);
+			const delay = random(defaults.feedbackDelayTime);
+			const fb = new Tone.FeedbackDelay(delay, feedback).toDestination();
+			effects.push(fb);
+		}
+
+		
+
+		effects.forEach(effect => sampler.connect(effect));
 	}
 
 	function load(callback) {

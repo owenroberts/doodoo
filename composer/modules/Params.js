@@ -4,7 +4,8 @@
 function Params(app, defaults, params) {
 	const self = this;
 
-	let startLoopsRow;
+	// let startLoopsRow;
+	let originalDefaults = { ...defaults };
 
 	// has to match Part.js
 	const defaultLoop = {
@@ -25,160 +26,66 @@ function Params(app, defaults, params) {
 		return label;
 	}
 
-	function addChance(param, row) {
-		let { key, value} = param;
-		let label = labelFromKey(key);
+	function addChance(param, row, label) {
+		let { key, value, index, range } = param;
 
-		const paramLabel = new UILabel({ text: label, class: 'break-line-up' });
-		row.append(paramLabel);
-
-		const chanceRange = new UIChance({
+		if (label) row.append(new UILabel({ text: label }));
+		row.append(new UIChance({
 			label: 'Chance',
-			value: value,
-			min: 0,
-			max: 1,
+			value: index !== undefined ? value[index] : value,
+			min: range ? range[0] : 0,
+			max: range ? range[1] : 1,
 			step: 0.01,
 			callback: value => {
-				defaults[key] = value;
+				if (index !== undefined) defaults[key][index] = value;
+				else defaults[key] = value;
 			}
-		});
-		row.append(chanceRange);
+		}));
 	}
 
-	function addNumber(param, row) {
+	function addNumber(param, row, label) {
+		let { key, value, range, step, index } = param;
 
+		if (label) row.append(new UILabel({ text: label  }));
+		row.append(new UINumberStep({
+			value: index !== undefined ? value[index] : value,
+			min: range[0],
+			max: range[1],
+			step: param.step || 1, // default is whole num
+			callback: value => {
+				if (index !== undefined) defaults[key][index] = value;
+				else defaults[key] = value;
+			}
+		}));
 	}
 
-	function addList(param, row) {
-		
-	}
-
-	function addRange(param, row) {
+	function addRange(param, row, label) {
 		let { key, value, range, step } = param;
-		let label = labelFromKey(key);
 
-		const paramLabel = new UILabel({ text: label, class: 'break-line-up' });
-		const minLabel = new UILabel({ text: 'Min' });
-		const min = new UINumberStep({
-			value: value[0],
-			min: range[0],
-			max: range[1],
-			step: step[0],
-			callback: value => {
-				defaults[key][0] = value;
-			}
-		});
-
-		const maxLabel = new UILabel({ text: 'Max' });
-		const max = new UINumberStep({
-			value: value[1],
-			min: range[0],
-			max: range[1],
-			step: step[0],
-			callback: value => {
-				defaults[key][1] = value;
-			}
-		});
-
-		row.append(paramLabel);
-		row.append(minLabel);
-		row.append(min);
-		row.append(maxLabel);
-		row.append(max);
+		if (label) row.append(new UILabel({ text: label }));
+		addNumber({ ...param, index: 0 }, row, 'Min');
+		addNumber({ ...param, index: 1 }, row, 'Max');
 
 		if (value.length > 2) {
-			const updateMin = new UIChance({
-				label: 'Min Chance',
-				value: value[2],
-				min: range[2],
-				max: range[3],
-				step: step[1],
-				callback: value => {
-					defaults[key][2] = value;
-				}
-			});
-
-			const updateMax = new UIChance({
-				label: 'Max Chance',
-				value: value[3],
-				min: range[2],
-				max: range[3],
-				step: step[1],
-				callback: value => {
-					defaults[key][3] = value;
-				}
-			});
-
-			row.append(updateMin);
-			row.append(updateMax);
+			// some range chance is negative for Math.sign for update value
+			let r = range.length <= 2 ? [0, 1] : range.slice(2);
+		 	addChance({ ...param, range: r, index: 2 }, row, 'Min Update');
+			addChance({ ...param, range: r, index: 3 }, row, 'Max Update');
 		}
 	}
 
-	function addList(param, row) {
-		let { key, start, add, chance } = param;
-		let label = labelFromKey(key);
-
-		const paramLabel = new UILabel({ text: label, class: 'break-line-up' });
-		row.append(paramLabel);
-
-		const chanceRange = new UIChance({
-			label: 'Chance',
-			value: chance,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			callback: value => {
-				defaults[key].chance = value;
-			}
-		});
-		row.append(chanceRange);
-
-		const startLabel = new UILabel({ text: 'Start', class: 'break' });
-		const startList = new UINumberList({
-			list: start,
-			callback: value => {
-				defaults[key].start = value;
-			} 
-		});
-
-		row.append(startLabel);
-		row.append(startList);
-
-		const addLabel = new UILabel({ text: 'Add', class: 'break' });
-		const addList = new UINumberList({
-			list: add,
-			callback: value => {
-				defaults[key].add = value;
-			} 
-		});
-
-		row.append(addLabel);
-		row.append(addList);
-	}
-
-
-
-	// need simpler thing that just adds a chance and a list if they exist
-
-	function addInt(param, row) {
-		let { key, value, range } = param;
-		let label = labelFromKey(key);
-
-		const paramLabel = new UILabel({ text: label + ' Value', class: 'break-line-up' });
-		row.append(paramLabel);
-
-		const valueRange = new UINumberStep({
-			value: value,
-			min: range[0],
-			max: range[1],
-			step: param.step || 1,
+	function addList(param, row, label) {
+		let { key, value } = param;
+		if (label) row.append(new UILabel({ text: label }));
+		row.append(new UINumberList({
+			list: value,
 			callback: value => {
 				defaults[key] = value;
-			}
-		});
-		row.append(valueRange);
+			} 
+		}));
 	}
 
+	// loop section ...
 	function addLoops(param) {
 		const counts = param.value;
 		const countLabel = new UILabel({ text: "Counts" });
@@ -295,6 +202,30 @@ function Params(app, defaults, params) {
 		loopRow.append(new UILabel({ class: 'break' }));
 	}
 
+	function setupParam(param, row) {
+		const { key, type } = param;
+		const label = labelFromKey(key);
+		row.append(new UILabel({ text: label }));
+		row.append(new UIButton({
+			text: 'Reset',
+			callback: () => {
+				const value = Array.isArray(originalDefaults[key]) ?
+					[...originalDefaults[key]] :
+					originalDefaults[key]
+				defaults[key] = value;
+				param.value = value;
+				row.clear();
+				setupParam(param, row);
+			}
+		}));
+		// row.append(new UIElement({ class: 'break' }));
+
+		if (type === 'range') addRange(param, row);
+		if (type === 'list' && param.value) addList(param, row);
+		if (type === 'chance') addChance(param, row);
+		if (type === 'number') addNumber(param, row);
+	}
+
 	this.init = function(data) {
 		// row = self.panel.doodooParams;
 		startLoopsRow = app.ui.panels.loops.startLoops;
@@ -333,35 +264,19 @@ function Params(app, defaults, params) {
 					app.ui.createPanel(panelName, {
 						label: 'Param ' + labelFromKey(panelName)
 					});
-					row = app.ui.panels[panelName].lastRow;
 				}
+				row = app.ui.panels[panelName].addRow();
+				row.addClass('break-line-up');
+				
 				if (panelData[panelName]) {
 					const { gridArea } = panelData[panelName];
 					const panel = app.ui.panels[panelName];
 					panel.setup(panelData[panelName]);
 					app.ui.layout[gridArea].panels.append(panel);
 				}
-			} else {
-				row = self.panel.doodooParams;
 			}
-
-			switch(params[i].type) {
-				case "range":
-					addRange(param, row);
-				break;
-				case "list":
-					addList(param, row);
-				break;
-				case "chance":
-					addChance(param, row);
-				break;
-				case "int":
-					addInt(param, row);
-				break;
-				case "loops":
-					addLoops(param);
-				break;
-			}
+			if (param.type === 'loops') addLoops(param);
+			else setupParam(param, row);
 		}
 	};
 

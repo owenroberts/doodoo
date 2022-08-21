@@ -5,15 +5,15 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 	let mutations = 0;
 
 	const loopNums = new ValueRange(...defaults.loopNums);
-	const harmonies = new ValueList(defaults.harmonies.start, defaults.harmonies.add, defaults.harmonies.chance);
+	const harmonies = new ValueList(defaults.harmonyStart, defaults.harmonyAdd, defaults.harmonyChance);
 
 	const startIndexes = new ValueRange(...defaults.startIndexes);
 	const indexStep = new ValueRange(...defaults.indexStep);
 
 	// duration of loop, whole note, half note etc.
-	const durations = new ValueList(defaults.durations.start, defaults.durations.add, defaults.durations.chance); 
+	const durations = new ValueList(defaults.durationStart, defaults.durationAdd, defaults.durationsChance); 
 
-	const startDelays = new ValueList(defaults.startDelays.start, defaults.startDelays.add, defaults.startDelays.chance);
+	const startDelays = new ValueList(defaults.startDelaysStart, defaults.startDelaysAdd, defaults.startDelaysChance);
 
 	const defaultLoop = {
 		noteDuration: defaultDuration,
@@ -44,8 +44,8 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 		startDelays.update();
 
 		if (chance(defaults.sliceChance)) {
-			let index = random(melody.length);
-			let slice = melody.slice(index, index + random(defaults.sliceLength));
+			let index = randInt(melody.length);
+			let slice = melody.slice(index, index + randInt(1, defaults.sliceLength));
 			melody.push(...slice);
 		}
 
