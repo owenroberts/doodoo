@@ -4,19 +4,23 @@
 	--ui-scale: 12;
 }
 
-#melody * {
+// #melody *,
+.part * {
 	font-family: monaco, Consolas;
 	font-size: calc(var(--ui-scale) * 1px);
 }
 
 #melody {
-
 	--note-width: 80;
 	--notes-per-row: 4;
 	--column-width: 80;
 	--num-rows: 1; 
 	--row-height: 60;
 	--default-duration: 4;
+}
+
+// #melody,
+.panel .row.part {
 
 	display: grid;
 	grid-template-columns: repeat(

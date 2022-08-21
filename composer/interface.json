@@ -252,6 +252,12 @@
 						}
 					},
 					{
+						"type": "UINumberStep",
+						"number": "currentPart",
+						"face": "currentPart",
+						"label": "Part"
+					},
+					{
 						"type": "UIText",
 						"k": "noteInput",
 						"params": {
@@ -277,7 +283,8 @@
 						"type": "UIRow",
 						"k": "melody",
 						"params": {
-							"class": "break"
+							"class": "break",
+							"id": "melody"
 						}
 					}
 				]

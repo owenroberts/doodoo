@@ -30,7 +30,6 @@ function FilesIO(app) {
 	}
 
 	this.loadMidi = function(data, fileName, filePath) {
-		console.log(fileName, filePath);
 		const midiPromise = new Midi.fromUrl(filePath);
 		midiPromise.then(midiData => {
 			midiData.tracks.forEach(track => {

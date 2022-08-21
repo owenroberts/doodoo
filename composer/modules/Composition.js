@@ -18,6 +18,10 @@ function Composition(app, defaults) {
 	this.startDuration = defaults.startDuration;
 	this.parts = [];
 	this.useMetro = false;
+
+	this.currentPart = 0;
+	this.partRows = [];
+	
 	
 	this.noteWidth = 60;
 	this.uiScale = 12;
@@ -28,7 +32,7 @@ function Composition(app, defaults) {
 
 	this.setNoteWidth = function(value) {
 		self.noteWidth = value;
-		if (melodyRow) self.updateDisplay();
+		if (self.partRows[0]) self.updateDisplay();
 	};
 
 	function midiFormat(note) {
@@ -50,7 +54,9 @@ function Composition(app, defaults) {
 
 	this.init = function() {
 		scaleRow = self.panel.scaleRow;
-		melodyRow = app.ui.panels.melody.melody;
+		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
+		self.partRows[0].addClass('part');
+		// melodyRow = app.ui.panels.melody.melody;
 		noteInput = app.ui.panels.melody.melodyInput.noteInput;
 		durationInput = app.ui.panels.melody.melodyInput.durationInput;
 		self.setUIScale(self.uiScale);
@@ -103,28 +109,39 @@ function Composition(app, defaults) {
 
 	this.update = function() {
 		self.parts = [];
-		let badFormatting = false;
-		const children = melodyRow.children;
-		const parts = Array.from(children).map(p => {
-			let note = p.note.value;
-			let duration = p.duration.value;
-			let noteFormatted;
-			if (['null', 'rest'].includes(note)) {
-				noteFormatted = null;
-			} else {
-				noteFormatted = midiFormat(note);
-				if (!noteFormatted) badFormatting = true;
+		
+		function makePart(children) {
+			let badFormatting = false;
+			const part = Array.from(children).map(p => {
+				let note = p.note.value;
+				let duration = p.duration.value;
+				let noteFormatted;
+				if (['null', 'rest'].includes(note)) {
+					noteFormatted = null;
+				} else {
+					noteFormatted = midiFormat(note);
+					if (!noteFormatted) badFormatting = true;
+				}
+
+				if (duration.length > 3) badFormatting = true;
+				if (isNaN(+duration[0])) badFormatting = true;
+				if (duration.length === 1) duration += 'n';
+				return [noteFormatted, duration];
+			});
+
+			if (badFormatting) {
+				return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
 			}
+			return part;
+		}
 
-			if (duration.length > 3) badFormatting = true;
-			if (isNaN(+duration[0])) badFormatting = true;
-			if (duration.length === 1) duration += 'n';
-			return [noteFormatted, duration];
-		});
-
-		if (badFormatting) return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
-		self.parts = parts;
-		// console.log(parts);
+		if (self.partRows.length > 1) {
+			for (let i = 0; i < self.partRows.length; i++) {
+				self.parts.push(makePart(self.partRows[i].children));
+			}
+		} else {
+			self.parts = makePart(self.partRows[0].children);
+		}
 	};
 
 	this.addNote = function(n, d, skipUpdate) {
@@ -164,7 +181,8 @@ function Composition(app, defaults) {
 			text: "X",
 			class: 'remove-btn',
 			callback: () => {
-				melodyRow.remove(part);
+				// melodyRow.remove(part);
+				self.partRows[self.currentPart].remove(part);
 				self.update();
 				self.updateDisplay();
 			}
@@ -173,7 +191,8 @@ function Composition(app, defaults) {
 		part.append(noteEdit, 'note');
 		part.append(durEdit, 'duration');
 		part.append(removeBtn);
-		melodyRow.append(part);
+		// melodyRow.append(part);
+		self.partRows[self.currentPart].append(part);
 
 		if (!skipUpdate) self.update();
 		if (!skipUpdate) self.updateDisplay();
@@ -181,10 +200,11 @@ function Composition(app, defaults) {
 
 	this.updateDisplay = function() {
 		const n = self.parts.length;
-		const w = melodyRow.el.getBoundingClientRect().width;
-		// console.log(n, w);
+		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
 
-		const durations = self.parts.map(p => p[1]);
+		const durations = self.partRows.length > 1 ?
+			self.parts.flatMap(p => { return p.map(n => n[1]) }) : 
+			self.parts.flatMap(p => p[1]);
 		let noteDivision = Math.max(...durations.map(d => parseInt(d)));
 		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
 		if (noteDivision < 0) noteDivision = '4n';
@@ -194,14 +214,14 @@ function Composition(app, defaults) {
 			npl += 4;
 		}
 
-		// console.log(npl, w / npl);
-		melodyRow.setProp('--column-width', Math.floor(w / npl));
-		melodyRow.setProp('--notes-per-row', npl);
-		melodyRow.setProp('--default-duration', noteDivision);
+		app.ui.panels.melody.setProp('--column-width', Math.floor(w / npl));
+		app.ui.panels.melody.setProp('--notes-per-row', npl);
+		app.ui.panels.melody.setProp('--default-duration', noteDivision);
 	};
 
 	this.clear = function() {
-		melodyRow.clear();
+		// melodyRow.clear();
+		self.partRows[self.currentPart].clear();
 	};
 
 	this.get = function() {
@@ -250,16 +270,34 @@ function Composition(app, defaults) {
 			self.clear();
 			self.parts = [];
 
-			data.parts.forEach(part => {
-				if (part === null) return self.addNote('rest', data.startDuration, true);
-				const note = typeof part === 'string' ? part : part[0];
-				const duration = typeof part === 'string' ? data.startDuration : part[1];
-				if (note === null) self.addNote('rest', duration, true);
-				else self.addNote(note, duration, true);
-			});
+			if (Array.isArray(data.parts[0])) {
+				if (Array.isArray(data.parts[0][0])) {
+					for (let i = 0; i < data.parts.length; i++) {
+						self.currentPart = i;
+						if (i > 0) {
+							let row = app.ui.panels.melody.addRow('part-' + i, 'break-line-up');
+							row.addClass('part');
+							self.partRows.push(row);
+						}
+						addParts(data.parts[i]);
+					}
+				} else {
+					addParts(data.parts);
+				}
+			}
+			self.currentPart = 0;
 		}
-
 		self.update();
 		self.updateDisplay();
 	};
+
+	function addParts(parts) {
+		parts.forEach(part => {
+			if (part === null) return self.addNote('rest', data.startDuration, true);
+			const note = typeof part === 'string' ? part : part[0];
+			const duration = typeof part === 'string' ? data.startDuration : part[1];
+			if (note === null) self.addNote('rest', duration, true);
+			else self.addNote(note, duration, true);
+		});
+	}
 }

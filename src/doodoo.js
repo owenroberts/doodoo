@@ -58,11 +58,20 @@ function Doodoo(params, callback) {
 		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
 		parts.push(new Part(melody, defaults, defaultDuration, debug));
 	} else if (Array.isArray(params.parts[0])) {
-		const melody = params.parts;
-		parts.push(new Part(melody, defaults, defaultDuration, debug));
+		if (Array.isArray(params.parts[0][0])) {
+			for (let i = 0; i < params.parts.length; i++) {
+				const melody = params.parts[i];
+				parts.push(new Part(melody, defaults, defaultDuration, debug));
+				const durations = params.parts[i].map(p => parseInt(p[1]));
+				defaultDuration = Math.max(...durations) + 'n';
+			}
+		} else {
+			const melody = params.parts;
+			parts.push(new Part(melody, defaults, defaultDuration, debug));
 
-		const durations = params.parts.map(p => parseInt(p[1]));
-		defaultDuration = Math.max(...durations) + 'n';
+			const durations = params.parts.map(p => parseInt(p[1]));
+			defaultDuration = Math.max(...durations) + 'n';
+		}
 	}	
 
 	let currentPart = 0;
@@ -80,6 +89,8 @@ function Doodoo(params, callback) {
 
 	const useMetro = params.useMetro;
 	let metro;
+
+	console.log(parts);
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
