@@ -4,7 +4,7 @@ import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
 import Defaults from './Defaults.js';
 const doodooDefaults = Defaults.defaults;
-const doodooDefaultParams = Defaults.params;
+const doodooControls = Defaults.controls;
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -219,18 +219,9 @@ function Doodoo(params, callback) {
 	}
 
 	function getSampler() {
-		// specific to chorus
-		const voice = totalPlays < 3 ? 
-			'U' :
-			random('AEIOU'.split(''));
-		const samples = {};
-		for (let i = 0; i < noteNames.length; i++) {
-			const note = noteNames[i];
-			samples[note] = choirSamples.get(`${voice}-${note}`);
-		}
-
+		const sampleFiles = getSampleFiles();
 		const sampler = new Tone.Sampler({
-			urls: samples,
+			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
 		}).toDestination();
@@ -325,25 +316,108 @@ function Doodoo(params, callback) {
 		effects.forEach(effect => sampler.connect(effect));
 	}
 
-	function load(callback) {
-
-		noteNames = [2,3,4].flatMap(n => 'ABCDEFG'.split('').map(letter => `${letter}${n}`));
-
-		let urls = {};
-		for (let i = 0; i < noteNames.length; i++) {
-			'AEIOU'.split('').forEach(voice => {
+	function getSampleFiles() {
+		if (samples.includes('choir')) {
+			const voice = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
+			const sampleFiles = {};
+			for (let i = 0; i < noteNames.length; i++) {
 				const note = noteNames[i];
-				urls[`${voice}-${note}`] = `${voice}/CH-${voice}${voice}-${note}.mp3`;
-			});
+				sampleFiles[note] = choirSamples.get(`${voice}-${note}`);
+			}
+			return sampleFiles;
 		}
 
-		// add ee and aa
-		console.time('load choir samples');
+		if (samples.includes('toms')) {
+			return { 'A#3': choirSamples.get('A#3') };
+		}
+
+		if (samples.includes('guitar')) {
+			return { 'C4': choirSamples.get('C4') };
+		}
+
+		if (samples.includes('flute')) {
+			return { 'C5': choirSamples.get('C5') };
+		}
+
+		if (samples.includes('bamboo')) {
+			return {
+				'B3': choirSamples.get('B3'),
+				'G4': choirSamples.get('G4'),
+			};
+		}
+
+		if (samples.includes('strings')) {
+			return {
+				// "A#2": choirSamples.get("A#2"),
+				"A5": choirSamples.get("A5"),
+				"C4": choirSamples.get("C4"),
+				"C7": choirSamples.get("C7"),
+				// "D#2": choirSamples.get("D#2"),
+				"D5": choirSamples.get("D5"),
+				"E3": choirSamples.get("E3"),
+				"E6": choirSamples.get("E6"),
+				"G4": choirSamples.get("G4"),
+			};
+		}
+	}
+
+	function loadSamples() {
+		let urls = {};
+		
+		if (samples.includes('choir')) {
+			noteNames = [2,3,4].flatMap(n => 'ABCDEFG'.split('').map(letter => `${letter}${n}`));
+			for (let i = 0; i < noteNames.length; i++) {
+				'AEIOU'.split('').forEach(voice => {
+					const note = noteNames[i];
+					urls[`${voice}-${note}`] = `${voice}/CH-${voice}${voice}-${note}.mp3`;
+				});
+			}
+		}
+
+		if (samples.includes('toms')) {
+			urls = { 'A#3': 'Tom606.ogg' };
+		}
+
+		if (samples.includes('guitar')) {
+			urls = { 'C4': 'c4.wav' };
+		}
+
+		if (samples.includes('flute')) {
+			urls = { 'C5': 'C5.wav' };
+		}
+
+		if (samples.includes('bamboo')) {
+			urls = {
+				'B3': 'b3.ogg',
+				'G4': 'g4.ogg',
+			};
+		}
+
+		if (samples.includes('strings')) {
+			urls = {
+				// "A#2": "A#2.ogg",
+				"A5": "A5.ogg",
+				"C4": "C4.ogg",
+				"C7": "C7.ogg",
+				// "D#2": "D#2.ogg",
+				"D5": "D5.ogg",
+				"E3": "E3.ogg",
+				"E6": "E6.ogg",
+				"G4": "G4.ogg",
+			};
+		}
+
+		return urls;
+	}
+
+	function load(callback) {
+		let urls = loadSamples(); 
+		console.time(`load ${samples}`);
 		choirSamples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: params.samples || './doodoo/samples/choir/',
+			baseUrl: params.samples,
 			onload: () => {
-				console.timeEnd('load choir samples');
+				console.timeEnd(`load ${samples}`);
 				callback();
 			}
 		});
@@ -409,7 +483,7 @@ export default {
 	Doodoo: Doodoo,
 	MIDI_NOTES: MIDI_NOTES,
 	doodooDefaults: doodooDefaults,
-	doodooDefaultParams: doodooDefaultParams
+	doodooControls: doodooControls
 };
 
 /*

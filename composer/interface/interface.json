@@ -171,7 +171,12 @@
 							"options": [
 								{ "value": "../samples/choir/", "text": "Choir" },
 								{ "value": "synth", "text": "FMSynth" },
-								{ "value": "../samples/toms/", "text": "Toms" }
+								{ "value": "../samples/toms/", "text": "Toms" },
+								{ "value": "../samples/bamboo/", "text": "Bamboo" },
+								{ "value": "../samples/strings/", "text": "Strings" },
+								{ "value": "../samples/flute/", "text": "Flute" },
+								{ "value": "../samples/guitar/", "text": "Guitar" }
+
 							]
 						}
 					},
@@ -311,16 +316,16 @@
 			}
 		]
 	},
-	"params": {
-		"label": "Doodoo Params",
+	"controls": {
+		"label": "Doodoo Controls",
 		"addPanel": true,
 		"uis": [
 			{
-				"module": "params",
+				"module": "controls",
 				"list": [
 					{
 						"type": "UIButton",
-						"callback": "resetParams",
+						"callback": "resetControls",
 						"params": {
 							"text": "Reset Defaults"
 						}
@@ -341,7 +346,7 @@
 		"addPanel": true,
 		"uis": [
 			{
-				"module": "params",
+				"module": "controls",
 				"list": [
 					{
 						"type": "UIRow",

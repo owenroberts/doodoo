@@ -93,7 +93,7 @@ function Composition(app, defaults) {
 				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
 			},
 			useMetro: self.useMetro,
-			params: app.params.get()
+			params: app.controls.get()
 		});
 		doodoo.play();
 		app.fio.saveLocal(comp);

@@ -13,7 +13,7 @@
 
 import { shuffle } from './cool.js';
 
-let params = [
+let controls = [
 	{
 		"key": "attackStart",
 		"type": "range",
@@ -353,7 +353,7 @@ let params = [
 	{
 		"key": "feedback",
 		"type": "number",
-		"value": 0.5,
+		"value": 0.25,
 		"range": [0.1, 1],
 		"step": 0.01,
 		"panel": "delay"
@@ -414,7 +414,7 @@ let params = [
 	{
 		"key": "pingPongFeedback",
 		"type": "number",
-		"value": 0.5,
+		"value": 0.25,
 		"range": [0, 1],
 		"step": 0.01,
 		"panel": "delay"
@@ -443,7 +443,7 @@ let params = [
 	{
 		"key": "tremoloDepth",
 		"type": "range",
-		"value": [0.1, 1],
+		"value": [0.1, 0.5],
 		"range": [0, 1],
 		"step": 0.05,
 		"panel": "tremolo"
@@ -472,17 +472,15 @@ let params = [
 	{
 		"key": "vibratoDepth",
 		"type": "range",
-		"value": [0.1, 1],
+		"value": [0.1, 0.5],
 		"range": [0, 1],
 		"step": 0.05,
 		"panel": "vibrato"
 	},
 ];
 
-
-
 let defaults = {};
-params.forEach(p => {
+controls.forEach(p => {
 	const { key, value, type } = p;
 	switch(type) {
 		case 'range':
@@ -497,7 +495,7 @@ params.forEach(p => {
 	}
 });
 
-export default { params, defaults };
+export default { controls, defaults };
 
 /*
 	default start loops

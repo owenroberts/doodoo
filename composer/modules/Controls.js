@@ -1,7 +1,7 @@
 /*
-	manage the many many doodoo params
+	manage the many many doodoo controls
 */
-function Params(app, defaults, params) {
+function Controls(app, defaults, controls) {
 	const self = this;
 
 	// let startLoopsRow;
@@ -26,8 +26,8 @@ function Params(app, defaults, params) {
 		return label;
 	}
 
-	function setupParam(param, row) {
-		const { key, type } = param;
+	function setupParam(control, row) {
+		const { key, type } = control;
 		const label = labelFromKey(key);
 		row.append(new UILabel({ text: label }));
 		row.append(new UIButton({
@@ -38,25 +38,25 @@ function Params(app, defaults, params) {
 		}));
 		// row.append(new UIElement({ class: 'break' }));
 
-		if (type === 'range') addRange(param, row);
-		if (type === 'list' && param.value) addList(param, row);
-		if (type === 'chance') addChance(param, row);
-		if (type === 'number') addNumber(param, row);
+		if (type === 'range') addRange(control, row);
+		if (type === 'list' && control.value) addList(control, row);
+		if (type === 'chance') addChance(control, row);
+		if (type === 'number') addNumber(control, row);
 	}
 
 	function resetParam(key, row) {
-		const param = params.filter(p => p.key === key)[0];
+		const control = controls.filter(p => p.key === key)[0];
 		const value = Array.isArray(originalDefaults[key]) ?
 			[...originalDefaults[key]] :
 			originalDefaults[key]
 		defaults[key] = value;
-		param.value = value;
+		control.value = value;
 		row.clear();
-		setupParam(param, row);
+		setupParam(control, row);
 	}
 
-	function addChance(param, row, label) {
-		let { key, value, index, range } = param;
+	function addChance(control, row, label) {
+		let { key, value, index, range } = control;
 
 		if (label) row.append(new UILabel({ text: label }));
 		row.append(new UIChance({
@@ -72,15 +72,15 @@ function Params(app, defaults, params) {
 		}));
 	}
 
-	function addNumber(param, row, label) {
-		let { key, value, range, step, index } = param;
+	function addNumber(control, row, label) {
+		let { key, value, range, step, index } = control;
 
 		if (label) row.append(new UILabel({ text: label  }));
 		row.append(new UINumberStep({
 			value: index !== undefined ? value[index] : value,
 			min: range[0],
 			max: range[1],
-			step: param.step || 1, // default is whole num
+			step: control.step || 1, // default is whole num
 			callback: value => {
 				if (index !== undefined) defaults[key][index] = value;
 				else defaults[key] = value;
@@ -88,23 +88,23 @@ function Params(app, defaults, params) {
 		}));
 	}
 
-	function addRange(param, row, label) {
-		let { key, value, range, step } = param;
+	function addRange(control, row, label) {
+		let { key, value, range, step } = control;
 
 		if (label) row.append(new UILabel({ text: label }));
-		addNumber({ ...param, index: 0 }, row, 'Min');
-		addNumber({ ...param, index: 1 }, row, 'Max');
+		addNumber({ ...control, index: 0 }, row, 'Min');
+		addNumber({ ...control, index: 1 }, row, 'Max');
 
 		if (value.length > 2) {
 			// some range chance is negative for Math.sign for update value
 			let r = range.length <= 2 ? [0, 1] : range.slice(2);
-		 	addChance({ ...param, range: r, index: 2 }, row, 'Min Update');
-			addChance({ ...param, range: r, index: 3 }, row, 'Max Update');
+		 	addChance({ ...control, range: r, index: 2 }, row, 'Min Update');
+			addChance({ ...control, range: r, index: 3 }, row, 'Max Update');
 		}
 	}
 
-	function addList(param, row, label) {
-		let { key, value } = param;
+	function addList(control, row, label) {
+		let { key, value } = control;
 		if (label) row.append(new UILabel({ text: label }));
 		row.append(new UINumberList({
 			list: value,
@@ -115,8 +115,8 @@ function Params(app, defaults, params) {
 	}
 
 	// loop section ...
-	function addLoops(param) {
-		const counts = param.value;
+	function addLoops(control) {
+		const counts = control.value;
 		const countLabel = new UILabel({ text: "Counts" });
 		startLoopsRow.append(countLabel);
 		
@@ -188,7 +188,7 @@ function Params(app, defaults, params) {
 		const loopLabel = new UILabel({ text: "Loop " + loopIndex });
 		loopRow.append(loopLabel);
 
-		const paramSelect = new UISelectButton({
+		const controlSelect = new UISelectButton({
 			options: Object.keys(defaultLoop),
 			class: 'break',
 			callback: value => {
@@ -196,7 +196,7 @@ function Params(app, defaults, params) {
 			}
 		});
 
-		loopRow.append(paramSelect);
+		loopRow.append(controlSelect);
 
 		for (const key in loop) {
 			addLoopParam(key, loop[key], countIndex, loopIndex, loopRow);
@@ -217,8 +217,8 @@ function Params(app, defaults, params) {
 				loopRow.append(bool);
 			break;
 			case "number":
-				let paramLabel = new UILabel({ text: label });
-				loopRow.append(paramLabel);
+				let controlLabel = new UILabel({ text: label });
+				loopRow.append(controlLabel);
 				let num = new UINumberStep({
 					value: value,
 					callback: value => {
@@ -233,15 +233,15 @@ function Params(app, defaults, params) {
 
 	this.resetParams = function() {
 		let index = 0;
-		for (let i = 0; i < params.length; i++) {
-			if (params[i].key === 'fxLimit') {
+		for (let i = 0; i < controls.length; i++) {
+			if (controls[i].key === 'fxLimit') {
 				index = i;
 				break;
 			}
 		}
 
 		for (let i = 0; i < index; i++) {
-			const { key, panel } = params[i];
+			const { key, panel } = controls[i];
 			if (key === 'loops') continue;
 			resetParam(key, app.ui.panels[panel]['row-' + key]);
 		}	
@@ -249,15 +249,15 @@ function Params(app, defaults, params) {
 
 	this.resetEffects = function() {
 		let index = 0;
-		for (let i = 0; i < params.length; i++) {
-			if (params[i].key === 'fxLimit') {
+		for (let i = 0; i < controls.length; i++) {
+			if (controls[i].key === 'fxLimit') {
 				index = i;
 				break;
 			}
 		}
 
-		for (let i = index; i < params.length; i++) {
-			const { key, panel } = params[i];
+		for (let i = index; i < controls.length; i++) {
+			const { key, panel } = controls[i];
 			resetParam(key, app.ui.panels[panel]['row-' + key]);
 		}
 	};
@@ -270,7 +270,7 @@ function Params(app, defaults, params) {
 	this.load = function(data) {
 		// load local storage or comp data
 		if (data) {
-			params.forEach(p => {
+			controls.forEach(p => {
 				if (data[p.key] !== undefined) {
 					defaults[p.key] = data[p.key];
 					switch(p.type) {
@@ -290,18 +290,18 @@ function Params(app, defaults, params) {
 		const panelData = localStorage.getItem('settings-doodoo') ?
 			JSON.parse(localStorage.getItem('settings-doodoo')).panels : {};
 
-		for (let i = 0; i < params.length; i++) {
-			const param = params[i];
+		for (let i = 0; i < controls.length; i++) {
+			const control = controls[i];
 			let row;
-			if (param.panel) {
-				const panelName = param.panel;
+			if (control.panel) {
+				const panelName = control.panel;
 				// if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
 				if (!app.ui.panels[panelName]) {
 					app.ui.createPanel(panelName, {
 						label: 'Param ' + labelFromKey(panelName)
 					});
 				}
-				row = app.ui.panels[panelName].addRow('row-' + param.key);
+				row = app.ui.panels[panelName].addRow('row-' + control.key);
 				row.addClass('break-line-up');
 				
 				if (panelData[panelName]) {
@@ -311,8 +311,8 @@ function Params(app, defaults, params) {
 					app.ui.layout[gridArea].panels.append(panel);
 				}
 			}
-			if (param.type === 'loops') addLoops(param);
-			else setupParam(param, row);
+			if (control.type === 'loops') addLoops(control);
+			else setupParam(control, row);
 		}
 	};
 

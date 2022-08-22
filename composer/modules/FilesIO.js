@@ -7,14 +7,13 @@ function FilesIO(app) {
 	this.load = function(data) {
 		// console.log(data);
 		app.composition.load(data);
-		app.params.load(data.params);
+		app.controls.load(data.controls);
 	};
 
-	this.saveLocal = function(composition, params) {
+	this.saveLocal = function(composition, controls) {
 		if (!composition) composition = app.composition.get();
-		if (!params) params = app.params.get();
-		// console.log(params);
-		localStorage.setItem('comp', JSON.stringify({ ...composition, params: params }));
+		if (!controls) controls = app.controls.get();
+		localStorage.setItem('comp', JSON.stringify({ ...composition, controls: controls }));
 	};
 
 	this.clear = function() {
