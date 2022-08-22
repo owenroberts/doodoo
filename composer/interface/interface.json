@@ -170,7 +170,8 @@
 							"selected": "synth",
 							"options": [
 								{ "value": "../samples/choir/", "text": "Choir" },
-								{ "value": "synth", "text": "FMSynth" }
+								{ "value": "synth", "text": "FMSynth" },
+								{ "value": "../samples/toms/", "text": "Toms" }
 							]
 						}
 					},
