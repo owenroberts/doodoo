@@ -77,7 +77,6 @@ function Doodoo(params, callback) {
 	let currentPart = 0;
 	let totalPlays = 0;
 	let simultaneous = params.simultaneous || false;
-	console.log('simultaneous', simultaneous)
 
 	// attack velocity -- only (?) global params
 	const attackStart = new ValueRange(...defaults.attackStart);
@@ -133,7 +132,6 @@ function Doodoo(params, callback) {
 		loops = [];
 
 		let currentParts = simultaneous ? parts : [parts[currentPart]];
-		console.log(currentParts, currentPart)
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
 				const part = {
@@ -295,7 +293,34 @@ function Doodoo(params, callback) {
 			effects.push(fb);
 		}
 
-		
+		if (chance(defaults.phaserChance) && totalPlays > defaults.phaserDelay && effects.length <= defaults.fxLimit) {
+			const freq = randInt(defaults.phaserFrequency);
+			const octaves = randInt(defaults.phaserOctaves);
+			const base = randInt(defaults.phaserBaseFrequency);
+			const phaser = new Tone.Phaser(freq, octaves, base).toDestination();
+			effects.push(phaser);
+		}
+
+		if (chance(defaults.pingPongChance) && totalPlays > defaults.pingPongDelay && effects.length <= defaults.fxLimit) {
+			const delay = random(defaults.pingPongDelayTime);
+			const feedback = random(defaults.pingPongFeedback);
+			const pingPong = new Tone.PingPongDelay(delay, feedback).toDestination();
+			effects.push(pingPong);
+		}
+
+		if (chance(defaults.tremoloChance) && totalPlays > defaults.tremoloDelay && effects.length <= defaults.fxLimit) {
+			const freq = randInt(defaults.tremoloFrequency);
+			const depth = random(defaults.tremoloDepth);
+			const tremolo = new Tone.Tremolo(freq, depth).toDestination().start();
+			effects.push(tremolo);
+		}
+
+		if (chance(defaults.vibratoChance) && totalPlays > defaults.vibratoDelay && effects.length <= defaults.fxLimit) {
+			const freq = randInt(...defaults.vibratoFrequency);
+			const depth = random(defaults.vibratoDepth);
+			const vibrato = new Tone.Vibrato(freq, depth).toDestination();
+			effects.push(vibrato);
+		}
 
 		effects.forEach(effect => sampler.connect(effect));
 	}

@@ -21,11 +21,13 @@ window.addEventListener("load", function() {
 		useMain: true
 	});
 	
-	
-	app.ui.settings = new Settings(app, 'doodoo');
+	const workspaceFields = [
+		'noteWidth',
+	];
+	app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
 	app.fio = new FilesIO(app);
 	
-	app.ui.load('./interface.json', () => {
+	app.ui.load('./interface/interface.json', () => {
 		app.ui.settings.load();
 		app.composition.init();
 		app.params.init();

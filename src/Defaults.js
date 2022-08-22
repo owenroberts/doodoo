@@ -39,6 +39,12 @@ let params = [
 		"panel": "loop"
 	},
 	{
+		"key": "harmonyChance",
+		"type": "chance",
+		"value": 0.6,
+		"panel": "harmony"
+	},
+	{
 		"key": "harmonyStart",
 		"type": "list",
 		"value": [4, 5],
@@ -52,7 +58,7 @@ let params = [
 		"panel": "harmony"
 	},
 	{
-		"key": "harmonyChance",
+		"key": "harmonyUpdateChance",
 		"type": "chance",
 		"value": 0.2,
 		"panel": "harmony"
@@ -138,11 +144,32 @@ let params = [
 		"panel": "slice"
 	},
 	{
+		"key": "doublerChance",
+		"type": "chance",
+		"value": 0.5,
+		"panel": "doubler"
+	},
+	{
+		"key": "doublerCounterChance",
+		"type": "chance",
+		"value": 0.4,
+		"panel": "doubler"
+	},
+	{
+		"key": "repeat",
+		"type": "list",
+		"value": [2, 3, 4],
+		"panel": "doubler"
+	},
+	{
 		"key": "startLoops",
 		"type": "loops",
 		"value": [],
 		"panel": "loops",
 	},
+
+	// fx 
+
 	{
 		"key": "fxLimit",
 		"type": "number",
@@ -175,14 +202,14 @@ let params = [
 		"key": "distortionChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "distortionDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "distortion",
@@ -190,104 +217,104 @@ let params = [
 		"value": [0.05, 0.2],
 		"range": [0.01, 1],
 		"step": 0.01,
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "bitCrushChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "bitCrushDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "bitCrushBits",
 		"type": "list",
 		"value": [3, 4, 6, 8, 12, 16],
-		"panel": "effects"
+		"panel": "distortion"
 	},
 	{
 		"key": "autoFilterChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "autoFilterDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "autoFilterFrequency",
 		"type": "list",
 		"value": ['2n', '4n', '8n', '16n', '32n'],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "autoPannerChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "autoPannerDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "autoPannerFrequency",
 		"type": "list",
 		"value": ['2n', '4n', '8n', '16n', '32n'],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "chebyChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "chebyDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "chebyOrder",
 		"type": "number",
 		"value": 16,
 		"range": [1, 100],
-		"panel": "effects"
+		"panel": "filter"
 	},
 	{
 		"key": "chorusChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "chorus"
 	},
 	{
 		"key": "chorusDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "chorus"
 	},
 	{
 		"key": "chorusFrequency",
 		"type": "number",
 		"value": 4,
 		"range": [1, 12],
-		"panel": "effects"
+		"panel": "chorus"
 	},
 	{
 		"key": "chorusDelayTime",
@@ -295,33 +322,33 @@ let params = [
 		"value": 2.5,
 		"range": [0.1, 12],
 		"step": 0.1,
-		"panel": "effects"
+		"panel": "chorus"
 	},
 	{
 		"key": "chorusDepth",
 		"type": "number",
 		"value": 0.5,
 		"range": [0, 1],
-		"panel": "effects"
+		"panel": "chorus"
 	},
 	{
 		"key": "feedbackChance",
 		"type": "chance",
 		"value": 0.25,
-		"panel": "effects"
+		"panel": "delay"
 	},
 	{
 		"key": "feedbackDelay",
 		"type": "number",
 		"value": 8,
 		"range": [0, 16],
-		"panel": "effects"
+		"panel": "delay"
 	},
 	{
 		"key": "feedbackDelayTime",
 		"type": "list",
 		"value": ['8n', '4n', '16n', '32n'],
-		"panel": "effects"
+		"panel": "delay"
 	},
 	{
 		"key": "feedback",
@@ -329,9 +356,130 @@ let params = [
 		"value": 0.5,
 		"range": [0.1, 1],
 		"step": 0.01,
-		"panel": "effects"
-	}
+		"panel": "delay"
+	},
+	{
+		"key": "phaserChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "phaser"
+	},
+	{
+		"key": "phaserDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "phaser"
+	},
+	{
+		"key": "phaserFrequency",
+		"type": "number",
+		"value": 15,
+		"range": [0, 32],
+		"panel": "phaser"
+	},
+	{
+		"key": "phaserOctaves",
+		"type": "number",
+		"value": 5,
+		"range": [1, 16],
+		"panel": "phaser"
+	},
+	{
+		"key": "phaserBaseFrequency",
+		"type": "number",
+		"value": 1000,
+		"range": [1, 10000],
+		"panel": "phaser"
+	},
+	{
+		"key": "pingPongChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "delay"
+	},
+	{
+		"key": "pingPongDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "delay"
+	},
+	{
+		"key": "pingPongDelayTime",
+		"type": "list",
+		"value": ['1n', '2n', '4n', '8n', '16n', '32n', '2t', '4t', '8t', '16t', '32t'],
+		"panel": "delay"
+	},
+	{
+		"key": "pingPongFeedback",
+		"type": "number",
+		"value": 0.5,
+		"range": [0, 1],
+		"step": 0.01,
+		"panel": "delay"
+	},
+	{
+		"key": "tremoloChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "tremolo"
+	},
+	{
+		"key": "temoloDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "tremolo"
+	},
+	{
+		"key": "tremoloFrequency",
+		"type": "range",
+		"value": [9, 9],
+		"range": [1, 18],
+		"step": 1,
+		"panel": "tremolo"
+	},
+	{
+		"key": "tremoloDepth",
+		"type": "range",
+		"value": [0.1, 1],
+		"range": [0, 1],
+		"step": 0.05,
+		"panel": "tremolo"
+	},
+	{
+		"key": "vibratoChance",
+		"type": "chance",
+		"value": 0.25,
+		"panel": "vibrato"
+	},
+	{
+		"key": "vibratoDelay",
+		"type": "number",
+		"value": 8,
+		"range": [0, 16],
+		"panel": "vibrato"
+	},
+	{
+		"key": "vibratoFrequency",
+		"type": "range",
+		"value": [9, 9],
+		"range": [1, 18],
+		"step": 1,
+		"panel": "vibrato"
+	},
+	{
+		"key": "vibratoDepth",
+		"type": "range",
+		"value": [0.1, 1],
+		"range": [0, 1],
+		"step": 0.05,
+		"panel": "vibrato"
+	},
 ];
+
+
 
 let defaults = {};
 params.forEach(p => {
@@ -361,58 +509,5 @@ export default { params, defaults };
 */
 
 
-	// {
-	// 	"key": "tremoloChance",
-	// 	"type": "chance",
-	// 	"value": 0.25,
-	// 	"panel": "effects"
-	// },
-	// {
-	// 	"key": "tremoloFrequency",
-	// 	"type": "range",
-	// 	"value": [9, 9],
-	// 	"range": [1, 18],
-	// 	"step": 1,
-	// 	"panel": "effects"
-	// },
-	// {
-	// 	"key": "tremoloDepth",
-	// 	"type": "range",
-	// 	"value": [0.1, 1],
-	// 	"range": [0, 1],
-	// 	"step": 0.05,
-	// 	"panel": "effects"
-	// },
+	
 
-	/*
-	{
-		"key": "chorusChance",
-		"type": "chance",
-		"value": 0.25,
-		"panel": "effects"
-	},
-	{
-		"key": "chorusFrequency",
-		"type": "int",
-		"value": 6,
-		"range": [0.1, 8],
-		"step": 0.1,
-		"panel": "effects"
-	},
-	{
-		"key": "chorusDelayTime",
-		"type": "int",
-		"value": 2.5,
-		"range": [0.1, 8],
-		"step": 0.1,
-		"panel": "effects"
-	},
-	{
-		"key": "chorusDepth",
-		"type": "int",
-		"value": 0.5,
-		"range": [0.1, 1],
-		"step": 0.1,
-		"panel": "effects"
-	},
-	*/

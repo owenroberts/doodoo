@@ -69,7 +69,7 @@
 					{
 						"type": "UIButton",
 						"callback": "stop",
-						"key": "ctrl-space",
+						"key": "alt-space",
 						"params": {
 							"text": "Stop"
 						}
@@ -258,10 +258,23 @@
 						}
 					},
 					{
-						"type": "UINumberStep",
+						"type": "UISelect",
 						"number": "currentPart",
 						"face": "currentPart",
-						"label": "Part"
+						"label": "Part",
+						"params": {
+							"options": [{
+								"value": 0,
+								"text": "Part 0"
+							}]
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "addPart",
+						"params": {
+							"text": "+"
+						}
 					},
 					{
 						"type": "UIText",
@@ -305,10 +318,17 @@
 				"module": "params",
 				"list": [
 					{
-						"type": "UIRow",
-						"k": "doodooParams",
+						"type": "UIButton",
+						"callback": "resetParams",
 						"params": {
-							"id": "doodoo-params"
+							"text": "Reset Defaults"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "resetEffects",
+						"params": {
+							"text": "Reset Effects"
 						}
 					}
 				]
@@ -327,6 +347,25 @@
 						"k": "startLoops",
 						"params": {
 							"id": "start-loops-row"
+						}
+					}
+				]
+			}
+		]
+	},
+	"workspaces": {
+		"uis": [
+			{
+				"module": "ui",
+				"sub": "settings",
+				"list": [
+					{
+						"row": true,
+						"type": "UIButton",
+						"callback": "loadLayoutFile",
+						"params": {
+							"text": "Default",
+							"args": ["/composer/interface/workspaces/Default.json"]
 						}
 					}
 				]

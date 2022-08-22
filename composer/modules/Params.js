@@ -26,6 +26,35 @@ function Params(app, defaults, params) {
 		return label;
 	}
 
+	function setupParam(param, row) {
+		const { key, type } = param;
+		const label = labelFromKey(key);
+		row.append(new UILabel({ text: label }));
+		row.append(new UIButton({
+			text: 'Reset',
+			callback: () => {
+				resetParam(key, row);
+			}
+		}));
+		// row.append(new UIElement({ class: 'break' }));
+
+		if (type === 'range') addRange(param, row);
+		if (type === 'list' && param.value) addList(param, row);
+		if (type === 'chance') addChance(param, row);
+		if (type === 'number') addNumber(param, row);
+	}
+
+	function resetParam(key, row) {
+		const param = params.filter(p => p.key === key)[0];
+		const value = Array.isArray(originalDefaults[key]) ?
+			[...originalDefaults[key]] :
+			originalDefaults[key]
+		defaults[key] = value;
+		param.value = value;
+		row.clear();
+		setupParam(param, row);
+	}
+
 	function addChance(param, row, label) {
 		let { key, value, index, range } = param;
 
@@ -202,29 +231,36 @@ function Params(app, defaults, params) {
 		loopRow.append(new UILabel({ class: 'break' }));
 	}
 
-	function setupParam(param, row) {
-		const { key, type } = param;
-		const label = labelFromKey(key);
-		row.append(new UILabel({ text: label }));
-		row.append(new UIButton({
-			text: 'Reset',
-			callback: () => {
-				const value = Array.isArray(originalDefaults[key]) ?
-					[...originalDefaults[key]] :
-					originalDefaults[key]
-				defaults[key] = value;
-				param.value = value;
-				row.clear();
-				setupParam(param, row);
+	this.resetParams = function() {
+		let index = 0;
+		for (let i = 0; i < params.length; i++) {
+			if (params[i].key === 'fxLimit') {
+				index = i;
+				break;
 			}
-		}));
-		// row.append(new UIElement({ class: 'break' }));
+		}
 
-		if (type === 'range') addRange(param, row);
-		if (type === 'list' && param.value) addList(param, row);
-		if (type === 'chance') addChance(param, row);
-		if (type === 'number') addNumber(param, row);
-	}
+		for (let i = 0; i < index; i++) {
+			const { key, panel } = params[i];
+			if (key === 'loops') continue;
+			resetParam(key, app.ui.panels[panel]['row-' + key]);
+		}	
+	};
+
+	this.resetEffects = function() {
+		let index = 0;
+		for (let i = 0; i < params.length; i++) {
+			if (params[i].key === 'fxLimit') {
+				index = i;
+				break;
+			}
+		}
+
+		for (let i = index; i < params.length; i++) {
+			const { key, panel } = params[i];
+			resetParam(key, app.ui.panels[panel]['row-' + key]);
+		}
+	};
 
 	this.init = function(data) {
 		// row = self.panel.doodooParams;
@@ -259,13 +295,13 @@ function Params(app, defaults, params) {
 			let row;
 			if (param.panel) {
 				const panelName = param.panel;
-				if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
-				else {
+				// if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
+				if (!app.ui.panels[panelName]) {
 					app.ui.createPanel(panelName, {
 						label: 'Param ' + labelFromKey(panelName)
 					});
 				}
-				row = app.ui.panels[panelName].addRow();
+				row = app.ui.panels[panelName].addRow('row-' + param.key);
 				row.addClass('break-line-up');
 				
 				if (panelData[panelName]) {

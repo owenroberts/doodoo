@@ -23,7 +23,6 @@ function Composition(app, defaults) {
 	this.currentPart = 0;
 	this.partRows = [];
 	
-	
 	this.noteWidth = 60;
 	this.uiScale = 12;
 	this.setUIScale = function(value) {
@@ -147,7 +146,7 @@ function Composition(app, defaults) {
 
 	this.addNote = function(n, d, skipUpdate) {
 
-		let note = n || noteInput.value;
+		let note = n || noteInput.value.toUpperCase();
 		let duration = d || durationInput.value;
 
 		let part = new UICollection({ class: "note-collection" });
@@ -199,6 +198,15 @@ function Composition(app, defaults) {
 		if (!skipUpdate) self.updateDisplay();
 	};
 
+	this.addPart = function() {
+		console.log('add part');
+		let row = app.ui.panels.melody.addRow('part-' + self.partRows.length, 'break-line-up');
+		row.addClass('part');
+		self.partRows.push(row);
+		self.currentPart = self.partRows.length - 1;
+		app.ui.faces.currentPart.addOption(self.currentPart, true, 'Part ' + self.currentPart);
+	};
+
 	this.updateDisplay = function() {
 		const n = self.parts.length;
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
@@ -222,7 +230,8 @@ function Composition(app, defaults) {
 
 	this.clear = function() {
 		// melodyRow.clear();
-		self.partRows[self.currentPart].clear();
+		// self.partRows[self.currentPart].clear();
+		self.partRows.forEach(part => part.clear());
 	};
 
 	this.get = function() {
