@@ -15,7 +15,7 @@ function Composition(app, defaults) {
 	this.samples = defaults.samples;
 	this.scale = defaults.scale;
 	this.title = defaults.title;
-	this.startDuration = defaults.startDuration;
+	this.duration = defaults.duration;
 	this.parts = [];
 	this.simultaneous = defaults.simultaneous;
 	this.useMetro = false;
@@ -166,7 +166,7 @@ function Composition(app, defaults) {
 					if (['1','2','4','8','16','32'].includes(value)) {
 						value += 'n';
 					} else {
-						value = self.startDuration;
+						value = self.duration;
 					}
 					durEdit.value = value;
 				}
@@ -243,7 +243,7 @@ function Composition(app, defaults) {
 			bpm: self.bpm,
 			samples: self.samples,
 			title: this.title,
-			startDuration: this.startDuration,
+			duration: this.duration,
 			scale: this.scale,
 			simultaneous: this.simultaneous,
 		};
@@ -267,8 +267,8 @@ function Composition(app, defaults) {
 			);
 		}
 
-		if (data.startDuration) {
-			app.ui.faces.startDuration.update(data.startDuration);
+		if (data.duration) {
+			app.ui.faces.duration.update(data.duration);
 		}
 
 		if (data.scale) {
@@ -304,9 +304,9 @@ function Composition(app, defaults) {
 
 	function addParts(parts) {
 		parts.forEach(part => {
-			if (part === null) return self.addNote('rest', data.startDuration, true);
+			if (part === null) return self.addNote('rest', data.duration, true);
 			const note = typeof part === 'string' ? part : part[0];
-			const duration = typeof part === 'string' ? data.startDuration : part[1];
+			const duration = typeof part === 'string' ? data.duration : part[1];
 			if (note === null) self.addNote('rest', duration, true);
 			else self.addNote(note, duration, true);
 		});

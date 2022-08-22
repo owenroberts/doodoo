@@ -5,7 +5,6 @@
 function FilesIO(app) {
 
 	this.load = function(data) {
-		// console.log(data);
 		app.composition.load(data);
 		app.controls.load(data.controls);
 	};

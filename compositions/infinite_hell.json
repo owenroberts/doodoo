@@ -2,7 +2,7 @@
 	"title": "Infinite Hell",
 	"tonic": 54,
 	"parts": ["C4", "A3", "G3", "D4", "E4", "G4", "A4", "C5", "C4", "D5", "C5", "D5"],
-	"startDuration": "4n",
+	"duration": "4n",
 	"samples": "./samples/choir/",
 	"bpm": 112
 }

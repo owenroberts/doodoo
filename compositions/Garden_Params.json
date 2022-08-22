@@ -21,7 +21,7 @@
     "bpm": 120,
     "samples": "../samples/choir/",
     "title": "Garden",
-    "startDuration": "8n",
+    "duration": "8n",
     "scale": [0, 2, 4, 5, 7, 9, 11],
     "params":
     {

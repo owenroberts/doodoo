@@ -17,7 +17,7 @@ function Doodoo(params, callback) {
 	let choirSamples;
 	let debug = params.debug;
 	let samples = params.samples || 'synth';
-	let defaultDuration = params.startDuration || '4n';
+	let defaultDuration = params.duration || '4n';
 	let withRecording = params.withRecording;
 	let recorder, recordingMutationCount;
 

@@ -1,7 +1,7 @@
 {
     "title": "Zoo",
     "tonic": "C#4",
-    "startDuration": "8n",
+    "duration": "8n",
     "bpm": 138,
     "samples": "./samples/choir/",
     "parts": [

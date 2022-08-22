@@ -183,8 +183,8 @@
 					{
 						"type": "UISelect",
 						"label": "(Default) Note Duration",
-						"string": "startDuration",
-						"face": "startDuration",
+						"string": "duration",
+						"face": "duration",
 						"params": {
 							"selected": "4n",
 							"options": [

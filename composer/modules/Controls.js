@@ -137,7 +137,6 @@ function Controls(app, defaults, controls) {
 				const count = [{}];
 				defaults.startLoops.push(count);
 				addLoopCount(defaults.startLoops.length - 1, count);
-				console.log('add count', defaults.startLoops);
 			}
 		});
 		startLoopsRow.append(addCount);

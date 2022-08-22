@@ -9,7 +9,7 @@ window.addEventListener("load", function() {
 		title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
 		tonic: 'C4',
 		scale: [0, 2, 4, 5, 7, 9, 11],
-		startDuration:  '4n',
+		duration:  '4n',
 		bpm: 120,
 		samples: "../samples/choir/"
 	};
@@ -72,7 +72,7 @@ function playComp(withRecording) {
 }
 
 noteDurationSelect.addEventListener('change', ev => {
-	composition.startDuration = noteDurationSelect.value;
+	composition.duration = noteDurationSelect.value;
 	durationInput.placeholder = noteDurationSelect.value;
 	saveComp();
 });

@@ -15,6 +15,7 @@ const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 
 const ui = require('./ui/gulpfile');
+console.log('ui', ui);
 
 function browserSyncTask() {
 	return browserSync.init({
