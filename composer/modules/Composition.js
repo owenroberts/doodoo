@@ -7,7 +7,7 @@ function Composition(app, defaults) {
 	let { MIDI_NOTES } = app;
 
 	let doodoo;
-	let melodyRow, scaleRow, noteInput, durationInput;
+	let scaleRow, noteInput, durationInput, multiSampleRow;
 
 	this.tonic = defaults.tonic;
 	this.transform = defaults.transform || defaults.tonic;
@@ -19,6 +19,8 @@ function Composition(app, defaults) {
 	this.parts = [];
 	this.simultaneous = defaults.simultaneous;
 	this.useMetro = false;
+
+	this.multiSamples = []
 
 	this.currentPart = 0;
 	this.partRows = [];
@@ -33,6 +35,23 @@ function Composition(app, defaults) {
 	this.setNoteWidth = function(value) {
 		self.noteWidth = value;
 		if (self.partRows[0]) self.updateDisplay();
+	};
+
+	this.addMultiSample = function() {
+		let sampleURL = self.samples;
+
+		self.multiSamples.push(sampleURL);
+		
+		const sampleCollection = new UICollection({ class: 'sample-collection' });
+		sampleCollection.append(new UILabel({ "text": sampleURL }));
+		sampleCollection.append(new UIButton({
+			"text": "X",
+			callback: () => {
+				self.multiSamples.splice(self.multiSamples.indexOf(sampleURL), 1);
+				self.multiSamplesRow.remove(sampleCollection);
+			}
+		}));
+		multiSampleRow.append(sampleCollection);
 	};
 
 	function midiFormat(note) {
@@ -54,6 +73,7 @@ function Composition(app, defaults) {
 
 	this.init = function() {
 		scaleRow = self.panel.scaleRow;
+		multiSampleRow = self.panel.multiSampleRow;
 		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
 		self.partRows[0].addClass('part');
 		// melodyRow = app.ui.panels.melody.melody;

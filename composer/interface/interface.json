@@ -149,6 +149,7 @@
 						}
 					},
 					{
+						"row": true,
 						"type": "UINumberStep",
 						"number": "bpm",
 						"face": "bpm",
@@ -162,6 +163,7 @@
 						}
 					},
 					{
+						"row": true,
 						"type": "UISelect",
 						"label": "Voices",
 						"string": "voices",
@@ -176,11 +178,22 @@
 								{ "value": "strings", "text": "Strings" },
 								{ "value": "flute", "text": "Flute" },
 								{ "value": "guitar", "text": "Guitar" }
-
 							]
 						}
 					},
 					{
+						"type": "UIButton",
+						"callback": "addMultiSample",
+						"params": {
+							"text": "+"
+						}
+					},
+					{
+						"type": "UIRow",
+						"k": "multiSampleRow"
+					},
+					{
+						"row": true,
 						"type": "UISelect",
 						"label": "(Default) Note Duration",
 						"string": "duration",
@@ -196,10 +209,11 @@
 						}
 					},
 					{
+						"row": true,
 						"type": "UIToggleCheck",
 						"toggle": "simultaneous",
 						"face": "simultaneous",
-						"label": "Simultaneous"
+						"label": "Simultaneous Parts"
 					},
 					{
 						"type": "UIRow",

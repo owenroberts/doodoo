@@ -18,8 +18,10 @@ function Doodoo(params, callback) {
 	let isPlaying = false;
 	let noteNames = [];
 	let choirSamples;
+	let samples;
 	let debug = params.debug;
-	let samples = params.samples || 'synth';
+	let samplesURL = 'synth';
+	if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
 	let defaultDuration = params.duration || '4n';
 	let withRecording = params.withRecording;
 	let recorder, recordingMutationCount;
@@ -96,7 +98,7 @@ function Doodoo(params, callback) {
 	// start tone using async func to wait for tone
 	async function loadTone() {
 		await Tone.start();
-		if (samples !== 'synth') load(start);
+		if (samplesURL !== 'synth') load(start);
 		else start();
 	};
 
@@ -142,7 +144,7 @@ function Doodoo(params, callback) {
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale),
-					sampler: samples !== 'synth' ? getSampler() : getSynth()
+					sampler: samplesURL !== 'synth' ? getSampler() : getSynth()
 				};
 				loops.push(part);
 			});
@@ -320,52 +322,56 @@ function Doodoo(params, callback) {
 	}
 
 	function getSampleFiles() {
-		if (samples.includes('choir')) {
+		const sampleFiles = {};
+		const sampleString = samplesURL.join(' ');
+
+		if (sampleString.includes('choir')) {
+			sampleFiles['choir'] = {};
 			const voice = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
-			const sampleFiles = {};
 			for (let i = 0; i < noteNames.length; i++) {
 				const note = noteNames[i];
-				sampleFiles[note] = choirSamples.get(`${voice}-${note}`);
+				sampleFiles['choir'][note] = samples['choir'].get(`${voice}-${note}`);
 			}
-			return sampleFiles;
 		}
 
-		if (samples.includes('toms')) {
-			return { 'A#3': choirSamples.get('A#3') };
+		if (sampleString.includes('toms')) {
+			sampleFiles['toms'] = {};
+			sampleFiles['toms']['A#3'] =  samples['toms'].get('A#3');
 		}
 
-		if (samples.includes('guitar')) {
-			return { 'C4': choirSamples.get('C4') };
+		if (sampleString.includes('guitar')) {
+			sampleFiles['guitar'] = {};
+			sampleFiles['guitar']['C4'] = samples['guitar'].get('C4');
 		}
 
-		if (samples.includes('flute')) {
-			return { 'C5': choirSamples.get('C5') };
+		if (sampleString.includes('flute')) {
+			sampleFiles['flute'] = {};
+			sampleFiles['flute']['C5'] = samples['flute'].get('C5') };
 		}
 
-		if (samples.includes('bamboo')) {
-			return {
-				'B3': choirSamples.get('B3'),
-				'G4': choirSamples.get('G4'),
-			};
+		if (sampleString.includes('bamboo')) {
+			sampleFiles['bamboo'] = {};
+			sampleFiles['bamboo']['B3']= samples['bamboo'].get('B3');
+			sampleFiles['bamboo']['G4']= samples['bamboo'].get('G4');
 		}
 
-		if (samples.includes('strings')) {
-			return {
-				// "A#2": choirSamples.get("A#2"),
-				"A5": choirSamples.get("A5"),
-				"C4": choirSamples.get("C4"),
-				"C7": choirSamples.get("C7"),
-				// "D#2": choirSamples.get("D#2"),
-				"D5": choirSamples.get("D5"),
-				"E3": choirSamples.get("E3"),
-				"E6": choirSamples.get("E6"),
-				"G4": choirSamples.get("G4"),
-			};
+		if (sampleString.includes('strings')) {
+			sampleFiles['strings'] = {};
+			sampleFiles['strings']["A5"] = samples['strings'].get("A5");
+			sampleFiles['strings']["C4"] = samples['strings'].get("C4");
+			sampleFiles['strings']["C7"] = samples['strings'].get("C7");
+			sampleFiles['strings']["D5"] = samples['strings'].get("D5");
+			sampleFiles['strings']["E3"] = samples['strings'].get("E3");
+			sampleFiles['strings']["E6"] = samples['strings'].get("E6");
+			sampleFiles['strings']["G4"] = samples['strings'].get("G4");
 		}
+
+		return sampleFiles;
 	}
 
 	function loadSamples() {
 		let urls = {};
+		const sampleString = samplesURL.join(' ');
 		
 		if (samples.includes('choir')) {
 			noteNames = [2,3,4].flatMap(n => 'ABCDEFG'.split('').map(letter => `${letter}${n}`));
