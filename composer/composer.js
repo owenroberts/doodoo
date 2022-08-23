@@ -36,7 +36,7 @@ window.addEventListener("load", function() {
 		if (compData && compData !== 'undefined'){
 			const data = JSON.parse(compData);
 			app.composition.load(data);
-			app.controls.load(data.params);
+			app.controls.load(data.controls);
 		} else {
 			app.composition.load({});
 			app.controls.load();
