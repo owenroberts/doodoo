@@ -21,10 +21,14 @@ function FilesIO(app) {
 	};
 
 	this.saveFile = function() {
+		if (app.composition.isRecording()) return;
 		app.composition.update(); // updates local storage
 		const json = localStorage.getItem('comp');
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
-		saveAs(blob, prompt("Name composition", app.composition.title) + '.json');
+		const name = prompt("Name composition", app.composition.title);
+		if (!name) return;
+		saveAs(blob, name + '.json');
+		app.ui.faces.title.update(name);
 	}
 
 	this.loadMidi = function(data, fileName, filePath) {

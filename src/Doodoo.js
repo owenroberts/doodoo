@@ -2,9 +2,12 @@
 import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
+import SamplePaths from './SamplePaths.js';
 import Defaults from './Defaults.js';
 const doodooDefaults = Defaults.defaults;
 const doodooControls = Defaults.controls;
+
+console.log(SamplePaths);
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -459,6 +462,10 @@ function Doodoo(params, callback) {
 		return isPlaying;
 	};
 
+	this.isRecording = function() {
+		return recorder.state === 'started' || recorder.state === 'paused';
+	};
+
 	this.play = function() {
 		if (!params.autoLoad) return loadTone();
 		if (Tone.Transport.state === 'stopped') playTheme();
@@ -469,7 +476,7 @@ function Doodoo(params, callback) {
 	this.stop = function() {
 		Tone.Transport.stop();
 		isPlaying = false;
-		if (withRecording) saveRecording();
+		if (withRecording && recorder.state === 'started') saveRecording();
 	};
 
 	this.mutate = function() {

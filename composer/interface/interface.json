@@ -163,19 +163,19 @@
 					},
 					{
 						"type": "UISelect",
-						"label": "Samples/Voice",
-						"string": "samples",
-						"face": "samples",
+						"label": "Voices",
+						"string": "voices",
+						"face": "voices",
 						"params": {
 							"selected": "synth",
 							"options": [
-								{ "value": "../samples/choir/", "text": "Choir" },
-								{ "value": "synth", "text": "FMSynth" },
-								{ "value": "../samples/toms/", "text": "Toms" },
-								{ "value": "../samples/bamboo/", "text": "Bamboo" },
-								{ "value": "../samples/strings/", "text": "Strings" },
-								{ "value": "../samples/flute/", "text": "Flute" },
-								{ "value": "../samples/guitar/", "text": "Guitar" }
+								{ "value": "choir", "text": "Choir" },
+								{ "value": "fmSynth", "text": "FMSynth" },
+								{ "value": "toms", "text": "Toms" },
+								{ "value": "bamboo", "text": "Bamboo" },
+								{ "value": "strings", "text": "Strings" },
+								{ "value": "flute", "text": "Flute" },
+								{ "value": "guitar", "text": "Guitar" }
 
 							]
 						}

@@ -12,7 +12,7 @@ function Composition(app, defaults) {
 	this.tonic = defaults.tonic;
 	this.transform = defaults.transform || defaults.tonic;
 	this.bpm = defaults.bpm;
-	this.samples = defaults.samples;
+	this.voices = defaults.voices;
 	this.scale = defaults.scale;
 	this.title = defaults.title;
 	this.duration = defaults.duration;
@@ -97,6 +97,10 @@ function Composition(app, defaults) {
 		});
 		doodoo.play();
 		app.fio.saveLocal(comp);
+	};
+
+	this.isRecording = function() {
+		return doodoo.isRecording();
 	};
 
 	this.stop = function() {
@@ -241,7 +245,7 @@ function Composition(app, defaults) {
 			tonic: self.tonic,
 			transform: self.transform,
 			bpm: self.bpm,
-			samples: self.samples,
+			voices: self.voices,
 			title: this.title,
 			duration: this.duration,
 			scale: this.scale,
