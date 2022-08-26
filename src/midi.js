@@ -59,12 +59,14 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 				scale.indexOf(diff % 12); // above tonic
 
-			if (scaleIndex === -1) console.log('note note in scale ... ')
-			
-			// what do do here? find closest in scale or just throw out a weird note?
-			// test this!!!!
-
 			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length];
+
+			if (scaleIndex === -1) {
+				// what do do here? find closest in scale or just throw out a weird note?
+				// test this!!!!
+				midiHarmony = 0;
+			}
+
 			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff);
 			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta;
 			return [MIDI_NOTES[returnMidi], duration];

@@ -184,7 +184,7 @@ let controls = [
 		"panel": "effects"
 	},
 	{
-		"key": "reberbDelay",
+		"key": "reverbDelay",
 		"type": "number",
 		"value": 0,
 		"range": [0, 16],
