@@ -26,14 +26,14 @@ function Controls(app, defaults, controls) {
 		return label;
 	}
 
-	function setupParam(control, row) {
+	function setupControl(control, row) {
 		const { key, type } = control;
 		const label = labelFromKey(key);
 		row.append(new UILabel({ text: label }));
 		row.append(new UIButton({
 			text: 'Reset',
 			callback: () => {
-				resetParam(key, row);
+				resetControl(key, row);
 			}
 		}));
 		// row.append(new UIElement({ class: 'break' }));
@@ -44,7 +44,7 @@ function Controls(app, defaults, controls) {
 		if (type === 'number') addNumber(control, row);
 	}
 
-	function resetParam(key, row) {
+	function resetControl(key, row) {
 		const control = controls.filter(p => p.key === key)[0];
 		const value = Array.isArray(originalDefaults[key]) ?
 			[...originalDefaults[key]] :
@@ -52,7 +52,7 @@ function Controls(app, defaults, controls) {
 		defaults[key] = value;
 		control.value = value;
 		row.clear();
-		setupParam(control, row);
+		setupControl(control, row);
 	}
 
 	function addChance(control, row, label) {
@@ -191,18 +191,18 @@ function Controls(app, defaults, controls) {
 			options: Object.keys(defaultLoop),
 			class: 'break',
 			callback: value => {
-				addLoopParam(value, defaultLoop[value], countIndex, loopIndex, loopRow);
+				addLoopControl(value, defaultLoop[value], countIndex, loopIndex, loopRow);
 			}
 		});
 
 		loopRow.append(controlSelect);
 
 		for (const key in loop) {
-			addLoopParam(key, loop[key], countIndex, loopIndex, loopRow);
+			addLoopControl(key, loop[key], countIndex, loopIndex, loopRow);
 		}
 	}
 
-	function addLoopParam(key, value, countIndex, loopIndex, loopRow) {
+	function addLoopControl(key, value, countIndex, loopIndex, loopRow) {
 		let label = labelFromKey(key);
 		switch(typeof value) {
 			case "boolean":
@@ -230,7 +230,7 @@ function Controls(app, defaults, controls) {
 		loopRow.append(new UILabel({ class: 'break' }));
 	}
 
-	this.resetParams = function() {
+	this.resetControls = function() {
 		let index = 0;
 		for (let i = 0; i < controls.length; i++) {
 			if (controls[i].key === 'fxLimit') {
@@ -242,7 +242,7 @@ function Controls(app, defaults, controls) {
 		for (let i = 0; i < index; i++) {
 			const { key, panel } = controls[i];
 			if (key === 'loops') continue;
-			resetParam(key, app.ui.panels[panel]['row-' + key]);
+			resetControl(key, app.ui.panels[panel]['row-' + key]);
 		}	
 	};
 
@@ -257,12 +257,12 @@ function Controls(app, defaults, controls) {
 
 		for (let i = index; i < controls.length; i++) {
 			const { key, panel } = controls[i];
-			resetParam(key, app.ui.panels[panel]['row-' + key]);
+			resetControl(key, app.ui.panels[panel]['row-' + key]);
 		}
 	};
 
 	this.init = function(data) {
-		// row = self.panel.doodooParams;
+		// row = self.panel.doodooControls;
 		startLoopsRow = app.ui.panels.loops.startLoops;
 	};
 
@@ -297,7 +297,7 @@ function Controls(app, defaults, controls) {
 				// if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
 				if (!app.ui.panels[panelName]) {
 					app.ui.createPanel(panelName, {
-						label: 'Param ' + labelFromKey(panelName)
+						label: labelFromKey(panelName) + ' Control'
 					});
 				}
 				row = app.ui.panels[panelName].addRow('row-' + control.key);
@@ -311,7 +311,7 @@ function Controls(app, defaults, controls) {
 				}
 			}
 			if (control.type === 'loops') addLoops(control);
-			else setupParam(control, row);
+			else setupControl(control, row);
 		}
 	};
 

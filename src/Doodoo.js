@@ -7,7 +7,7 @@ import Defaults from './Defaults.js';
 const doodooDefaults = Defaults.defaults;
 const doodooControls = Defaults.controls;
 
-console.log(SamplePaths);
+const samplePaths = SamplePaths.SamplePaths; // wtf
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
@@ -15,14 +15,19 @@ Number.prototype.clamp = function(min, max) {
 
 function Doodoo(params, callback) {
 	
-	let isPlaying = false;
-	let noteNames = [];
-	let choirSamples;
-	let samples;
 	let debug = params.debug;
+	let isPlaying = false;
+	let defaultDuration = params.duration || '4n';
+	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
+	
+	let noteNames = [];
+	let samples;
 	let samplesURL = 'synth';
 	if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
-	let defaultDuration = params.duration || '4n';
+
+	let voices = params.voices || [params.samples]; // fix for old data
+	console.log(voices);
+
 	let withRecording = params.withRecording;
 	let recorder, recordingMutationCount;
 
@@ -30,8 +35,6 @@ function Doodoo(params, callback) {
 		recorder = new Tone.Recorder();
 		recordingMutationCount = +prompt('Record number of mutations?', 10);
 	}
-
-	const scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
@@ -98,9 +101,9 @@ function Doodoo(params, callback) {
 	// start tone using async func to wait for tone
 	async function loadTone() {
 		await Tone.start();
-		if (samplesURL !== 'synth') load(start);
+		if (voices.filter(v => !v.includes('Synth')).length > 0) load(start);
 		else start();
-	};
+	}
 
 	if (params.autoLoad) loadTone();
 
@@ -144,11 +147,13 @@ function Doodoo(params, callback) {
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale),
-					sampler: samplesURL !== 'synth' ? getSampler() : getSynth()
+					// sampler: samplesURL !== 'synth' ? getSampler() : getSynth()
+					voice: getVoice(random(voices))
 				};
 				loops.push(part);
 			});
 		});
+		console.log('loops', loops.map(l => l.voice));
 
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
@@ -202,7 +207,7 @@ function Doodoo(params, callback) {
 					const [note, duration] = beat;
 					// time offset for doubles
 					let t = j ? Tone.Time(`${loop.noteDuration}n`).toSeconds() * j : 0; 
-					loop.sampler.triggerAttackRelease(note, duration, time + t, attack);
+					loop.voice.triggerAttackRelease(note, duration, time + t, attack);
 				}
 				if (loop.doublerCounter) loop.count += loop.counter;
 			}
@@ -216,21 +221,27 @@ function Doodoo(params, callback) {
 		if (currentCount === currentCountTotal) playTheme();
 	}
 
+	function getVoice(voice) {
+		if (voice.includes('Synth')) return getSynth();
+		else return getSampler(voice);
+	}
+
 	function getSynth() {
-		const fmSynth = new Tone.FMSynth().toDestination();
+		const fmSynth = new Tone.FMSynth({ 
+			volume: params.volume || 0
+		}).toDestination();
 		addEffects(fmSynth);
 		if (withRecording) fmSynth.connect(recorder);
 		return fmSynth;
 	}
 
-	function getSampler() {
-		const sampleFiles = getSampleFiles();
+	function getSampler(voice) {
+		const sampleFiles = getSampleFiles(voice);
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
 		}).toDestination();
-
 		addEffects(sampler);
 		if (withRecording) sampler.connect(recorder);
 		return sampler;
@@ -321,113 +332,52 @@ function Doodoo(params, callback) {
 		effects.forEach(effect => sampler.connect(effect));
 	}
 
-	function getSampleFiles() {
+	function getSampleFiles(voice) {
 		const sampleFiles = {};
-		const sampleString = samplesURL.join(' ');
-
-		if (sampleString.includes('choir')) {
-			sampleFiles['choir'] = {};
-			const voice = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
-			for (let i = 0; i < noteNames.length; i++) {
-				const note = noteNames[i];
-				sampleFiles['choir'][note] = samples['choir'].get(`${voice}-${note}`);
+		if (voice === 'choir') {
+			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
+			for (const note in samplePaths[voice+letter]) {
+				sampleFiles[note] = samples.get(`${voice}-${letter}-${note}`);
+			}
+		} else {
+			for (const note in samplePaths[voice]) {
+				sampleFiles[note] = samples.get(`${voice}-${note}`);
 			}
 		}
-
-		if (sampleString.includes('toms')) {
-			sampleFiles['toms'] = {};
-			sampleFiles['toms']['A#3'] =  samples['toms'].get('A#3');
-		}
-
-		if (sampleString.includes('guitar')) {
-			sampleFiles['guitar'] = {};
-			sampleFiles['guitar']['C4'] = samples['guitar'].get('C4');
-		}
-
-		if (sampleString.includes('flute')) {
-			sampleFiles['flute'] = {};
-			sampleFiles['flute']['C5'] = samples['flute'].get('C5') };
-		}
-
-		if (sampleString.includes('bamboo')) {
-			sampleFiles['bamboo'] = {};
-			sampleFiles['bamboo']['B3']= samples['bamboo'].get('B3');
-			sampleFiles['bamboo']['G4']= samples['bamboo'].get('G4');
-		}
-
-		if (sampleString.includes('strings')) {
-			sampleFiles['strings'] = {};
-			sampleFiles['strings']["A5"] = samples['strings'].get("A5");
-			sampleFiles['strings']["C4"] = samples['strings'].get("C4");
-			sampleFiles['strings']["C7"] = samples['strings'].get("C7");
-			sampleFiles['strings']["D5"] = samples['strings'].get("D5");
-			sampleFiles['strings']["E3"] = samples['strings'].get("E3");
-			sampleFiles['strings']["E6"] = samples['strings'].get("E6");
-			sampleFiles['strings']["G4"] = samples['strings'].get("G4");
-		}
-
 		return sampleFiles;
 	}
 
 	function loadSamples() {
 		let urls = {};
-		const sampleString = samplesURL.join(' ');
-		
-		if (samples.includes('choir')) {
-			noteNames = [2,3,4].flatMap(n => 'ABCDEFG'.split('').map(letter => `${letter}${n}`));
-			for (let i = 0; i < noteNames.length; i++) {
-				'AEIOU'.split('').forEach(voice => {
-					const note = noteNames[i];
-					urls[`${voice}-${note}`] = `${voice}/CH-${voice}${voice}-${note}.mp3`;
+		voices.forEach(voice => {
+			if (voice === 'choir') {
+				'AEIOU'.split('').forEach(letter => {
+					const voiceSampleURLS = samplePaths['choir'+letter];
+					for (const note in voiceSampleURLS) {
+						urls[`${voice}-${letter}-${note}`] = `${voice}/${letter}/${voiceSampleURLS[note]}`;
+					}
 				});
+			} else {
+				for (const note in samplePaths[voice]) {
+					
+					urls[`${voice}-${note}`] = `${voice}/${samplePaths[voice][note]}`;
+					console.log(voice, note, urls[`${voice}-${note}`]);
+				}
 			}
-		}
-
-		if (samples.includes('toms')) {
-			urls = { 'A#3': 'Tom606.ogg' };
-		}
-
-		if (samples.includes('guitar')) {
-			urls = { 'C4': 'c4.wav' };
-		}
-
-		if (samples.includes('flute')) {
-			urls = { 'C5': 'C5.wav' };
-		}
-
-		if (samples.includes('bamboo')) {
-			urls = {
-				'B3': 'b3.ogg',
-				'G4': 'g4.ogg',
-			};
-		}
-
-		if (samples.includes('strings')) {
-			urls = {
-				// "A#2": "A#2.ogg",
-				"A5": "A5.ogg",
-				"C4": "C4.ogg",
-				"C7": "C7.ogg",
-				// "D#2": "D#2.ogg",
-				"D5": "D5.ogg",
-				"E3": "E3.ogg",
-				"E6": "E6.ogg",
-				"G4": "G4.ogg",
-			};
-		}
-
+		});
 		return urls;
 	}
 
 	function load(callback) {
-		let urls = loadSamples(); 
-		console.time(`load ${samples}`);
-		choirSamples = new Tone.ToneAudioBuffers({
+		let urls = loadSamples();
+		console.time(`load ${voices.join(', ')}`);
+		samples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: params.samples,
+			baseUrl: '../samples/',
 			onload: () => {
-				console.timeEnd(`load ${samples}`);
-				callback();
+				console.timeEnd(`load ${voices.join(', ')}`);
+				console.log(samples);
+				if (callback) callback();
 			}
 		});
 	}

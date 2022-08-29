@@ -6,11 +6,11 @@ let SamplePaths = {
 	"flute": { "C5": "C5.wav" },
 	"guitar": { "C4": "C4.wav" },
 	"strings": {
-		"A#2": "A#2.ogg",
+		"A#2": "Ash2.ogg",
 		"A5": "A5.ogg",
 		"C4": "C4.ogg",
 		"C7": "C7.ogg",
-		"D#2": "D#2.ogg",
+		"D#2": "Dsh2.ogg",
 		"D5": "D5.ogg",
 		"E3": "E3.ogg",
 		"E6": "E6.ogg",

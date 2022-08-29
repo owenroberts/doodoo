@@ -164,10 +164,9 @@
 					},
 					{
 						"row": true,
-						"type": "UISelect",
+						"type": "UISelectButton",
 						"label": "Voices",
-						"string": "voices",
-						"face": "voices",
+						"callback": "addVoice",
 						"params": {
 							"selected": "synth",
 							"options": [
@@ -182,15 +181,8 @@
 						}
 					},
 					{
-						"type": "UIButton",
-						"callback": "addMultiSample",
-						"params": {
-							"text": "+"
-						}
-					},
-					{
 						"type": "UIRow",
-						"k": "multiSampleRow"
+						"k": "voiceRow"
 					},
 					{
 						"row": true,

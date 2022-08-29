@@ -7,20 +7,18 @@ function Composition(app, defaults) {
 	let { MIDI_NOTES } = app;
 
 	let doodoo;
-	let scaleRow, noteInput, durationInput, multiSampleRow;
+	let scaleRow, noteInput, durationInput, voiceRow;
 
 	this.tonic = defaults.tonic;
 	this.transform = defaults.transform || defaults.tonic;
 	this.bpm = defaults.bpm;
-	this.voices = defaults.voices;
+	this.voices = [];
 	this.scale = defaults.scale;
 	this.title = defaults.title;
 	this.duration = defaults.duration;
 	this.parts = [];
 	this.simultaneous = defaults.simultaneous;
 	this.useMetro = false;
-
-	this.multiSamples = []
 
 	this.currentPart = 0;
 	this.partRows = [];
@@ -36,24 +34,7 @@ function Composition(app, defaults) {
 		self.noteWidth = value;
 		if (self.partRows[0]) self.updateDisplay();
 	};
-
-	this.addMultiSample = function() {
-		let sampleURL = self.samples;
-
-		self.multiSamples.push(sampleURL);
-		
-		const sampleCollection = new UICollection({ class: 'sample-collection' });
-		sampleCollection.append(new UILabel({ "text": sampleURL }));
-		sampleCollection.append(new UIButton({
-			"text": "X",
-			callback: () => {
-				self.multiSamples.splice(self.multiSamples.indexOf(sampleURL), 1);
-				self.multiSamplesRow.remove(sampleCollection);
-			}
-		}));
-		multiSampleRow.append(sampleCollection);
-	};
-
+	
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
 		let letter = note[0].toUpperCase();
@@ -73,7 +54,7 @@ function Composition(app, defaults) {
 
 	this.init = function() {
 		scaleRow = self.panel.scaleRow;
-		multiSampleRow = self.panel.multiSampleRow;
+		voiceRow = self.panel.voiceRow;
 		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
 		self.partRows[0].addClass('part');
 		// melodyRow = app.ui.panels.melody.melody;
@@ -231,6 +212,22 @@ function Composition(app, defaults) {
 		app.ui.faces.currentPart.addOption(self.currentPart, true, 'Part ' + self.currentPart);
 	};
 
+	this.addVoice = function(voice) {
+		if (!Array.isArray(self.voices)) self.voices = [self.voices]; // fix for old data
+		if (self.voices.includes(voice)) return;
+		self.voices.push(voice);
+		const voiceCollection = new UICollection({ class: 'voice-collection' });
+		voiceCollection.append(new UILabel({ "text": voice }));
+		voiceCollection.append(new UIButton({
+			"text": "X",
+			callback: () => {
+				self.voices.splice(self.voices.indexOf(voice), 1);
+				voiceRow.remove(voiceCollection);
+			}
+		}));
+		voiceRow.append(voiceCollection);
+	};
+
 	this.updateDisplay = function() {
 		const n = self.parts.length;
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
@@ -278,7 +275,16 @@ function Composition(app, defaults) {
 			app.ui.faces.title.update(data.title);
 		}
 
-		// ignore samples for now
+		if (data.voices) {
+			let voices = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
+			voices.forEach(voice => {
+				self.addVoice(voice);
+			});
+		} else {
+			defaults.voices.forEach(voice => {
+				self.addVoice(voice);
+			});
+		}
 
 		if (data.bpm) {
 			app.ui.faces.bpm.update(data.bpm);

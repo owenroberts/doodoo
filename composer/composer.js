@@ -11,7 +11,7 @@ window.addEventListener("load", function() {
 		scale: [0, 2, 4, 5, 7, 9, 11],
 		duration:  '4n',
 		bpm: 120,
-		voices: ['choir']
+		voices: ['choir', 'toms']
 	};
 	// app.doodoo = new Doodoo(defaults);
 	app.controls = new Controls(app, doodooDefaults, doodooControls); // doodoo defaults control
