@@ -20,13 +20,10 @@ function Doodoo(params, callback) {
 	let defaultDuration = params.duration || '4n';
 	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
-	let noteNames = [];
 	let samples;
-	let samplesURL = 'synth';
 	if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
 
 	let voices = params.voices || [params.samples]; // fix for old data
-	console.log(voices);
 
 	let withRecording = params.withRecording;
 	let recorder, recordingMutationCount;
@@ -153,7 +150,6 @@ function Doodoo(params, callback) {
 				loops.push(part);
 			});
 		});
-		console.log('loops', loops.map(l => l.voice));
 
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
@@ -359,9 +355,7 @@ function Doodoo(params, callback) {
 				});
 			} else {
 				for (const note in samplePaths[voice]) {
-					
 					urls[`${voice}-${note}`] = `${voice}/${samplePaths[voice][note]}`;
-					console.log(voice, note, urls[`${voice}-${note}`]);
 				}
 			}
 		});
@@ -376,7 +370,6 @@ function Doodoo(params, callback) {
 			baseUrl: '../samples/',
 			onload: () => {
 				console.timeEnd(`load ${voices.join(', ')}`);
-				console.log(samples);
 				if (callback) callback();
 			}
 		});
