@@ -302,54 +302,56 @@ function Doodoo(params, callback) {
 		anchor.click();
 	}
 
-	this.moveTonic = function(dir) {
+	function moveTonic(dir) {
 		let n = MIDI_NOTES.indexOf(transform) + dir;
 		transform = MIDI_NOTES[n];
-	};
+	}
 
-	this.setTonic = function(note) {
+	function setTonic(note) {
 		transform = note;
-	};
+	}
 
-	this.printLoops = function() {
+	function printLoops() {
 		console.log('loops', loops); // debug
-	};
+	}
 
-	this.moveBPM = function(n) {
+	function moveBPM(n) {
 		let b = Tone.Transport.bpm.value;
 		Tone.Transport.bpm.value = b + n;
-	};
+	}
 
-	this.setBPM = function(bpm) {
+	function setBPM(bpm) {
 		Tone.Transport.bpm.value = bpm; // starts 128
-	};
+	}
 
-	this.getIsPlaying = function() {
+	function getIsPlaying() {
 		return isPlaying;
-	};
+	}
 
-	this.isRecording = function() {
+	function isRecording() {
 		return recorder.state === 'started' || recorder.state === 'paused';
-	};
+	}
 
-	this.play = function() {
+	function play() {
 		if (!params.autoLoad) return loadTone();
 		if (Tone.Transport.state === 'stopped') playTheme();
 		isPlaying = true;
 		if (withRecording) recorder.start();
-	};
+	}
 
-	this.stop = function() {
+	function stop() {
 		Tone.Transport.stop();
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
-	};
+	}
 
-	this.mutate = function() {
+	function mutate() {
 		parts.forEach(part => {
 			part.update();
 		});
-	};
+	}
+
+	return { play, stop, mutate, moveTonic, setTonic, printLoops, moveBPM, setBPM, getIsPlaying, isRecording };
 }
 
 export default { 
