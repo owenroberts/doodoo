@@ -4,7 +4,7 @@
 	return randoms
 */
 
-import { chance, random, randInt } from './cool.js';
+import { chance, random, randInt } from './Random.js';
 
 function ValueList(startList, addList, updateChance) {
 	if (updateChance === undefined) updateChance = 0.5;

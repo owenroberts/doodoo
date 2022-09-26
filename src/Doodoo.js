@@ -1,8 +1,8 @@
 // import * as Tone from 'tone';
-import { random, randInt, shuffle, chance } from './cool.js';
+import { random, randInt, shuffle, chance } from './Random.js';
 import ValueRange from './ValueRange.js';
 import ValueList from './ValueList.js';
-import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
+import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
 import Part from './Part.js';
 import SamplePaths from './SamplePaths.js';
 import Defaults from './Defaults.js';

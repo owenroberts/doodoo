@@ -1,4 +1,4 @@
-import { random, randInt, shuffle, chance } from './cool.js';
+import { random, randInt, shuffle, chance } from './Random.js';
 import ValueRange from './ValueRange.js';
 import ValueList from './ValueList.js';
 

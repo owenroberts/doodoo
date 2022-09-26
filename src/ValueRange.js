@@ -3,7 +3,7 @@
 	ch1 ch2 chance to update (sign of ch is direction)
 */
 
-import { chance, random, randInt } from './cool.js';
+import { chance, random, randInt } from './Random.js';
 
 function ValueRange(min, max, ch1, ch2) {
 
