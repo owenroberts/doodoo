@@ -1,4 +1,6 @@
-import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
+import { random, randInt, shuffle, chance } from './cool.js';
+import ValueRange from './ValueRange.js';
+import ValueList from './ValueList.js';
 
 export default function Part(melody, def, defaultDuration, debug) {
 
@@ -57,7 +59,7 @@ export default function Part(melody, def, defaultDuration, debug) {
 		if (debug) console.log(`${mutations} mutations`);
 	}
 
-	this.getTestLoops = function() {
+	function getTestLoops() {
 		return [
 			{
 				noteDuration: 4,
@@ -84,21 +86,21 @@ export default function Part(melody, def, defaultDuration, debug) {
 				harmony: 4,
 			}
 		];
-	};
+	}
 
-	this.getLoops = function() {
+	function getLoops() {
 		if (startLoops[mutations]) {
 			return startLoops[mutations];
 		}
 
 		const loops = [];
-		const loopNum = loopNums.randInt;
-		let startIndex = startIndexes.randInt;
+		const loopNum = loopNums.getRandInt();
+		let startIndex = startIndexes.getRandInt();
 		let startDelay = 0; // first loop no delay
 
 		for (let i = 0; i < loopNum; i++) {
 			
-			let duration = durations.random;
+			let duration = durations.getRandom();
 			loops.push({
 				noteDuration: duration,
 				count: 0,
@@ -109,22 +111,24 @@ export default function Part(melody, def, defaultDuration, debug) {
 				startIndex: startIndex,
 				startDelay: startDelay,
 				melody: melody,
-				harmony: chance(def.harmonyChance) ? harmonies.random : 0,
+				harmony: chance(def.harmonyChance) ? harmonies.getRandom() : 0,
 			});
 
 			// is this right? -- startIndex can't be negative
 			startIndex = Math.max(0, random([
 				startIndex, 
-				startIndex + indexStep.min, 
-				startIndex + indexStep.max
+				startIndex + indexStep.getMin(), 
+				startIndex + indexStep.getMax(),
 			]));
-			startDelay = startDelays.random;
+			startDelay = startDelays.getRandom();
 		}
 		return loops;
-	};
+	}
 
-	this.update = function() {
+	function update() {
 		mutate();
 		return mutations;
-	};
+	}
+
+	return { update, getLoops, getTestLoops };
 }

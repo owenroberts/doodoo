@@ -1,5 +1,7 @@
 // import * as Tone from 'tone';
-import { random, randInt, shuffle, chance, ValueRange } from './cool.js';
+import { random, randInt, shuffle, chance } from './cool.js';
+import ValueRange from './ValueRange.js';
+import ValueList from './ValueList.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
 import SamplePaths from './SamplePaths.js';
@@ -191,7 +193,7 @@ function Doodoo(params, callback) {
 
 	function loop(time) {
 		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.1);	
-		let attack = attackStart.random;
+		let attack = attackStart.getRandom();
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
 			if (loop.count > loop.countEnd) continue;
@@ -210,7 +212,7 @@ function Doodoo(params, callback) {
 			if (!loop.doublerCounter || loop.count < loop.startDelay) loop.count += loop.counter;
 		}
 
-		attack += attackStep.random;
+		attack += attackStep.getRandom();
 		attack.clamp(0.1, 1);
 
 		currentCount++;
@@ -351,7 +353,7 @@ function Doodoo(params, callback) {
 		});
 	}
 
-	return { play, stop, mutate, moveTonic, setTonic, printLoops, moveBPM, setBPM, getIsPlaying, isRecording };
+	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, };
 }
 
 export default { 
