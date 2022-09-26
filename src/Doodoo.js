@@ -4,9 +4,9 @@ import { MIDI_NOTES, getMelody, getHarmony } from './midi.js';
 import Part from './Part.js';
 import SamplePaths from './SamplePaths.js';
 import Defaults from './Defaults.js';
-const doodooDefaults = Defaults.defaults;
-const doodooControls = Defaults.controls;
+import Effects from './Effects.js';
 
+const doodooDefaults = Defaults.defaults;
 const samplePaths = SamplePaths.SamplePaths; // wtf
 
 Number.prototype.clamp = function(min, max) {
@@ -42,9 +42,9 @@ function Doodoo(params, callback) {
 		params.transform :
 		MIDI_NOTES[params.transform];
 
-	let doodooParams = params.params;
-	let defaults = { ...doodooDefaults, ...doodooParams };
-	// console.log('defaults', defaults);
+	let def = { ...doodooDefaults, ...params.controls }; // defaults
+	// console.log('defaults', def);
+	let effects = new Effects(def);
 
 	/*
 		parts data struture is currently convoluted
@@ -58,21 +58,21 @@ function Doodoo(params, callback) {
 	let parts = [];
 	if (params.parts[0] === 'string') {
 		const melody = params.parts.map(n => [n, defaultDuration]);
-		parts.push(new Part(melody, defaults, defaultDuration, debug));
+		parts.push(new Part(melody, def, defaultDuration, debug));
 	} else if (typeof params.parts[0] === 'number') {
 		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
-		parts.push(new Part(melody, defaults, defaultDuration, debug));
+		parts.push(new Part(melody, def, defaultDuration, debug));
 	} else if (Array.isArray(params.parts[0])) {
 		if (Array.isArray(params.parts[0][0])) {
 			for (let i = 0; i < params.parts.length; i++) {
 				const melody = params.parts[i];
-				parts.push(new Part(melody, defaults, defaultDuration, debug));
+				parts.push(new Part(melody, def, defaultDuration, debug));
 				const durations = params.parts[i].map(p => parseInt(p[1]));
 				defaultDuration = Math.max(...durations) + 'n';
 			}
 		} else {
 			const melody = params.parts;
-			parts.push(new Part(melody, defaults, defaultDuration, debug));
+			parts.push(new Part(melody, def, defaultDuration, debug));
 
 			const durations = params.parts.map(p => parseInt(p[1]));
 			defaultDuration = Math.max(...durations) + 'n';
@@ -84,8 +84,8 @@ function Doodoo(params, callback) {
 	let simultaneous = params.simultaneous || false;
 
 	// attack velocity -- only (?) global params
-	const attackStart = new ValueRange(...defaults.attackStart);
-	const attackStep = new ValueRange(...defaults.attackStep);
+	const attackStart = new ValueRange(...def.attackStart);
+	const attackStep = new ValueRange(...def.attackStep);
 
 	let toneLoop;
 	let loops = [];
@@ -226,7 +226,8 @@ function Doodoo(params, callback) {
 		const fmSynth = new Tone.FMSynth({ 
 			volume: params.volume || 0
 		}).toDestination();
-		addEffects(fmSynth);
+		// addEffects(fmSynth);
+		effects.connect(fmSynth, totalPlays);
 		if (withRecording) fmSynth.connect(recorder);
 		return fmSynth;
 	}
@@ -238,94 +239,10 @@ function Doodoo(params, callback) {
 			volume: params.volume || 0,
 			release: 1,
 		}).toDestination();
-		addEffects(sampler);
+		// addEffects(sampler);
+		effects.connect(sampler, totalPlays);
 		if (withRecording) sampler.connect(recorder);
 		return sampler;
-	}
-
-	function addEffects(sampler) {
-		let effects = [];
-
-		if (chance(defaults.reverbChance) && totalPlays > defaults.reverbDelay && effects.length <= defaults.fxLimit) {
-			const reverb = new Tone.Reverb({ decay: defaults.reverbDecay }).toDestination();
-			effects.push(reverb);
-		}
-
-		if (chance(defaults.distortionChance) && totalPlays > defaults.distortionDelay && effects.length <= defaults.fxLimit) {
-			const dist = random(...defaults.distortion);
-			const effect = new Tone.Distortion(dist).toDestination();
-			effects.push(effect);
-		}
-
-		if (chance(defaults.bitCrushChance) && totalPlays > defaults.bitCrushDelay && effects.length <= defaults.fxLimit) {
-			const bits = random(defaults.bitCrushBits);
-			const effect = new Tone.BitCrusher(bits).toDestination();
-			effects.push(effect);
-		}
-
-		if (chance(defaults.autoFilterChance) && totalPlays > defaults.autoFilterDelay && effects.length <= defaults.fxLimit) {
-			const freq = random(defaults.autoFilterFrequency);
-			const autoFilter = new Tone.AutoFilter(freq).toDestination().start();
-			effects.push(autoFilter);
-		}
-
-		if (chance(defaults.autoPannerChance) && totalPlays > defaults.autoPannerDelay && effects.length <= defaults.fxLimit) {
-			const freq = random(defaults.autoPannerFrequency);
-			const autoPanner = new Tone.AutoPanner(freq).toDestination().start();
-			effects.push(autoPanner);
-		}
-
-		if (chance(defaults.chebyChance) && totalPlays > defaults.chebyDelay && effects.length <= defaults.fxLimit) {
-			const order = randInt(defaults.chebyOrder);
-			const cheby = new Tone.Chebyshev(order).toDestination();
-			effects.push(cheby);
-		}
-
-		if (chance(defaults.chorusChance) && totalPlays > defaults.chorusDelay && effects.length <= defaults.fxLimit) {
-			const freq = randInt(defaults.chorusFrequency);
-			const delay = random(defaults.chorusDelayTime);
-			const depth = random(defaults.chorusDepth);
-			const chorus = new Tone.Chorus(freq, delay, depth).toDestination().start();
-			effects.push(chorus);
-		}
-
-		if (chance(defaults.feedbackChance) && totalPlays > defaults.feedbackDelay && effects.length <= defaults.fxLimit) {
-			const feedback = random(defaults.feedback);
-			const delay = random(defaults.feedbackDelayTime);
-			const fb = new Tone.FeedbackDelay(delay, feedback).toDestination();
-			effects.push(fb);
-		}
-
-		if (chance(defaults.phaserChance) && totalPlays > defaults.phaserDelay && effects.length <= defaults.fxLimit) {
-			const freq = randInt(defaults.phaserFrequency);
-			const octaves = randInt(defaults.phaserOctaves);
-			const base = randInt(defaults.phaserBaseFrequency);
-			const phaser = new Tone.Phaser(freq, octaves, base).toDestination();
-			effects.push(phaser);
-		}
-
-		if (chance(defaults.pingPongChance) && totalPlays > defaults.pingPongDelay && effects.length <= defaults.fxLimit) {
-			const delay = random(defaults.pingPongDelayTime);
-			const feedback = random(defaults.pingPongFeedback);
-			const pingPong = new Tone.PingPongDelay(delay, feedback).toDestination();
-			effects.push(pingPong);
-		}
-
-		if (chance(defaults.tremoloChance) && totalPlays > defaults.tremoloDelay && effects.length <= defaults.fxLimit) {
-			const freq = randInt(defaults.tremoloFrequency);
-			const depth = random(defaults.tremoloDepth);
-			const tremolo = new Tone.Tremolo(freq, depth).toDestination().start();
-			effects.push(tremolo);
-		}
-
-		if (chance(defaults.vibratoChance) && totalPlays > defaults.vibratoDelay && effects.length <= defaults.fxLimit) {
-			const freq = randInt(...defaults.vibratoFrequency);
-			const depth = random(defaults.vibratoDepth);
-			const vibrato = new Tone.Vibrato(freq, depth).toDestination();
-			effects.push(vibrato);
-		}
-
-		effects.forEach(effect => sampler.connect(effect));
 	}
 
 	function getSampleFiles(voice) {
@@ -439,7 +356,7 @@ export default {
 	Doodoo: Doodoo,
 	MIDI_NOTES: MIDI_NOTES,
 	doodooDefaults: doodooDefaults,
-	doodooControls: doodooControls
+	doodooControls: Defaults.controls,
 };
 
 /*

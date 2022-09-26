@@ -36,23 +36,14 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 				libraryTarget: 'window',
 				libraryExport: 'default',
 			},
-			performance: {
-				hints: false,
-			},
-			externals: {
-				tone: 'tone',
-			},
-			module: {
-				rules: [
-					{
-						test: /\.js$/,
-						exclude:  /node_modules/,
-					}
-				],
-			}
-		}).on('error', function handleError() {
-      		this.emit('end'); // Recover from errors
-    	}))
+			performance: { hints: false, },
+			externals: { tone: 'tone', },
+			watch: true,
+		}))
+		.on('error', function handleError(error) {
+			console.log('webpack error', error);
+			this.emit('end'); // Recover from errors
+		})
 		.pipe(dest(buildPath))
 		.pipe(gulpif(useBrowserSync, browserSync.stream()));
 }

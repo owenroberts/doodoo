@@ -173,7 +173,7 @@ let controls = [
 	{
 		"key": "fxLimit",
 		"type": "number",
-		"value": 4,
+		"value": 1,
 		"range": [0, 16],
 		"panel": "effects"
 	},
@@ -207,7 +207,7 @@ let controls = [
 	{
 		"key": "distortionDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "distortion"
 	},
@@ -228,7 +228,7 @@ let controls = [
 	{
 		"key": "bitCrushDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "distortion"
 	},
@@ -247,7 +247,7 @@ let controls = [
 	{
 		"key": "autoFilterDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -266,7 +266,7 @@ let controls = [
 	{
 		"key": "autoPannerDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -285,7 +285,7 @@ let controls = [
 	{
 		"key": "chebyDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -305,7 +305,7 @@ let controls = [
 	{
 		"key": "chorusDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "chorus"
 	},
@@ -340,7 +340,7 @@ let controls = [
 	{
 		"key": "feedbackDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "delay"
 	},
@@ -367,7 +367,7 @@ let controls = [
 	{
 		"key": "phaserDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "phaser"
 	},
@@ -401,7 +401,7 @@ let controls = [
 	{
 		"key": "pingPongDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "delay"
 	},
@@ -426,9 +426,9 @@ let controls = [
 		"panel": "tremolo"
 	},
 	{
-		"key": "temoloDelay",
+		"key": "tremoloDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "tremolo"
 	},
@@ -457,7 +457,7 @@ let controls = [
 	{
 		"key": "vibratoDelay",
 		"type": "number",
-		"value": 8,
+		"value": 0,
 		"range": [0, 16],
 		"panel": "vibrato"
 	},
@@ -480,17 +480,17 @@ let controls = [
 ];
 
 let defaults = {};
-controls.forEach(p => {
-	const { key, value, type } = p;
+controls.forEach(params => {
+	const { key, value, type } = params;
 	switch(type) {
 		case 'range':
 		case 'chance':
 		case 'number':
 		case 'loops':
-			defaults[key] = p.value;
+			defaults[key] = value;
 		break;
 		case 'list':
-			defaults[key] = p.shuffle ? shuffle(value) : value;
+			defaults[key] = params.shuffle ? shuffle(value) : value;
 		break;
 	}
 });

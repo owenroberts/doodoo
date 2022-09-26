@@ -36,7 +36,6 @@ function Controls(app, defaults, controls) {
 				resetControl(key, row);
 			}
 		}));
-		// row.append(new UIElement({ class: 'break' }));
 
 		if (type === 'range') addRange(control, row);
 		if (type === 'list' && control.value) addList(control, row);
@@ -269,21 +268,25 @@ function Controls(app, defaults, controls) {
 	this.load = function(data) {
 		// load local storage or comp data
 		if (data) {
-			controls.forEach(p => {
-				if (data[p.key] !== undefined) {
-					defaults[p.key] = data[p.key];
-					switch(p.type) {
-						case 'list':
-							for (const k in data[p.key]) {
-								p[k] = data[p.key][k];
-							}
-						break;
-						default:
-							p.value = data[p.key];
-						break;
-					}
+			for (let i = 0; i < controls.length; i++) {
+				const { key, type } = controls[i];
+				if (data[key] === undefined) continue;
+				defaults[key] = data[key];
+				switch(type) {
+					case 'list':
+						for (const k in data[key]) {
+							controls[i][k] = data[key][k];
+						}
+					break;
+					case 'effect':
+						controls[i].chance = data[key + 'Chance'];
+						controls[i].delay = data[key + 'Delay'];
+					break;
+					default:
+						controls[i].value = data[key];
+					break;
 				}
-			});
+			}
 		}
 
 		const panelData = localStorage.getItem('settings-doodoo') ?

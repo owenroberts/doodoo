@@ -94,13 +94,14 @@ function Composition(app, defaults) {
 				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
 			},
 			useMetro: self.useMetro,
-			params: app.controls.get()
+			controls: app.controls.get(),
 		});
 		doodoo.play();
 		app.fio.saveLocal(comp);
 	};
 
 	this.isRecording = function() {
+		if (!doodoo) return false;
 		return doodoo.isRecording();
 	};
 
@@ -183,7 +184,7 @@ function Composition(app, defaults) {
 		});
 		
 		let removeBtn = new UIButton({ 
-			text: "X",
+			text: "x",
 			class: 'remove-btn',
 			callback: () => {
 				// melodyRow.remove(part);

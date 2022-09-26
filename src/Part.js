@@ -1,19 +1,19 @@
 import { random, randInt, shuffle, chance, ValueRange, ValueList } from './cool.js';
 
-export default function Part(melody, defaults, defaultDuration, debug) {
+export default function Part(melody, def, defaultDuration, debug) {
 
 	let mutations = 0;
 
-	const loopNums = new ValueRange(...defaults.loopNums);
-	const harmonies = new ValueList(defaults.harmonyStart, defaults.harmonyAdd, defaults.harmonyUpdateChance);
+	const loopNums = new ValueRange(...def.loopNums);
+	const harmonies = new ValueList(def.harmonyStart, def.harmonyAdd, def.harmonyUpdateChance);
 
-	const startIndexes = new ValueRange(...defaults.startIndexes);
-	const indexStep = new ValueRange(...defaults.indexStep);
+	const startIndexes = new ValueRange(...def.startIndexes);
+	const indexStep = new ValueRange(...def.indexStep);
 
 	// duration of loop, whole note, half note etc.
-	const durations = new ValueList(defaults.durationStart, defaults.durationAdd, defaults.durationsChance); 
+	const durations = new ValueList(def.durationStart, def.durationAdd, def.durationsChance); 
 
-	const startDelays = new ValueList(defaults.startDelaysStart, defaults.startDelaysAdd, defaults.startDelaysChance);
+	const startDelays = new ValueList(def.startDelaysStart, def.startDelaysAdd, def.startDelaysChance);
 
 	const defaultLoop = {
 		noteDuration: defaultDuration,
@@ -27,7 +27,7 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 		harmony: 0,
 		melody: melody
 	};
-	const startLoops = defaults.startLoops.map(count => {
+	const startLoops = def.startLoops.map(count => {
 		return count.map(loop => {
 			return { ...defaultLoop, ...loop };
 		});
@@ -43,13 +43,13 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 		durations.update();
 		startDelays.update();
 
-		if (chance(defaults.sliceChance)) {
+		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
-			let slice = melody.slice(index, index + randInt(1, defaults.sliceLength));
+			let slice = melody.slice(index, index + randInt(1, def.sliceLength));
 			melody.push(...slice);
 		}
 
-		if (chance(defaults.shiftChance) && melody.length > defaults.shiftLength) {
+		if (chance(def.shiftChance) && melody.length > def.shiftLength) {
 			melody.shift();
 		}
 
@@ -103,13 +103,13 @@ export default function Part(melody, defaults, defaultDuration, debug) {
 				noteDuration: duration,
 				count: 0,
 				counter: duration < 4 ? duration / 4 : 1,
-				doubler: (duration > 4 && duration < 32) ? chance(defaults.doublerChance) : false,
-				doublerCounter: duration > 4 ? chance(defaults.doublerCounterChance) : false,
-				repeat: duration > 9 ? random(...defaults.repeat) : 1,
+				doubler: (duration > 4 && duration < 32) ? chance(def.doublerChance) : false,
+				doublerCounter: duration > 4 ? chance(def.doublerCounterChance) : false,
+				repeat: duration > 9 ? random(...def.repeat) : 1,
 				startIndex: startIndex,
 				startDelay: startDelay,
 				melody: melody,
-				harmony: chance(defaults.harmonyChance) ? harmonies.random : 0,
+				harmony: chance(def.harmonyChance) ? harmonies.random : 0,
 			});
 
 			// is this right? -- startIndex can't be negative
