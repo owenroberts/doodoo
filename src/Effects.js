@@ -1,4 +1,4 @@
-import { random, randInt, shuffle, chance,  } from './cool.js';
+import { random, randInt, shuffle, chance,  } from './Random.js';
 
 function Effects(def) {
 

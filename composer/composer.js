@@ -26,11 +26,13 @@ window.addEventListener("load", function() {
 	];
 	app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
 	app.fio = new FilesIO(app);
+	app.score = new Score(app);
 	
 	app.ui.load('./interface/interface.json', () => {
 		app.ui.settings.load();
 		app.composition.init();
 		app.controls.init();
+		app.score.init();
 
 		const compData = localStorage.getItem('comp');
 		if (compData && compData !== 'undefined'){

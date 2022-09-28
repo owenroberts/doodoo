@@ -11,7 +11,7 @@
 	start params -- fuck
 */
 
-import { shuffle } from './cool.js';
+import { shuffle } from './Random.js';
 
 let controls = [
 	{

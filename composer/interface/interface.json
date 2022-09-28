@@ -1,7 +1,7 @@
 {
 	"fio": {
 		"label": "FilesIO",
-		"uis":[
+		"uis": [
 			{
 				"module": "fio",
 				"list": [
@@ -378,6 +378,24 @@
 						"params": {
 							"text": "Default",
 							"args": ["/composer/interface/workspaces/Default.json"]
+						}
+					}
+				]
+			}
+		]
+	},
+	"score": {
+		"label": "Score",
+		"addPanel": true,
+		"uis": [
+			{
+				"module": "score",
+				"list": [
+					{
+						"type": "UIRow",
+						"k": "score",
+						"params": {
+							"id": "score"
 						}
 					}
 				]

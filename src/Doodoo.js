@@ -317,6 +317,10 @@ function Doodoo(params, callback) {
 		console.log('loops', loops); // debug
 	}
 
+	function getLoops() {
+		return loops;
+	}
+
 	function moveBPM(n) {
 		let b = Tone.Transport.bpm.value;
 		Tone.Transport.bpm.value = b + n;
@@ -353,7 +357,7 @@ function Doodoo(params, callback) {
 		});
 	}
 
-	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, };
+	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, };
 }
 
 export default { 
