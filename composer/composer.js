@@ -32,7 +32,6 @@ window.addEventListener("load", function() {
 		app.ui.settings.load();
 		app.composition.init();
 		app.controls.init();
-		app.score.init();
 
 		const compData = localStorage.getItem('comp');
 		if (compData && compData !== 'undefined'){
@@ -44,6 +43,7 @@ window.addEventListener("load", function() {
 			app.controls.load();
 		}
 
+		app.score.init();
 	});
 
 	console.log(app);
