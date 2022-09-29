@@ -1,4 +1,3 @@
-// import { MIDI_NOTES } from './Midi.js';
 /*
 	display score from mutated doodoos ...
 */
@@ -10,12 +9,15 @@ function Score(app) {
 	let ctx;
 	if (canvas.getContext('2d')) {
 		ctx = canvas.getContext('2d');
+	} else {
+		return;
 	}
 
 	let m = 10; // margin
 	let p = 8; // css padding
 	let t = 20; // top
 	let h = 12; // row height
+	let h2 = 6;
 	let w = 24; // width
 	let C4 = 60; // middle c index ? 
 	let C4Y = t + h * 6; // y value
@@ -118,6 +120,8 @@ function Score(app) {
 		staffX += noteWidth;
 		let staffWidth = width - p - staffX - m * 2;
 
+		if (loops.length === 0) return;
+
 		let noteDuration = Math.min(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
 		let noteDiff = noteDuration / 4;
 		let compDuration = Math.max(loops.map(
@@ -140,32 +144,11 @@ function Score(app) {
 		}
 		console.log(noteWidth, staffWidth, totalColumns);
 
-		
-		// if compWidth > staffWidth add new staff 
-		
-		// measures
-		
-		for (let i = 0; i <= totalColumns; i++) {
-			/*
 
-			if (i === totalColumns) { // end of composition bar
-				ctx.strokeRect(tempX, t + h, 6, h * 4);
-				ctx.fillRect(tempX, t + h, 6, h * 4);
-				ctx.strokeRect(tempX, t + h * 7, 6, h * 4);
-				ctx.fillRect(tempX, t + h * 7, 6, h * 4);
-				// continue;
-			}
-			*/
-			
-			
-			// tempX += noteWidth;
-		}
-
-		// notes
 		let tempX = staffX;
-		console.log('temp', staffX);
 		let noteCount = 0;
 		let measureCount = 0;
+
 		for (let i = 0; i < totalColumns; i++) {
 
 			if (i === totalColumns - 1) { // end of composition bar
@@ -210,13 +193,15 @@ function Score(app) {
 				let [note, duration] = melody[loopIndex];
 				let letter = note[0];
 				let number = +note[note.length - 1];
-				let y = C4Y +
-					((2 - noteIndexes.indexOf(letter)) * h) / 2 +
-					(((4 - number) * h) / 2) * 7;
+				let y = C4Y
+					+ (2 - noteIndexes.indexOf(letter)) * h2
+					+ (4 - number) * h2 * 7
+					// ((2 - noteIndexes.indexOf(letter)) * h) / 2 +
+					// (((4 - number) * h) / 2) * 7;
 				
 				ctx.beginPath();
-				ctx.ellipse(tempX, y, 6, 4, 0, 0, Math.PI * 2);
-				// ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
+				// ctx.ellipse(tempX, staffY + y, 6, 4, 0, 0, Math.PI * 2);
+				ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
 				ctx.fill();
 				
 				if (note.includes("#")) {
@@ -225,25 +210,25 @@ function Score(app) {
 				}
 				
 				if ([4, 8].includes(parseInt(duration))) {
-					line(tempX + 5, y - 1, tempX + 5, y - h * 2);
+					line(tempX + 5, staffY + y - 1, tempX + 5, y - h * 2);
 				}
 				
 				if (staffY > t + h * 5 && staffY < t + h * 7) {
-					line(tempX - 12, t + h * 6, tempX + 12, t + h * 6);
+					line(tempX - 12, staffY + t + h * 6, tempX + 12,staffY +  t + h * 6);
 				}
 
 				noteCount++;
 				if (noteCount === noteDuration) {
 					tempX += noteWidth;
-					line(tempX, t + h, tempX, t + h * 5);
-					line(tempX, t + h * 7, tempX, t + h * 11);
+					line(tempX, staffY + t + h, tempX, staffY + t + h * 5);
+					line(tempX, staffY + t + h * 7, tempX, staffY + t + h * 11);
 					noteCount = 0;
 					measureCount++;
 				}
 				
 				// text(note, x + 6, y + 3);
 			}
-			console.log('rest', rest);
+			// console.log('rest', rest);
 			tempX += noteWidth;
 		}
 

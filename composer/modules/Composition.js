@@ -274,9 +274,10 @@ function Composition(app, defaults) {
 	};
 
 	this.load = function(data) {
-		if (data.title) {
-			app.ui.faces.title.update(data.title);
-		}
+		if (data.title) app.ui.faces.title.update(data.title);
+		if (data.transform) app.ui.faces.transform.update(data.transform);
+		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
+		if (data.duration) app.ui.faces.duration.update(data.duration);
 
 		if (data.voices) {
 			let voices = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
@@ -288,20 +289,12 @@ function Composition(app, defaults) {
 				self.addVoice(voice);
 			});
 		}
-
-		if (data.bpm) {
-			app.ui.faces.bpm.update(data.bpm);
-		}
 		
 		if (data.tonic) {
 			app.ui.faces.tonic.update(typeof data.tonic === 'string' ? 
 				data.tonic :
 				getMIDINote(data.tonic)
 			);
-		}
-
-		if (data.duration) {
-			app.ui.faces.duration.update(data.duration);
 		}
 
 		if (data.scale) {
