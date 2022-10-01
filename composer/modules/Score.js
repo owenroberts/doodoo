@@ -4,6 +4,7 @@
 
 function Score(app) {
 	const self = this;
+	const { MIDI_NOTES } = app;
 
 	const canvas = document.createElement('canvas');
 	let ctx;
@@ -13,16 +14,15 @@ function Score(app) {
 		return;
 	}
 
-	let m = 10; // margin
-	let p = 8; // css padding
-	let t = 20; // top
+	let defaultNoteWidth = 16;
+	let margin = 10; // margin
+	let padding = 8; // css padding
+	let top = 20; // top
 	let h = 12; // row height
 	let h2 = 6;
-	let w = 24; // width
-	let C4 = 60; // middle c index ? 
-	let C4Y = t + h * 6; // y value
-	let noteIndexes = "ABCDEFG".split("");
-	let noteWidth = 12;
+	// let C4Index = 60; // middle c index ? 
+	let C4Y = h * 6; // y value
+	let noteIndexes = "CDEFGAB".split("");
 
 	let sharps = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
 	let flats = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
@@ -58,7 +58,27 @@ function Score(app) {
 		'D': 	'F',
 	};
 	let trebleSigs = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
+	// ♭, ♮, ♯
 
+	let restCharacters = {
+		'1n': '\u1D13B',
+		'2n': '\u1D13C',
+		'4n': '\u1D13D',
+		'8n': '\u1D13E',
+		'16n': '\u1D13F',
+		'32n': '\u1D140',
+	};
+
+	let notoFont = new FontFace(
+		"Noto",
+		"url(https://fonts.gstatic.com/s/notomusic/v14/pe0rMIiSN5pO63htf1sxEkW7I9tAcVwo.woff2)"
+	);
+	let notoFontLoaded = false;
+	notoFont.load().then((font) => {
+		document.fonts.add(font);
+		console.log("Font loaded");
+		notoFontLoaded = true;
+	});
 
 	function line(x1, y1, x2, y2) {
 		ctx.beginPath(); 
@@ -68,106 +88,169 @@ function Score(app) {
 	}
 
 	function staff(_x, _y, width) {
-		ctx.strokeStyle = 'black';
-		for (let i = 0; i < 11; i++) {
-			let y = t + i * h + h;
-			if (i !== 5) line(m, _y + y, width - m - p, y); 
-		}
+		
+	}
 
-		// clefs
-		ctx.fillStyle = 'black';
-		ctx.font = h * 5 + 'px serif';
-		ctx.fillText('𝄞', m, _y + t + h * 4.5);
-		ctx.font = h * 3 + 'px serif';
-		ctx.fillText('𝄢', m, _y + t + h * 10.5);
+	function getNoteDiff(a, b) {
+		let letterA = a[0];
+		let numberA = +a[a.length - 1];
+		let letterB = b[0];
+		let numberB = +b[b.length - 1];
+		let noteDiff = noteIndexes.indexOf(letterA) - noteIndexes.indexOf(letterB);
+		let octaveDiff = numberA - numberB;
+		return noteDiff + octaveDiff * 7;
+	}
 
-		// key signature
+	function draw(loops) {
+		console.log('loops', loops);
+		
+		let { width, height } = self.panel.el.getBoundingClientRect();
 		const { tonic, scale } = app.composition;
+		const tonicIndex = MIDI_NOTES.indexOf(tonic);
+		const notesInScale = scale.map(interval => {
+			let n = MIDI_NOTES[tonicIndex + interval];
+			return n.substring(0, n.length - 1);
+		});
+
 		let key = tonic.substring(0, tonic.length - 1);
 		if (scale.includes(3) && !scale.includes(4)) {
-			key = minors[key];	
-		} 
+			key = minors[key];
+		}
 		let keySig = keys[key];
 		let signature = keySig[0] === '#' ?
 			sharps.slice(0, keySig[1]) :
 			flats.slice(0, keySig[1]);
-
-		ctx.font = h * 1.65 + 'px serif';
-		signature.forEach(n => {
-			let y = t + h + _y + (trebleSigs.indexOf(n)) * h / 2;
-			ctx.fillText(keySig[0], _x, y);
-			ctx.fillText(keySig[0], _x, y + h * 7);
-			_x += noteWidth;
-		});
-
-		return _x;
-	}
-
-	function draw(loops) {
-
-		console.log('loops', loops)
-		let { width, height } = self.panel.el.getBoundingClientRect();
-		canvas.width = width - p; // - padding
-		canvas.height = height - p;
-		noteWidth = 12;
-
-		ctx.fillStyle = 'lightgray';
-		ctx.fillRect(0, 0, width, height); // bg
 		
-		let staffY = 0;
-		let staffX = 32;
-		staffX = staff(staffX, staffY, width);
-		staffX += noteWidth;
-		let staffWidth = width - p - staffX - m * 2;
+		let noteWidth = defaultNoteWidth; // default
+		let startX = defaultNoteWidth * 2 + signature.length * noteWidth;
+		let staffX = startX;
+		let staffY = top;
+		let staffWidth = width - padding - startX - margin * 2;
+		let staffHeight = 11 * h + h;
 
-		if (loops.length === 0) return;
-
-		let noteDuration = Math.min(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
+		let noteDuration = loops.length === 0 ? 4 :
+			Math.min(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
 		let noteDiff = noteDuration / 4;
 		let compDuration = Math.max(loops.map(
 			(loop) => loop.startDelay + loop.melody.length * loop.repeat
 		));
 		let numMeasures = Math.ceil(compDuration / noteDuration);
-		let compWidth = compDuration * noteWidth + numMeasures * noteWidth;
-		console.log(staffWidth, numMeasures, compWidth);
+
+		let incidentals = loops.flatMap(loop => loop.melody)
+			.map((note, index) => { 
+				return [
+				note[0] ? note[0].substring(0, note[0].length - 1) : null,  
+				Math.floor(index / noteDuration)
+			]})
+			.filter(i => i[0] !== null)
+			.filter(i => !notesInScale.includes(i[0]));
 		
+		let numIncidentals = incidentals.length;
+		let incidentalsPerMeasure = [];
+		for (let i = 0; i < numMeasures; i++) {
+			incidentalsPerMeasure[i] = incidentals.filter(inc => inc[1] === i).length;
+		}
+
+		let compWidth = compDuration * noteWidth 
+			+ numMeasures * noteWidth
+			+ numIncidentals * noteWidth;
+
 		let notesPerStaffLine = compDuration;
 		let measuresPerStaffLine = numMeasures;
-		let totalColumns = numMeasures + 1 + numMeasures * noteDuration;
+		let numStaffLines = 1;
+		let totalColumns = 1 + numMeasures + numMeasures * noteDuration + numIncidentals;
+		let columnsPerStaffLine = [totalColumns];
 
 		if (staffWidth > compWidth) {
 			noteWidth = Math.floor(staffWidth / totalColumns);
 		} else {
-			// add new staff
-			notesPerStaffLine = Math.floor(staffWidth / noteWidth);
-			// measuresPerStaffLine = Math.floor()
+			columnsPerStaffLine = [0];
+			for (let i = 0; i < numMeasures; i++) {
+				let measureCols = noteDuration + incidentalsPerMeasure[i] + 1;
+				let measureWidth = measureCols * noteWidth;
+				let currentWidth = columnsPerStaffLine[numStaffLines - 1] * noteWidth;
+				if (currentWidth + measureWidth < staffWidth) {
+					columnsPerStaffLine[numStaffLines - 1] += measureCols;
+				} else {
+					numStaffLines++;
+					columnsPerStaffLine.push(measureCols);
+				}
+			}
 		}
-		console.log(noteWidth, staffWidth, totalColumns);
 
+		canvas.width = width - padding; // - padding
+		canvas.height = staffHeight * numStaffLines + top * 2;
 
-		let tempX = staffX;
+		ctx.fillStyle = 'lightgray';  // bg
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		ctx.fillStyle = 'black';
+		ctx.strokeStyle = 'black';
+
+		// draw staff lines
+		for (let i = 0; i < numStaffLines; i++) {
+			// staff(32, i * staffHeight, width);
+			let _y = top + i * staffHeight;
+			let _x = 32;
+			
+			for (let i = 0; i < 11; i++) {
+				let y = top + i * h + h;
+				if (i !== 5) line(margin, _y + y, width - margin - padding, _y + y); 
+			}
+
+			// clefs
+			ctx.fillStyle = 'black';
+			ctx.font = h * 5 + 'px serif';
+			ctx.fillText('𝄞', margin, _y + top + h * 4.5);
+			ctx.font = h * 3 + 'px serif';
+			ctx.fillText('𝄢', margin, _y + top + h * 9.5);
+
+			ctx.font = h * 1.5 + 'px serif';
+			signature.forEach(n => {
+				let y = top + h + _y + (trebleSigs.indexOf(n)) * h2;
+				ctx.fillText('♯', _x, y);
+				ctx.fillText('♯', _x, y + h * 7);
+				_x += defaultNoteWidth;
+			});
+		}
+
+		if (loops.length === 0) return;
+
+		let tempX = staffX + noteWidth;
 		let noteCount = 0;
-		let measureCount = 0;
+		let extraColumnCount = 0;
+		let staffLineCount = 0;
 
-		for (let i = 0; i < totalColumns; i++) {
+		for (let i = 0; i <= compDuration; i++) {
 
-			if (i === totalColumns - 1) { // end of composition bar
-				console.log(i === totalColumns, tempX, tempX - measureCount * noteWidth);
+			// ctx.font = '12px monospace';
+			// ctx.fillText(i, tempX, staffY + top);
+			// ctx.fillText(i + extraColumnCount, tempX, staffY + top * 2);
 
-				ctx.font = '12px monospace';
-				ctx.fillText('x', tempX - measureCount * noteWidth, t + h);
-				ctx.fillStyle = 'black';
-				// ctx.strokeRect(tempX, t + h, 6, h * 4);
-				ctx.fillRect(tempX - measureCount * noteWidth, t + h, 6, h * 4);
-				// ctx.strokeRect(tempX, t + h * 7, 6, h * 4);
-				ctx.fillRect(tempX - measureCount * noteWidth, t + h * 7, 6, h * 4);
+			let colWidth = noteWidth;
+			if (staffLineCount < numStaffLines) {
+				Math.floor(staffWidth / columnsPerStaffLine[staffLineCount]);
+				if (i === 0) {
+					// tempX += staffWidth - colWidth * columnsPerStaffLine[staffLineCount];
+				}
+			}
+
+			if (i > 0 && (i + extraColumnCount) % columnsPerStaffLine[staffLineCount] === 0) {
+				staffLineCount++;
+				staffY += staffHeight;
+				tempX = staffX + noteWidth;
+			}
+
+			// ctx.font = '12px monospace';
+			// ctx.fillText(i, tempX, staffY + top);
+			// ctx.fillText(i + extraColumnCount, tempX, staffY + top * 2);
+
+			if (i === compDuration) { // end of composition bar
+				ctx.fillRect(tempX, staffY + top + h, 6, h * 4);
+				ctx.fillRect(tempX, staffY + top + h * 7, 6, h * 4);
 				continue;
 			}
 
-			ctx.font = '12px monospace';
-			ctx.fillText('.', tempX - measureCount * noteWidth, t + h);
-
-			let rest = [];
 			let moreNotes = [];
 
 			for (let j = 0; j < loops.length; j++) {
@@ -182,57 +265,113 @@ function Score(app) {
 				}
 
 				let loopIndex = (i - startDelay + startIndex) % melody.length;
+				let [note, duration] = melody[loopIndex];
 
-				if (melody[loopIndex][0] === null) {
-					rest.push(j);
+				// rest
+				if (note === null) {
+					if (duration === '8n') {
+						let tempCount = noteCount;
+						let slice = melody.slice(loopIndex - tempCount, loopIndex + (4 - tempCount));
+
+					}
+					// ctx.font = '12px Noto Music';
+					if (notoFontLoaded) {
+						console.log(notoFontLoaded)
+						ctx.font = '24px Noto';
+					}
+					ctx.fillText('𝄽', tempX, staffY + 11.5 * h);
+					noteCount++;
 					continue;
 				}
 
-				rest = false;
-
-				let [note, duration] = melody[loopIndex];
-				let letter = note[0];
-				let number = +note[note.length - 1];
-				let y = C4Y
-					+ (2 - noteIndexes.indexOf(letter)) * h2
-					+ (4 - number) * h2 * 7
-					// ((2 - noteIndexes.indexOf(letter)) * h) / 2 +
-					// (((4 - number) * h) / 2) * 7;
 				
+				let y = top + staffY + C4Y + getNoteDiff('C4', note) * h2;
+
+				// sharp, flat, natural
+				let n = note.substring(0, note.length - 1);
+				if (!notesInScale.includes(n)) {
+					ctx.font = '18px sans-serif';
+					if (note.includes('#')) {
+						ctx.fillText('♯', tempX - colWidth / 2, y + 8); // idky
+						// flats?
+					} else {
+						ctx.fillText('♮', tempX - colWidth / 2, y + 8);
+					}
+					// console.log('inc', i, noteCount, noteDuration);
+					tempX += colWidth;
+					extraColumnCount++;
+				}
+
+				// console.log(note, tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
 				ctx.beginPath();
 				// ctx.ellipse(tempX, staffY + y, 6, 4, 0, 0, Math.PI * 2);
 				ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
 				ctx.fill();
 				
-				if (note.includes("#")) {
-					// textSize(18);
-					// text("#", x - 12, y);
+				// connectors and stems
+				if (duration === '4n') {
+					line(tempX + 5, y - 1, tempX + 5, y - h2);
 				}
-				
-				if ([4, 8].includes(parseInt(duration))) {
-					line(tempX + 5, staffY + y - 1, tempX + 5, y - h * 2);
+
+				// connector
+				if (duration === '8n') {
+					let diff = 0;
+					let tempCount = noteCount % 4;
+					let slice = melody.slice(loopIndex - tempCount, loopIndex + (4 - tempCount));
+					
+					let topY = C4Y + getNoteDiff('C4', note) * h2;
+					let len = 0;
+					
+					for (let k = 0; k < slice.length; k++) {
+						let [n, dur] = slice[k];
+						if (k > tempCount) {
+							if (!n || dur !== '8n') break;
+						}
+						if (!n) continue;
+						if (k > tempCount) len += colWidth;
+						let ny = C4Y + getNoteDiff('C4', n) * h2;
+						if (ny < topY) topY = ny;
+					}
+
+					// stem for this note
+					line(tempX + 5, y - 1, tempX + 5, staffY + topY - h2);
+
+					if (len > 0) { // rect for multiple notes
+						ctx.fillRect(tempX + 5, staffY + topY - h2, len, 4);
+					} else {
+						let tail = false;
+						if (slice[tempCount - 1]) {
+							if (slice[tempCount - 1][1] !== '8n') tail = true;
+						} else {
+							tail = true;
+						}
+						if (tail) line(tempX + 5, staffY + topY - h2, tempX + 10, staffY + topY)
+					}
+
+					
 				}
-				
-				if (staffY > t + h * 5 && staffY < t + h * 7) {
-					line(tempX - 12, staffY + t + h * 6, tempX + 12,staffY +  t + h * 6);
+
+				// console.log('breaks');
+
+				// middle lines
+				if (staffY > top + h * 5 && staffY < top + h * 7) {
+					line(tempX - 12, staffY + top + h * 6, tempX + 12, staffY + top + h * 6);
 				}
 
 				noteCount++;
-				if (noteCount === noteDuration) {
-					tempX += noteWidth;
-					line(tempX, staffY + t + h, tempX, staffY + t + h * 5);
-					line(tempX, staffY + t + h * 7, tempX, staffY + t + h * 11);
-					noteCount = 0;
-					measureCount++;
-				}
 				
-				// text(note, x + 6, y + 3);
+				// draw measure lines
+				if (noteCount === noteDuration) {
+					tempX += colWidth;
+					extraColumnCount++
+					let x = tempX;
+					line(x + colWidth / 2, staffY + top + h, x + colWidth / 2, staffY + top + h * 5);
+					line(x + colWidth / 2, staffY + top + h * 7, x + colWidth / 2, staffY + top + h * 11);
+					noteCount = 0;
+				}
 			}
-			// console.log('rest', rest);
-			tempX += noteWidth;
+			tempX += colWidth;
 		}
-
-
 	}
 
 	this.update = function(loops) {
