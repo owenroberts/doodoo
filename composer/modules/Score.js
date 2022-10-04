@@ -69,6 +69,7 @@ function Score(app) {
 		'32n': '\u1D140',
 	};
 
+	// support unicode musical characters
 	let notoFont = new FontFace(
 		"Noto",
 		"url(https://fonts.gstatic.com/s/notomusic/v14/pe0rMIiSN5pO63htf1sxEkW7I9tAcVwo.woff2)"
@@ -85,10 +86,6 @@ function Score(app) {
 		ctx.moveTo(x1, y1);
 		ctx.lineTo(x2, y2);
 		ctx.stroke();
-	}
-
-	function staff(_x, _y, width) {
-		
 	}
 
 	function getNoteDiff(a, b) {
@@ -129,12 +126,13 @@ function Score(app) {
 		let staffHeight = 11 * h + h;
 
 		let noteDuration = loops.length === 0 ? 4 :
-			Math.min(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
+			Math.max(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
 		let noteDiff = noteDuration / 4;
 		let compDuration = Math.max(loops.map(
 			(loop) => loop.startDelay + loop.melody.length * loop.repeat
 		));
 		let numMeasures = Math.ceil(compDuration / noteDuration);
+		console.log(compDuration, noteDuration, numMeasures);
 
 		let incidentals = loops.flatMap(loop => loop.melody)
 			.map((note, index) => { 
@@ -193,6 +191,7 @@ function Score(app) {
 			let _y = top + i * staffHeight;
 			let _x = 32;
 			
+			ctx.strokeStyle = 'gray';
 			for (let i = 0; i < 11; i++) {
 				let y = top + i * h + h;
 				if (i !== 5) line(margin, _y + y, width - margin - padding, _y + y); 
@@ -267,104 +266,136 @@ function Score(app) {
 				let loopIndex = (i - startDelay + startIndex) % melody.length;
 				let [note, duration] = melody[loopIndex];
 
-				// rest
-				if (note === null) {
+				
+				if (note === null) { // draw rest
+
+					// get measure the rest is in ...
+					let measure = melody.slice(loopIndex - noteCount, loopIndex + (noteDuration - noteCount));
+					console.log('measure', i, note, measure);
+					console.log('fart')
+					
+					ctx.font = '26px Noto';
 					if (duration === '8n') {
-						let tempCount = noteCount;
+						let tempCount = noteCount % 4;
 						let slice = melody.slice(loopIndex - tempCount, loopIndex + (4 - tempCount));
-
+						// top or bottom staff ... 
+						if (slice.every(n => n[0] === null)) {
+							// half note rest
+							if (tempCount === 0) {
+								ctx.fillText('𝄼', tempX + colWidth, staffY + 11 * h); // 2n rest
+							}
+						}
+						else if (tempCount % 2 === 0) {
+							if (slice[tempCount+1][0] === null) {
+								ctx.fillText('𝄽', tempX + colWidth / 2, staffY + 11.5 * h); // 4n rest
+							} else {
+								ctx.fillText('𝄾', tempX, staffY + 11.5 * h); // 8n rest
+							}
+						}
+						else if (slice[tempCount-1][0] !== null) { 
+							ctx.fillText('𝄾', tempX, staffY + 11.5 * h); // 8n rest
+						}
 					}
-					// ctx.font = '12px Noto Music';
-					if (notoFontLoaded) {
-						console.log(notoFontLoaded)
-						ctx.font = '24px Noto';
-					}
-					ctx.fillText('𝄽', tempX, staffY + 11.5 * h);
+					
 					noteCount++;
-					continue;
-				}
-
+					// tempX += colWidth;
+					// continue;
 				
-				let y = top + staffY + C4Y + getNoteDiff('C4', note) * h2;
-
-				// sharp, flat, natural
-				let n = note.substring(0, note.length - 1);
-				if (!notesInScale.includes(n)) {
-					ctx.font = '18px sans-serif';
-					if (note.includes('#')) {
-						ctx.fillText('♯', tempX - colWidth / 2, y + 8); // idky
-						// flats?
-					} else {
-						ctx.fillText('♮', tempX - colWidth / 2, y + 8);
-					}
-					// console.log('inc', i, noteCount, noteDuration);
-					tempX += colWidth;
-					extraColumnCount++;
-				}
-
-				// console.log(note, tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
-				ctx.beginPath();
-				// ctx.ellipse(tempX, staffY + y, 6, 4, 0, 0, Math.PI * 2);
-				ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
-				ctx.fill();
+				} else { // draw note
 				
-				// connectors and stems
-				if (duration === '4n') {
-					line(tempX + 5, y - 1, tempX + 5, y - h2);
-				}
+					let y = top + staffY + C4Y + getNoteDiff('C4', note) * h2;
+					ctx.strokeStyle = 'black';
 
-				// connector
-				if (duration === '8n') {
-					let diff = 0;
-					let tempCount = noteCount % 4;
-					let slice = melody.slice(loopIndex - tempCount, loopIndex + (4 - tempCount));
-					
-					let topY = C4Y + getNoteDiff('C4', note) * h2;
-					let len = 0;
-					
-					for (let k = 0; k < slice.length; k++) {
-						let [n, dur] = slice[k];
-						if (k > tempCount) {
-							if (!n || dur !== '8n') break;
-						}
-						if (!n) continue;
-						if (k > tempCount) len += colWidth;
-						let ny = C4Y + getNoteDiff('C4', n) * h2;
-						if (ny < topY) topY = ny;
-					}
-
-					// stem for this note
-					line(tempX + 5, y - 1, tempX + 5, staffY + topY - h2);
-
-					if (len > 0) { // rect for multiple notes
-						ctx.fillRect(tempX + 5, staffY + topY - h2, len, 4);
-					} else {
-						let tail = false;
-						if (slice[tempCount - 1]) {
-							if (slice[tempCount - 1][1] !== '8n') tail = true;
+					// sharp, flat, natural
+					let n = note.substring(0, note.length - 1);
+					if (!notesInScale.includes(n)) {
+						ctx.font = '18px sans-serif';
+						if (note.includes('#')) {
+							ctx.fillText('♯', tempX - colWidth / 2, y + 8); // idky
+							// flats?
 						} else {
-							tail = true;
+							ctx.fillText('♮', tempX - colWidth / 2, y + 8);
 						}
-						if (tail) line(tempX + 5, staffY + topY - h2, tempX + 10, staffY + topY)
+						// console.log('inc', i, noteCount, noteDuration);
+						tempX += colWidth;
+						extraColumnCount++;
 					}
 
-					
+					if (duration === '1n') {
+						ctx.beginPath();
+						ctx.strokeStyle = 'black';
+						ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
+						ctx.stroke();
+					}
+
+					if (duration === '2n') {
+					}
+
+					// connectors and stems
+					if (duration === '4n') {
+						ctx.beginPath();
+						ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
+						ctx.fill();
+						line(tempX + 5, y - 1, tempX + 5, y - h2);
+					}
+
+					// connector
+					if (duration === '8n') {
+						let diff = 0;
+						let tempCount = noteCount % 4;
+						let slice = melody.slice(loopIndex - tempCount, loopIndex + (4 - tempCount));
+						
+						let topY = C4Y + getNoteDiff('C4', note) * h2;
+						let len = 0;
+
+						for (let k = 0; k < slice.length; k++) {
+							let [n, dur] = slice[k];
+							if (k > tempCount) {
+								if (!n || dur !== '8n') break;
+							}
+							if (!n) continue;
+							if (k > tempCount) len += colWidth;
+							let ny = C4Y + getNoteDiff('C4', n) * h2;
+							if (ny < topY) topY = ny;
+						}
+
+						let tail = false;
+						if (len > 0) { // rect for multiple notes
+							ctx.fillRect(tempX + 5, staffY + topY - h2, len, 4);
+						} else {
+							if (slice[tempCount - 1]) {
+								if (slice[tempCount - 1][0] === null) tail = true;
+							} else {
+								tail = true;
+							}
+						}
+
+						// stem for this note
+						line(tempX + 5, y - 1, tempX + 5, staffY + topY - h2);
+						ctx.beginPath();
+						ctx.ellipse(tempX, y, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
+						ctx.fill();
+
+						if (tail) {
+							let dir = tempCount === 3 ? -5 : 10;
+							line(tempX + 5, staffY + topY - h2, tempX + dir, staffY + topY + h2)
+						}
+					}
+
+					// middle lines
+					if (staffY > top + h * 5 && staffY < top + h * 7) {
+						line(tempX - 12, staffY + top + h * 6, tempX + 12, staffY + top + h * 6);
+					}
+
+					noteCount++;
 				}
-
-				// console.log('breaks');
-
-				// middle lines
-				if (staffY > top + h * 5 && staffY < top + h * 7) {
-					line(tempX - 12, staffY + top + h * 6, tempX + 12, staffY + top + h * 6);
-				}
-
-				noteCount++;
 				
 				// draw measure lines
 				if (noteCount === noteDuration) {
 					tempX += colWidth;
 					extraColumnCount++
 					let x = tempX;
+					ctx.strokeStyle = 'black';
 					line(x + colWidth / 2, staffY + top + h, x + colWidth / 2, staffY + top + h * 5);
 					line(x + colWidth / 2, staffY + top + h * 7, x + colWidth / 2, staffY + top + h * 11);
 					noteCount = 0;
