@@ -227,10 +227,16 @@ function Doodoo(params, callback) {
 	function getSynth() {
 		const fmSynth = new Tone.FMSynth({ 
 			volume: params.volume || 0
-		}).toDestination();
-		// addEffects(fmSynth);
-		effects.connect(fmSynth, totalPlays);
-		if (withRecording) fmSynth.connect(recorder);
+		});
+		
+		if (withRecording) fmSynth.chain(Tone.Destination, recorder)
+		else fmSynth.toDestination();
+
+		effects.get(totalPlays).forEach(f => {
+			if (withRecording) f.chain(Tone.Destination, recorder);
+			else f.toDestination();
+			fmSynth.connect(f);
+		});
 		return fmSynth;
 	}
 
@@ -240,10 +246,16 @@ function Doodoo(params, callback) {
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-		}).toDestination();
-		// addEffects(sampler);
-		effects.connect(sampler, totalPlays);
-		if (withRecording) sampler.connect(recorder);
+		});
+		if (withRecording) sampler.chain(Tone.Destination, recorder)
+		else sampler.toDestination();
+
+		effects.get(totalPlays).forEach(f => {
+			if (withRecording) f.chain(Tone.Destination, recorder);
+			else f.toDestination();
+			sampler.connect(f);
+		});
+		
 		return sampler;
 	}
 
