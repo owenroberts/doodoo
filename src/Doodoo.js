@@ -88,6 +88,8 @@ function Doodoo(params, callback) {
 	// attack velocity -- only (?) global params
 	const attackStart = new ValueRange(...def.attackStart);
 	const attackStep = new ValueRange(...def.attackStep);
+	const restChance = new ValueRange(...def.restChance);
+	console.log();
 
 	let toneLoop;
 	let loops = [];
@@ -200,6 +202,7 @@ function Doodoo(params, callback) {
 			for (let j = 0; j < loop.countNum; j++) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
+				if (chance(restChance.getRandom())) continue;
 				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.len];
 				if (beat[0] !== null) {
 					const [note, duration] = beat;

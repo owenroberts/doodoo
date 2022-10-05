@@ -31,6 +31,14 @@ let controls = [
 		"panel": "attack"
 	},
 	{
+		"key": "restChance",
+		"type": "range",
+		"value": [0, 0],
+		"range": [0, 1],
+		"step": 0.01,
+		"panel": "attack",
+	},
+	{
 		"key": "loopNums",
 		"type": "range",
 		"value": [1, 1, 0.1, 0.2],
