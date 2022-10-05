@@ -62,8 +62,8 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length];
 
 			if (scaleIndex === -1) {
-				// what do do here? find closest in scale or just throw out a weird note?
-				// test this!!!!
+				// console.log('not in scale')
+				// test -- what do do here? find closest in scale or just interval
 				midiHarmony = 0;
 			}
 
