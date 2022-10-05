@@ -323,7 +323,7 @@
 		]
 	},
 	"controls": {
-		"label": "Doodoo Controls",
+		"label": "Controls",
 		"addPanel": true,
 		"uis": [
 			{
@@ -333,7 +333,7 @@
 						"type": "UIButton",
 						"callback": "resetControls",
 						"params": {
-							"text": "Reset Defaults"
+							"text": "Reset Controls"
 						}
 					},
 					{
@@ -341,6 +341,13 @@
 						"callback": "resetEffects",
 						"params": {
 							"text": "Reset Effects"
+						}
+					},
+					{
+						"type": "UIButton",
+						"callback": "zeroEffects",
+						"params": {
+							"text": "Zero Effects"
 						}
 					}
 				]

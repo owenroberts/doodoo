@@ -43,11 +43,11 @@ function Controls(app, defaults, controls) {
 		if (type === 'number') addNumber(control, row);
 	}
 
-	function resetControl(key, row) {
+	function resetControl(key, row, value) {
 		const control = controls.filter(p => p.key === key)[0];
-		const value = Array.isArray(originalDefaults[key]) ?
+		if (value === undefined) value = Array.isArray(originalDefaults[key]) ?
 			[...originalDefaults[key]] :
-			originalDefaults[key]
+			originalDefaults[key];
 		defaults[key] = value;
 		control.value = value;
 		row.clear();
@@ -230,15 +230,8 @@ function Controls(app, defaults, controls) {
 	}
 
 	this.resetControls = function() {
-		let index = 0;
-		for (let i = 0; i < controls.length; i++) {
-			if (controls[i].key === 'fxLimit') {
-				index = i;
-				break;
-			}
-		}
-
-		for (let i = 0; i < index; i++) {
+		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
+		for (let i = 0; i < fxIndex; i++) {
 			const { key, panel } = controls[i];
 			if (key === 'loops') continue;
 			resetControl(key, app.ui.panels[panel]['row-' + key]);
@@ -246,17 +239,20 @@ function Controls(app, defaults, controls) {
 	};
 
 	this.resetEffects = function() {
-		let index = 0;
-		for (let i = 0; i < controls.length; i++) {
-			if (controls[i].key === 'fxLimit') {
-				index = i;
-				break;
-			}
-		}
-
-		for (let i = index; i < controls.length; i++) {
+		// get fx starting point in controls list
+		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
+		for (let i = fxIndex; i < controls.length; i++) {
 			const { key, panel } = controls[i];
 			resetControl(key, app.ui.panels[panel]['row-' + key]);
+		}
+	};
+
+	this.zeroEffects = function() {
+		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
+		for (let i = fxIndex; i < controls.length; i++) {
+			const { key, panel } = controls[i];
+			if (!key.includes('Chance')) continue;
+			resetControl(key, app.ui.panels[panel]['row-' + key], 0);
 		}
 	};
 
