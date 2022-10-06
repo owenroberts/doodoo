@@ -92,14 +92,14 @@ function Composition(app, defaults) {
 			withRecording: withRecording,
 			onMutate: count => {
 				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
-				app.score.update(doodoo.getLoops());
+				if (app.score) app.score.update(doodoo.getLoops());
 			},
 			useMetro: self.useMetro,
 			controls: app.controls.get(),
 		});
 		doodoo.play();
 		app.fio.saveLocal(comp);
-		app.score.update(doodoo.getLoops());
+		if (app.score) app.score.update(doodoo.getLoops());
 	};
 
 	this.isRecording = function() {

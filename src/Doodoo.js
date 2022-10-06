@@ -116,7 +116,7 @@ function Doodoo(params, callback) {
 		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
-		toneLoop.start(0);
+		toneLoop.start(Tone.now());
 		playTheme();
 		
 		
