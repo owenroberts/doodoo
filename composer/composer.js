@@ -1,4 +1,4 @@
-const { Doodoo, MIDI_NOTES, doodooDefaults, doodooControls } = doodooLib; // import lib
+const { Doodoo, MIDI_NOTES, doodooDefaults, doodooControls } = doodooLib; // doodoo lib global
 
 window.addEventListener("load", function() {
 
@@ -28,7 +28,7 @@ window.addEventListener("load", function() {
 	app.fio = new FilesIO(app);
 	app.score = new Score(app);
 	
-	app.ui.load('./interface/interface.json', () => {
+	app.ui.load('./interface/panels.json', () => {
 		app.ui.settings.load();
 		app.composition.init();
 		app.controls.init();

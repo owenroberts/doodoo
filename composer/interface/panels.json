@@ -1,10 +1,10 @@
 {
 	"fio": {
 		"label": "FilesIO",
-		"uis": [
+		"modules": [
 			{
-				"module": "fio",
-				"list": [
+				"key": "fio",
+				"controls": [
 					{
 						"type": "UIButton",
 						"callback": "saveLocal",
@@ -53,10 +53,10 @@
 	},
 	"playback": {
 		"label": "Play Back",
-		"uis": [
+		"modules": [
 			{
-				"module": "composition",
-				"list": [
+				"key": "composition",
+				"controls": [
 					{
 						"type": "UIButton",
 						"callback": "play",
@@ -115,11 +115,10 @@
 	},
 	"composition": {
 		"label": "Composition",
-		"addPanel": true,
-		"uis": [
+		"modules": [
 			{
-				"module": "composition",
-				"list": [
+				"key": "composition",
+				"controls": [
 					{
 						"type": "UIText",
 						"label": "Title",
@@ -230,11 +229,10 @@
 	},
 	"melody": {
 		"label": "Melody",
-		"addPanel": true,
-		"uis": [
+		"modules": [
 			{
-				"module": "composition",
-				"list": [
+				"key": "composition",
+				"controls": [
 					{
 						"type": "UIRow",
 						"k": "melodyInput",
@@ -324,11 +322,10 @@
 	},
 	"controls": {
 		"label": "Controls",
-		"addPanel": true,
-		"uis": [
+		"modules": [
 			{
-				"module": "controls",
-				"list": [
+				"key": "controls",
+				"controls": [
 					{
 						"type": "UIButton",
 						"callback": "resetControls",
@@ -356,11 +353,10 @@
 	},
 	"loops": {
 		"label": "Start Loops",
-		"addPanel": true,
-		"uis": [
+		"modules": [
 			{
-				"module": "controls",
-				"list": [
+				"key": "controls",
+				"controls": [
 					{
 						"type": "UIRow",
 						"k": "startLoops",
@@ -373,11 +369,11 @@
 		]
 	},
 	"workspaces": {
-		"uis": [
+		"modules": [
 			{
-				"module": "ui",
+				"key": "ui",
 				"sub": "settings",
-				"list": [
+				"controls": [
 					{
 						"row": true,
 						"type": "UIButton",
@@ -393,11 +389,10 @@
 	},
 	"score": {
 		"label": "Score",
-		"addPanel": true,
-		"uis": [
+		"modules": [
 			{
-				"module": "score",
-				"list": [
+				"key": "score",
+				"controls": [
 					{
 						"type": "UIRow",
 						"k": "score",

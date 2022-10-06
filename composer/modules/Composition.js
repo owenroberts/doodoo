@@ -53,8 +53,8 @@ function Composition(app, defaults) {
 	}
 
 	this.init = function() {
-		scaleRow = self.panel.scaleRow;
-		voiceRow = self.panel.voiceRow;
+		scaleRow = app.ui.panels.composition.scaleRow;
+		voiceRow = app.ui.panels.composition.voiceRow;
 		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
 		self.partRows[0].addClass('part');
 		// melodyRow = app.ui.panels.melody.melody;

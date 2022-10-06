@@ -8,6 +8,7 @@ function Score(app) {
 	const { MIDI_NOTES } = app;
 
 	const canvas = document.createElement('canvas');
+	let panel;
 	let ctx;
 	if (canvas.getContext('2d')) {
 		ctx = canvas.getContext('2d');
@@ -102,7 +103,7 @@ function Score(app) {
 	function draw(loops) {
 		console.log('loops', loops);
 		
-		let { width, height } = self.panel.el.getBoundingClientRect();
+		let { width, height } = panel.el.getBoundingClientRect();
 		const { tonic, scale } = app.composition;
 		const tonicIndex = MIDI_NOTES.indexOf(tonic);
 		const notesInScale = scale.map(interval => {
@@ -444,7 +445,8 @@ function Score(app) {
 	};
 
 	this.init = function() {
-		self.panel.el.appendChild(canvas);
+		panel = app.ui.panels.score;
+		panel.el.appendChild(canvas);
 		draw([])
 	};
 }
