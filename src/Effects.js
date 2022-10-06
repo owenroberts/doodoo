@@ -67,7 +67,6 @@ function Effects(def) {
 		let fx = [];
 		if (getEffectChance('reverb', totalPlays)) {
 			const reverb = new Tone.Reverb({ decay: def.reverbDecay });
-			// instrument.connect(reverb);
 			fx.push(reverb);
 		}
 
@@ -77,10 +76,6 @@ function Effects(def) {
 			.map(name => fxFuncs[name]());
 		
 		return [...fx, ...filtered];
-			// .forEach(name => {
-			// 	if (recorder) instrument.chain(fxFuncs[name](), recorder);
-			// 	else instrument.connect(fxFuncs[name]());
-			// });
 	}
 	return { get };
 }

@@ -23,7 +23,7 @@ function Doodoo(params, callback) {
 	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
 	let samples;
-	if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
+	// if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
 
 	let voices = params.voices || [params.samples]; // fix for old data
 
@@ -58,7 +58,7 @@ function Doodoo(params, callback) {
 	*/
 
 	let parts = [];
-	if (params.parts[0] === 'string') {
+	if (typeof params.parts[0] === 'string') {
 		const melody = params.parts.map(n => [n, defaultDuration]);
 		parts.push(new Part(melody, def, defaultDuration, debug));
 	} else if (typeof params.parts[0] === 'number') {
@@ -89,7 +89,6 @@ function Doodoo(params, callback) {
 	const attackStart = new ValueRange(...def.attackStart);
 	const attackStep = new ValueRange(...def.attackStep);
 	const restChance = new ValueRange(...def.restChance);
-	console.log();
 
 	let toneLoop;
 	let loops = [];
@@ -101,12 +100,16 @@ function Doodoo(params, callback) {
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
-		await Tone.start();
-		if (voices.filter(v => !v.includes('Synth')).length > 0) load(start);
-		else start();
+		try {
+			await Tone.start();
+			if (voices.filter(v => !v.includes('Synth')).length > 0) load(start);
+			else start();
+		} catch(err) {
+			console.error('load tone error', err);
+		}
 	}
 
-	if (params.autoLoad) loadTone();
+	if (!params.lazyLoad) loadTone();
 
 	function start() {
 		if (callback) callback();
@@ -115,6 +118,7 @@ function Doodoo(params, callback) {
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(0);
 		playTheme();
+		
 		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -148,7 +152,6 @@ function Doodoo(params, callback) {
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale),
-					// sampler: samplesURL !== 'synth' ? getSampler() : getSynth()
 					voice: getVoice(random(voices))
 				};
 				loops.push(part);

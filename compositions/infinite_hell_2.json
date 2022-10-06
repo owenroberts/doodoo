@@ -1,9 +1,10 @@
 {
 	"title": "Infinite Hell 2",
-	"tonic": "F#4",
+	"transform": "F#4",
+	"tonic": "F#5",
 	"scale": [-4, -2, 0, 1, 3, 5, 7],
 	"duration": "8n",
-	"samples": "./samples/choir/",
+	"voices": ["choir"],
 	"bpm": 120,
 	"parts": [
 		["F#5", "2n"], [null, "4n"], [null, "8n"], ["C#5", "8n"],

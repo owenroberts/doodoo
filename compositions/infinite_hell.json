@@ -1,8 +1,21 @@
 {
 	"title": "Infinite Hell",
-	"tonic": 54,
+	"tonic": "C4",
+	"transform": 54,
 	"parts": ["C4", "A3", "G3", "D4", "E4", "G4", "A4", "C5", "C4", "D5", "C5", "D5"],
 	"duration": "4n",
-	"samples": "./samples/choir/",
-	"bpm": 112
+	"voices": ["choir"],
+	"bpm": 112,
+	"controls": {
+		"startLoops": [
+			[{ "noteDuration": 8 }],
+			[
+				{ "noteDuration": 4 },
+				{
+					"noteDuration": 4,
+					"harmony": 4
+				}
+			]
+		]
+	}
 }

@@ -34,7 +34,6 @@ export default function Part(melody, def, defaultDuration, debug) {
 			return { ...defaultLoop, ...loop };
 		});
 	});
-	// console.log('start loops', startLoops);
 
 	function mutate() {
 		

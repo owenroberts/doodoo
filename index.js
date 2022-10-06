@@ -20,9 +20,8 @@ function loadCompositions() {
 	compUrls.forEach(url => {
 		const comp = fetch(`./compositions/${url}`)
 			.then(res => res.json())
-			.then(json => {
-				createCompUI(json);
-			});
+			.then(json => { createCompUI(json); })
+			.catch(err => { console.log('my err', err); });
 	});
 }
 loadCompositions();

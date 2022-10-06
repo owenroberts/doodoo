@@ -1,9 +1,10 @@
 {
     "title": "Zoo",
-    "tonic": "C#4",
+    "tonic": "C#5",
+    "transform": "C#3",
     "duration": "8n",
     "bpm": 138,
-    "samples": "./samples/choir/",
+    "voices": ["choir"],
     "parts": [
         ["C#6", "2n"],
         ["D#6", "2n"],

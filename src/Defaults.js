@@ -172,7 +172,7 @@ let controls = [
 	{
 		"key": "startLoops",
 		"type": "loops",
-		"value": [],
+		"value": [[{}]], //  one empty start loop
 		"panel": "loops",
 	},
 
@@ -215,7 +215,7 @@ let controls = [
 	{
 		"key": "distortionDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "distortion"
 	},
@@ -236,7 +236,7 @@ let controls = [
 	{
 		"key": "bitCrushDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "distortion"
 	},
@@ -255,7 +255,7 @@ let controls = [
 	{
 		"key": "autoFilterDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -274,7 +274,7 @@ let controls = [
 	{
 		"key": "autoPannerDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -293,7 +293,7 @@ let controls = [
 	{
 		"key": "chebyDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "filter"
 	},
@@ -313,7 +313,7 @@ let controls = [
 	{
 		"key": "chorusDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "chorus"
 	},
@@ -348,7 +348,7 @@ let controls = [
 	{
 		"key": "feedbackDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "delay"
 	},
@@ -375,7 +375,7 @@ let controls = [
 	{
 		"key": "phaserDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "phaser"
 	},
@@ -409,7 +409,7 @@ let controls = [
 	{
 		"key": "pingPongDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "delay"
 	},
@@ -436,7 +436,7 @@ let controls = [
 	{
 		"key": "tremoloDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "tremolo"
 	},
@@ -465,7 +465,7 @@ let controls = [
 	{
 		"key": "vibratoDelay",
 		"type": "number",
-		"value": 0,
+		"value": 8,
 		"range": [0, 16],
 		"panel": "vibrato"
 	},
