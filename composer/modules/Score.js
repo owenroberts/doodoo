@@ -101,8 +101,6 @@ function Score(app) {
 	}
 
 	function draw(loops) {
-		console.log('loops', loops);
-		
 		let { width, height } = panel.el.getBoundingClientRect();
 		const { tonic, scale } = app.composition;
 		const tonicIndex = MIDI_NOTES.indexOf(tonic);
@@ -115,10 +113,13 @@ function Score(app) {
 		if (scale.includes(3) && !scale.includes(4)) {
 			key = minors[key];
 		}
-		let keySig = keys[key];
-		let signature = keySig[0] === '#' ?
-			sharps.slice(0, keySig[1]) :
-			flats.slice(0, keySig[1]);
+		let signature = [];
+		if (keys[key]) {
+			let keySig = keys[key];
+			signature = keySig[0] === '#' ?
+				sharps.slice(0, keySig[1]) :
+				flats.slice(0, keySig[1]);
+		}
 		
 		let noteWidth = defaultNoteWidth; // default
 		let startX = defaultNoteWidth * 2 + signature.length * noteWidth;
@@ -295,7 +296,6 @@ function Score(app) {
 					let tempCount = noteCount % sliceLength; // deal with one half
 					let whichHalf = noteCount >= sliceLength ? 1 : 0;
 					let slice = measures.map(loop => loop.slice(sliceLength * whichHalf, sliceLength + sliceLength * whichHalf));
-// console.log(slice);
 					if (slice.flatMap(l => l).every(n => n[0] === null)) {
 						if (tempCount === 0) {
 							ctx.fillText('𝄼', tempX + colWidth, staffY + 11 * h); // 2n rest

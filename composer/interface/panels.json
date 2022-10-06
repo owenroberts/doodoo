@@ -257,6 +257,10 @@
 						"label": "Note Width",
 						"fromModule": {
 							"value": "noteWidth"
+						},
+						"params": {
+							"min": 40,
+							"max": 120
 						}
 					},
 					{

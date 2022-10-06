@@ -18,7 +18,7 @@ const ui = require('./ui/gulpfile');
 
 function browserSyncTask() {
 	return browserSync.init({
-		port: 8080,
+		port: 8081,
 		server: {
 			baseDir: './',
 		}

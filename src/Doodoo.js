@@ -248,6 +248,7 @@ function Doodoo(params, callback) {
 
 	function getSampler(voice) {
 		const sampleFiles = getSampleFiles(voice);
+		// console.log('sampleFiles', sampleFiles);
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,

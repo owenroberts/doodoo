@@ -26,7 +26,7 @@ window.addEventListener("load", function() {
 	];
 	app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
 	app.fio = new FilesIO(app);
-	// app.score = new Score(app);
+	app.score = new Score(app);
 	
 	app.ui.load('./interface/panels.json', () => {
 		app.ui.settings.load();
@@ -43,7 +43,7 @@ window.addEventListener("load", function() {
 			app.controls.load();
 		}
 
-		// app.score.init();
+		app.score.init();
 	});
 
 	console.log(app);
