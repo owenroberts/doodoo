@@ -2,7 +2,7 @@
 	files io for doodoo
 */
 
-function FilesIO(app) {
+export default function FilesIO(app) {
 
 	this.load = function(data) {
 		app.composition.load(data);

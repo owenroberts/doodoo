@@ -1,4 +1,6 @@
-const { Doodoo, MIDI_NOTES } = doodooLib; // import lib
+import { Doodoo } from './build/doodoo.min.js';
+
+// const { Doodoo, MIDI_NOTES } = doodooLib; // import lib
 const doodooDiv = document.getElementById('doodoos');
 let doodoo; // there's only ever one doodoo
 

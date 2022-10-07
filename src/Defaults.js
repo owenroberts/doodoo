@@ -503,7 +503,7 @@ controls.forEach(params => {
 	}
 });
 
-export default { controls, defaults };
+export { controls, defaults };
 
 /*
 	default start loops

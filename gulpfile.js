@@ -1,13 +1,13 @@
 const { src, dest, watch, series, parallel, task } = require('gulp');
 
 const sourcemaps = require('gulp-sourcemaps');
-const concat = require('gulp-concat');
 const terser = require('gulp-terser');
-
-const webpack = require('webpack-stream');
+const rollup = require('gulp-better-rollup');
 const browserSync = require('browser-sync').create();
 const gulpif = require('gulp-if');
 const npmDist = require('gulp-npm-dist');
+
+const cache = require('gulp-cache');   
 
 const sass = require('gulp-sass')(require('sass'));
 const postcss = require('gulp-postcss');
@@ -25,36 +25,26 @@ function browserSyncTask() {
 	});
 }
 
+function logError(err) {
+	console.error('* gulp-terser error', err.message, err.filename, err.line, err.col, err.pos);
+}
+
 function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 	return src(sourcePath)
-		.pipe(webpack({
-			devtool: 'source-map',
-			mode: 'production',
-			output: {
-				filename: 'doodoo.min.js',
-				library: 'doodooLib',
-				libraryTarget: 'window',
-				libraryExport: 'default',
-			},
-			performance: { hints: false, },
-			externals: { tone: 'tone', },
-			watch: true,
-		}))
-		.on('error', function handleError(error) {
-			console.log('webpack error', error);
-			this.emit('end'); // Recover from errors
-		})
+		.pipe(sourcemaps.init())
+		.pipe(rollup({ external: ['node_modules/'] }, { file: 'doodoo.min.js' }, 'umd'))
+		.pipe(terser().on('error', logError))
+		.pipe(sourcemaps.write('./src_maps'))
 		.pipe(dest(buildPath))
 		.pipe(gulpif(useBrowserSync, browserSync.stream()));
 }
 
 function composerTask() {
-	return src('./composer/**/*.js')
+	return src('./composer/composer.js')
 		.pipe(sourcemaps.init())
-		.pipe(concat('composer.min.js'))
-		.pipe(terser().on('error', function(err) {
-			console.error('* gulp-terser error', err.message, err.filename, err.line, err.col, err.pos);
-		}))
+		// .pipe(concat('composer.min.js'))
+		.pipe(rollup({ external: ['../build/doodoo.min.js', '../../src/**/*.js'] }, { file: 'composer.min.js', exports: "named", preserveModules: true,}, 'umd'))
+		.pipe(terser().on('error', logError))
 		.pipe(sourcemaps.write('./src_maps'))
 		.pipe(dest('./build'))
 		.pipe(browserSync.stream());
@@ -83,11 +73,11 @@ function exportTask() {
 }
 
 function watchTask(){
-	watch(['index.js', 'src/**/*.js'], series('doodoo'));
-	watch('composer/**/*.js', series('composer'));
+	watch(['index.js', 'src/**/*.js'], series('clearCache', 'doodoo', 'composer'));
+	watch('composer/**/*.js', series('clearCache', 'doodoo', 'composer'));
 	if (ui) {
-		watch('ui/src/**/*.js', series('ui'));
-		watch(['ui/css/*.scss', 'composer/css/*.scss'], series('sass'));
+		watch('ui/src/**/*.js', series('clearCache', 'ui'));
+		watch(['ui/css/*.scss', 'composer/css/*.scss'], series('clearCache', 'sass'));
 	}
 }
 
@@ -98,10 +88,17 @@ function uiCopy() {
 		.pipe(browserSync.stream());
 }
 
+function clearCache() {
+	//return src(['./src/**/*.js', './composer/**/*.js'])
+	//	.pipe(cache.clear());
+	return cache.clearAll();
+}
+
 task('doodoo', doodooTask);
 task('lib', libTask);
 task('default', doodooTask);
 task('watchJS', watchTask);
+task('clearCache', clearCache);
 task('watch', parallel(browserSyncTask, watchTask));
 task('composer', composerTask);
 task('sass', () => { return sassTask('./composer/css/composer.scss', './composer/css'); });

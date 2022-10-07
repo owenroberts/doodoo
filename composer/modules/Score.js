@@ -3,9 +3,11 @@
 	display is very convoluted nonsense that i should document at some point ...
 */
 
-function Score(app) {
+import { MIDI_NOTES } from 'Doodoo';
+
+export default function Score(app) {
 	const self = this;
-	const { MIDI_NOTES } = app;
+	// const { MIDI_NOTES } = app;
 
 	const canvas = document.createElement('canvas');
 	let panel;

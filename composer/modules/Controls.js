@@ -1,10 +1,10 @@
 /*
 	manage the many many doodoo controls
 */
-function Controls(app, defaults, controls) {
+export default function Controls(app, defaults, controls) {
 	const self = this;
 
-	// let startLoopsRow;
+	let startLoopsRow;
 	let originalDefaults = { ...defaults };
 
 	// has to match Part.js

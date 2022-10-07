@@ -2,9 +2,11 @@
 	keep track of composition data to feed to doodoo
 */
 
-function Composition(app, defaults) {
+import { Doodoo, MIDI_NOTES } from 'Doodoo';
+
+export default function Composition(app, defaults) {
 	const self = this;
-	let { MIDI_NOTES } = app;
+	// let { MIDI_NOTES } = app;
 
 	let doodoo;
 	let scaleRow, noteInput, durationInput, voiceRow;
@@ -97,7 +99,7 @@ function Composition(app, defaults) {
 			useMetro: self.useMetro,
 			controls: app.controls.get(),
 		});
-		doodoo.play();
+		// doodoo.play(); -- work on lazy load version ...
 		app.fio.saveLocal(comp);
 		app.score.update(doodoo.getLoops());
 	};

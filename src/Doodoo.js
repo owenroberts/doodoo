@@ -4,19 +4,16 @@ import ValueRange from './ValueRange.js';
 import ValueList from './ValueList.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
 import Part from './Part.js';
-import SamplePaths from './SamplePaths.js';
-import Defaults from './Defaults.js';
+import { SamplePaths } from './SamplePaths.js';
+import { controls, defaults } from './Defaults.js';
 import Effects from './Effects.js';
-
-const doodooDefaults = Defaults.defaults;
-const samplePaths = SamplePaths.SamplePaths; // wtf
 
 Number.prototype.clamp = function(min, max) {
 	return Math.min(Math.max(this, min), max);
 };
 
 function Doodoo(params, callback) {
-	
+
 	let debug = params.debug;
 	let isPlaying = false;
 	let defaultDuration = params.duration || '4n';
@@ -44,7 +41,7 @@ function Doodoo(params, callback) {
 		params.transform :
 		MIDI_NOTES[params.transform];
 
-	let def = { ...doodooDefaults, ...params.controls }; // defaults
+	let def = { ...defaults, ...params.controls }; // defaults
 	// console.log('defaults', def);
 	let effects = new Effects(def);
 
@@ -116,9 +113,8 @@ function Doodoo(params, callback) {
 		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
-		toneLoop.start(Tone.now());
+		toneLoop.start(Tone.Transport.seconds);
 		playTheme();
-		
 		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -197,6 +193,7 @@ function Doodoo(params, callback) {
 	}
 
 	function loop(time) {
+		// console.log('loop time', time);
 		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.1);	
 		let attack = attackStart.getRandom();
 		for (let i = 0; i < loops.length; i++) {
@@ -210,7 +207,7 @@ function Doodoo(params, callback) {
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
-					let t = j ? Tone.Time(`${loop.noteDuration}n`).toSeconds() * j : 0; 
+					let t = j ? Tone.Time(`${loop.noteDuration}n`).toSeconds() * j : 0;
 					loop.voice.triggerAttackRelease(note, duration, time + t, attack);
 				}
 				if (loop.doublerCounter) loop.count += loop.counter;
@@ -270,11 +267,11 @@ function Doodoo(params, callback) {
 		const sampleFiles = {};
 		if (voice === 'choir') {
 			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
-			for (const note in samplePaths[voice+letter]) {
+			for (const note in SamplePaths[voice+letter]) {
 				sampleFiles[note] = samples.get(`${voice}-${letter}-${note}`);
 			}
 		} else {
-			for (const note in samplePaths[voice]) {
+			for (const note in SamplePaths[voice]) {
 				sampleFiles[note] = samples.get(`${voice}-${note}`);
 			}
 		}
@@ -286,14 +283,14 @@ function Doodoo(params, callback) {
 		voices.forEach(voice => {
 			if (voice === 'choir') {
 				'AEIOU'.split('').forEach(letter => {
-					const voiceSampleURLS = samplePaths['choir'+letter];
+					const voiceSampleURLS = SamplePaths['choir'+letter];
 					for (const note in voiceSampleURLS) {
 						urls[`${voice}-${letter}-${note}`] = `${voice}/${letter}/${voiceSampleURLS[note]}`;
 					}
 				});
 			} else {
-				for (const note in samplePaths[voice]) {
-					urls[`${voice}-${note}`] = `${voice}/${samplePaths[voice][note]}`;
+				for (const note in SamplePaths[voice]) {
+					urls[`${voice}-${note}`] = `${voice}/${SamplePaths[voice][note]}`;
 				}
 			}
 		});
@@ -354,11 +351,13 @@ function Doodoo(params, callback) {
 	}
 
 	function isRecording() {
+		if (!recorder) return false;
 		return recorder.state === 'started' || recorder.state === 'paused';
 	}
 
 	function play() {
-		if (!params.autoLoad) return loadTone();
+		if (params.lazyLoad) return loadTone();
+		if (Tone.Transport.state === 'started') Tone.Transport.stop();
 		if (Tone.Transport.state === 'stopped') playTheme();
 		isPlaying = true;
 		if (withRecording) recorder.start();
@@ -379,12 +378,7 @@ function Doodoo(params, callback) {
 	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, };
 }
 
-export default { 
-	Doodoo: Doodoo,
-	MIDI_NOTES: MIDI_NOTES,
-	doodooDefaults: doodooDefaults,
-	doodooControls: Defaults.controls,
-};
+export { Doodoo, MIDI_NOTES, defaults, controls };
 
 /*
 	
