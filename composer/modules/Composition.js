@@ -3,6 +3,7 @@
 */
 
 import { Doodoo, MIDI_NOTES } from 'Doodoo';
+import { UICollection, UILabel, UIButton, UINumberStep, UIListStep } from 'UI';
 
 export default function Composition(app, defaults) {
 	const self = this;

@@ -1,6 +1,8 @@
 /*
 	manage the many many doodoo controls
 */
+import { UILabel, UIButton, UINumberStep, UIChance, UINumberList } from 'UI';
+
 export default function Controls(app, defaults, controls) {
 	const self = this;
 

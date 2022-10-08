@@ -1,6 +1,7 @@
 // const { Doodoo, MIDI_NOTES, doodooDefaults, doodooControls } = doodooLib; // doodoo lib global
 // import { Doodoo, MIDI_NOTES, defaults, controls } from '../src/Doodoo.js';
 import { defaults, controls } from 'Doodoo';
+import { Interface, Settings } from 'UI';
 import Composition from './modules/Composition.js';
 import Controls from './modules/Controls.js';
 import FilesIO from './modules/FilesIO.js';

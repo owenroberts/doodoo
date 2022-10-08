@@ -103,7 +103,7 @@ task('watch', parallel(browserSyncTask, watchTask));
 task('composer', composerTask);
 task('sass', () => { return sassTask('./composer/css/composer.scss', './composer/css'); });
 task('css', series('sass'));
-if (ui) task('ui', series(function exporter() { return ui.exportTask(true) }, uiCopy));
+if (ui) task('ui', series(function exporter() { return ui.exportTask('./ui/') }, uiCopy));
 
 module.exports = {
 	exportTask: exportTask,
