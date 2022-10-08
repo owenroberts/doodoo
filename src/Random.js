@@ -33,5 +33,3 @@ function shuffle(array) {
 function chance(n) {
 	return random(1) < n;
 }
-
-export { random, randInt, shuffle, chance };

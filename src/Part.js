@@ -1,8 +1,8 @@
-import { random, randInt, shuffle, chance } from './Random.js';
-import ValueRange from './ValueRange.js';
-import ValueList from './ValueList.js';
+/*
+	handles mutations of one part
+*/
 
-export default function Part(melody, def, defaultDuration, debug) {
+function Part(melody, def, defaultDuration, debug) {
 
 	let mutations = 0;
 

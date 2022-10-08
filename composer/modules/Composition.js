@@ -4,7 +4,7 @@
 
 function Composition(app, defaults) {
 	const self = this;
-	let { MIDI_NOTES } = app;
+	const { MIDI_NOTES } = DoodooMidi;
 
 	let doodoo;
 	let scaleRow, noteInput, durationInput, voiceRow;

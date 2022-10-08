@@ -1,19 +1,6 @@
-// import * as Tone from 'tone';
-import { random, randInt, shuffle, chance } from './Random.js';
-import ValueRange from './ValueRange.js';
-import ValueList from './ValueList.js';
-import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
-import Part from './Part.js';
-import SamplePaths from './SamplePaths.js';
-import Defaults from './Defaults.js';
-import Effects from './Effects.js';
-
-const doodooDefaults = Defaults.defaults;
-const samplePaths = SamplePaths.SamplePaths; // wtf
-
-Number.prototype.clamp = function(min, max) {
-	return Math.min(Math.max(this, min), max);
-};
+function clamp(value, min, max) {
+	return Math.min(Math.max(value, min), max);
+}
 
 function Doodoo(params, callback) {
 	
@@ -23,8 +10,6 @@ function Doodoo(params, callback) {
 	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	
 	let samples;
-	// if (params.samples) samplesURL = Array.isArray(samplesURL) ? samplesURL : [samplesURL];
-
 	let voices = params.voices || [params.samples]; // fix for old data
 
 	let withRecording = params.withRecording;
@@ -44,7 +29,7 @@ function Doodoo(params, callback) {
 		params.transform :
 		MIDI_NOTES[params.transform];
 
-	let def = { ...doodooDefaults, ...params.controls }; // defaults
+	let def = { ...defaults, ...params.controls }; // defaults
 	// console.log('defaults', def);
 	let effects = new Effects(def);
 
@@ -116,9 +101,8 @@ function Doodoo(params, callback) {
 		toneLoop = new Tone.Loop(loop, defaultDuration);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
-		toneLoop.start(Tone.now());
+		toneLoop.start(Tone.Transport.seconds);
 		playTheme();
-		
 		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -219,7 +203,7 @@ function Doodoo(params, callback) {
 		}
 
 		attack += attackStep.getRandom();
-		attack.clamp(0.1, 1);
+		attack = clamp(attack, 0.1, 1);
 
 		currentCount++;
 		if (currentCount === currentCountTotal) playTheme();
@@ -270,11 +254,11 @@ function Doodoo(params, callback) {
 		const sampleFiles = {};
 		if (voice === 'choir') {
 			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
-			for (const note in samplePaths[voice+letter]) {
+			for (const note in SamplePaths[voice+letter]) {
 				sampleFiles[note] = samples.get(`${voice}-${letter}-${note}`);
 			}
 		} else {
-			for (const note in samplePaths[voice]) {
+			for (const note in SamplePaths[voice]) {
 				sampleFiles[note] = samples.get(`${voice}-${note}`);
 			}
 		}
@@ -286,14 +270,14 @@ function Doodoo(params, callback) {
 		voices.forEach(voice => {
 			if (voice === 'choir') {
 				'AEIOU'.split('').forEach(letter => {
-					const voiceSampleURLS = samplePaths['choir'+letter];
+					const voiceSampleURLS = SamplePaths['choir'+letter];
 					for (const note in voiceSampleURLS) {
 						urls[`${voice}-${letter}-${note}`] = `${voice}/${letter}/${voiceSampleURLS[note]}`;
 					}
 				});
 			} else {
-				for (const note in samplePaths[voice]) {
-					urls[`${voice}-${note}`] = `${voice}/${samplePaths[voice][note]}`;
+				for (const note in SamplePaths[voice]) {
+					urls[`${voice}-${note}`] = `${voice}/${SamplePaths[voice][note]}`;
 				}
 			}
 		});
@@ -379,12 +363,7 @@ function Doodoo(params, callback) {
 	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, };
 }
 
-export default { 
-	Doodoo: Doodoo,
-	MIDI_NOTES: MIDI_NOTES,
-	doodooDefaults: doodooDefaults,
-	doodooControls: Defaults.controls,
-};
+window.Doodoo = Doodoo;
 
 /*
 	

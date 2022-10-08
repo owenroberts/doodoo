@@ -4,8 +4,6 @@
 	return randoms
 */
 
-import { chance, random, randInt } from './Random.js';
-
 function ValueList(startList, addList, updateChance) {
 	if (updateChance === undefined) updateChance = 0.5;
 	let values = [...startList];
@@ -21,5 +19,3 @@ function ValueList(startList, addList, updateChance) {
 		getRandom: () => { return random(values) },
 	}
 }
-
-export default ValueList;

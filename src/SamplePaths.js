@@ -138,5 +138,3 @@ let SamplePaths = {
 		"G4": "CH-UU-G4.mp3",
 	},
 };
-
-export default { SamplePaths };

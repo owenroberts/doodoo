@@ -8,10 +8,13 @@
 	value is always starting point, update is how it changes
 	so min max 0, 0 does not mean it always stays at 0, 0
 
-	start params -- fuck
+	default start loops
+	// [{ "noteDuration": 8 }],
+		// [
+			// { "noteDuration": 4, },
+			// { "noteDuration": 4, "harmony": 4 }
+		// ]
 */
-
-import { shuffle } from './Random.js';
 
 let controls = [
 	{
@@ -503,17 +506,6 @@ controls.forEach(params => {
 	}
 });
 
-export default { controls, defaults };
-
-/*
-	default start loops
-	// [{ "noteDuration": 8 }],
-		// [
-			// { "noteDuration": 4, },
-			// { "noteDuration": 4, "harmony": 4 }
-		// ]
-*/
-
-
+window.DoodooControls = { defaults, controls };
 	
 

@@ -1,4 +1,6 @@
-import { random, randInt, shuffle, chance,  } from './Random.js';
+/*
+	return effects to chain to synth
+*/
 
 function Effects(def) {
 
@@ -80,4 +82,3 @@ function Effects(def) {
 	return { get };
 }
 
-export default Effects;

@@ -74,4 +74,4 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 	});
 }
 
-export { MIDI_NOTES, getMelody, getHarmony };
+window.DoodooMidi = { MIDI_NOTES };

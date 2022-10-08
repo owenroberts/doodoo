@@ -5,7 +5,7 @@
 
 function Score(app) {
 	const self = this;
-	const { MIDI_NOTES } = app;
+	// const { MIDI_NOTES } = DoodooMidi;
 
 	const canvas = document.createElement('canvas');
 	let panel;

@@ -3,8 +3,6 @@
 	ch1 ch2 chance to update (sign of ch is direction)
 */
 
-import { chance, random, randInt } from './Random.js';
-
 function ValueRange(min, max, ch1, ch2) {
 
 	function update() {
@@ -27,5 +25,3 @@ function ValueRange(min, max, ch1, ch2) {
 		getMax: () => { return max; },
 	};
 }
-
-export default ValueRange;
