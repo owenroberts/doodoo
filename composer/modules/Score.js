@@ -5,8 +5,6 @@
 
 function Score(app) {
 	const self = this;
-	// const { MIDI_NOTES } = DoodooMidi;
-
 	const canvas = document.createElement('canvas');
 	let panel;
 	let ctx;
@@ -72,11 +70,11 @@ function Score(app) {
 	};
 
 	// support unicode musical characters
+	let notoFontLoaded = false;
 	let notoFont = new FontFace(
 		"Noto",
 		"url(https://fonts.gstatic.com/s/notomusic/v14/pe0rMIiSN5pO63htf1sxEkW7I9tAcVwo.woff2)"
 	);
-	let notoFontLoaded = false;
 	notoFont.load().then((font) => {
 		document.fonts.add(font);
 		console.log("Font loaded");

@@ -3,9 +3,10 @@
 */
 function Controls(app, defaults, controls) {
 	const self = this;
-
+	
 	let startLoopsRow;
 	let originalDefaults = { ...defaults };
+
 
 	// has to match Part.js
 	const defaultLoop = {

@@ -1,5 +1,10 @@
+// getting global objects into iife
 const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
+const { Interface, Settings } = UI;
+const { UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList } = UI.Elements;
+
+
 const app = {};
 
 const compDefaults = {
@@ -15,19 +20,17 @@ app.controls = new Controls(app, defaults, controls); // doodoo defaults control
 app.composition = new Composition(app, compDefaults);
 
 app.ui = new Interface(app, {
-	useMain: true
+	useMain: true,
+	name: 'doodoo',
+	workspaceFields: ['noteWidth'],
 });
 
-const workspaceFields = [
-	'noteWidth',
-];
 
-app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
+// app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 
 app.ui.load('./interface/panels.json', () => {
-	app.ui.settings.load();
 	app.composition.init();
 	app.controls.init();
 
