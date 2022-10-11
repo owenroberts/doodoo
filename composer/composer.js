@@ -4,12 +4,10 @@ const { defaults, controls } = DoodooControls;
 const { Interface, Settings } = UI;
 const { UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList } = UI.Elements;
 
-
 const app = {};
-
 const compDefaults = {
 	title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
-	tonic: 'C4',
+	tonic: 'C4', // def to transform ...
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	duration:  '4n',
 	bpm: 120,
@@ -19,14 +17,12 @@ const compDefaults = {
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control
 app.composition = new Composition(app, compDefaults);
 
-app.ui = new Interface(app, {
+app.ui = Interface(app, {
 	useMain: true,
 	name: 'doodoo',
 	workspaceFields: ['noteWidth'],
 });
 
-
-// app.ui.settings = new Settings(app, 'doodoo', undefined, workspaceFields);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 

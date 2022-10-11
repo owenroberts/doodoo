@@ -381,7 +381,7 @@
 					{
 						"row": true,
 						"type": "UIButton",
-						"callback": "loadLayoutFile",
+						"callback": "loadWorkspace",
 						"params": {
 							"text": "Default",
 							"args": ["/composer/interface/workspaces/Default.json"]

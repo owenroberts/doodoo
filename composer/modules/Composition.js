@@ -4,9 +4,17 @@
 
 function Composition(app, defaults) {
 	const self = this;
+	Object.assign(Composition.prototype, UI.ModuleMixin);
+	const { setProperty, getProperty } = this;
 
 	let doodoo;
 	let scaleRow, noteInput, durationInput, voiceRow;
+
+	let props = {}; // becomes "state", replces this -- makes it clear which props are interface props
+
+	console.log(this);
+	setProperty(props, 'tonic', defaults.tonic);
+	console.log(getProperty(props, 'tonic'));
 
 	this.tonic = defaults.tonic;
 	this.transform = defaults.transform || defaults.tonic;
@@ -56,7 +64,6 @@ function Composition(app, defaults) {
 		voiceRow = app.ui.panels.composition.voiceRow;
 		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
 		self.partRows[0].addClass('part');
-		// melodyRow = app.ui.panels.melody.melody;
 		noteInput = app.ui.panels.melody.melodyInput.noteInput;
 		durationInput = app.ui.panels.melody.melodyInput.durationInput;
 		self.setUIScale(self.uiScale);
