@@ -4,23 +4,24 @@
 
 function FilesIO(app) {
 
-	this.load = function(data) {
+	function load(data) {
 		app.composition.load(data);
 		app.controls.load(data.controls);
-	};
+	}
 
-	this.saveLocal = function(composition, controls) {
+	function saveLocal(composition, controls) {
 		if (!composition) composition = app.composition.get();
 		if (!controls) controls = app.controls.get();
-		localStorage.setItem('comp', JSON.stringify({ ...composition, controls: controls }));
-	};
+		localStorage.setItem('comp', JSON.stringify({ ...composition, controls }));
+		console.log(composition)
+	}
 
-	this.clear = function() {
+	function clear() {
 		app.composition.clear();
 		localStorage.setItem('comp', '');
-	};
+	}
 
-	this.saveFile = function() {
+	function saveFile() {
 		if (app.composition.isRecording()) return;
 		app.composition.update(); // updates local storage
 		const json = localStorage.getItem('comp');
@@ -31,7 +32,7 @@ function FilesIO(app) {
 		app.ui.faces.title.update(name);
 	}
 
-	this.loadMidi = function(data, fileName, filePath) {
+	function loadMidi(data, fileName, filePath) {
 		const midiPromise = new Midi.fromUrl(filePath);
 		midiPromise.then(midiData => {
 			midiData.tracks.forEach(track => {
@@ -52,5 +53,27 @@ function FilesIO(app) {
 				}
 			});
 		});
-	};
+	}
+
+	function connectUI() {
+
+		const panel = app.ui.createPanel('fio', { label: 'File IO' });
+
+		app.ui.addCallbacks([
+			{ callback: saveLocal, key: 's', text: 'Save Local' },
+			{ callback: saveFile, key: 'alt-s', text: 'Save File' },
+			{ callback: load, key: 'o', text: 'Load File' },
+			{ callback: clear, key: 'o', text: 'Clear Local' },
+		], panel);
+
+		app.ui.addUI({
+			type: 'UIFile',
+			callback: loadMidi,
+			text: 'Load Midi',
+			promptDefault: 'compositions',
+			fileType: 'audio/midi'
+		}, panel);
+	}
+
+	return { connectUI, saveLocal };
 }

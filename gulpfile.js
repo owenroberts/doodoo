@@ -33,8 +33,8 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 	return src(sourcePath)
 		.pipe(sourcemaps.init())
 		.pipe(concat('doodoo.min.js'))
+		.pipe(iife({}))
 		.pipe(terser().on('error', logError))
-		.pipe(iife())
 		.pipe(sourcemaps.write('./src_maps'))
 		.pipe(dest(buildPath))
 		.pipe(gulpif(useBrowserSync, browserSync.stream()));
@@ -44,8 +44,8 @@ function composerTask() {
 	return src('./composer/**/*.js')
 		.pipe(sourcemaps.init())
 		.pipe(concat('composer.min.js'))
+		.pipe(iife({}))
 		.pipe(terser().on('error', logError))
-		.pipe(iife())
 		.pipe(sourcemaps.write('./src_maps'))
 		.pipe(dest('./build'))
 		.pipe(browserSync.stream());

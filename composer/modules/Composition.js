@@ -3,44 +3,28 @@
 */
 
 function Composition(app, defaults) {
-	const self = this;
-	Object.assign(Composition.prototype, UI.ModuleMixin);
-	const { setProperty, getProperty } = this;
-
+	
 	let doodoo;
 	let scaleRow, noteInput, durationInput, voiceRow;
+	let mutationCountUI;
 
-	let props = {}; // becomes "state", replces this -- makes it clear which props are interface props
-
-	console.log(this);
-	setProperty(props, 'tonic', defaults.tonic);
-	console.log(getProperty(props, 'tonic'));
-
-	this.tonic = defaults.tonic;
-	this.transform = defaults.transform || defaults.tonic;
-	this.bpm = defaults.bpm;
-	this.voices = [];
-	this.scale = defaults.scale;
-	this.title = defaults.title;
-	this.duration = defaults.duration;
-	this.parts = [];
-	this.simultaneous = defaults.simultaneous;
-	this.useMetro = false;
-
-	this.currentPart = 0;
-	this.partRows = [];
+	let title = defaults.title;
+	let tonic = defaults.tonic;
+	let transform = defaults.transform || defaults.tonic;
+	let bpm = defaults.bpm;
+	let voices = [];
+	let scale = defaults.scale;
+	let duration = defaults.duration;
+	let parts = [];
+	let simultaneous = defaults.simultaneous || false;
 	
-	this.noteWidth = 60;
-	this.uiScale = 12;
-	this.setUIScale = function(value) {
-		self.uiScale = value;
-		if (app.ui.panels.melody) app.ui.panels.melody.setProp('--ui-scale', self.uiScale);
-	};
+	let useMetro = false;
 
-	this.setNoteWidth = function(value) {
-		self.noteWidth = value;
-		if (self.partRows[0]) self.updateDisplay();
-	};
+	let currentPart = 0;
+	let partRows = [];
+	
+	let noteWidth = 60;
+
 	
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
@@ -59,70 +43,59 @@ function Composition(app, defaults) {
 		return MIDI_NOTES[noteIndex];
 	}
 
-	this.init = function() {
-		scaleRow = app.ui.panels.composition.scaleRow;
-		voiceRow = app.ui.panels.composition.voiceRow;
-		self.partRows[0] = app.ui.panels.melody.addRow('part-0', 'break-line-up');
-		self.partRows[0].addClass('part');
-		noteInput = app.ui.panels.melody.melodyInput.noteInput;
-		durationInput = app.ui.panels.melody.melodyInput.durationInput;
-		self.setUIScale(self.uiScale);
-	};
-
-	this.updateScale = function() {
+	function updateScale() {
+		// implies variable scale length, should just keep at 7?
 		scaleRow.clear();
-		for (let i = 0; i < this.scale.length; i++) {
+		for (let i = 0; i < scale.length; i++) {
 			let interval = new UINumberStep({
-				value: self.scale[i],
-				min: -11,
-				max: 11,
-				callback: value => {
-					self.scale[i] = +value;
-				}
+				value: scale[i],
+				range: [-11, 11],
+				callback: value => { scale[i] = +value; }
 			});
 			scaleRow.append(interval, i);
 		}
-	};
+	}
 
-	this.play = function(withRecording) {
-		if (self.parts.length === 0) return alert('Add notes to the melody.');
+	function play(withRecording) {
+		console.log('play');
+		if (parts.length === 0) return alert('Add notes to the melody.');
 
-		self.update();
+		update();
 		if (doodoo) {
 			doodoo.stop();
 			Tone.Transport.cancel();
 		}
-		const comp = self.get();
+		const comp = get();
 		doodoo = new Doodoo({ 
-			...comp, 
+			...comp,
 			withRecording: withRecording,
 			onMutate: count => {
-				app.ui.faces.mutationCount.text = 'Mutation: ' + count;
-				app.score.update(doodoo.getLoops());
+				mutationCountUI.text = 'Mutation: ' + count;
+				// app.score.update(doodoo.getLoops());
 			},
-			useMetro: self.useMetro,
+			useMetro: useMetro,
 			controls: app.controls.get(),
 		});
-		doodoo.play();
-		app.fio.saveLocal(comp);
-		app.score.update(doodoo.getLoops());
-	};
+		// doodoo.play();
+		// app.fio.saveLocal(comp);
+		// app.score.update(doodoo.getLoops());
+	}
 
-	this.isRecording = function() {
+	function isRecording() {
 		if (!doodoo) return false;
 		return doodoo.isRecording();
-	};
+	}
 
-	this.stop = function() {
+	function stop() {
 		if (doodoo) doodoo.stop();
-	};
+	}
 
-	this.mutate = function() {
+	function mutate() {
 		if (doodoo) doodoo.mutate();
-	};
+	}
 
-	this.update = function() {
-		self.parts = [];
+	function update() {
+		parts = [];
 		
 		function makePart(children) {
 			let badFormatting = false;
@@ -149,16 +122,16 @@ function Composition(app, defaults) {
 			return part;
 		}
 
-		if (self.partRows.length > 1) {
-			for (let i = 0; i < self.partRows.length; i++) {
-				self.parts.push(makePart(self.partRows[i].children));
+		if (partRows.length > 1) {
+			for (let i = 0; i < partRows.length; i++) {
+				parts.push(makePart(partRows[i].children));
 			}
 		} else {
-			self.parts = makePart(self.partRows[0].children);
+			parts = makePart(partRows[0].children);
 		}
-	};
+	}
 
-	this.addNote = function(n, d, skipUpdate) {
+	function addNote(n, d, skipUpdate) {
 
 		let note = n || noteInput.value.toUpperCase();
 		let duration = d || durationInput.value;
@@ -180,13 +153,13 @@ function Composition(app, defaults) {
 					if (['1','2','4','8','16','32'].includes(value)) {
 						value += 'n';
 					} else {
-						value = self.duration;
+						value = duration;
 					}
 					durEdit.value = value;
 				}
 				part.el.className = 'note-collection d' + value.replace(/\./g, 'dot');
-				self.update();
-				self.updateDisplay();
+				update();
+				updateDisplay();
 			},
 			list: ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',]
 		});
@@ -196,9 +169,9 @@ function Composition(app, defaults) {
 			class: 'remove-btn',
 			callback: () => {
 				// melodyRow.remove(part);
-				self.partRows[self.currentPart].remove(part);
-				self.update();
-				self.updateDisplay();
+				partRows[currentPart].remove(part);
+				update();
+				updateDisplay();
 			}
 		});
 		
@@ -206,80 +179,77 @@ function Composition(app, defaults) {
 		part.append(durEdit, 'duration');
 		part.append(removeBtn);
 		// melodyRow.append(part);
-		self.partRows[self.currentPart].append(part);
+		partRows[currentPart].append(part);
 
-		if (!skipUpdate) self.update();
-		if (!skipUpdate) self.updateDisplay();
-	};
+		if (!skipUpdate) update();
+		if (!skipUpdate) updateDisplay();
+	}
 
-	this.addPart = function() {
-		console.log('add part');
-		let row = app.ui.panels.melody.addRow('part-' + self.partRows.length, 'break-line-up');
+	function addPart() {
+		let row = app.ui.panels.melody.addRow('part-' + partRows.length, 'break-line-up');
 		row.addClass('part');
-		self.partRows.push(row);
-		self.currentPart = self.partRows.length - 1;
-		app.ui.faces.currentPart.addOption(self.currentPart, true, 'Part ' + self.currentPart);
-	};
+		partRows.push(row);
+		currentPart = partRows.length - 1;
+		app.ui.faces.currentPart.addOption(currentPart, true, 'Part ' + currentPart);
+	}
 
-	this.addVoice = function(voice) {
-		if (!Array.isArray(self.voices)) self.voices = [self.voices]; // fix for old data
-		if (self.voices.includes(voice)) return;
-		self.voices.push(voice);
+	function addParts(parts) {
+		parts.forEach(part => {
+			if (part === null) return addNote('rest', data.duration, true);
+			const note = typeof part === 'string' ? part : part[0];
+			const duration = typeof part === 'string' ? data.duration : part[1];
+			if (note === null) addNote('rest', duration, true);
+			else addNote(note, duration, true);
+		});
+	}
+
+	function addVoice(voice) {
+		if (!Array.isArray(voices)) voices = [voices]; // fix for old data
+		if (voices.includes(voice)) return;
+		voices.push(voice);
 		const voiceCollection = new UICollection({ class: 'voice-collection' });
 		voiceCollection.append(new UILabel({ "text": voice }));
 		voiceCollection.append(new UIButton({
 			"text": "X",
 			callback: () => {
-				self.voices.splice(self.voices.indexOf(voice), 1);
+				voices.splice(voices.indexOf(voice), 1);
 				voiceRow.remove(voiceCollection);
 			}
 		}));
 		voiceRow.append(voiceCollection);
-	};
+	}
 
-	this.updateDisplay = function() {
-		const n = self.parts.length;
+	function updateDisplay() {
+		const n = parts.length;
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
 
-		const durations = self.partRows.length > 1 ?
-			self.parts.flatMap(p => { return p.map(n => n[1]) }) : 
-			self.parts.flatMap(p => p[1]);
+		const durations = partRows.length > 1 ?
+			parts.flatMap(p => { return p.map(n => n[1]) }) : 
+			parts.flatMap(p => p[1]);
 		let noteDivision = Math.max(...durations.map(d => parseInt(d)));
 		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
 		if (noteDivision < 0) noteDivision = '4n';
 
 		let npl = 4;
-		while (w / npl > self.noteWidth) {
+		while (w / npl > noteWidth) {
 			npl += 4;
 		}
 
 		app.ui.panels.melody.setProp('--column-width', Math.floor(w / npl));
 		app.ui.panels.melody.setProp('--notes-per-row', npl);
 		app.ui.panels.melody.setProp('--default-duration', noteDivision);
-	};
+	}
 
-	this.clear = function() {
-		// melodyRow.clear();
-		// self.partRows[self.currentPart].clear();
-		self.partRows.forEach(part => part.clear());
-	};
+	function clear() {
+		partRows.forEach(part => part.clear());
+	}
 
-	this.get = function() {
-		self.update();
-		return {
-			parts: self.parts,
-			tonic: self.tonic,
-			transform: self.transform,
-			bpm: self.bpm,
-			voices: self.voices,
-			title: this.title,
-			duration: this.duration,
-			scale: this.scale,
-			simultaneous: this.simultaneous,
-		};
-	};
+	function get() {
+		update();
+		return { parts, tonic, transform, bpm, voices, title, duration, scale, simultaneous };
+	}
 
-	this.load = function(data) {
+	function load(data) {
 		if (data.title) app.ui.faces.title.update(data.title);
 		if (data.transform) app.ui.faces.transform.update(data.transform);
 		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
@@ -287,13 +257,9 @@ function Composition(app, defaults) {
 
 		if (data.voices) {
 			let voices = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
-			voices.forEach(voice => {
-				self.addVoice(voice);
-			});
+			voices.forEach(voice => addVoice);
 		} else {
-			defaults.voices.forEach(voice => {
-				self.addVoice(voice);
-			});
+			defaults.voices.forEach(voice => addVoice)
 		}
 		
 		if (data.tonic) {
@@ -303,24 +269,21 @@ function Composition(app, defaults) {
 			);
 		}
 
-		if (data.scale) {
-			self.scale = data.scale.map(i => +i);
-		}
-		self.updateScale();
+		if (data.scale) scale = data.scale.map(i => +i);
+		updateScale();
 
 		if (data.parts) {
 
-			self.clear();
-			self.parts = [];
-
+			clear();
+			parts = [];
 			if (Array.isArray(data.parts[0])) {
 				if (Array.isArray(data.parts[0][0])) {
 					for (let i = 0; i < data.parts.length; i++) {
-						self.currentPart = i;
+						currentPart = i;
 						if (i > 0) {
 							let row = app.ui.panels.melody.addRow('part-' + i, 'break-line-up');
 							row.addClass('part');
-							self.partRows.push(row);
+							partRows.push(row);
 						}
 						addParts(data.parts[i]);
 					}
@@ -328,19 +291,163 @@ function Composition(app, defaults) {
 					addParts(data.parts);
 				}
 			}
-			self.currentPart = 0;
+			currentPart = 0;
 		}
-		self.update();
-		self.updateDisplay();
-	};
-
-	function addParts(parts) {
-		parts.forEach(part => {
-			if (part === null) return self.addNote('rest', data.duration, true);
-			const note = typeof part === 'string' ? part : part[0];
-			const duration = typeof part === 'string' ? data.duration : part[1];
-			if (note === null) self.addNote('rest', duration, true);
-			else self.addNote(note, duration, true);
-		});
+		update();
+		updateDisplay();
 	}
+
+	function connectUI() {
+
+		const playBackPanel = app.ui.createPanel('playback', { label: 'Play Back' });
+		const compositionPanel = app.ui.createPanel('composition');
+		const melodyPanel = app.ui.createPanel('melody');
+
+		app.ui.addCallbacks([
+			{ callback: play, key: 'space', text: 'Play', args: [false] },
+			{ callback: stop, key: 'alt-space', text: 'Stop' },
+			{ callback: play, key: 'r', text: 'Record', args: [true] },
+			{ callback: mutate, key: 'd', text: 'Mutate' },
+			{ key: 't', text: 'Test', callback: () => {
+				console.log(useMetro);	
+			}}
+		], playBackPanel);
+
+		mutationCountUI = new UILabel({
+			type: 'UIElement',
+			id: 'mutation-count',
+			text: 'Mutation 0',
+		});
+		playBackPanel.add(mutationCountUI);
+		
+		app.ui.addProp('useMetro', {
+			type: 'UIToggleCheck',
+			value: useMetro,
+			callback: value => { useMetro = value; },
+			key: 'm',
+			label: 'Metro'
+		}, playBackPanel);
+
+		app.ui.addProps({
+			'title': {
+				id: 'title',
+				value: title,
+				callback: value => { title = value; }
+			},
+			'tonic': {
+				value: tonic,
+				label: 'Tonic',
+				callback: value => { tonic = value; }
+			},
+			'transform': {
+				value: transform,
+				label: 'Tonic Transform',
+				callback: value => { transform = value; }
+			},
+			'bpm': {
+				value: bpm,
+				label: 'BPM',
+				type: 'UINumberStep',
+				range: [60, 250],
+				callback: value => { bpm = value;}
+			},
+			'duration': {
+				value: duration,
+				"type": "UISelect",
+				label: "Default Duration",
+				selected: '4n',
+				options: [
+					{ "value": "1n", "text": "Whole 1n" },
+					{ "value": "2n", "text": "Half 2n" },
+					{ "value": "4n", "text": "Quarter 4n" },
+					{ "value": "8n", "text": "Eighth 8n" }
+				],
+				callback: value => { duration = value; }
+			},
+			'simultaneous': {
+				value: simultaneous,
+				type: 'UIToggleCheck',
+				label: 'Simultaneous Parts',
+				callback: value => { simultaneous = value; }
+			},
+		}, compositionPanel);
+
+		compositionPanel.addRow(undefined, 'break');
+		compositionPanel.add(new UILabel({ text: 'Scale Intervals '}));
+		scaleRow = compositionPanel.addRow(undefined, 'break');
+
+		voiceRow = compositionPanel.addRow();
+		const voicesUI = new UISelectButton({
+			label: 'Voices',
+			callback: addVoice,
+			"selected": "synth",
+			"options": [
+				{ "value": "choir", "text": "Choir" },
+				{ "value": "fmSynth", "text": "FMSynth" },
+				{ "value": "toms", "text": "Toms" },
+				{ "value": "bamboo", "text": "Bamboo" },
+				{ "value": "strings", "text": "Strings" },
+				{ "value": "flute", "text": "Flute" },
+				{ "value": "guitar", "text": "Guitar" }
+			]
+		});
+		compositionPanel.add(voicesUI);
+
+		melodyPanel.addRow(undefined, 'break');
+
+		app.ui.addProp('melodyScale', {
+			type: 'UINumberStep',
+			value: 12,
+			label: 'Scale',
+			callback: value => {
+				melodyPanel.setProp('--ui-scale', value);
+			},
+			reset: true,
+		}, melodyPanel);
+
+		app.ui.addProp('noteWidth', {
+			type: 'UINumberStep',
+			label: 'Note Width',
+			value: 80,
+			callback: value => {
+				noteWidth = value;
+				if (partRows[0]) updateDisplay();
+			},
+			range: [40, 120],
+			reset: true
+		}, melodyPanel);
+
+		melodyPanel.addRow(undefined, 'break');
+
+		app.ui.addProp('currentPart', {
+			type: 'UISelect',
+			label: 'Part',
+			options: [ { value: 0, text: 'Part 0' }],
+			callback: value => { currentPart = +value; }
+		}, melodyPanel);
+
+		app.ui.addCallback({ callback: addPart, text: '+' }, melodyPanel);
+
+		app.ui.addCallback({ callback: clear, text: 'Clear', key: '0' }, melodyPanel);
+
+		// replace w list steps ...
+		noteInput = melodyPanel.add(new UIText({ placeholder: 'C4' }));
+		durationInput = melodyPanel.add(new UIText({ placeholder: '4n' }));
+		app.ui.addUI({ 
+			type: 'UIButton', 
+			callback: addNote, 
+			text: '+', 
+			key: '+'
+		}, melodyPanel);
+
+		melodyPanel.addRow('melody', 'break');
+
+		partRows[0] = melodyPanel.addRow('part-0', 'break-line-up');
+		partRows[0].addClass('part');
+
+		// noteInput = app.ui.panels.melody.melodyInput.noteInput;
+		// durationInput = app.ui.panels.melody.melodyInput.durationInput;
+	}
+
+	return { connectUI, load, get };
 }

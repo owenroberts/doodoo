@@ -11,6 +11,7 @@ function Doodoo(params, callback) {
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
+	if (voices.length === 0) voices.push('FMSynth');
 
 	let withRecording = params.withRecording;
 	let recorder, recordingMutationCount;

@@ -2,7 +2,7 @@
 const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
 const { Interface, Settings } = UI;
-const { UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList } = UI.Elements;
+const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText } = UI.Elements;
 
 const app = {};
 const compDefaults = {
@@ -16,15 +16,33 @@ const compDefaults = {
 
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control
 app.composition = new Composition(app, compDefaults);
+app.fio = new FilesIO(app);
+app.score = new Score(app);
 
 app.ui = Interface(app, {
 	useMain: true,
+	
+});
+app.ui.setup();
+app.fio.connectUI();
+app.composition.connectUI();
+
+app.ui.settings = new Settings(app, {
 	name: 'doodoo',
 	workspaceFields: ['noteWidth'],
 });
+app.ui.settings.load(); // wtf -- load settings and shit ...
 
-app.fio = new FilesIO(app);
-app.score = new Score(app);
+const compData = localStorage.getItem('comp');
+if (compData && compData !== 'undefined'){
+	const data = JSON.parse(compData);
+	app.composition.load(data);
+	// app.controls.load(data.controls);
+} else {
+	app.composition.load({});
+	// app.controls.load();
+}
+
 
 app.ui.load('./interface/panels.json', () => {
 	app.composition.init();
