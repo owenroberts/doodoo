@@ -2,7 +2,6 @@
 	manage the many many doodoo controls
 */
 function Controls(app, defaults, controls) {
-	const self = this;
 	
 	let startLoopsRow;
 	let originalDefaults = { ...defaults };
@@ -56,7 +55,7 @@ function Controls(app, defaults, controls) {
 
 	function addChance(control, row, label) {
 		let { key, value, index, range } = control;
-
+		
 		if (label) row.append(new UILabel({ text: label }));
 		row.append(new UIChance({
 			label: 'Chance',
@@ -229,39 +228,34 @@ function Controls(app, defaults, controls) {
 		loopRow.append(new UILabel({ class: 'break' }));
 	}
 
-	this.resetControls = function() {
+	function resetControls() {
 		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
 		for (let i = 0; i < fxIndex; i++) {
 			const { key, panel } = controls[i];
 			if (key === 'loops') continue;
 			resetControl(key, app.ui.panels[panel]['row-' + key]);
 		}	
-	};
+	}
 
-	this.resetEffects = function() {
+	function resetEffects() {
 		// get fx starting point in controls list
 		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
 		for (let i = fxIndex; i < controls.length; i++) {
 			const { key, panel } = controls[i];
 			resetControl(key, app.ui.panels[panel]['row-' + key]);
 		}
-	};
+	}
 
-	this.zeroEffects = function() {
+	function zeroEffects() {
 		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
 		for (let i = fxIndex; i < controls.length; i++) {
 			const { key, panel } = controls[i];
 			if (!key.includes('Chance')) continue;
 			resetControl(key, app.ui.panels[panel]['row-' + key], 0);
 		}
-	};
+	}
 
-	this.init = function(data) {
-		// row = self.panel.doodooControls;
-		startLoopsRow = app.ui.panels.loops.startLoops;
-	};
-
-	this.load = function(data) {
+	function load(data) {
 		// load local storage or comp data
 		if (data) {
 			for (let i = 0; i < controls.length; i++) {
@@ -306,15 +300,32 @@ function Controls(app, defaults, controls) {
 					const { gridArea } = panelData[panelName];
 					const panel = app.ui.panels[panelName];
 					panel.setup(panelData[panelName]);
-					app.ui.layout[gridArea].panels.append(panel);
+					app.ui.getLayout()[gridArea].panels.append(panel);
 				}
 			}
 			if (control.type === 'loops') addLoops(control);
 			else setupControl(control, row);
 		}
-	};
+	}
 
-	this.get = function() {
+	function get() {
 		return { ...defaults };
-	};
+	}
+
+	function connectUI() {
+
+		const controlsPanel = app.ui.createPanel('controls');
+		const loopsPanel = app.ui.createPanel('loops', { label: 'Start Loops' });
+
+		app.ui.addCallbacks([
+			{ callback: resetControls, text: 'Reset Controls' },
+			{ callback: resetEffects, text: 'Reset Effects' },
+			{ callback: zeroEffects, text: 'Zero Effects' },
+		], controlsPanel);
+
+		startLoopsRow = loopsPanel.addRow('start-loops-row');
+	}
+
+	return { get, load, connectUI };
+
 }

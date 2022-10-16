@@ -25,7 +25,6 @@ function Composition(app, defaults) {
 	
 	let noteWidth = 60;
 
-	
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
 		let letter = note[0].toUpperCase();
@@ -57,7 +56,6 @@ function Composition(app, defaults) {
 	}
 
 	function play(withRecording) {
-		console.log('play');
 		if (parts.length === 0) return alert('Add notes to the melody.');
 
 		update();
@@ -71,14 +69,14 @@ function Composition(app, defaults) {
 			withRecording: withRecording,
 			onMutate: count => {
 				mutationCountUI.text = 'Mutation: ' + count;
-				// app.score.update(doodoo.getLoops());
+				app.score.update(doodoo.getLoops());
 			},
 			useMetro: useMetro,
 			controls: app.controls.get(),
 		});
-		// doodoo.play();
-		// app.fio.saveLocal(comp);
-		// app.score.update(doodoo.getLoops());
+		app.fio.saveLocal(comp);
+		// console.log(doodoo.getLoops());
+		app.score.update(doodoo.getLoops());
 	}
 
 	function isRecording() {
@@ -190,7 +188,8 @@ function Composition(app, defaults) {
 		row.addClass('part');
 		partRows.push(row);
 		currentPart = partRows.length - 1;
-		app.ui.faces.currentPart.addOption(currentPart, true, 'Part ' + currentPart);
+		app.ui.faces.currentPart.addOption(currentPart, 'Part ' + currentPart); // ?
+		app.ui.faces.currentPart.value = currentPart;
 	}
 
 	function addParts(parts) {
@@ -257,9 +256,9 @@ function Composition(app, defaults) {
 
 		if (data.voices) {
 			let voices = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
-			voices.forEach(voice => addVoice);
+			voices.forEach(voice => { addVoice(voice) });
 		} else {
-			defaults.voices.forEach(voice => addVoice)
+			defaults.voices.forEach(voice => { addVoice(voice) });
 		}
 		
 		if (data.tonic) {

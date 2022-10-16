@@ -13,7 +13,6 @@ function FilesIO(app) {
 		if (!composition) composition = app.composition.get();
 		if (!controls) controls = app.controls.get();
 		localStorage.setItem('comp', JSON.stringify({ ...composition, controls }));
-		console.log(composition)
 	}
 
 	function clear() {
