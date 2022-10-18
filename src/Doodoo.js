@@ -166,7 +166,7 @@ function Doodoo(params, callback) {
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 
-		console.log(currentPart, loops.map(l => l.noteDuration), loops.map(l => l.melody));
+		// console.log(currentPart, loops.map(l => l.noteDuration), loops.map(l => l.melody));
 		if (!simultaneous) {
 			currentPart++;
 			if (currentPart >= parts.length) currentPart = 0;
