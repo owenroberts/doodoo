@@ -2,38 +2,36 @@
 const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
 const { Interface, Settings } = UI;
-const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow } = UI.Elements;
+const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile } = UI.Elements;
 
 const app = {};
-const compDefaults = {
+const comp = {
 	title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
 	tonic: 'C4', // def to transform ...
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	duration:  '4n',
 	bpm: 120,
 	voices: ['choir', 'toms']
-};
+}; // composition defaults
 
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control
-app.composition = new Composition(app, compDefaults);
+app.composition = new Composition(app, comp);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 
-app.ui = Interface(app, {
-	useMain: true,
-});
+app.ui = Interface(app, { useMain: true });
 app.ui.setup();
-app.fio.connectUI();
-app.composition.connectUI();
-app.controls.connectUI();
-app.score.connectUI();
+app.fio.connect();
+app.composition.connect();
+app.controls.connect();
+app.score.connect();
 
-app.ui.settings = new Settings(app, {
+app.ui.settings = Settings(app, {
 	name: 'doodoo',
 	workspaceFields: ['noteWidth'],
 	workspaces: [{
 		text: 'Default',
-		url: '/composer/interface/workspaces/Default.json',
+		url: '/composer/workspaces/Default.json',
 	}]
 });
 app.ui.settings.load(); // wtf -- load settings and shit ...
@@ -49,3 +47,5 @@ if (compData && compData !== 'undefined'){
 }
 
 app.score.draw([]);
+
+console.log(app);

@@ -443,10 +443,10 @@ function Score(app) {
 		draw(loops);
 	}
 
-	function connectUI() {
-		panel = app.ui.createPanel('score');
+	function connect() {
+		panel = app.ui.getPanel('score');
 		panel.el.appendChild(canvas);
 	}
 
-	return { connectUI, update, draw };
+	return { connect, update, draw };
 }

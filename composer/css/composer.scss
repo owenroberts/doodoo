@@ -32,6 +32,8 @@
 		var(--notes-per-row), 
 		calc(var(--column-width) * 1px)
 	);
+	grid-gap: 2px;
+	padding-top: 2px;
 	// grid-template-rows: repeat(var(--num-rows), calc(var(--row-height) * 1px));
 	// grid-template-rows: repeat(var(--num-rows), auto);
 
@@ -41,8 +43,8 @@
 		// border: 1px dotted $text-color;
 		background: $border-color;
 
-		padding: 2px;
-		margin: 2px;
+		// padding: 2px;
+		// margin: 2px;
 		position: relative;
 
 		input[type=text] {
@@ -63,12 +65,17 @@
 			&, &:focus-visible {
 				border-bottom: 1px solid $text-color;
 			}
-			input[type=text] { width: 2.5em; }
-			.btn { margin: 0; }
+
 		}
 
-		.duration-edit {
+		.duration-edit,
+		.note-edit {
+			margin: 0;
 			.btn { margin: 0; }
+			input[type=text] { 
+				width: 2.5em; 
+				padding: 2px;
+			}
 		}
 
 		.remove-btn {

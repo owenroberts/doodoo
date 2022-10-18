@@ -287,12 +287,9 @@ function Controls(app, defaults, controls) {
 			let row;
 			if (control.panel) {
 				const panelName = control.panel;
-				// if (app.ui.panels[panelName]) row = app.ui.panels[panelName].lastRow;
-				if (!app.ui.panels[panelName]) {
-					app.ui.createPanel(panelName, {
-						label: labelFromKey(panelName) + ' Control'
-					});
-				}
+				app.ui.getPanel(panelName, {
+					label: labelFromKey(panelName) + ' Control'
+				});
 				row = app.ui.panels[panelName].addRow('row-' + control.key);
 				row.addClass('break-line-up');
 				
@@ -312,10 +309,10 @@ function Controls(app, defaults, controls) {
 		return { ...defaults };
 	}
 
-	function connectUI() {
+	function connect() {
 
-		const controlsPanel = app.ui.createPanel('controls');
-		const loopsPanel = app.ui.createPanel('loops', { label: 'Start Loops' });
+		const controlsPanel = app.ui.getPanel('controls');
+		const loopsPanel = app.ui.getPanel('loops', { label: 'Start Loops' });
 
 		app.ui.addCallbacks([
 			{ callback: resetControls, text: 'Reset Controls' },
@@ -326,6 +323,6 @@ function Controls(app, defaults, controls) {
 		startLoopsRow = loopsPanel.addRow('start-loops-row');
 	}
 
-	return { get, load, connectUI };
+	return { get, load, connect };
 
 }

@@ -25,7 +25,7 @@ function FilesIO(app) {
 		app.composition.update(); // updates local storage
 		const json = localStorage.getItem('comp');
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
-		const name = prompt("Name composition", app.composition.title);
+		const name = prompt("Name composition", app.composition.get().title);
 		if (!name) return;
 		saveAs(blob, name + '.json');
 		app.ui.faces.title.update(name);
@@ -54,25 +54,30 @@ function FilesIO(app) {
 		});
 	}
 
-	function connectUI() {
+	function connect() {
 
-		const panel = app.ui.createPanel('fio', { label: 'File IO' });
+		const panel = app.ui.getPanel('fio', { label: 'Files IO' });
 
 		app.ui.addCallbacks([
 			{ callback: saveLocal, key: 's', text: 'Save Local' },
 			{ callback: saveFile, key: 'alt-s', text: 'Save File' },
-			{ callback: load, key: 'o', text: 'Load File' },
-			{ callback: clear, key: 'o', text: 'Clear Local' },
-		], panel);
-
-		app.ui.addUI({
-			type: 'UIFile',
-			callback: loadMidi,
-			text: 'Load Midi',
-			promptDefault: 'compositions',
-			fileType: 'audio/midi'
-		}, panel);
+			{ 
+				type: 'UIFile',
+				callback: load, 
+				key: 'o', 
+				text: 'Load File',
+				promptDefault: 'compositions',
+			},
+			{ callback: clear, text: 'Clear Local' },
+			{
+				type: 'UIFile',
+				callback: loadMidi,
+				text: 'Load Midi',
+				promptDefault: 'compositions',
+				fileType: 'audio/midi'
+			}
+		]);
 	}
 
-	return { connectUI, saveLocal };
+	return { connect, saveLocal };
 }
