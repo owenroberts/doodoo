@@ -48,4 +48,4 @@ if (compData && compData !== 'undefined'){
 
 app.score.draw([]);
 
-console.log(app);
+// console.log(app);

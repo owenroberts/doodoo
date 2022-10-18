@@ -19,9 +19,7 @@ const ui = require('./ui/gulpfile');
 function browserSyncTask() {
 	return browserSync.init({
 		port: 8080,
-		server: {
-			baseDir: './',
-		}
+		server: { baseDir: './', }
 	});
 }
 
@@ -41,7 +39,7 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 }
 
 function composerTask() {
-	return src('./composer/**/*.js')
+	return src('./composer/src/*.js')
 		.pipe(sourcemaps.init())
 		.pipe(concat('composer.min.js'))
 		.pipe(iife({}))
@@ -75,7 +73,7 @@ function exportTask() {
 
 function watchTask(){
 	watch(['index.js', 'src/**/*.js'], series('doodoo'));
-	watch('composer/**/*.js', series('composer'));
+	watch('composer/src/*.js', series('composer'));
 	if (ui) {
 		watch('ui/src/**/*.js', series('ui'));
 		watch(['ui/css/*.scss', 'composer/css/*.scss'], series('sass'));
