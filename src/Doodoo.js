@@ -166,6 +166,7 @@ function Doodoo(params, callback) {
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 
+		console.log(currentPart, loops.map(l => l.noteDuration), loops.map(l => l.melody));
 		if (!simultaneous) {
 			currentPart++;
 			if (currentPart >= parts.length) currentPart = 0;
@@ -182,7 +183,7 @@ function Doodoo(params, callback) {
 	}
 
 	function loop(time) {
-		if (useMetro) metro.triggerAttackRelease('c4', '4n', time, 0.1);	
+		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);	
 		let attack = attackStart.getRandom();
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];

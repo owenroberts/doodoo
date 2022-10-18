@@ -28,7 +28,7 @@ function Composition(app, defaults) {
 	let noteWidth = 60;
 
 	let mutationCountUI;
-	let noteInput, durationInput, scaleRow,  voiceRow;
+	let noteInput, durationInput, scaleRow, voiceRow, melodyPanel;
 
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
@@ -199,12 +199,21 @@ function Composition(app, defaults) {
 	}
 
 	function addPart() {
-		let row = app.ui.panels.melody.addRow('part-' + partRows.length, 'break-line-up');
+		let row = melodyPanel.addRow('part-' + partRows.length, 'break-line-up');
 		row.addClass('part');
 		partRows.push(row);
 		currentPart = partRows.length - 1;
 		app.ui.faces.currentPart.addOption(currentPart, 'Part ' + currentPart); // ?
 		app.ui.faces.currentPart.value = currentPart;
+	}
+
+	function removePart() {
+		const row = partRows.pop();
+		if (currentPart > partRows.length - 1) currentPart = currentPart - 1;
+		melodyPanel.removeRow(row);
+		app.ui.faces.currentPart.removeOption(partRows.length);
+		app.ui.faces.currentPart.value = currentPart;
+		update();
 	}
 
 	function addVoice(voice) {
@@ -285,9 +294,9 @@ function Composition(app, defaults) {
 					for (let i = 0; i < data.parts.length; i++) {
 						currentPart = i;
 						if (i > 0) {
-							let row = app.ui.panels.melody.addRow('part-' + i, 'break-line-up');
-							row.addClass('part');
-							partRows.push(row);
+							partRows[i] = melodyPanel.addRow('part-' + i, 'break-line-up');
+							partRows[i].addClass('part');
+							app.ui.faces.currentPart.addOption(i, 'Part ' + i);
 						}
 						addNotes(data.parts[i]);
 					}
@@ -295,6 +304,7 @@ function Composition(app, defaults) {
 			} else { addNotes(data.parts); }
 			currentPart = 0;
 		}
+
 		update();
 		updateDisplay();
 	}
@@ -303,7 +313,7 @@ function Composition(app, defaults) {
 
 		const playBackPanel = app.ui.getPanel('playback', { label: 'Play Back' });
 		const compositionPanel = app.ui.getPanel('composition');
-		const melodyPanel = app.ui.getPanel('melody');
+		melodyPanel = app.ui.getPanel('melody');
 
 		app.ui.addCallbacks([
 			{ callback: play, key: 'space', text: 'Play', args: [false] },
@@ -428,13 +438,14 @@ function Composition(app, defaults) {
 
 		app.ui.addProp('currentPart', {
 			type: 'UISelect',
-			options: [ { value: 0, text: 'Part 0' }],
+			options: [{ value: 0, text: 'Part 0' }],
 			callback: value => { currentPart = +value; }
 		}, melodyPanel);
 
 		app.ui.addCallbacks([
 			{ callback: addPart, text: '+' },
-			{ callback: clear, text: 'Clear', key: '0' }
+			{ callback: removePart, text: '–' },
+			{ callback: clear, text: 'Clear', key: '0' },
 		], melodyPanel);
 
 		app.ui.addProps({
