@@ -31,7 +31,7 @@ app.ui.settings = Settings(app, {
 	workspaceFields: ['noteWidth'],
 	workspaces: [{
 		text: 'Default',
-		url: '/composer/workspaces/Default.json',
+		url: 'workspaces/Default.json',
 	}]
 });
 app.ui.settings.load(); // wtf -- load settings and shit ...

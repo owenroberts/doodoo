@@ -68,7 +68,7 @@ function sassTask(sourcePath, buildPath) {
 }
 
 function exportTask() {
-	return jsTask(null, './doodoo/src/Doodoo.js', './doodoo/build', false);
+	return jsTask(null, './doodoo/src/**/*.js', './doodoo/build', false);
 }
 
 function watchTask(){

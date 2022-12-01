@@ -193,7 +193,7 @@ function Composition(app, defaults) {
 			if (note === null) return addNote('rest', duration, true);
 			const n = typeof note === 'string' ? note : note[0];
 			const d = typeof note === 'string' ? duration : note[1];
-			if (n === null) addNote('rest', duration, true);
+			if (n === null) addNote('rest', d, true);
 			else addNote(n, d, true);
 		});
 	}
@@ -388,6 +388,7 @@ function Composition(app, defaults) {
 			},
 		}, compositionPanel);
 
+
 		compositionPanel.addRow(undefined, 'break');
 		compositionPanel.add(new UILabel({ text: 'Scale Intervals '}));
 		scaleRow = compositionPanel.addRow(undefined, 'break');
@@ -408,6 +409,17 @@ function Composition(app, defaults) {
 			]
 		});
 		compositionPanel.add(voicesUI);
+
+		app.ui.addCallback({
+			row: true,
+			callback() {
+				if (!doodoo) return;
+				doodoo.printLoops();
+			},
+			text: 'Print Loops',
+			key: 'p',
+		}, 'composition');
+		
 
 		melodyPanel.addRow(undefined, 'break');
 

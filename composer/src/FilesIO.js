@@ -12,6 +12,9 @@ function FilesIO(app) {
 	function saveLocal(composition, controls) {
 		if (!composition) composition = app.composition.get();
 		if (!controls) controls = app.controls.get();
+		//  later
+		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));
+
 		localStorage.setItem('comp', JSON.stringify({ ...composition, controls }));
 	}
 

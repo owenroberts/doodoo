@@ -1,6 +1,6 @@
 window.addEventListener("load", function() {
 	const doodooDiv = document.getElementById('doodoos');
-	let doodoo; // there's only ever one doodoo
+	let doodoo; // there's only one doodoo
 
 	// debugging controls
 	document.addEventListener('keydown', ev => {

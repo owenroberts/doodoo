@@ -8,6 +8,8 @@ function Doodoo(params, callback) {
 	let isPlaying = false;
 	let defaultDuration = params.duration || '4n';
 	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
+	let autoStart = params.autoStart !== undefined ? params.autoStart : true;
+	let autoLoad = params.autoLoad !== undefined ? params.autoStart : true;
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
@@ -88,14 +90,18 @@ function Doodoo(params, callback) {
 	async function loadTone() {
 		try {
 			await Tone.start();
-			if (voices.filter(v => !v.includes('Synth')).length > 0) load(start);
+			// only load if using samples
+			if (usesSamples) load(start);
 			else start();
 		} catch(err) {
 			console.error('load tone error', err);
 		}
 	}
 
-	if (!params.lazyLoad) loadTone();
+	let usesSamples = voices.some(v => !v.includes('Synth'));
+	let samplesLoaded = false;
+	let playOnStart = false; // if trying to play before loaded
+	if (autoLoad) loadTone();
 
 	function start() {
 		if (callback) callback();
@@ -103,7 +109,7 @@ function Doodoo(params, callback) {
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
-		playTheme();
+		if (autoStart || playOnStart) playTheme();
 		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -291,10 +297,11 @@ function Doodoo(params, callback) {
 		console.time(`load ${voices.join(', ')}`);
 		samples = new Tone.ToneAudioBuffers({
 			urls: urls,
-			baseUrl: '../samples/',
+			baseUrl: params.samplesURL || '../samples/',
 			onload: () => {
 				console.timeEnd(`load ${voices.join(', ')}`);
 				if (callback) callback();
+				samplesLoaded = true;
 			}
 		});
 	}
@@ -344,14 +351,20 @@ function Doodoo(params, callback) {
 	}
 
 	function play() {
-		if (!params.autoLoad) return loadTone();
-		if (Tone.Transport.state === 'stopped') playTheme();
+		if (!autoLoad) return loadTone();
+		if (usesSamples && !samplesLoaded) {
+			playOnStart = true;
+			return;
+		}
+		playTheme();
+		toneLoop.start(Tone.Transport.seconds);
 		isPlaying = true;
 		if (withRecording) recorder.start();
 	}
 
 	function stop() {
 		Tone.Transport.stop();
+		toneLoop.stop();
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
 	}
