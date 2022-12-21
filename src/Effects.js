@@ -63,12 +63,12 @@ function Effects(def) {
 		return chance(def[name + 'Chance']) && totalPlays >= def[name + 'Delay'];
 	}
 
-	function get(totalPlays) {
+	function get(totalPlays, voiceName) {
 
 		// reverb separate for now ...
 		let fx = [];
 		if (getEffectChance('reverb', totalPlays)) {
-			const reverb = new Tone.Reverb({ decay: def.reverbDecay });
+			const reverb = new Tone.Reverb({ decay: voiceName === 'toms' ? 0.5 : def.reverbDecay });
 			fx.push(reverb);
 		}
 
@@ -79,6 +79,7 @@ function Effects(def) {
 		
 		return [...fx, ...filtered];
 	}
+
 	return { get };
 }
 

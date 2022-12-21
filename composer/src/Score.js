@@ -269,17 +269,17 @@ function Score(app) {
 			}
 			
 			// console.log('notes', notes);
-			
 			if (notes.every(n => n[0] === null)) { // draw rest
-
+				
 				let continueNote = false;
 
 				ctx.font = '26px Noto';
 				if (measures.flatMap(l => l).every(n => n[0] === null)) {
-					if (tempCount === 0) {
+					// temp count doesn't exist here, not sure what this is suposed to do
+					// if (tempCount === 0) {
 						ctx.fillText('𝄻', tempX + colWidth, staffY + 11 * h); // whole note rest
 						continueNote = true;
-					}
+					// }
 				}
 
 				measures.forEach(loop => { 
@@ -289,6 +289,7 @@ function Score(app) {
 						}
 					})
 				});
+				
 				
 				if (!continueNote) { // check note duration
 					let sliceLength = noteDuration / 4 * 2; // 1 half note worth 
@@ -318,9 +319,7 @@ function Score(app) {
 				}
 				
 				noteCount++;
-			
 			} else { // draw note
-			
 				// let y = top + staffY + C4Y + getNoteDiff('C4', note) * h2;
 				ctx.strokeStyle = 'black';
 

@@ -16,11 +16,12 @@ function Doodoo(params, callback) {
 	if (voices.length === 0) voices.push('FMSynth');
 
 	let withRecording = params.withRecording;
-	let recorder, recordingMutationCount;
+	let recorder;
+	let withCount = params.withCount;
 
 	if (withRecording) {
 		recorder = new Tone.Recorder();
-		recordingMutationCount = +prompt('Record number of mutations?', 10);
+		if (!withCount) withCount = +prompt('Record number of mutations?', 10);
 	}
 	
 	let tonic = typeof params.tonic === 'string' ?
@@ -103,6 +104,7 @@ function Doodoo(params, callback) {
 	let playOnStart = false; // if trying to play before loaded
 	if (autoLoad) loadTone();
 
+
 	function start() {
 		if (callback) callback();
 		toneLoop = new Tone.Loop(loop, defaultDuration);
@@ -154,7 +156,7 @@ function Doodoo(params, callback) {
 			let n = [];
 			loop.melody.forEach(beat => {
 				const [note, duration] = beat;
-				let beats = +defaultDuration[0] / +duration[0];
+				let beats = +defaultDuration.slice(0, -1) / +duration.slice(0, -1);
 				if (duration.includes('.')) beats *= 1.5;
 				n.push(beat);
 				for (let i = 1; i < beats; i++) {
@@ -171,8 +173,8 @@ function Doodoo(params, callback) {
 
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
+		
 
-		// console.log(currentPart, loops.map(l => l.noteDuration), loops.map(l => l.melody));
 		if (!simultaneous) {
 			currentPart++;
 			if (currentPart >= parts.length) currentPart = 0;
@@ -181,10 +183,12 @@ function Doodoo(params, callback) {
 		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 
-		if (mutationCount > recordingMutationCount) {
-			Tone.Transport.stop();
-			isPlaying = false;
-			saveRecording();
+		if (withCount) {
+			if (mutationCount > withCount) {
+				Tone.Transport.stop();
+				isPlaying = false;
+				if (recorder) saveRecording();
+			}
 		}
 	}
 
@@ -249,7 +253,7 @@ function Doodoo(params, callback) {
 		if (withRecording) sampler.chain(Tone.Destination, recorder)
 		else sampler.toDestination();
 
-		effects.get(totalPlays).forEach(f => {
+		effects.get(totalPlays, voice).forEach(f => {
 			if (withRecording) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			sampler.connect(f);

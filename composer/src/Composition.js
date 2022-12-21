@@ -60,7 +60,11 @@ function Composition(app, defaults) {
 		}
 	}
 
-	function play(withRecording) {
+	function playOnce() {
+		play(false, 1);
+	}
+
+	function play(withRecording, withCount) {
 		if (parts.length === 0) return alert('Add notes to the melody.');
 
 		update();
@@ -72,6 +76,7 @@ function Composition(app, defaults) {
 		doodoo = new Doodoo({ 
 			...comp,
 			withRecording: withRecording,
+			withCount: withCount,
 			onMutate: count => {
 				mutationCountUI.text = 'Mutation: ' + count;
 				app.score.update(doodoo.getLoops());
@@ -317,6 +322,7 @@ function Composition(app, defaults) {
 
 		app.ui.addCallbacks([
 			{ callback: play, key: 'space', text: 'Play', args: [false] },
+			{ callback: playOnce, key: '.', text: 'Play Once' },
 			{ callback: stop, key: 'alt-space', text: 'Stop' },
 			{ callback: play, key: 'r', text: 'Record', args: [true] },
 			{ callback: mutate, key: 'd', text: 'Mutate' },

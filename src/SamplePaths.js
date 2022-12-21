@@ -16,7 +16,7 @@ let SamplePaths = {
 		"E6": "E6.ogg",
 		"G4": "G4.ogg",
 	},
-	"toms": { "A#3": "Tom606_EQ.ogg" },
+	"toms": { "A#3": "Tom606_EQ_FADE.ogg" },
 	"choirA": {
 		"A2": "CH-AA-A2.mp3",
 		"A3": "CH-AA-A3.mp3",
