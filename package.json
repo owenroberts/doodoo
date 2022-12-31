@@ -10,8 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "file-saver": "^2.0.5",
-    "tone": "^14.7.77",
-    "webpack": "^5.74.0"
+    "tone": "^14.7.77"  
   },
   "devDependencies": {
     "@tonejs/midi": "^2.0.28",
