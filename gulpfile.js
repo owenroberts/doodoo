@@ -89,9 +89,9 @@ function uiCopy() {
 
 task('doodoo', doodooTask);
 task('lib', libTask);
-task('default', doodooTask);
 task('watchJS', watchTask);
 task('watch', parallel(browserSyncTask, watchTask));
+task('default', series('watch'));
 task('composer', composerTask);
 task('sass', () => { return sassTask('./composer/css/composer.scss', './composer/css'); });
 task('css', series('sass'));
