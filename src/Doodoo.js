@@ -74,7 +74,7 @@ function Doodoo(params, callback) {
 	let totalPlays = 0;
 	let simultaneous = params.simultaneous || false;
 
-	// attack velocity -- only (?) global params
+	// attack velocity -- only (?) global params -- this is not asdr, it's just velocity
 	const attackStart = new ValueRange(...def.attackStart);
 	const attackStep = new ValueRange(...def.attackStep);
 	const restChance = new ValueRange(...def.restChance);
@@ -229,7 +229,8 @@ function Doodoo(params, callback) {
 
 	function getSynth() {
 		const fmSynth = new Tone.FMSynth({ 
-			volume: params.volume || 0
+			volume: params.volume || 0,
+			// attack: 1,
 		});
 		
 		if (withRecording) fmSynth.chain(Tone.Destination, recorder)
@@ -245,12 +246,14 @@ function Doodoo(params, callback) {
 
 	function getSampler(voice) {
 		const sampleFiles = getSampleFiles(voice);
-		// console.log('sampleFiles', sampleFiles);
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
+			// attack: 10,
+			// curve: 'linear'
 		});
+		// console.log(sampler);
 		if (withRecording) sampler.chain(Tone.Destination, recorder)
 		else sampler.toDestination();
 

@@ -108,7 +108,9 @@ function Controls(app, defaults, controls) {
 		row.append(new UINumberList({
 			list: value,
 			callback: value => {
+				console.log(key, value);
 				defaults[key] = value;
+				console.log(defaults);
 			} 
 		}));
 	}
@@ -202,6 +204,7 @@ function Controls(app, defaults, controls) {
 	}
 
 	function addLoopControl(key, value, countIndex, loopIndex, loopRow) {
+		/* set values when loop control added, otherwise have to edit to get it to save */
 		let label = labelFromKey(key);
 		switch(typeof value) {
 			case "boolean":
@@ -213,6 +216,7 @@ function Controls(app, defaults, controls) {
 				});
 				loopRow.append(new UILabel({ text: label }));
 				loopRow.append(bool);
+				defaults.startLoops[countIndex][loopIndex][key] = value;
 			break;
 			case "number":
 				let num = new UINumberStep({
@@ -223,6 +227,7 @@ function Controls(app, defaults, controls) {
 				});
 				loopRow.append(new UILabel({ text: label }));
 				loopRow.append(num);
+				defaults.startLoops[countIndex][loopIndex][key] = value;
 			break;
 			case "string":
 				let str = new UIText({
@@ -233,7 +238,7 @@ function Controls(app, defaults, controls) {
 				});
 				loopRow.append(new UILabel({ text: label }));
 				loopRow.append(str);
-				console.log(defaults);
+				defaults.startLoops[countIndex][loopIndex][key] = value;
 			break;
 		}
 		loopRow.append(new UILabel({ class: 'break' }));
@@ -275,9 +280,14 @@ function Controls(app, defaults, controls) {
 				defaults[key] = data[key];
 				switch(type) {
 					case 'list':
-						for (const k in data[key]) {
-							controls[i][k] = data[key][k];
-						}
+						// if (key === 'durationStart') console.log(data[key], i, controls[i], )
+						// controls[i] = {};
+						// console.log(key, data[key])
+						// idk wtf was happening here
+						controls[i].value = data[key];
+						// for (const k in data[key]) {
+							// console.log(key, k, controls[i][k], data[key][k]);
+						// }
 					break;
 					case 'effect':
 						controls[i].chance = data[key + 'Chance'];
