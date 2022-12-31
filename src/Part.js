@@ -29,6 +29,7 @@ function Part(melody, def, defaultDuration, debug) {
 		harmony: 0,
 		melody: melody
 	};
+	
 	const startLoops = def.startLoops.map(count => {
 		return count.map(loop => {
 			return { ...defaultLoop, ...loop };

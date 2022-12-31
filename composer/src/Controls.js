@@ -17,6 +17,7 @@ function Controls(app, defaults, controls) {
 		startIndex: 0,
 		startDelay: 0,
 		harmony: 0,
+		voice: 'choir', // make list later
 	};
 
 	function labelFromKey(key) {
@@ -205,24 +206,34 @@ function Controls(app, defaults, controls) {
 		switch(typeof value) {
 			case "boolean":
 				let bool = new UIToggleCheck({
-					label: label,
 					value: value,
 					callback: value => {
 						defaults.startLoops[countIndex][loopIndex][key] = value;
 					}
 				});
+				loopRow.append(new UILabel({ text: label }));
 				loopRow.append(bool);
 			break;
 			case "number":
-				let controlLabel = new UILabel({ text: label });
-				loopRow.append(controlLabel);
 				let num = new UINumberStep({
 					value: value,
 					callback: value => {
 						defaults.startLoops[countIndex][loopIndex][key] = value;
 					}
 				});
+				loopRow.append(new UILabel({ text: label }));
 				loopRow.append(num);
+			break;
+			case "string":
+				let str = new UIText({
+					value: value,
+					callback: value => {
+						defaults.startLoops[countIndex][loopIndex][key] = value;
+					}
+				});
+				loopRow.append(new UILabel({ text: label }));
+				loopRow.append(str);
+				console.log(defaults);
 			break;
 		}
 		loopRow.append(new UILabel({ class: 'break' }));

@@ -145,7 +145,7 @@ function Doodoo(params, callback) {
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale),
-					voice: getVoice(random(voices))
+					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
 			});
@@ -168,6 +168,7 @@ function Doodoo(params, callback) {
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
 		});
+
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
@@ -351,6 +352,7 @@ function Doodoo(params, callback) {
 	}
 
 	function isRecording() {
+		if (!recorder) return false;
 		return recorder.state === 'started' || recorder.state === 'paused';
 	}
 
