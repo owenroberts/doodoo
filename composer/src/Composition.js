@@ -139,10 +139,11 @@ function Composition(app, defaults) {
 		}
 	}
 
-	function addNote(n, d, skipUpdate) {
+	function addNote(n, d, skipUpdate, insertBefore) {
 
 		let note = n || app.ui.faces.noteInput.value.toUpperCase();
 		let duration = d || app.ui.faces.durationInput.value;
+		// console.log('part index', insertBefore);
 
 		let part = new UICollection({ class: "note-collection" });
 		part.addClass('d' + duration.replace(/\./g, 'dot'));
@@ -171,6 +172,14 @@ function Composition(app, defaults) {
 			},
 			list: [...durationList],
 		});
+
+		let doubleBtn = new UIButton({
+			text: "+",
+			class: 'double-btn',
+			callback: () => {
+				addNote(noteEdit.value, durEdit.value, false, part);
+			}
+		});
 		
 		let removeBtn = new UIButton({ 
 			text: "x",
@@ -182,12 +191,18 @@ function Composition(app, defaults) {
 				updateDisplay();
 			}
 		});
+
+		if (insertBefore) {
+			partRows[currentPart].insert(part, insertBefore);
+		} else {
+			partRows[currentPart].append(part);
+		}
 		
 		part.append(noteEdit, 'note');
 		part.append(durEdit, 'duration');
+		part.append(doubleBtn);
 		part.append(removeBtn);
 		
-		partRows[currentPart].append(part);
 
 		if (!skipUpdate) update();
 		if (!skipUpdate) updateDisplay();

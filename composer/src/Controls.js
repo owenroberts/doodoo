@@ -108,9 +108,7 @@ function Controls(app, defaults, controls) {
 		row.append(new UINumberList({
 			list: value,
 			callback: value => {
-				console.log(key, value);
 				defaults[key] = value;
-				console.log(defaults);
 			} 
 		}));
 	}

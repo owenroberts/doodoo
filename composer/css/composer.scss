@@ -78,7 +78,8 @@
 			}
 		}
 
-		.remove-btn {
+		.remove-btn,
+		.double-btn {
 			grid-column: 2 / span 1;
 			grid-row: 1 / span 1;
 			background: $bg-color;
@@ -91,6 +92,11 @@
 			&:hover {
 				background: $ui-select;
 			}
+		}
+
+		.double-btn {
+			top: 0;
+			bottom: auto;
 		}
 
 		&.d1n { grid-column: span calc(var(--default-duration) / 1); }

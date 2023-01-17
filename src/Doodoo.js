@@ -250,7 +250,7 @@ function Doodoo(params, callback) {
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-			// attack: 10,
+			// attack: 0.25,
 			// curve: 'linear'
 		});
 		// console.log(sampler);
