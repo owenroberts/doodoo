@@ -318,7 +318,7 @@ function Doodoo(params, callback) {
 		const recording = await recorder.stop();
 		const url = URL.createObjectURL(recording);
 		const anchor = document.createElement("a");
-		const audioName = prompt('Name clip', "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
+		const audioName = prompt('Name clip', params.title || "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
 		anchor.download = audioName + ".webm";
 		anchor.href = url;
 		anchor.click();
