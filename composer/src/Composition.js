@@ -139,6 +139,17 @@ function Composition(app, defaults) {
 		}
 	}
 
+	function doubleIt() {
+		// double current melody
+		const part = partRows[currentPart].children;
+		console.log(part);
+		part.forEach(beat => {
+			addNote(beat.note.value, beat.duration.value, true);
+		});
+		update();
+		updateDisplay();
+	}
+
 	function addNote(n, d, skipUpdate, insertBefore) {
 
 		let note = n || app.ui.faces.noteInput.value.toUpperCase();
@@ -504,6 +515,12 @@ function Composition(app, defaults) {
 			callback: addNote, 
 			text: '+', 
 			key: '+'
+		}, melodyPanel);
+
+		app.ui.addUI({ 
+			type: 'UIButton', 
+			callback: doubleIt, 
+			text: 'Double It', 
 		}, melodyPanel);
 
 		melodyPanel.addRow('melody', 'break');

@@ -250,10 +250,10 @@ function Doodoo(params, callback) {
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-			// attack: 0.25,
+			// attack: 0.1,
 			// curve: 'linear'
 		});
-		// console.log(sampler);
+		
 		if (withRecording) sampler.chain(Tone.Destination, recorder)
 		else sampler.toDestination();
 
