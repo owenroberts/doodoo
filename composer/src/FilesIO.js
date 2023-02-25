@@ -18,6 +18,15 @@ function FilesIO(app) {
 		localStorage.setItem('comp', JSON.stringify({ ...composition, controls }));
 	}
 
+	function loadLocal() {
+		const compData = localStorage.getItem('comp');
+		if (compData && compData !== 'undefined') {
+			const data = JSON.parse(compData);
+			app.composition.load(data);
+			app.controls.load(data.controls);
+		}
+	}
+
 	function clear() {
 		app.composition.clear();
 		localStorage.setItem('comp', '');
@@ -64,6 +73,7 @@ function FilesIO(app) {
 		app.ui.addCallbacks([
 			{ callback: saveLocal, key: 's', text: 'Save Local' },
 			{ callback: saveFile, key: 'alt-s', text: 'Save File' },
+			{ callback: loadLocal, key: 'l', text: 'Load Local' },
 			{ 
 				type: 'UIFile',
 				callback: load, 

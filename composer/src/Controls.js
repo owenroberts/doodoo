@@ -3,7 +3,7 @@
 */
 function Controls(app, defaults, controls) {
 	
-	let startLoopsRow;
+	let startLoopsRow, controlsPanel, controlTrees = {};
 	let originalDefaults = { ...defaults };
 
 	// has to match Part.js
@@ -26,21 +26,23 @@ function Controls(app, defaults, controls) {
 		return label;
 	}
 
-	function setupControl(control, row) {
+	function setupControl(control, tree) {
 		const { key, type } = control;
 		const label = labelFromKey(key);
-		row.append(new UILabel({ text: label }));
-		row.append(new UIButton({
+		console.log('label', label)
+		tree.add(new UILabel({ text: label }));
+		tree.add(new UIButton({
 			text: 'Reset',
 			callback: () => {
-				resetControl(key, row);
+				resetControl(key, tree);
 			}
 		}));
-
-		if (type === 'range') addRange(control, row);
-		if (type === 'list' && control.value) addList(control, row);
-		if (type === 'chance') addChance(control, row);
-		if (type === 'number') addNumber(control, row);
+		tree.addBreak();
+		if (type === 'range') addRange(control, tree);
+		if (type === 'list' && control.value) addList(control, tree);
+		if (type === 'chance') addChance(control, tree);
+		if (type === 'number') addNumber(control, tree);
+		tree.addBreak();
 	}
 
 	function resetControl(key, row, value) {
@@ -57,8 +59,8 @@ function Controls(app, defaults, controls) {
 	function addChance(control, row, label) {
 		let { key, value, index, range } = control;
 		
-		if (label) row.append(new UILabel({ text: label }));
-		row.append(new UIChance({
+		if (label) row.add(new UILabel({ text: label }));
+		row.add(new UIChance({
 			label: 'Chance',
 			value: index !== undefined ? value[index] : value,
 			min: range ? range[0] : 0,
@@ -74,8 +76,8 @@ function Controls(app, defaults, controls) {
 	function addNumber(control, row, label) {
 		let { key, value, range, step, index } = control;
 
-		if (label) row.append(new UILabel({ text: label  }));
-		row.append(new UINumberStep({
+		if (label) row.add(new UILabel({ text: label  }));
+		row.add(new UINumberStep({
 			value: index !== undefined ? value[index] : value,
 			min: range[0],
 			max: range[1],
@@ -90,7 +92,7 @@ function Controls(app, defaults, controls) {
 	function addRange(control, row, label) {
 		let { key, value, range, step } = control;
 
-		if (label) row.append(new UILabel({ text: label }));
+		if (label) row.add(new UILabel({ text: label }));
 		addNumber({ ...control, index: 0 }, row, 'Min');
 		addNumber({ ...control, index: 1 }, row, 'Max');
 
@@ -104,8 +106,8 @@ function Controls(app, defaults, controls) {
 
 	function addList(control, row, label) {
 		let { key, value } = control;
-		if (label) row.append(new UILabel({ text: label }));
-		row.append(new UINumberList({
+		if (label) row.add(new UILabel({ text: label }));
+		row.add(new UINumberList({
 			list: value,
 			callback: value => {
 				defaults[key] = value;
@@ -271,6 +273,7 @@ function Controls(app, defaults, controls) {
 
 	function load(data) {
 		// load local storage or comp data
+		// console.log('data', data)
 		if (data) {
 			for (let i = 0; i < controls.length; i++) {
 				const { key, type } = controls[i];
@@ -298,30 +301,51 @@ function Controls(app, defaults, controls) {
 			}
 		}
 
-		const panelData = localStorage.getItem('settings-doodoo') ?
-			JSON.parse(localStorage.getItem('settings-doodoo')).panels : {};
+		// controlsPanel.addRow();
+		// const section = new UITree({
+		// 	title: 'Controls',
+		// });
+
+		// controlsPanel.add(section);
+		// // console.log(section);
 
 		for (let i = 0; i < controls.length; i++) {
 			const control = controls[i];
-			let row;
-			if (control.panel) {
-				const panelName = control.panel;
-				app.ui.getPanel(panelName, {
-					label: labelFromKey(panelName) + ' Control'
-				});
-				row = app.ui.panels[panelName].addRow('row-' + control.key);
-				row.addClass('break-line-up');
-				
-				if (panelData[panelName]) {
-					const { gridArea } = panelData[panelName];
-					const panel = app.ui.panels[panelName];
-					panel.setup(panelData[panelName]);
-					app.ui.getLayout()[gridArea].panels.append(panel);
-				}
+			const { type, panel } = control;
+			if (!controlTrees[panel]) {
+				controlTrees[panel] = new UITree({ title: labelFromKey(panel) });
+				controlsPanel.append(controlTrees[panel]);
 			}
-			if (control.type === 'loops') addLoops(control);
-			else setupControl(control, row);
+				
+			if (type === 'loops') continue; // addLoops(control);
+			else setupControl(control, controlTrees[panel]);
 		}
+
+		// const panelData = localStorage.getItem('settings-doodoo') ?
+		// 	JSON.parse(localStorage.getItem('settings-doodoo')).panels : {};
+
+		// for (let i = 0; i < controls.length; i++) {
+		// 	const control = controls[i];
+		// 	let row;
+		// 	if (control.panel) {
+		// 		const panelName = control.panel;
+		// 		app.ui.getPanel(panelName, {
+		// 			label: labelFromKey(panelName) + ' Control'
+		// 		});
+		// 		row = app.ui.panels[panelName].addRow('row-' + control.key);
+		// 		row.addClass('break-line-up');
+				
+		// 		if (panelData[panelName]) {
+		// 			const { gridArea } = panelData[panelName];
+		// 			const panel = app.ui.panels[panelName];
+		// 			// console.log(panelName, panel);
+		// 			panel.setup(panelData[panelName]);
+		// 			app.ui.getLayout()[gridArea].panels.append(panel);
+		// 		}
+		// 	}
+		// 	if (control.type === 'loops') addLoops(control);
+		// 	else setupControl(control, row);
+		// }
 	}
 
 	function get() {
@@ -330,7 +354,7 @@ function Controls(app, defaults, controls) {
 
 	function connect() {
 
-		const controlsPanel = app.ui.getPanel('controls');
+		controlsPanel = app.ui.getPanel('controls');
 		const loopsPanel = app.ui.getPanel('loops', { label: 'Start Loops' });
 
 		app.ui.addCallbacks([
