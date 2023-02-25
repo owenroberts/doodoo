@@ -3,8 +3,8 @@
 */
 function Controls(app, defaults, controls) {
 	
-	let startLoopsRow, controlsPanel, controlTrees = {};
-	let originalDefaults = { ...defaults };
+	let startLoopsRow, controlsPanel, fxPanel, controlTrees = {};
+	let originalDefaults = JSON.parse(JSON.stringify(defaults));
 
 	// has to match Part.js
 	const defaultLoop = {
@@ -28,15 +28,13 @@ function Controls(app, defaults, controls) {
 
 	function setupControl(control, tree) {
 		const { key, type } = control;
-		const label = labelFromKey(key);
-		console.log('label', label)
-		tree.add(new UILabel({ text: label }));
 		tree.add(new UIButton({
 			text: 'Reset',
 			callback: () => {
 				resetControl(key, tree);
 			}
 		}));
+
 		tree.addBreak();
 		if (type === 'range') addRange(control, tree);
 		if (type === 'list' && control.value) addList(control, tree);
@@ -45,15 +43,18 @@ function Controls(app, defaults, controls) {
 		tree.addBreak();
 	}
 
-	function resetControl(key, row, value) {
+	function resetControl(key, tree, value) {
 		const control = controls.filter(p => p.key === key)[0];
-		if (value === undefined) value = Array.isArray(originalDefaults[key]) ?
+		if (value === undefined) {
+			value = Array.isArray(originalDefaults[key]) ?
 			[...originalDefaults[key]] :
 			originalDefaults[key];
+		}
 		defaults[key] = value;
 		control.value = value;
-		row.clear();
-		setupControl(control, row);
+		if (!tree) tree = controlTrees[key];
+		tree.clear();
+		setupControl(control, tree);
 	}
 
 	function addChance(control, row, label) {
@@ -73,11 +74,11 @@ function Controls(app, defaults, controls) {
 		}));
 	}
 
-	function addNumber(control, row, label) {
+	function addNumber(control, tree, label) {
 		let { key, value, range, step, index } = control;
 
-		if (label) row.add(new UILabel({ text: label  }));
-		row.add(new UINumberStep({
+		if (label) tree.add(new UILabel({ text: label  }));
+		tree.add(new UINumberStep({
 			value: index !== undefined ? value[index] : value,
 			min: range[0],
 			max: range[1],
@@ -89,18 +90,18 @@ function Controls(app, defaults, controls) {
 		}));
 	}
 
-	function addRange(control, row, label) {
+	function addRange(control, tree, label) {
 		let { key, value, range, step } = control;
 
-		if (label) row.add(new UILabel({ text: label }));
-		addNumber({ ...control, index: 0 }, row, 'Min');
-		addNumber({ ...control, index: 1 }, row, 'Max');
+		if (label) tree.add(new UILabel({ text: label }));
+		addNumber({ ...control, index: 0 }, tree, 'Min');
+		addNumber({ ...control, index: 1 }, tree, 'Max');
 
 		if (value.length > 2) {
 			// some range chance is negative for Math.sign for update value
 			let r = range.length <= 2 ? [0, 1] : range.slice(2);
-		 	addChance({ ...control, range: r, index: 2 }, row, 'Min Update');
-			addChance({ ...control, range: r, index: 3 }, row, 'Max Update');
+		 	addChance({ ...control, range: r, index: 2 }, tree, 'Min Update');
+			addChance({ ...control, range: r, index: 3 }, tree, 'Max Update');
 		}
 	}
 
@@ -116,20 +117,20 @@ function Controls(app, defaults, controls) {
 	}
 
 	// loop section ...
-	function addLoops(control) {
+	function addLoops(control, tree) {
 		const counts = control.value;
 		const countLabel = new UILabel({ text: "Counts" });
-		startLoopsRow.append(countLabel);
+		tree.add(countLabel);
 		
 		const subtractCount = new UIButton({
 			text: '–',
 			class: 'left-end',
 			callback: () => {
 				defaults.startLoops.pop();
-				startLoopsRow.removeK('count' + defaults.startLoops.length);
+				tree.removeK('count' + defaults.startLoops.length);
 			}
 		});
-		startLoopsRow.append(subtractCount);
+		tree.add(subtractCount);
 
 		const addCount = new UIButton({
 			text: '+',
@@ -137,24 +138,25 @@ function Controls(app, defaults, controls) {
 			callback: () => {
 				const count = [{}];
 				defaults.startLoops.push(count);
-				addLoopCount(defaults.startLoops.length - 1, count);
+				addLoopCount(defaults.startLoops.length - 1, count, tree);
 			}
 		});
-		startLoopsRow.append(addCount);
+		tree.add(addCount);
 		
 		for (let i = 0; i < counts.length; i++) {
-			addLoopCount(i, counts[i]);
+			addLoopCount(i, counts[i], tree);
 		}
 	}
 
-	function addLoopCount(index, loops) {
+	function addLoopCount(index, loops, tree) {
 		const countRow = new UIRow({ class: 'break-line-up' });
-		startLoopsRow.append(countRow, 'count' + index);
+		tree.add(countRow, 'count' + index);
+		
 		const countLabel = new UILabel({ text: "Count " + index });
-		countRow.append(countLabel);
+		countRow.add(countLabel);
 
 		const loopLabel = new UILabel({ text: "Loops" });
-		countRow.append(loopLabel);
+		countRow.add(loopLabel);
 		
 		const subtractLoop = new UIButton({
 			text: '–',
@@ -164,7 +166,7 @@ function Controls(app, defaults, controls) {
 				countRow.removeK('loop' + defaults.startLoops[index].length);
 			}
 		});
-		countRow.append(subtractLoop);
+		countRow.add(subtractLoop);
 
 		const plusLoop = new UIButton({
 			text: '+',
@@ -174,7 +176,7 @@ function Controls(app, defaults, controls) {
 				addLoop(index, defaults.startLoops[index].length - 1, {}, countRow);
 			}
 		});
-		countRow.append(plusLoop);
+		countRow.add(plusLoop);
 
 		for (let i = 0; i < loops.length; i++) {
 			addLoop(index, i, loops[i], countRow);
@@ -190,7 +192,7 @@ function Controls(app, defaults, controls) {
 
 		const controlSelect = new UISelectButton({
 			options: Object.keys(defaultLoop),
-			class: 'break',
+			// class: 'break',
 			callback: value => {
 				addLoopControl(value, defaultLoop[value], countIndex, loopIndex, loopRow);
 			}
@@ -249,7 +251,7 @@ function Controls(app, defaults, controls) {
 		for (let i = 0; i < fxIndex; i++) {
 			const { key, panel } = controls[i];
 			if (key === 'loops') continue;
-			resetControl(key, app.ui.panels[panel]['row-' + key]);
+			resetControl(key);
 		}	
 	}
 
@@ -258,7 +260,7 @@ function Controls(app, defaults, controls) {
 		let fxIndex = controls.findIndex(c => c.key === 'fxLimit');
 		for (let i = fxIndex; i < controls.length; i++) {
 			const { key, panel } = controls[i];
-			resetControl(key, app.ui.panels[panel]['row-' + key]);
+			resetControl(key);
 		}
 	}
 
@@ -267,85 +269,34 @@ function Controls(app, defaults, controls) {
 		for (let i = fxIndex; i < controls.length; i++) {
 			const { key, panel } = controls[i];
 			if (!key.includes('Chance')) continue;
-			resetControl(key, app.ui.panels[panel]['row-' + key], 0);
+			resetControl(key, undefined, 0);
 		}
 	}
 
 	function load(data) {
-		// load local storage or comp data
-		// console.log('data', data)
 		if (data) {
+			for (const key in data) {
+				const value = data[key];
+				if (key === 'startLoops') continue;
+				else resetControl(key, undefined, data[key]);
+			}
+		} else {
+			let isFx = false; // once we get to fxLimit, put things in fx panel
 			for (let i = 0; i < controls.length; i++) {
-				const { key, type } = controls[i];
-				if (data[key] === undefined) continue;
-				defaults[key] = data[key];
-				switch(type) {
-					case 'list':
-						// if (key === 'durationStart') console.log(data[key], i, controls[i], )
-						// controls[i] = {};
-						// console.log(key, data[key])
-						// idk wtf was happening here
-						controls[i].value = data[key];
-						// for (const k in data[key]) {
-							// console.log(key, k, controls[i][k], data[key][k]);
-						// }
-					break;
-					case 'effect':
-						controls[i].chance = data[key + 'Chance'];
-						controls[i].delay = data[key + 'Delay'];
-					break;
-					default:
-						controls[i].value = data[key];
-					break;
-				}
+				const control = controls[i];
+				const { key, type } = control;
+				if (key === 'fxLimit') isFx = true;
+				const tree = new UITree({ title: labelFromKey(key) });
+				controlTrees[key] = tree;
+				if (isFx) fxPanel.append(tree);
+				else controlsPanel.append(tree);
+					
+				if (type === 'loops') addLoops(control, tree);
+				else setupControl(control, tree);
+			
 			}
 		}
 
-		// controlsPanel.addRow();
-		// const section = new UITree({
-		// 	title: 'Controls',
-		// });
-
-		// controlsPanel.add(section);
-		// // console.log(section);
-
-		for (let i = 0; i < controls.length; i++) {
-			const control = controls[i];
-			const { type, panel } = control;
-			if (!controlTrees[panel]) {
-				controlTrees[panel] = new UITree({ title: labelFromKey(panel) });
-				controlsPanel.append(controlTrees[panel]);
-			}
-				
-			if (type === 'loops') continue; // addLoops(control);
-			else setupControl(control, controlTrees[panel]);
-		}
-
-		// const panelData = localStorage.getItem('settings-doodoo') ?
-		// 	JSON.parse(localStorage.getItem('settings-doodoo')).panels : {};
-
-		// for (let i = 0; i < controls.length; i++) {
-		// 	const control = controls[i];
-		// 	let row;
-		// 	if (control.panel) {
-		// 		const panelName = control.panel;
-		// 		app.ui.getPanel(panelName, {
-		// 			label: labelFromKey(panelName) + ' Control'
-		// 		});
-		// 		row = app.ui.panels[panelName].addRow('row-' + control.key);
-		// 		row.addClass('break-line-up');
-				
-		// 		if (panelData[panelName]) {
-		// 			const { gridArea } = panelData[panelName];
-		// 			const panel = app.ui.panels[panelName];
-		// 			// console.log(panelName, panel);
-		// 			panel.setup(panelData[panelName]);
-		// 			app.ui.getLayout()[gridArea].panels.append(panel);
-		// 		}
-		// 	}
-		// 	if (control.type === 'loops') addLoops(control);
-		// 	else setupControl(control, row);
-		// }
 	}
 
 	function get() {
@@ -355,13 +306,18 @@ function Controls(app, defaults, controls) {
 	function connect() {
 
 		controlsPanel = app.ui.getPanel('controls');
+		fxPanel = app.ui.getPanel('Effects');
+
 		const loopsPanel = app.ui.getPanel('loops', { label: 'Start Loops' });
 
 		app.ui.addCallbacks([
 			{ callback: resetControls, text: 'Reset Controls' },
+		], controlsPanel);
+		
+		app.ui.addCallbacks([
 			{ callback: resetEffects, text: 'Reset Effects' },
 			{ callback: zeroEffects, text: 'Zero Effects' },
-		], controlsPanel);
+		], fxPanel);
 
 		startLoopsRow = loopsPanel.addRow('start-loops-row');
 	}

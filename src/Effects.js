@@ -72,8 +72,7 @@ function Effects(def) {
 			fx.push(reverb);
 		}
 
-		const filtered = shuffle(Object.keys(fxFuncs)
-			.filter(name => getEffectChance(name, totalPlays)))
+		const filtered = shuffle(Object.keys(fxFuncs).filter(name => getEffectChance(name, totalPlays)))
 			.slice(0, def.fxLimit)
 			.map(name => fxFuncs[name]());
 		

@@ -11,7 +11,7 @@ const comp = {
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	duration:  '4n',
 	bpm: 120,
-	voices: ['choir', 'toms']
+	voices: ['choir']
 }; // composition defaults
 
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control

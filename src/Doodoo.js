@@ -150,6 +150,7 @@ function Doodoo(params, callback) {
 				loops.push(part);
 			});
 		});
+		// console.log('loops', loops.length);
 
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {

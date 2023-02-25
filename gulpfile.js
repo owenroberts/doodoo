@@ -38,6 +38,15 @@ function jsTask(done, sourcePath, buildPath, useBrowserSync) {
 		.pipe(gulpif(useBrowserSync, browserSync.stream()));
 }
 
+function doodooTest() {
+	return src('./src/**/*.js')
+		.pipe(sourcemaps.init())
+		.pipe(iife({}))
+		.pipe(terser().on('error', logError))
+		.pipe(sourcemaps.write('./src_maps'))
+		.pipe(dest('./buildTest'))
+}
+
 function composerTask() {
 	return src('./composer/src/*.js')
 		.pipe(sourcemaps.init())
@@ -47,6 +56,15 @@ function composerTask() {
 		.pipe(sourcemaps.write('./src_maps'))
 		.pipe(dest('./build'))
 		.pipe(browserSync.stream());
+}
+
+function composerTest() {
+	return src('./composer/src/*.js')
+		.pipe(sourcemaps.init())
+		.pipe(iife({}))
+		.pipe(terser().on('error', logError))
+		.pipe(sourcemaps.write('./src_maps'))
+		.pipe(dest('./buildTest'))
 }
 
 function libTask() {
@@ -95,6 +113,9 @@ task('default', series('watch'));
 task('composer', composerTask);
 task('sass', () => { return sassTask('./composer/css/composer.scss', './composer/css'); });
 task('css', series('sass'));
+task('test', doodooTest);
+task('testComp', composerTest);
+
 if (ui) {
 	task('ui', series(function exporter() { 
 		return ui.exportTask(true);

@@ -4,7 +4,7 @@
 
 function Part(melody, def, defaultDuration, debug) {
 
-	let mutations = 0;
+	let mutationCount = 0;
 
 	const loopNums = new ValueRange(...def.loopNums);
 	const harmonies = new ValueList(def.harmonyStart, def.harmonyAdd, def.harmonyUpdateChance);
@@ -39,11 +39,11 @@ function Part(melody, def, defaultDuration, debug) {
 	function mutate() {
 		
 		loopNums.update();
-		harmonies.update();
-		startIndexes.update();
-		indexStep.update();
-		durations.update();
-		startDelays.update();
+		// harmonies.update();
+		// startIndexes.update();
+		// indexStep.update();
+		// durations.update();
+		// startDelays.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
@@ -55,8 +55,8 @@ function Part(melody, def, defaultDuration, debug) {
 			melody.shift();
 		}
 
-		mutations++;
-		if (debug) console.log(`${mutations} mutations`);
+		mutationCount++;
+		if (debug) console.log(`${mutationCount} mutations`);
 	}
 
 	function getTestLoops() {
@@ -89,14 +89,16 @@ function Part(melody, def, defaultDuration, debug) {
 	}
 
 	function getLoops() {
-		if (startLoops[mutations]) {
-			return startLoops[mutations];
+		if (startLoops[mutationCount]) {
+			return startLoops[mutationCount];
 		}
 
 		const loops = [];
 		const loopNum = loopNums.getRandInt();
 		let startIndex = startIndexes.getRandInt();
 		let startDelay = 0; // first loop no delay
+
+		console.log('loops', loopNum, loopNums.getRange());
 
 		for (let i = 0; i < loopNum; i++) {
 			
@@ -107,7 +109,7 @@ function Part(melody, def, defaultDuration, debug) {
 				counter: duration < 4 ? duration / 4 : 1,
 				doubler: (duration > 4 && duration < 32) ? chance(def.doublerChance) : false,
 				doublerCounter: duration > 4 ? chance(def.doublerCounterChance) : false,
-				repeat: duration > 9 ? random(...def.repeat) : 1,
+				repeat: duration > 9 ? random([...def.repeat]) : 1,
 				startIndex: startIndex,
 				startDelay: startDelay,
 				melody: melody,
@@ -127,7 +129,7 @@ function Part(melody, def, defaultDuration, debug) {
 
 	function update() {
 		mutate();
-		return mutations;
+		return mutationCount;
 	}
 
 	return { update, getLoops, getTestLoops };

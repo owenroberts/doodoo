@@ -300,8 +300,8 @@ function Composition(app, defaults) {
 		if (data.duration) app.ui.faces.duration.update(data.duration);
 
 		if (data.voices) {
-			let voices = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
-			voices.forEach(voice => { addVoice(voice) });
+			let v = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
+			v.forEach(voice => { addVoice(voice) });
 		} else {
 			defaults.voices.forEach(voice => { addVoice(voice) });
 		}
