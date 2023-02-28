@@ -59,20 +59,21 @@ function Effects(def) {
 		},
 	};
 
-	function getEffectChance(name, totalPlays) {
-		return chance(def[name + 'Chance']) && totalPlays >= def[name + 'Delay'];
+	function getEffectChance(name, totalPlays, kickIn) {
+		return chance(def[name + 'Chance']) && totalPlays >= kickIn;
 	}
 
 	function get(totalPlays, voiceName) {
 
 		// reverb separate for now ...
 		let fx = [];
-		if (getEffectChance('reverb', totalPlays)) {
+		if (getEffectChance('reverb', totalPlays, 0)) {
 			const reverb = new Tone.Reverb({ decay: voiceName === 'toms' ? 0.5 : def.reverbDecay });
 			fx.push(reverb);
 		}
 
-		const filtered = shuffle(Object.keys(fxFuncs).filter(name => getEffectChance(name, totalPlays)))
+		let filtered = Object.keys(fxFuncs).filter(name => getEffectChance(name, totalPlays, def.fxKickIn));
+		filtered = shuffle(filtered)
 			.slice(0, def.fxLimit)
 			.map(name => fxFuncs[name]());
 		

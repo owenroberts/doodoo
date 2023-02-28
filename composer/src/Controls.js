@@ -2,6 +2,7 @@
 	manage the many many doodoo controls
 */
 function Controls(app, defaults, controls) {
+	console.log(defaults, controls);
 	
 	let startLoopsRow, controlsPanel, fxPanel, controlTrees = {};
 	let originalDefaults = JSON.parse(JSON.stringify(defaults));

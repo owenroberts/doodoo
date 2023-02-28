@@ -168,16 +168,18 @@ let controls = [
 		"value": 1,
 		"range": [0, 16],
 	},
+	
+	// delay all fx except reverb
+	{
+		"key": "fxKickIn",
+		"type": "number",
+		"value": 8,
+		"range": [0, 64],
+	},
 	{
 		"key": "reverbChance",
 		"type": "chance",
 		"value": 1,
-	},
-	{
-		"key": "reverbDelay",
-		"type": "number",
-		"value": 0,
-		"range": [0, 16],
 	},
 	{
 		"key": "reverbDecay",
@@ -192,12 +194,6 @@ let controls = [
 		"value": 0.25,
 	},
 	{
-		"key": "distortionDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
-	},
-	{
 		"key": "distortion",
 		"type": "range",
 		"value": [0.05, 0.2],
@@ -210,12 +206,6 @@ let controls = [
 		"value": 0.25,
 	},
 	{
-		"key": "bitCrushDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
-	},
-	{
 		"key": "bitCrushBits",
 		"type": "list",
 		"value": [3, 4, 6, 8, 12, 16],
@@ -224,12 +214,6 @@ let controls = [
 		"key": "autoFilterChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "autoFilterDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "autoFilterFrequency",
@@ -242,12 +226,6 @@ let controls = [
 		"value": 0.25,
 	},
 	{
-		"key": "autoPannerDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
-	},
-	{
 		"key": "autoPannerFrequency",
 		"type": "list",
 		"value": ['2n', '4n', '8n', '16n', '32n'],
@@ -256,12 +234,6 @@ let controls = [
 		"key": "chebyChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "chebyDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "chebyOrder",
@@ -273,12 +245,6 @@ let controls = [
 		"key": "chorusChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "chorusDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "chorusFrequency",
@@ -305,12 +271,6 @@ let controls = [
 		"value": 0.25,
 	},
 	{
-		"key": "feedbackDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
-	},
-	{
 		"key": "feedbackDelayTime",
 		"type": "list",
 		"value": ['8n', '4n', '16n', '32n'],
@@ -326,12 +286,6 @@ let controls = [
 		"key": "phaserChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "phaserDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "phaserFrequency",
@@ -357,12 +311,6 @@ let controls = [
 		"value": 0.25,
 	},
 	{
-		"key": "pingPongDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
-	},
-	{
 		"key": "pingPongDelayTime",
 		"type": "list",
 		"value": ['1n', '2n', '4n', '8n', '16n', '32n', '2t', '4t', '8t', '16t', '32t'],
@@ -378,12 +326,6 @@ let controls = [
 		"key": "tremoloChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "tremoloDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "tremoloFrequency",
@@ -403,12 +345,6 @@ let controls = [
 		"key": "vibratoChance",
 		"type": "chance",
 		"value": 0.25,
-	},
-	{
-		"key": "vibratoDelay",
-		"type": "number",
-		"value": 8,
-		"range": [0, 16],
 	},
 	{
 		"key": "vibratoFrequency",
