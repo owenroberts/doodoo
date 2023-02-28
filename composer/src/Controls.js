@@ -2,7 +2,7 @@
 	manage the many many doodoo controls
 */
 function Controls(app, defaults, controls) {
-	console.log(defaults, controls);
+	// console.log(defaults, controls);
 	
 	let startLoopsRow, controlsPanel, fxPanel, controlTrees = {};
 	let originalDefaults = JSON.parse(JSON.stringify(defaults));
@@ -46,6 +46,7 @@ function Controls(app, defaults, controls) {
 
 	function resetControl(key, tree, value) {
 		const control = controls.filter(p => p.key === key)[0];
+		if (!control) return; // bug fix for now
 		if (value === undefined) {
 			value = Array.isArray(originalDefaults[key]) ?
 			[...originalDefaults[key]] :
@@ -81,8 +82,8 @@ function Controls(app, defaults, controls) {
 		if (label) tree.add(new UILabel({ text: label  }));
 		tree.add(new UINumberStep({
 			value: index !== undefined ? value[index] : value,
-			min: range[0],
-			max: range[1],
+			min: range ? range[0] : 0,
+			max: range ? range[1] : 100,
 			step: control.step || 1, // default is whole num
 			callback: value => {
 				if (index !== undefined) defaults[key][index] = value;

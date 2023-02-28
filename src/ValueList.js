@@ -4,18 +4,15 @@
 	return randoms
 */
 
-function ValueList(startList, addList, updateChance) {
+function ValueList(list, index, updateChance) {
 	if (updateChance === undefined) updateChance = 0.5;
-	let values = [...startList];
 	
 	return {
 		update: () => {
-			if (addList.length === 0) return;
-			if (chance(updateChance)) {
-				values.push(addList.pop());
-			}
+			if (index === list.length) return;
+			if (chance(updateChance)) index++;
 		},
-		add: value => { values.push(value); },
-		getRandom: () => { return random(values) },
+		getRandom: () => { return random(list.slice(0, index)) },
+		get: () => { return list; }
 	}
 }

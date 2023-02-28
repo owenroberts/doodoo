@@ -7,7 +7,7 @@ function Part(melody, def, defaultDuration, debug) {
 	let mutationCount = 0;
 
 	const loopNums = new ValueRange(...def.loopNums);
-	const harmonies = new ValueList(def.harmonyStart, def.harmonyAdd, def.harmonyUpdateChance);
+	const harmonyList = new ValueList(def.harmonyList, def.harmonyIndex, def.harmonyUpdateChance);
 
 	const startIndexes = new ValueRange(...def.startIndexes);
 	const indexStep = new ValueRange(...def.indexStep);
@@ -38,8 +38,8 @@ function Part(melody, def, defaultDuration, debug) {
 
 	function mutate() {
 		
-		loopNums.update();
-		// harmonies.update();
+		// loopNums.update();
+		harmonyList.update();
 		// startIndexes.update();
 		// indexStep.update();
 		// durations.update();
@@ -98,7 +98,7 @@ function Part(melody, def, defaultDuration, debug) {
 		let startIndex = startIndexes.getRandInt();
 		let startDelay = 0; // first loop no delay
 
-		console.log('loops', loopNum, loopNums.getRange());
+		// console.log('loops', loopNum, loopNums.getRange());
 
 		for (let i = 0; i < loopNum; i++) {
 			
@@ -113,7 +113,8 @@ function Part(melody, def, defaultDuration, debug) {
 				startIndex: startIndex,
 				startDelay: startDelay,
 				melody: melody,
-				harmony: chance(def.harmonyChance) ? harmonies.getRandom() : 0,
+				harmony: chance(def.harmonyChance) ? 
+					harmonyList.getRandom() : 0,
 			});
 
 			// is this right? -- startIndex can't be negative

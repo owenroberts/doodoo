@@ -53,18 +53,12 @@ let controls = [
 	{
 		"key": "harmonyList",
 		"type": "list",
-		"value": [4, 5],
+		"value": [4, 5, 2, 3, 6, 7],
 	},
 	{
-		"key": "harmonyStart",
-		"type": "list",
-		"value": [4, 5],
-	},
-	{
-		"key": "harmonyAdd",
-		"type": "list",
-		"value": [2, 3, 6, 7],
-		"shuffle": true,
+		"key": "harmonyIndex",
+		"type": "number",
+		"value": 2,
 	},
 	{
 		"key": "harmonyUpdateChance",
@@ -168,7 +162,7 @@ let controls = [
 		"value": 1,
 		"range": [0, 16],
 	},
-	
+
 	// delay all fx except reverb
 	{
 		"key": "fxKickIn",

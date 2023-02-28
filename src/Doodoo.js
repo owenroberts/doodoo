@@ -148,6 +148,7 @@ function Doodoo(params, callback) {
 					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
+				console.log(params.harmony);
 			});
 		});
 		// console.log('loops', loops.length);
