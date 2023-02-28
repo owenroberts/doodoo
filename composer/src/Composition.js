@@ -264,9 +264,12 @@ function Composition(app, defaults) {
 	}
 
 	function updateDisplay() {
+
+		// get number of parts and width of comp area
 		const n = parts.length;
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
 
+		// get smallest note
 		const durations = partRows.length > 1 ?
 			parts.flatMap(p => { return p.map(n => n[1]) }) : 
 			parts.flatMap(p => p[1]);
@@ -274,12 +277,13 @@ function Composition(app, defaults) {
 		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
 		if (noteDivision < 0) noteDivision = '4n';
 
+		// start with 4 notes per line, add 4 more if it can handle four more (make it 2?)
 		let npl = 4;
-		while (w / npl > noteWidth) {
+		while (w / (npl + 4) > noteWidth) {
 			npl += 4;
 		}
 
-		app.ui.panels.melody.setProp('--column-width', Math.floor(w / npl));
+		app.ui.panels.melody.setProp('--column-width', Math.floor((w - 3*npl ) / npl));
 		app.ui.panels.melody.setProp('--notes-per-row', npl);
 		app.ui.panels.melody.setProp('--default-duration', noteDivision);
 	}
@@ -462,6 +466,7 @@ function Composition(app, defaults) {
 				label: 'Scale',
 				callback: value => {
 					melodyPanel.setProp('--ui-scale', value);
+					updateDisplay();
 				},
 				reset: true,
 			},
