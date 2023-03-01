@@ -6,6 +6,7 @@ function Part(melody, def, defaultDuration, debug) {
 	console.log(melody);
 
 	let mutationCount = 0;
+	const dd = +defaultDuration.slice(0, -1); // default duration number for math
 
 	const attackStart = new ValueRange(...def.attackStart); // note attack velocity
 	const restChance = new ValueRange(...def.restChance);
@@ -24,13 +25,13 @@ function Part(melody, def, defaultDuration, debug) {
 		noteDuration: 4,
 		count: 0,
 		counter: 1,
-		doubler: false,
-		doublerCounter: false,
 		repeat: 1,
 		startIndex: 0,
 		startDelay: 0,
 		harmony: 0,
 		melody: melody,
+		countEnd: melody.length - 1,
+		beatCount: 1,
 		attack: 0.5,
 		restChance: 0,
 	};
@@ -67,40 +68,7 @@ function Part(melody, def, defaultDuration, debug) {
 		if (debug) console.log(`${mutationCount} mutations`);
 	}
 
-	function getTestLoops() {
-		return [
-			{
-				noteDuration: 4,
-				count: 0,
-				counter: 1,
-				doubler: false,
-				doublerCounter: false,
-				repeat: 1,
-				startIndex: 0,
-				startDelay: 0,
-				melody: melody,
-				harmony: 0,
-				attack: 0.5,
-				restChance: 0,
-			},
-			{
-				noteDuration: 4,
-				count: 0,
-				counter: 1,
-				doubler: false,
-				doublerCounter: false,
-				repeat: 1,
-				startIndex: 0,
-				startDelay: 0,
-				melody: melody,
-				harmony: 4,
-				attack: 0.5,
-				restChance: 0,
-			}
-		];
-	}
-
-	function getLoops() {
+	function getLoops(tonic, transform) {
 		if (startLoops[mutationCount]) {
 			return startLoops[mutationCount];
 		}
@@ -114,15 +82,32 @@ function Part(melody, def, defaultDuration, debug) {
 
 		for (let i = 0; i < loopNum; i++) {
 			
-			let duration = durationList.getRandom();
+			const duration = durationList.getRandom();
+			let mel = melody.flatMap(beat => {
+				const [n, d] = beat; // note, duration
+				let b = dd / duration;
+				// n. ... 
+				let a = [[n, duration + 'n']];
+				for (let i = 1; i < b; i++) {
+					a.push([null, dd + 'n']);
+				}
+				return a;
+			});
+
+			mel = getMelody(mel, tonic, transform);
+
+
+			const repeat = duration > 9 ? random([...def.repeat]) : 1;
+
 			loops.push({
 				noteDuration: duration,
 				count: 0,
-				doubler: duration < 32 ? chance(def.doublerChance) : false,
-				repeat: duration > 9 ? random([...def.repeat]) : 1,
+				beatCount: duration < 32 && chance(def.doublerChance) ? 2 : 1,
+				countEnd: (mel.length - 1) * repeat + startDelay,
+				repeat: repeat,
 				startIndex: startIndex,
 				startDelay: startDelay,
-				melody: melody,
+				melody: mel,
 				harmony: chance(harmonyChance.get()) ? 
 					harmonyList.getRandom() : 0,
 				attack: attackStart.getRandom(),
@@ -145,5 +130,5 @@ function Part(melody, def, defaultDuration, debug) {
 		return mutationCount;
 	}
 
-	return { update, getLoops, getTestLoops };
+	return { update, getLoops };
 }

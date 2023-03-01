@@ -130,7 +130,7 @@ function Score(app) {
 		let noteDuration = loops.length === 0 ? 4 :
 			Math.max(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
 		let noteDiff = noteDuration / 4;
-		let compDuration = Math.max(...loops.map(loop => loop.len));
+		let compDuration = Math.max(...loops.map(loop => loop.melody.length));
 		let numMeasures = Math.ceil(compDuration / noteDuration);
 
 		let incidentals = loops

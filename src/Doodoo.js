@@ -144,28 +144,6 @@ function Doodoo(params, callback) {
 				loops.push(part);
 			});
 		});
-		// console.log('loops', loops.length);
-
-		/* play notes on default beat ...*/
-		loops.forEach(loop => {
-			let n = [];
-			loop.melody.forEach(beat => {
-				const [note, duration] = beat;
-				if (!duration) duration = defaultDuration;
-				let d = +duration.slice(0, -1);
-				let beats = +defaultDuration.slice(0, -1) / d;
-				if (duration.includes('.')) beats *= 1.5;
-				n.push(beat);
-				for (let i = 1; i < beats; i++) {
-					n.push([null, defaultDuration]);
-				}
-			});
-
-			loop.melody = n;
-			loop.beatCount = loop.doubler ? 2 : 1;
-			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
-			loop.len = loop.melody.length;
-		});
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
@@ -201,7 +179,7 @@ function Doodoo(params, callback) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
 				if (chance(loop.restChance)) continue;
-				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.len];
+				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.melody.length];
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
