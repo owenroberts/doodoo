@@ -142,6 +142,7 @@ function Doodoo(params, callback) {
 					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
+				console.log(params.harmony, part);
 			});
 		});
 		// console.log('loops', loops.length);
@@ -149,7 +150,6 @@ function Doodoo(params, callback) {
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
 			let n = [];
-			console.log('note duration', loop.noteDuration);
 			loop.melody.forEach(beat => {
 				const [note, duration] = beat;
 				// if (!duration) duration = loop.noteDuration;
@@ -165,7 +165,6 @@ function Doodoo(params, callback) {
 			loop.beatCount = loop.doubler ? 2 : 1;
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
-			console.log('loop', loop);
 		});
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));

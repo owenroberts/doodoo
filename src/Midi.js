@@ -52,14 +52,15 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 			const midiNote = MIDI_NOTES.indexOf(note);
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
 			const midiTransform = MIDI_NOTES.indexOf(transform);
-			const tonicDelta = midiTonic - midiTransform;
+			const tonicDelta = midiTonic - midiTransform; // change in key
+			const octave = (Math.floor(midiNote / 12) - Math.floor(midiTonic) / 12) * 12; // differences in octaves (C4 comes before B4)
 
-			const diff = midiNote - midiTonic;
+			const diff = midiNote - midiTonic; // difference between note and tonic
 			const scaleIndex = diff < 0 ?
 				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 				scale.indexOf(diff % 12); // above tonic
 
-			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length];
+			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length]; // harmony in scale
 
 			if (scaleIndex === -1) {
 				// console.log('not in scale')
@@ -67,8 +68,8 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 				midiHarmony = 0;
 			}
 
-			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff);
-			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta;
+			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff); // 1+ octave above or below
+			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta + octave;
 			return [MIDI_NOTES[returnMidi], duration];
 		}
 	});

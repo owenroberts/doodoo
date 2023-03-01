@@ -6,7 +6,7 @@ function FilesIO(app) {
 
 	function load(data) {
 		app.composition.load(data);
-		app.controls.load(data.controls);
+		if (data.controls) app.controls.load(data.controls);
 	}
 
 	function saveLocal(composition, controls) {
