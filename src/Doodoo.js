@@ -162,7 +162,7 @@ function Doodoo(params, callback) {
 			});
 
 			loop.melody = n;
-			loop.beatCount = loop.doubler ? 2 : 0;
+			loop.beatCount = loop.doubler ? 2 : 1;
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
 			console.log('loop', loop);
@@ -207,14 +207,12 @@ function Doodoo(params, callback) {
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
-					let t = j ? Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds() * j : 0; 
+					let t = j * Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds();
 					loop.voice.triggerAttackRelease(note, duration, time + t, attack);
 				}
 			}
-			if (loop.count < loop.startDelay) {
-				loop.count += 1; // loop.counter;
-			}
 			
+			loop.count += 1; // loop.counter;
 			attack += attackStep.getRandom();
 			attack = clamp(attack, 0.1, 1);
 		}
