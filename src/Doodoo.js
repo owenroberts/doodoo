@@ -221,23 +221,26 @@ function Doodoo(params, callback) {
 	}
 
 	function getVoice(voice) {
-		if (voice.includes('Synth')) return getSynth();
-		else return getSampler(voice);
+		const v = voice.includes('Synth') ?
+			getSynth() :
+			getSampler(voice);
+		
+		if (withRecording) v.chain(Tone.Destination, recorder);
+		else v.toDestination();
+
+		effects.get(totalPlays).forEach(f => {
+			if (withRecording) f.chain(Tone.Destination, recorder);
+			else f.toDestination();
+			v.connect(f);
+		});
+
+		return v;
 	}
 
 	function getSynth() {
 		const fmSynth = new Tone.FMSynth({ 
 			volume: params.volume || 0,
 			// attack: 1,
-		});
-		
-		if (withRecording) fmSynth.chain(Tone.Destination, recorder)
-		else fmSynth.toDestination();
-
-		effects.get(totalPlays).forEach(f => {
-			if (withRecording) f.chain(Tone.Destination, recorder);
-			else f.toDestination();
-			fmSynth.connect(f);
 		});
 		return fmSynth;
 	}
@@ -251,16 +254,6 @@ function Doodoo(params, callback) {
 			// attack: 0.1,
 			// curve: 'linear'
 		});
-		
-		if (withRecording) sampler.chain(Tone.Destination, recorder)
-		else sampler.toDestination();
-
-		effects.get(totalPlays, voice).forEach(f => {
-			if (withRecording) f.chain(Tone.Destination, recorder);
-			else f.toDestination();
-			sampler.connect(f);
-		});
-		
 		return sampler;
 	}
 
