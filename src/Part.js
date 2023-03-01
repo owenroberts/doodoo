@@ -3,6 +3,7 @@
 */
 
 function Part(melody, def, defaultDuration, debug) {
+	console.log(melody);
 
 	let mutationCount = 0;
 
@@ -117,7 +118,7 @@ function Part(melody, def, defaultDuration, debug) {
 			loops.push({
 				noteDuration: duration,
 				count: 0,
-				counter: duration < 4 ? duration / 4 : 1,
+				counter: duration < 4 ? duration / 4 : 1, // how much we count by (useless with new system)
 				doubler: (duration > 4 && duration < 32) ? chance(def.doublerChance) : false,
 				doublerCounter: duration > 4 ? chance(def.doublerCounterChance) : false,
 				repeat: duration > 9 ? random([...def.repeat]) : 1,
@@ -129,7 +130,6 @@ function Part(melody, def, defaultDuration, debug) {
 				attack: attackStart.getRandom(),
 				restChance: restChance.getRandom(),
 			});
-			console.log(harmonyChance.get());
 
 			// is this right? -- startIndex can't be negative
 			startIndex = Math.max(0, random([

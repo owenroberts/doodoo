@@ -134,7 +134,7 @@ function Doodoo(params, callback) {
 		let currentParts = simultaneous ? parts : [parts[currentPart]];
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
-				console.log('harm', params.harmony)
+				console.log('params', params.noteDuration, params.count, params);
 				const part = {
 					...params,
 					melody: params.harmony === 0 ? 
@@ -159,11 +159,17 @@ function Doodoo(params, callback) {
 					n.push([null, defaultDuration]);
 				}
 			});
+
+			console.log('n', n);
 			loop.melody = n;
 			loop.countNum = loop.doubler ? (loop.counter * loop.noteDuration) / 4 : 1;
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
+			// console.log('loop', loop);
+			console.log(loop.len, loop.countNum, loop.countEnd)
 		});
+
+
 
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
