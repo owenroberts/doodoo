@@ -134,7 +134,6 @@ function Doodoo(params, callback) {
 		let currentParts = simultaneous ? parts : [parts[currentPart]];
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
-				console.log('params', params.noteDuration, params.count, params);
 				const part = {
 					...params,
 					melody: params.harmony === 0 ? 
@@ -150,8 +149,10 @@ function Doodoo(params, callback) {
 		/* play notes on default beat ...*/
 		loops.forEach(loop => {
 			let n = [];
+			console.log('note duration', loop.noteDuration);
 			loop.melody.forEach(beat => {
 				const [note, duration] = beat;
+				// if (!duration) duration = loop.noteDuration;
 				let beats = +defaultDuration.slice(0, -1) / +duration.slice(0, -1);
 				if (duration.includes('.')) beats *= 1.5;
 				n.push(beat);
@@ -160,17 +161,12 @@ function Doodoo(params, callback) {
 				}
 			});
 
-			console.log('n', n);
 			loop.melody = n;
-			loop.countNum = loop.doubler ? (loop.counter * loop.noteDuration) / 4 : 1;
+			loop.beatCount = loop.doubler ? 2 : 0;
 			loop.countEnd = (loop.melody.length - 1) * loop.repeat + loop.startDelay;
 			loop.len = loop.melody.length;
-			// console.log('loop', loop);
-			console.log(loop.len, loop.countNum, loop.countEnd)
+			console.log('loop', loop);
 		});
-
-
-
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
@@ -203,7 +199,7 @@ function Doodoo(params, callback) {
 			let attack = loop.attack;
 			const attackStep = new ValueRange(...def.attackStep);
 			if (loop.count > loop.countEnd) continue;
-			for (let j = 0; j < loop.countNum; j++) {
+			for (let j = 0; j < loop.beatCount; j++) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
 				if (chance(loop.restChance)) continue;
@@ -211,12 +207,13 @@ function Doodoo(params, callback) {
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
-					let t = j ? Tone.Time(`${loop.noteDuration}n`).toSeconds() * j : 0; 
+					let t = j ? Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds() * j : 0; 
 					loop.voice.triggerAttackRelease(note, duration, time + t, attack);
 				}
-				if (loop.doublerCounter) loop.count += loop.counter;
 			}
-			if (!loop.doublerCounter || loop.count < loop.startDelay) loop.count += loop.counter;
+			if (loop.count < loop.startDelay) {
+				loop.count += 1; // loop.counter;
+			}
 			
 			attack += attackStep.getRandom();
 			attack = clamp(attack, 0.1, 1);

@@ -294,7 +294,11 @@ function Controls(app, defaults, controls) {
 		if (data) {
 			for (const key in data) {
 				const value = data[key];
-				if (key === 'startLoops') continue;
+				if (key === 'startLoops') {
+					controlTrees['startLoops'].clear();
+					defaults.startLoops = data[key];
+					addLoops({ value: data[key] }, controlTrees['startLoops']);
+				}
 				else resetControl(key, undefined, data[key]);
 			}
 		} else {

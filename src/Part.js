@@ -21,7 +21,7 @@ function Part(melody, def, defaultDuration, debug) {
 	const startDelayList = new ValueList(def.startDelayList, def.startDelayIndex, def.startDelayChance);
 
 	const defaultLoop = {
-		noteDuration: defaultDuration,
+		noteDuration: 4,
 		count: 0,
 		counter: 1,
 		doubler: false,
@@ -118,9 +118,8 @@ function Part(melody, def, defaultDuration, debug) {
 			loops.push({
 				noteDuration: duration,
 				count: 0,
-				counter: duration < 4 ? duration / 4 : 1, // how much we count by (useless with new system)
-				doubler: (duration > 4 && duration < 32) ? chance(def.doublerChance) : false,
-				doublerCounter: duration > 4 ? chance(def.doublerCounterChance) : false,
+				// counter: duration < 4 ? duration / 4 : 1, // how much we count by (useless with new system)
+				doubler: duration < 32 ? chance(def.doublerChance) : false,
 				repeat: duration > 9 ? random([...def.repeat]) : 1,
 				startIndex: startIndex,
 				startDelay: startDelay,

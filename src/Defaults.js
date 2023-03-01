@@ -137,11 +137,6 @@ let controls = [
 		"value": 0.5,
 	},
 	{
-		"key": "doublerCounterChance",
-		"type": "chance",
-		"value": 0.4,
-	},
-	{
 		"key": "repeat",
 		"type": "list",
 		"value": [2, 3, 4],
