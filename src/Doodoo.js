@@ -142,7 +142,6 @@ function Doodoo(params, callback) {
 					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
-				console.log(params.harmony, part);
 			});
 		});
 		// console.log('loops', loops.length);
@@ -152,8 +151,9 @@ function Doodoo(params, callback) {
 			let n = [];
 			loop.melody.forEach(beat => {
 				const [note, duration] = beat;
-				// if (!duration) duration = loop.noteDuration;
-				let beats = +defaultDuration.slice(0, -1) / +duration.slice(0, -1);
+				if (!duration) duration = defaultDuration;
+				let d = +duration.slice(0, -1);
+				let beats = +defaultDuration.slice(0, -1) / d;
 				if (duration.includes('.')) beats *= 1.5;
 				n.push(beat);
 				for (let i = 1; i < beats; i++) {
@@ -172,7 +172,6 @@ function Doodoo(params, callback) {
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 		
-
 		if (!simultaneous) {
 			currentPart++;
 			if (currentPart >= parts.length) currentPart = 0;
