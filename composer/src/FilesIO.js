@@ -11,6 +11,10 @@ function FilesIO(app) {
 
 	function saveLocal(composition, controls) {
 		if (!composition) composition = app.composition.get();
+		if (composition.parts.length === 0) {
+			let continueSave = confirm('No melody, continue save?');
+			if (!continueSave) return;
+		}
 		if (!controls) controls = app.controls.get();
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));
