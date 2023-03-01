@@ -74,11 +74,6 @@ function Doodoo(params, callback) {
 	let totalPlays = 0;
 	let simultaneous = params.simultaneous || false;
 
-	// attack velocity -- only (?) global params -- this is not asdr, it's just velocity
-	const attackStart = new ValueRange(...def.attackStart);
-	const attackStep = new ValueRange(...def.attackStep);
-	const restChance = new ValueRange(...def.restChance);
-
 	let toneLoop;
 	let loops = [];
 	let currentCountTotal = 0;
@@ -103,7 +98,6 @@ function Doodoo(params, callback) {
 	let samplesLoaded = false;
 	let playOnStart = false; // if trying to play before loaded
 	if (autoLoad) loadTone();
-
 
 	function start() {
 		if (callback) callback();
@@ -148,7 +142,6 @@ function Doodoo(params, callback) {
 					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
-				console.log(params.harmony);
 			});
 		});
 		// console.log('loops', loops.length);
@@ -197,14 +190,16 @@ function Doodoo(params, callback) {
 
 	function loop(time) {
 		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);	
-		let attack = attackStart.getRandom();
+		// let attack = attackStart.getRandom();
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
+			let attack = loop.attack;
+			const attackStep = new ValueRange(...def.attackStep);
 			if (loop.count > loop.countEnd) continue;
 			for (let j = 0; j < loop.countNum; j++) {
 				if (loop.count < loop.startDelay) continue;
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
-				if (chance(restChance.getRandom())) continue;
+				if (chance(loop.restChance)) continue;
 				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.len];
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
@@ -215,10 +210,11 @@ function Doodoo(params, callback) {
 				if (loop.doublerCounter) loop.count += loop.counter;
 			}
 			if (!loop.doublerCounter || loop.count < loop.startDelay) loop.count += loop.counter;
+			
+			attack += attackStep.getRandom();
+			attack = clamp(attack, 0.1, 1);
 		}
 
-		attack += attackStep.getRandom();
-		attack = clamp(attack, 0.1, 1);
 
 		currentCount++;
 		if (currentCount === currentCountTotal) playTheme();

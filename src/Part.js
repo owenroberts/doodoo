@@ -6,6 +6,8 @@ function Part(melody, def, defaultDuration, debug) {
 
 	let mutationCount = 0;
 
+	const attackStart = new ValueRange(...def.attackStart); // note attack velocity
+	const restChance = new ValueRange(...def.restChance);
 	const loopNums = new ValueRange(...def.loopNums);
 	const harmonyList = new ValueList(def.harmonyList, def.harmonyIndex, def.harmonyUpdateChance);
 
@@ -13,9 +15,9 @@ function Part(melody, def, defaultDuration, debug) {
 	const indexStep = new ValueRange(...def.indexStep);
 
 	// duration of loop, whole note, half note etc.
-	const durations = new ValueList(def.durationStart, def.durationAdd, def.durationsChance); 
+	const durationList = new ValueList(def.durationList, def.durationIndex, def.durationChance); 
 
-	const startDelays = new ValueList(def.startDelaysStart, def.startDelaysAdd, def.startDelaysChance);
+	const startDelayList = new ValueList(def.startDelayList, def.startDelayIndex, def.startDelayChance);
 
 	const defaultLoop = {
 		noteDuration: defaultDuration,
@@ -27,7 +29,9 @@ function Part(melody, def, defaultDuration, debug) {
 		startIndex: 0,
 		startDelay: 0,
 		harmony: 0,
-		melody: melody
+		melody: melody,
+		attack: 0.5,
+		restChance: 0,
 	};
 	
 	const startLoops = def.startLoops.map(count => {
@@ -38,12 +42,12 @@ function Part(melody, def, defaultDuration, debug) {
 
 	function mutate() {
 		
-		// loopNums.update();
+		loopNums.update();
 		harmonyList.update();
-		// startIndexes.update();
-		// indexStep.update();
-		// durations.update();
-		// startDelays.update();
+		startIndexes.update();
+		indexStep.update();
+		durationList.update();
+		startDelayList.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
@@ -72,6 +76,8 @@ function Part(melody, def, defaultDuration, debug) {
 				startDelay: 0,
 				melody: melody,
 				harmony: 0,
+				attack: 0.5,
+				restChance: 0,
 			},
 			{
 				noteDuration: 4,
@@ -84,6 +90,8 @@ function Part(melody, def, defaultDuration, debug) {
 				startDelay: 0,
 				melody: melody,
 				harmony: 4,
+				attack: 0.5,
+				restChance: 0,
 			}
 		];
 	}
@@ -102,7 +110,7 @@ function Part(melody, def, defaultDuration, debug) {
 
 		for (let i = 0; i < loopNum; i++) {
 			
-			let duration = durations.getRandom();
+			let duration = durationList.getRandom();
 			loops.push({
 				noteDuration: duration,
 				count: 0,
@@ -115,6 +123,8 @@ function Part(melody, def, defaultDuration, debug) {
 				melody: melody,
 				harmony: chance(def.harmonyChance) ? 
 					harmonyList.getRandom() : 0,
+				attack: attackStart.getRandom(),
+				restChance: restChance.getRandom(),
 			});
 
 			// is this right? -- startIndex can't be negative
@@ -123,7 +133,7 @@ function Part(melody, def, defaultDuration, debug) {
 				startIndex + indexStep.getMin(), 
 				startIndex + indexStep.getMax(),
 			]));
-			startDelay = startDelays.getRandom();
+			startDelay = startDelayList.getRandom();
 		}
 		return loops;
 	}

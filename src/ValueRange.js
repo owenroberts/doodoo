@@ -4,7 +4,6 @@
 */
 
 function ValueRange(min, max, ch1, ch2) {
-	console.log(min, max, ch1, ch2);
 
 	function update() {
 		
@@ -12,7 +11,7 @@ function ValueRange(min, max, ch1, ch2) {
 			min += Math.sign(ch1);
 		}
 
-		if (chance(Math.abs(ch2))) {
+		if (chance(Math.abs(ch2)) && max + Math.sign(ch2) > min) {
 			max += Math.sign(ch2);
 		}
 	}
