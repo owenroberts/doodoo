@@ -40,6 +40,8 @@ function Part(melody, def, defaultDuration, debug) {
 		});
 	});
 
+	const harmonyChance = new ValueWalker(...def.harmonyChance);
+
 	function mutate() {
 		
 		loopNums.update();
@@ -48,6 +50,7 @@ function Part(melody, def, defaultDuration, debug) {
 		indexStep.update();
 		durationList.update();
 		startDelayList.update();
+		harmonyChance.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
@@ -121,11 +124,12 @@ function Part(melody, def, defaultDuration, debug) {
 				startIndex: startIndex,
 				startDelay: startDelay,
 				melody: melody,
-				harmony: chance(def.harmonyChance) ? 
+				harmony: chance(harmonyChance.get()) ? 
 					harmonyList.getRandom() : 0,
 				attack: attackStart.getRandom(),
 				restChance: restChance.getRandom(),
 			});
+			console.log(harmonyChance.get());
 
 			// is this right? -- startIndex can't be negative
 			startIndex = Math.max(0, random([

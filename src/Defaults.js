@@ -47,8 +47,8 @@ let controls = [
 	},
 	{
 		"key": "harmonyChance",
-		"type": "chance",
-		"value": 0.6,
+		"type": "walker",
+		"value": [0.6, 0.01, 0.5, 0, 1, 0],
 	},
 	{
 		"key": "harmonyList",
@@ -362,6 +362,7 @@ controls.forEach(params => {
 		case 'chance':
 		case 'number':
 		case 'loops':
+		case 'walker':
 			defaults[key] = value;
 		break;
 		case 'list':

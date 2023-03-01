@@ -41,6 +41,7 @@ function Controls(app, defaults, controls) {
 		if (type === 'list' && control.value) addList(control, tree);
 		if (type === 'chance') addChance(control, tree);
 		if (type === 'number') addNumber(control, tree);
+		if (type === 'walker') addWalker(control, tree);
 		tree.addBreak();
 	}
 
@@ -59,11 +60,25 @@ function Controls(app, defaults, controls) {
 		setupControl(control, tree);
 	}
 
-	function addChance(control, row, label) {
+	function addWalker(control, tree, label) {
+		let { key, value } = control;
+		if (label) tree.add(new UILabel({ text: label }));
+		addChance({ ...control, index: 0, }, tree);
+
+		tree.add(new UILabel({ text: 'Walker', class: 'break' }));
+		addNumber({ ...control, index: 1 }, tree, 'Step');
+		addChance({ ...control, index: 2 }, tree);
+		addNumber({ ...control, index: 3 }, tree, 'Min');
+		addNumber({ ...control, index: 4 }, tree, 'Max');
+		addNumber({ ...control, index: 5, range: [-1, 1], step: 0.1 }, tree, 'Dir');
+
+	}
+
+	function addChance(control, tree, label) {
 		let { key, value, index, range } = control;
 		
-		if (label) row.add(new UILabel({ text: label }));
-		row.add(new UIChance({
+		if (label) tree.add(new UILabel({ text: label }));
+		tree.add(new UIChance({
 			label: 'Chance',
 			value: index !== undefined ? value[index] : value,
 			min: range ? range[0] : 0,

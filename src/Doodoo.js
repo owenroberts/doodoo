@@ -134,6 +134,7 @@ function Doodoo(params, callback) {
 		let currentParts = simultaneous ? parts : [parts[currentPart]];
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
+				console.log('harm', params.harmony)
 				const part = {
 					...params,
 					melody: params.harmony === 0 ? 
