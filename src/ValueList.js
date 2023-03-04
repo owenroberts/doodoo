@@ -12,7 +12,11 @@ function ValueList(list, index, updateChance) {
 			if (index === list.length) return;
 			if (chance(updateChance)) index++;
 		},
-		getRandom: () => { return random(list.slice(0, index)) },
+		getRandom: () => { 
+			console.log('rand', list, index, list.slice(0, index));
+			return random(list.slice(0, index)) 
+		},
+		getSlice: () => { return list.slice(0, index) },
 		get: () => { return list; }
 	}
 }

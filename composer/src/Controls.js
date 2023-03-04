@@ -122,12 +122,19 @@ function Controls(app, defaults, controls) {
 	function addList(control, row, label) {
 		let { key, value } = control;
 		if (label) row.add(new UILabel({ text: label }));
-		row.add(new UINumberList({
-			list: value,
-			callback: value => {
-				defaults[key] = value;
-			} 
-		}));
+		if (typeof value[0] === 'number') {
+			row.add(new UINumberList({
+				list: value,
+				callback: value => { defaults[key] = value; } 
+			}));
+		} else {
+			row.add(new UIInputList({
+				list: value,
+				callback: value => { 
+					defaults[key] = value; 
+				} 
+			}));
+		}
 	}
 
 	// loop section ...

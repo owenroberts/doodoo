@@ -44,6 +44,8 @@ function Part(melody, def, defaultDuration, debug) {
 	const harmonyChance = new ValueWalker(...def.harmonyChance);
 	const slideLength = new ValueRange(...def.sliceLength);
 
+	const voiceList = new ValueList(def.voiceList, def.voiceIndex, def.voiceChance);
+
 	function mutate() {
 		
 		loopNums.update();
@@ -52,6 +54,7 @@ function Part(melody, def, defaultDuration, debug) {
 		durationList.update();
 		startDelayList.update();
 		harmonyChance.update();
+		voiceList.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
@@ -110,7 +113,9 @@ function Part(melody, def, defaultDuration, debug) {
 					harmonyList.getRandom() : 0,
 				attack: attackStart.getRandom(),
 				restChance: restChance.getRandom(),
+				voice: voiceList.getRandom(),
 			});
+
 
 			// is this right? -- startIndex can't be negative
 			startIndexStep.update();

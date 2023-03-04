@@ -110,6 +110,21 @@ let controls = [
 		"value": 0.3,
 	},
 	{
+		"key": "voiceList",
+		"type": "list",
+		"value": [],
+	},
+	{
+		"key": "voiceIndex",
+		"type": "number",
+		"value": 0,
+	},
+	{
+		"key": "voiceChance",
+		"type": "chance",
+		"value": 0.1,
+	},
+	{
 		"key": "sliceChance",
 		"type": "chance",
 		"value": 0.1,
