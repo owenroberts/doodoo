@@ -39,12 +39,12 @@ function getMelody(melody, tonic, transform, scale) {
 			const midiTransform = MIDI_NOTES.indexOf(transform);
 			const tonicDelta = midiTonic - midiTransform;
 			const midiNote = MIDI_NOTES.indexOf(note) - tonicDelta;
-			return [MIDI_NOTES[midiNote], duration];
+			return [MIDI_NOTES[constrainNoteRange(midiNote)], duration];
 		}
 	});
 }
 
-function getHarmony(melody, tonic, transform, interval, scale) {
+function getHarmony(melody, tonic, transform, interval, scale, useOctave=false) {
 	return melody.map(beat => {
 		if (beat[0] === null) { return beat; }
 		else {
@@ -60,17 +60,20 @@ function getHarmony(melody, tonic, transform, interval, scale) {
 				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 				scale.indexOf(diff % 12); // above tonic
 
+
 			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length]; // harmony in scale
+			
+			if (useOctave) midiHarmony += Math.floor((scaleIndex + interval - 1) / scale.length) * 12;
 
 			if (scaleIndex === -1) {
-				// console.log('not in scale')
+				console.log('not in scale');
 				// test -- what do do here? find closest in scale or just interval
 				midiHarmony = 0;
 			}
 
 			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff); // 1+ octave above or below
 			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta + octave;
-			return [MIDI_NOTES[returnMidi], duration];
+			return [(MIDI_NOTES[constrainNoteRange(returnMidi)]), duration];
 		}
 	});
 }

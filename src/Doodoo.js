@@ -10,6 +10,7 @@ function Doodoo(params, callback) {
 	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
 	let autoStart = params.autoStart !== undefined ? params.autoStart : true;
 	let autoLoad = params.autoLoad !== undefined ? params.autoStart : true;
+	let useOctave = params.useOctave || false;
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
@@ -138,7 +139,7 @@ function Doodoo(params, callback) {
 					...params,
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
-						getHarmony(params.melody, tonic, transform, params.harmony, scale),
+						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
 					voice: getVoice(params.voice || random(voices))
 				};
 				loops.push(part);
@@ -192,7 +193,6 @@ function Doodoo(params, callback) {
 			attack += attackStep.getRandom();
 			attack = clamp(attack, 0.1, 1);
 		}
-
 
 		currentCount++;
 		if (currentCount === currentCountTotal) playTheme();

@@ -3,7 +3,6 @@
 */
 
 function Part(melody, def, defaultDuration, debug) {
-	console.log(melody);
 
 	let mutationCount = 0;
 	const dd = +defaultDuration.slice(0, -1); // default duration number for math
@@ -93,10 +92,7 @@ function Part(melody, def, defaultDuration, debug) {
 				}
 				return a;
 			});
-
-			mel = getMelody(mel, tonic, transform);
-
-
+			
 			const repeat = duration > 9 ? random([...def.repeat]) : 1;
 
 			loops.push({

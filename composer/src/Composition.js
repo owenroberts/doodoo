@@ -18,6 +18,7 @@ function Composition(app, defaults) {
 	let transform = defaults.transform || defaults.tonic;
 	let simultaneous = defaults.simultaneous || false;
 	let scale = defaults.scale;
+	let useOctave = defaults.useOctave || false;
 	let voices = []; // no default ??
 	let parts = [];
 
@@ -28,7 +29,7 @@ function Composition(app, defaults) {
 	let noteWidth = 60;
 
 	let mutationCountUI;
-	let noteInput, durationInput, scaleRow, voiceRow, melodyPanel;
+	let noteInput, durationInput, scaleRow, scaleUI, voiceRow, melodyPanel;
 
 	function midiFormat(note) {
 		if (note.length === 1 || note.length > 3) return false;
@@ -45,19 +46,6 @@ function Composition(app, defaults) {
 
 	function getMIDINote(noteIndex) {
 		return MIDI_NOTES[noteIndex];
-	}
-
-	function updateScale() {
-		// implies variable scale length, should just keep at 7?
-		scaleRow.clear();
-		for (let i = 0; i < scale.length; i++) {
-			let interval = new UINumberStep({
-				value: scale[i],
-				range: [-11, 11],
-				callback: value => { scale[i] = +value; }
-			});
-			scaleRow.append(interval, i);
-		}
 	}
 
 	function playOnce() {
@@ -260,7 +248,7 @@ function Composition(app, defaults) {
 				voiceRow.remove(voiceCollection);
 			}
 		}));
-		voiceRow.append(voiceCollection);
+		voiceRow.append(voiceCollection, voice);
 	}
 
 	function updateDisplay() {
@@ -294,7 +282,7 @@ function Composition(app, defaults) {
 
 	function get() {
 		update();
-		return { parts, tonic, transform, bpm, voices, title, duration, scale, simultaneous };
+		return { parts, tonic, transform, bpm, voices, title, duration, scale, simultaneous, useOctave };
 	}
 
 	function load(data) {
@@ -302,8 +290,11 @@ function Composition(app, defaults) {
 		if (data.transform) app.ui.faces.transform.update(data.transform);
 		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
 		if (data.duration) app.ui.faces.duration.update(data.duration);
+		if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
 
 		if (data.voices) {
+			voices = [];
+			voiceRow.clear();
 			let v = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
 			v.forEach(voice => { addVoice(voice) });
 		} else {
@@ -317,8 +308,10 @@ function Composition(app, defaults) {
 			);
 		}
 
-		if (data.scale) scale = data.scale.map(i => +i);
-		updateScale();
+		if (data.scale) {
+			scale = data.scale.map(i => +i);
+			scaleUI.set(scale);
+		}
 		
 		if (data.parts) {
 
@@ -422,14 +415,27 @@ function Composition(app, defaults) {
 				label: 'Simultaneous Parts',
 				callback: value => { simultaneous = value; }
 			},
+			'useOctave': {
+				type: 'UIToggleCheck',
+				label: 'Use Octave',
+				value: useOctave,
+				callback: value => { useOctave = value; }
+			},
 		}, compositionPanel);
 
-
 		compositionPanel.addRow(undefined, 'break');
-		compositionPanel.add(new UILabel({ text: 'Scale Intervals '}));
+		compositionPanel.add(new UILabel({ text: 'Scale Intervals' }));
 		scaleRow = compositionPanel.addRow(undefined, 'break');
-		voiceRow = compositionPanel.addRow();
-		
+		scaleUI = new UINumberList({
+			list: scale,
+			callback: value => { 
+				scale = value; 
+				console.log(scale);
+			}
+		});
+		compositionPanel.add(scaleUI);
+
+
 		const voicesUI = new UISelectButton({
 			label: 'Voices',
 			callback: addVoice,
@@ -444,7 +450,9 @@ function Composition(app, defaults) {
 				{ "value": "guitar", "text": "Guitar" }
 			]
 		});
+		compositionPanel.add(new UILabel({ class: 'break' }));
 		compositionPanel.add(voicesUI);
+		voiceRow = compositionPanel.addRow();
 
 		app.ui.addCallback({
 			row: true,
@@ -456,7 +464,6 @@ function Composition(app, defaults) {
 			key: 'p',
 		}, 'composition');
 		
-
 		melodyPanel.addRow(undefined, 'break');
 
 		app.ui.addProps({
