@@ -26,10 +26,10 @@ let controls = [
 	},
 	{
 		"key": "attackStep",
-		"type": "range",
-		"value": [-0.2, 0.2],
-		"range": [-1, 1],
-		"step": 0.05,
+		"type": "walker",
+		// "value": [-0.2, 0.2],
+		"value": [0.5, 0.01, 0.75, .1, 1, 0], // step, chance, min max
+		"step": 0.01,
 	},
 	{
 		"key": "restChance",
@@ -49,6 +49,8 @@ let controls = [
 		"key": "harmonyChance",
 		"type": "walker",
 		"value": [0.6, 0.01, 0.5, 0, 1, 0],
+		"range": [0, 1],
+		"step": 0.01,
 	},
 	{
 		"key": "harmonyList",

@@ -63,7 +63,7 @@ function Controls(app, defaults, controls) {
 	function addWalker(control, tree, label) {
 		let { key, value } = control;
 		if (label) tree.add(new UILabel({ text: label }));
-		addChance({ ...control, index: 0, }, tree);
+		addNumber({ ...control, index: 0, }, tree);
 
 		tree.add(new UILabel({ text: 'Walker', class: 'break' }));
 		addNumber({ ...control, index: 1 }, tree, 'Step');
@@ -71,7 +71,6 @@ function Controls(app, defaults, controls) {
 		addNumber({ ...control, index: 3 }, tree, 'Min');
 		addNumber({ ...control, index: 4 }, tree, 'Max');
 		addNumber({ ...control, index: 5, range: [-1, 1], step: 0.1 }, tree, 'Dir');
-
 	}
 
 	function addChance(control, tree, label) {

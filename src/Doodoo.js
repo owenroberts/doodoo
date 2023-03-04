@@ -83,6 +83,11 @@ function Doodoo(params, callback) {
 	const useMetro = params.useMetro;
 	let metro;
 
+	let usesSamples = voices.some(v => !v.includes('Synth'));
+	let samplesLoaded = false;
+	let playOnStart = false; // if trying to play before loaded
+	if (autoLoad) loadTone();
+
 	// start tone using async func to wait for tone
 	async function loadTone() {
 		try {
@@ -94,11 +99,6 @@ function Doodoo(params, callback) {
 			console.error('load tone error', err);
 		}
 	}
-
-	let usesSamples = voices.some(v => !v.includes('Synth'));
-	let samplesLoaded = false;
-	let playOnStart = false; // if trying to play before loaded
-	if (autoLoad) loadTone();
 
 	function start() {
 		if (callback) callback();
@@ -170,11 +170,10 @@ function Doodoo(params, callback) {
 
 	function loop(time) {
 		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);	
-		// let attack = attackStart.getRandom();
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
-			let attack = loop.attack;
-			const attackStep = new ValueRange(...def.attackStep);
+			const attackStep = new ValueWalker(...def.attackStep);
+			attackStep.set(loop.attack);
 			if (loop.count > loop.countEnd) continue;
 			for (let j = 0; j < loop.beatCount; j++) {
 				if (loop.count < loop.startDelay) continue;
@@ -185,13 +184,12 @@ function Doodoo(params, callback) {
 					const [note, duration] = beat;
 					// time offset for doubles
 					let t = j * Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds();
-					loop.voice.triggerAttackRelease(note, duration, time + t, attack);
+					loop.voice.triggerAttackRelease(note, duration, time + t, attackStep.get());
 				}
 			}
 			
 			loop.count += 1; // loop.counter;
-			attack += attackStep.getRandom();
-			attack = clamp(attack, 0.1, 1);
+			attackStep.update();
 		}
 
 		currentCount++;
