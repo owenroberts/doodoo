@@ -13,7 +13,7 @@ function Part(melody, def, defaultDuration, debug) {
 	const harmonyList = new ValueList(def.harmonyList, def.harmonyIndex, def.harmonyUpdateChance);
 
 	const startIndexes = new ValueRange(...def.startIndexes);
-	const indexStep = new ValueRange(...def.indexStep);
+	// const indexStep = new ValueRange(...def.indexStep);
 
 	// duration of loop, whole note, half note etc.
 	const durationList = new ValueList(def.durationList, def.durationIndex, def.durationChance); 
@@ -42,20 +42,20 @@ function Part(melody, def, defaultDuration, debug) {
 	});
 
 	const harmonyChance = new ValueWalker(...def.harmonyChance);
+	const slideLength = new ValueRange(...def.sliceLength);
 
 	function mutate() {
 		
 		loopNums.update();
 		harmonyList.update();
 		startIndexes.update();
-		indexStep.update();
 		durationList.update();
 		startDelayList.update();
 		harmonyChance.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
-			let slice = melody.slice(index, index + randInt(1, def.sliceLength));
+			let slice = melody.slice(index, index + slideLength.getRandInt());
 			melody.push(...slice);
 		}
 
@@ -74,7 +74,9 @@ function Part(melody, def, defaultDuration, debug) {
 
 		const loops = [];
 		const loopNum = loopNums.getRandInt();
-		let startIndex = startIndexes.getRandInt();
+		// let startIndex = startIndexes.getRandInt();
+		const startIndexStep = new ValueWalker(...def.indexStep);
+		startIndexStep.set(startIndexes.getRandInt());
 		let startDelay = 0; // first loop no delay
 
 		// console.log('loops', loopNum, loopNums.getRange());
@@ -93,7 +95,7 @@ function Part(melody, def, defaultDuration, debug) {
 				return a;
 			});
 			
-			const repeat = duration > 9 ? random([...def.repeat]) : 1;
+			const repeat = duration > 9 ? random(def.repeat) : 1;
 
 			loops.push({
 				noteDuration: duration,
@@ -101,7 +103,7 @@ function Part(melody, def, defaultDuration, debug) {
 				beatCount: duration < 32 && chance(def.doublerChance) ? 2 : 1,
 				countEnd: (mel.length - 1) * repeat + startDelay,
 				repeat: repeat,
-				startIndex: startIndex,
+				startIndex: startIndexStep.get(),
 				startDelay: startDelay,
 				melody: mel,
 				harmony: chance(harmonyChance.get()) ? 
@@ -111,11 +113,7 @@ function Part(melody, def, defaultDuration, debug) {
 			});
 
 			// is this right? -- startIndex can't be negative
-			startIndex = Math.max(0, random([
-				startIndex, 
-				startIndex + indexStep.getMin(), 
-				startIndex + indexStep.getMax(),
-			]));
+			startIndexStep.update();
 			startDelay = startDelayList.getRandom();
 		}
 		return loops;

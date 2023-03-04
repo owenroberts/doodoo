@@ -27,16 +27,15 @@ let controls = [
 	{
 		"key": "attackStep",
 		"type": "walker",
-		// "value": [-0.2, 0.2],
 		"value": [0.5, 0.01, 0.75, .1, 1, 0], // step, chance, min max
 		"step": 0.01,
 	},
 	{
 		"key": "restChance",
 		"type": "range",
-		"value": [0, 0],
+		"value": [0, 0, 0, 0],
 		"range": [0, 1],
-		"step": 0.1,
+		"step": 0.01,
 	},
 	{
 		"key": "loopNums",
@@ -76,10 +75,9 @@ let controls = [
 	},
 	{
 		"key": "indexStep",
-		"type": "range",
-		"value": [0, 0, -0.2, 0.2],
-		"range": [0, 8, -1, 1],
-		"step": 1,
+		"type": "walker",
+		"value": [0, 0.1, 0.75, 0, 8, 0],
+		"step": 0.1,
 	},
 	{
 		"key": "durationList",
@@ -118,8 +116,8 @@ let controls = [
 	},
 	{
 		"key": "sliceLength",
-		"type": "number",
-		"value": 3,
+		"type": "range",
+		"value": [1, 3, 0, 0],
 		"range": [1, 8],
 	},
 	{

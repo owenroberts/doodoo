@@ -11,9 +11,7 @@ function Controls(app, defaults, controls) {
 	const defaultLoop = {
 		noteDuration: 4,
 		count: 0,
-		counter: 1,
-		doubler: false,
-		doublerCounter: false,
+		beatCount: 1,
 		repeat: 1,
 		startIndex: 0,
 		startDelay: 0,
@@ -116,8 +114,8 @@ function Controls(app, defaults, controls) {
 		if (value.length > 2) {
 			// some range chance is negative for Math.sign for update value
 			let r = range.length <= 2 ? [0, 1] : range.slice(2);
-		 	addChance({ ...control, range: r, index: 2 }, tree, 'Min Update');
-			addChance({ ...control, range: r, index: 3 }, tree, 'Max Update');
+		 	addChance({ ...control, range: r, index: 2 }, tree, 'Min');
+			addChance({ ...control, range: r, index: 3 }, tree, 'Max');
 		}
 	}
 

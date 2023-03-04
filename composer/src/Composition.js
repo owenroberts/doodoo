@@ -130,7 +130,6 @@ function Composition(app, defaults) {
 	function doubleIt() {
 		// double current melody
 		const part = partRows[currentPart].children;
-		console.log(part);
 		part.forEach(beat => {
 			addNote(beat.note.value, beat.duration.value, true);
 		});
