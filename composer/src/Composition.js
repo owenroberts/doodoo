@@ -235,6 +235,7 @@ function Composition(app, defaults) {
 	}
 
 	function addVoice(voice) {
+		if (!voice) return;
 		if (!Array.isArray(voices)) voices = [voices]; // fix for old data
 		if (voices.includes(voice)) return;
 		voices.push(voice);
@@ -429,7 +430,6 @@ function Composition(app, defaults) {
 			list: scale,
 			callback: value => { 
 				scale = value; 
-				console.log(scale);
 			}
 		});
 		compositionPanel.add(scaleUI);
