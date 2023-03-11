@@ -14,19 +14,21 @@ function Doodoo(params, callback) {
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
-	if (params.controls.voiceList) {
-		params.controls.voiceList
-			.filter(v => !voices.includes(v))
-			.forEach(v => { 
+	if (params.controls) {
+		if (params.controls.voiceList) {
+			params.controls.voiceList
+				.filter(v => !voices.includes(v))
+				.forEach(v => { 
+					if (v) voices.push(v);
+				});
+		}
+		let startVoices = params.controls.startLoops.flatMap(c => c.flatMap(l => l.voice)).filter(v => !voices.includes(v));
+		if (startVoices.length > 0) {
+			startVoices.forEach(v => {
 				if (v) voices.push(v);
 			});
+		};
 	}
-	let startVoices = params.controls.startLoops.flatMap(c => c.flatMap(l => l.voice)).filter(v => !voices.includes(v));
-	if (startVoices.length > 0) {
-		startVoices.forEach(v => {
-			if (v) voices.push(v);
-		});
-	};
 
 	
 	if (voices.length === 0) voices.push('FMSynth');
