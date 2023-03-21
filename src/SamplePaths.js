@@ -3,6 +3,10 @@ let SamplePaths = {
 		"B3": "b3.ogg",
 		"G4": "g4.ogg",
 	},
+	"piano": {
+		"A4": "A4.mp3",
+		"C4": "C4.mp3",
+	},
 	"flute": { "C5": "C5.wav" },
 	"guitar": { "C4": "C4.wav" },
 	"strings": {

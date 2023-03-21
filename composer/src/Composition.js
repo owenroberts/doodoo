@@ -446,7 +446,8 @@ function Composition(app, defaults) {
 				{ "value": "bamboo", "text": "Bamboo" },
 				{ "value": "strings", "text": "Strings" },
 				{ "value": "flute", "text": "Flute" },
-				{ "value": "guitar", "text": "Guitar" }
+				{ "value": "guitar", "text": "Guitar" },
+				{ "value": "piano", "text": "Piano" },
 			]
 		});
 		compositionPanel.add(new UILabel({ class: 'break' }));

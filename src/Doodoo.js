@@ -248,17 +248,25 @@ function Doodoo(params, callback) {
 
 	function getSampler(voice, params) {
 		const sampleFiles = getSampleFiles(voice);
+		const attack = ['toms'].includes(voice) ?
+			params.voiceAttack / 4 :
+			params.voiceAttack;
+		
+		console.log(voice, params.voiceAttack, attack);
+
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-			attack: params.voiceAttack,
-			curve: params.voiceAttackCurve,
+			// attack: attack,
+			// curve: params.voiceAttackCurve,
 		});
+		console.log(sampler.attack, sampler.release);
 		return sampler;
 	}
 
 	function getSampleFiles(voice) {
+		console.log(voice);
 		const sampleFiles = {};
 		if (voice === 'choir') {
 			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
