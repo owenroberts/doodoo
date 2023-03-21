@@ -346,7 +346,7 @@ function Composition(app, defaults) {
 		app.ui.addCallbacks([
 			{ callback: play, key: 'space', text: 'Play', args: [false] },
 			{ callback: playOnce, key: '.', text: 'Play Once' },
-			{ callback: stop, key: 'alt-space', text: 'Stop' },
+			{ callback: stop, key: ',', text: 'Stop' },
 			{ callback: play, key: 'r', text: 'Record', args: [true] },
 			{ callback: mutate, key: 'd', text: 'Mutate' },
 		], playBackPanel);
@@ -461,6 +461,15 @@ function Composition(app, defaults) {
 			},
 			text: 'Print Loops',
 			key: 'p',
+		}, 'composition');
+
+		app.ui.addCallback({
+			callback() {
+				if (!doodoo) return;
+				doodoo.printParams();
+			},
+			text: 'Print Params',
+			key: 'shift-p',
 		}, 'composition');
 		
 		melodyPanel.addRow(undefined, 'break');

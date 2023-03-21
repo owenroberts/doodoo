@@ -15,8 +15,31 @@
 			// { "noteDuration": 4, "harmony": 4 }
 		// ]
 */
+let curves = ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"];
 
 let controls = [
+	{
+		"key": "voiceAttack",
+		"type": "range",
+		"value": [0.1, 1, 0, 0],
+		"range": [0, 1],
+		"step": 0.1
+	},
+	{
+		"key": "voiceAttackCurve",
+		"type": "list",
+		"value": [...curves],
+	},
+	{
+		"key": "voiceAttackCurveIndex",
+		"type": "number",
+		"value": 1,
+	},
+	{
+		"key": "voiceAttackCurveUpdateChance",
+		"type": "chance",
+		"value": 0.1,
+	},
 	{
 		"key": "attackStart",
 		"type": "range",

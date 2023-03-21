@@ -20,6 +20,14 @@ function Part(melody, def, defaultDuration, debug) {
 
 	const startDelayList = new ValueList(def.startDelayList, def.startDelayIndex, def.startDelayChance);
 
+	const harmonyChance = new ValueWalker(...def.harmonyChance);
+	const slideLength = new ValueRange(...def.sliceLength);
+
+	const voiceList = new ValueList(def.voiceList, def.voiceIndex, def.voiceChance);
+
+	const voiceAttack = new ValueRange(...def.voiceAttack);
+	const voiceCurve = new ValueList(def.voiceAttackCurve, def.voiceAttackCurveIndex, def.voiceAttackCurveUpdateChance);
+
 	const defaultLoop = {
 		noteDuration: 4,
 		count: 0,
@@ -33,18 +41,15 @@ function Part(melody, def, defaultDuration, debug) {
 		beatCount: 1,
 		attack: 0.5,
 		restChance: 0,
+		voiceAttack: 0.1,
+		voiceAttackCurve: 'linear',
 	};
-	
+
 	const startLoops = def.startLoops.map(count => {
 		return count.map(loop => {
 			return { ...defaultLoop, ...loop };
 		});
 	});
-
-	const harmonyChance = new ValueWalker(...def.harmonyChance);
-	const slideLength = new ValueRange(...def.sliceLength);
-
-	const voiceList = new ValueList(def.voiceList, def.voiceIndex, def.voiceChance);
 
 	function mutate() {
 		
@@ -55,6 +60,7 @@ function Part(melody, def, defaultDuration, debug) {
 		startDelayList.update();
 		harmonyChance.update();
 		voiceList.update();
+		voiceCurve.update();
 
 		if (chance(def.sliceChance)) {
 			let index = randInt(melody.length);
@@ -114,6 +120,8 @@ function Part(melody, def, defaultDuration, debug) {
 				attack: attackStart.getRandom(),
 				restChance: restChance.getRandom(),
 				voice: voiceList.getRandom(),
+				voiceAttack: voiceAttack.getRandom(),
+				voiceAttackCurve: voiceCurve.getRandom(),
 			});
 
 
@@ -129,5 +137,21 @@ function Part(melody, def, defaultDuration, debug) {
 		return mutationCount;
 	}
 
-	return { update, getLoops };
+	function getParams() {
+		return {
+			loopNums: loopNums.getRange(),
+			durationList: durationList.getSlice(),
+			startIndexes: startIndexes.getRange(),
+			startDelayList: startDelayList.getSlice(),
+			harmonyList: harmonyList.getSlice(),
+			harmonyChance: harmonyChance.get(),
+			attackStart: attackStart.getRange(),
+			restChance: restChance.getRange(),
+			voiceList: voiceList.getSlice(),
+			voiceAttack: voiceAttack.getRange(),
+			voiceCurve: voiceCurve.getSlice(),
+		}
+	}
+
+	return { update, getLoops, getParams };
 }

@@ -26,7 +26,6 @@ app.composition.connect();
 app.score.connect();
 app.controls.connect();
 
-
 app.ui.settings = Settings(app, {
 	name: 'doodoo',
 	workspaceFields: ['noteWidth'],
@@ -36,18 +35,8 @@ app.ui.settings = Settings(app, {
 	}]
 });
 app.ui.settings.load(); // wtf -- load settings and shit ...
-
-
-// const compData = localStorage.getItem('comp');
-// if (compData && compData !== 'undefined'){
-// 	const data = JSON.parse(compData);
-// 	app.composition.load(data);
-// 	app.controls.load(data.controls);
-// } else {
-	app.composition.load({});
-	app.controls.load();
-// }
-
+app.composition.load({});
+app.controls.load();
 app.score.draw([]);
 
 // console.log(app);

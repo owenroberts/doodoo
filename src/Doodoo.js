@@ -1,6 +1,12 @@
-function clamp(value, min, max) {
-	return Math.min(Math.max(value, min), max);
-}
+/*
+	main doodoo module
+	loads samples
+	sets default params
+	play back loop
+	record
+	add fx
+	etc
+*/
 
 function Doodoo(params, callback) {
 	
@@ -29,7 +35,6 @@ function Doodoo(params, callback) {
 			});
 		};
 	}
-
 	
 	if (voices.length === 0) voices.push('FMSynth');
 
@@ -157,7 +162,7 @@ function Doodoo(params, callback) {
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
-					voice: getVoice(params.voice || random(voices))
+					voice: getVoice(params.voice || random(voices), params)
 				};
 				loops.push(part);
 			});
@@ -213,10 +218,10 @@ function Doodoo(params, callback) {
 		if (currentCount === currentCountTotal) playTheme();
 	}
 
-	function getVoice(voice) {
+	function getVoice(voice, params) {
 		const v = voice.includes('Synth') ?
-			getSynth() :
-			getSampler(voice);
+			getSynth(params) :
+			getSampler(voice, params);
 		
 		if (withRecording) v.chain(Tone.Destination, recorder);
 		else v.toDestination();
@@ -230,22 +235,25 @@ function Doodoo(params, callback) {
 		return v;
 	}
 
-	function getSynth() {
+	function getSynth(params) {
 		const fmSynth = new Tone.FMSynth({ 
 			volume: params.volume || 0,
-			// attack: 1,
+			envelope: {
+				attack: params.voiceAttack,
+				attackCurve: params.voiceAttackCurve,
+			}
 		});
 		return fmSynth;
 	}
 
-	function getSampler(voice) {
+	function getSampler(voice, params) {
 		const sampleFiles = getSampleFiles(voice);
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-			// attack: 0.1,
-			// curve: 'linear'
+			attack: params.voiceAttack,
+			curve: params.voiceAttackCurve,
 		});
 		return sampler;
 	}
@@ -321,6 +329,10 @@ function Doodoo(params, callback) {
 		console.log('loops', loops); // debug
 	}
 
+	function printParams() {
+		console.log(parts.map(p => p.getParams()));
+	}
+
 	function getLoops() {
 		return loops;
 	}
@@ -368,7 +380,7 @@ function Doodoo(params, callback) {
 		});
 	}
 
-	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, };
+	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, printParams };
 }
 
 window.Doodoo = Doodoo;

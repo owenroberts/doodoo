@@ -299,9 +299,9 @@ function Controls(app, defaults, controls) {
 			for (const key in data) {
 				const value = data[key];
 				if (key === 'startLoops') {
-					controlTrees['startLoops'].clear();
+					startLoopsRow.clear();
 					defaults.startLoops = data[key];
-					addLoops({ value: data[key] }, controlTrees['startLoops']);
+					addLoops({ value: data[key] }, startLoopsRow);
 				}
 				else resetControl(key, undefined, data[key]);
 			}
@@ -310,14 +310,17 @@ function Controls(app, defaults, controls) {
 			for (let i = 0; i < controls.length; i++) {
 				const control = controls[i];
 				const { key, type } = control;
-				if (key === 'fxLimit') isFx = true;
-				const tree = new UITree({ title: labelFromKey(key) });
-				controlTrees[key] = tree;
-				if (isFx) fxPanel.append(tree);
-				else controlsPanel.append(tree);
 					
-				if (type === 'loops') addLoops(control, tree);
-				else setupControl(control, tree);
+				if (type === 'loops') {
+					addLoops(control, startLoopsRow);
+				} else {
+					if (key === 'fxLimit') isFx = true;
+					const tree = new UITree({ title: labelFromKey(key) });
+					controlTrees[key] = tree;
+					if (isFx) fxPanel.append(tree);
+					else controlsPanel.append(tree);
+					setupControl(control, tree);
+				}
 			
 			}
 		}
