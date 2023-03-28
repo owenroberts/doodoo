@@ -6,17 +6,21 @@
 	record
 	add fx
 	etc
+
+	sequence thing is also mad confusing
+	sequence is 2d array, a row for each part, columns are number of counts in sequence
 */
 
 function Doodoo(params, callback) {
 	
 	let debug = params.debug;
 	let isPlaying = false;
-	let defaultDuration = params.duration || '4n';
-	let scale = params.scale || [0, 2, 4, 5, 7, 9, 11]; // major
-	let autoStart = params.autoStart !== undefined ? params.autoStart : true;
-	let autoLoad = params.autoLoad !== undefined ? params.autoStart : true;
-	let useOctave = params.useOctave || false;
+	let defaultDuration = params.duration ?? '4n';
+	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major
+	let autoStart = params.autoStart ?? true;
+	let autoLoad = params.autoLoad ?? true;
+	let useOctave = params.useOctave ?? false;
+	let sequence = params.sequence ?? [[true]];
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
@@ -91,11 +95,11 @@ function Doodoo(params, callback) {
 			const durations = params.parts.map(p => parseInt(p[1]));
 			defaultDuration = Math.max(...durations) + 'n';
 		}
-	}	
+	}
 
 	let currentPart = 0;
 	let totalPlays = 0;
-	let simultaneous = params.simultaneous || false;
+	// let simultaneous = params.simultaneous || false;
 
 	let toneLoop;
 	let loops = [];
@@ -154,7 +158,8 @@ function Doodoo(params, callback) {
 		currentCount = 0;
 		loops = [];
 
-		let currentParts = simultaneous ? parts : [parts[currentPart]];
+		let currentParts = parts.filter((p, i) => sequence[i][currentPart]);
+	
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
 				const part = {
@@ -173,16 +178,15 @@ function Doodoo(params, callback) {
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 		
-		if (!simultaneous) {
-			currentPart++;
-			if (currentPart >= parts.length) currentPart = 0;
-		}
+		currentPart++;
+		if (currentPart >= sequence[0].length) currentPart = 0;
+		
 		totalPlays++;
 		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
 
 		if (withCount) {
-			if (mutationCount > withCount) {
+			if (totalPlays > withCount * sequence[0].length) {
 				Tone.Transport.stop();
 				isPlaying = false;
 				if (recorder) saveRecording();
@@ -226,7 +230,7 @@ function Doodoo(params, callback) {
 		if (withRecording) v.chain(Tone.Destination, recorder);
 		else v.toDestination();
 
-		effects.get(totalPlays).forEach(f => {
+		effects.get(totalPlays, voice).forEach(f => {
 			if (withRecording) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			v.connect(f);
@@ -237,7 +241,7 @@ function Doodoo(params, callback) {
 
 	function getSynth(params) {
 		const fmSynth = new Tone.FMSynth({ 
-			volume: params.volume || 0,
+			volume: params.volume || -12,
 			envelope: {
 				attack: params.voiceAttack,
 				attackCurve: params.voiceAttackCurve,
@@ -252,21 +256,20 @@ function Doodoo(params, callback) {
 			params.voiceAttack / 4 :
 			params.voiceAttack;
 		
-		console.log(voice, params.voiceAttack, attack);
+		// console.log(voice, params.voiceAttack, attack);
 
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
 			release: 1,
-			// attack: attack,
-			// curve: params.voiceAttackCurve,
+			attack: attack,
+			curve: params.voiceAttackCurve,
 		});
-		console.log(sampler.attack, sampler.release);
+		// console.log(sampler.attack, sampler.release);
 		return sampler;
 	}
 
 	function getSampleFiles(voice) {
-		console.log(voice);
 		const sampleFiles = {};
 		if (voice === 'choir') {
 			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));

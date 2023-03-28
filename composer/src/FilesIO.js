@@ -6,10 +6,11 @@ function FilesIO(app) {
 
 	function load(data) {
 		app.composition.load(data);
+		app.melody.load(data);
 		if (data.controls) app.controls.load(data.controls);
 	}
 
-	function saveLocal(composition, controls) {
+	function saveLocal(composition, controls) { 
 		if (!composition) composition = app.composition.get();
 		if (composition.parts.length === 0) {
 			let continueSave = confirm('No melody, continue save?');
@@ -27,6 +28,7 @@ function FilesIO(app) {
 		if (compData && compData !== 'undefined') {
 			const data = JSON.parse(compData);
 			app.composition.load(data);
+			app.melody.load(data);
 			app.controls.load(data.controls);
 		}
 	}

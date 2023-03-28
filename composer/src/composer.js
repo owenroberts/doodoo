@@ -2,7 +2,7 @@
 const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
 const { Interface, Settings } = UI;
-const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree } = UI.Elements;
+const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid } = UI.Elements;
 
 const app = {};
 const comp = {
@@ -16,6 +16,8 @@ const comp = {
 
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control
 app.composition = new Composition(app, comp);
+app.playback = new Playback(app);
+app.melody = new Melody(app, comp);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 
@@ -23,6 +25,8 @@ app.ui = Interface(app, { useMain: true });
 app.ui.setup();
 app.fio.connect();
 app.composition.connect();
+app.melody.connect();
+app.playback.connect();
 app.score.connect();
 app.controls.connect();
 

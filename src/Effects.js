@@ -68,7 +68,7 @@ function Effects(def) {
 		// reverb separate for now ...
 		let fx = [];
 		if (getEffectChance('reverb', totalPlays, 0)) {
-			const reverb = new Tone.Reverb({ decay: voiceName === 'toms' ? 0.5 : def.reverbDecay });
+			const reverb = new Tone.Reverb({ decay: (voiceName === 'toms' ? 0.5 : def.reverbDecay) });
 			fx.push(reverb);
 		}
 

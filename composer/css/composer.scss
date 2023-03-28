@@ -119,3 +119,11 @@
 header {
 	margin: 1rem;
 }
+
+#sequence-grid {
+	--rows: 1;
+	--cols: 1;
+	display: grid;
+	grid-template-columns: repeat(var(--cols), 1fr);
+	grid-template-rows: repeat(var(--rows), 20px);
+}

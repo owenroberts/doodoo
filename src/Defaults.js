@@ -21,7 +21,7 @@ let controls = [
 	{
 		"key": "voiceAttack",
 		"type": "range",
-		"value": [0.1, 1, 0, 0],
+		"value": [0.1, 0.5, 0, 0],
 		"range": [0, 1],
 		"step": 0.1
 	},
