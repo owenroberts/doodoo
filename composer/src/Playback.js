@@ -6,7 +6,6 @@ function Playback(app) {
 
 	function play(withRecording, withCount) {
 		const comp = app.composition.get();
-		console.log(comp);
 		if (comp.parts.length === 0) return alert('Add notes to the melody.');
 
 		if (doodoo) {
@@ -40,16 +39,19 @@ function Playback(app) {
 		app.ui.addCallbacks([
 			{ callback: play, key: 'space', text: 'Play', args: [false] },
 			{ 
-				key: '.', text: 'Play Once',
+				key: '.', 
+				text: 'Play Once',
 				callback: () => { play(false, 1); }, 
 			},
 			{ 
-				key: ',', text: 'Stop',
+				key: ',', 
+				text: 'Stop',
 				callback: () => { if (doodoo) doodoo.stop(); }, 
 			},
 			{ callback: play, key: 'r', text: 'Record', args: [true] },
 			{ 
-				key: 'd', text: 'Mutate',
+				key: 'd', 
+				text: 'Mutate',
 				callback: () => { if (doodoo) doodoo.mutate(); },
 			},
 		], playBackPanel);
