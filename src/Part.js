@@ -29,7 +29,7 @@ function Part(melody, def, defaultDuration, debug) {
 	const voiceCurve = new ValueList(def.voiceAttackCurve, def.voiceAttackCurveIndex, def.voiceAttackCurveUpdateChance);
 
 	const beats = getBeats(melody, dd);
-	console.log('beats', beats)
+	// console.log('beats', beats)
 	const defaultLoop = {
 		noteDuration: 4,
 		count: 0,
@@ -95,7 +95,6 @@ function Part(melody, def, defaultDuration, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			const duration = durationList.getRandom();
-			console.lo
 			let mel = getBeats(melody);
 			const repeat = duration > 9 ? random(def.repeat) : 1;
 
@@ -129,10 +128,10 @@ function Part(melody, def, defaultDuration, debug) {
 	function getBeats(mel, duration) {
 		let m = mel.flatMap(beat => {
 			let [n, d] = beat; // note, duration
-			d = +d.slice(0, -1)
+			d = +d.slice(0, -1);
 			let b = duration / d;
 			let a = [[n, d + 'n']];
-			console.log(n, d, duration, b);
+			// console.log(n, d, duration, b);
 			/* n.
 				let nd = d.includes('.') ? 
 					+d.slice(0, -2) :

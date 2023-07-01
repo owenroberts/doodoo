@@ -212,7 +212,7 @@ function Doodoo(params, callback) {
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
 				if (chance(loop.restChance)) continue;
 				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.melody.length];
-				console.log(beat);
+				// console.log(beat);
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
