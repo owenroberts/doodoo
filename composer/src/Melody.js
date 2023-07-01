@@ -8,7 +8,9 @@ function Melody(app, defaults) {
 	let sequence = [[true]];
 
 	let duration = defaults.duration ?? '4n';
-	const durationList = ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',];
+	// const durationList = ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',];
+	const durationList = ['32n', '16n', '8n', '4n', '2n', '1n']; // n.s are hard use rests for now
+
 
 	let noteInput, durationInput, melodyPanel, sequenceGrid;
 
@@ -164,14 +166,11 @@ function Melody(app, defaults) {
 			return part;
 		}
 
-		if (partRows.length > 1) {
-			for (let i = 0; i < partRows.length; i++) {
-				parts.push(makePart(partRows[i].children));
-			}
-		} else {
-			parts = makePart(partRows[0].children);
+		for (let i = 0; i < partRows.length; i++) {
+			parts.push(makePart(partRows[i].children));
 		}
 
+		// console.log('update', parts);
 		return parts;
 	}
 
@@ -182,9 +181,7 @@ function Melody(app, defaults) {
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
 
 		// get smallest note
-		const durations = partRows.length > 1 ?
-			parts.flatMap(p => { return p.map(n => n[1]) }) : 
-			parts.flatMap(p => p[1]);
+		const durations = parts.flatMap(p => { return p.map(n => n[1]) });
 		let noteDivision = Math.max(...durations.map(d => parseInt(d)));
 		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
 		if (noteDivision < 0) noteDivision = '4n';
@@ -205,6 +202,7 @@ function Melody(app, defaults) {
 	}
 
 	function load(data) {
+		// console.log('load sequence', [...data.sequence]);
 		if (data.sequence) {
 			// fuckin shit, should i use app.ui here?
 			sequence = data.sequence;
@@ -212,7 +210,7 @@ function Melody(app, defaults) {
 		}
 
 		if (data.parts) {
-
+			// console.log('data', [...data.parts]);
 			clear();
 			parts = [];
 			if (Array.isArray(data.parts[0])) {
@@ -235,6 +233,8 @@ function Melody(app, defaults) {
 			update(); // update parts only really, this is weird
 			currentPart = 0;
 			
+			// console.log('parts', [...parts], parts.length);
+			// console.log('load', sequence.length, parts.length);
 			if (!data.sequence) {
 				sequence.push(Array(parts.length).fill(true));
 				sequenceGrid.update(sequence);
@@ -244,6 +244,7 @@ function Melody(app, defaults) {
 				}
 				sequenceGrid.update(sequence);
 			}
+			// console.log('seq grid', sequenceGrid)
 		}
 
 
@@ -332,7 +333,6 @@ function Melody(app, defaults) {
 			text: 'Part Sequencer',
 			value: sequence,
 			callback: value => {
-				// console.log('sequence', value);
 				sequence = value;
 			}
 		}, melodyPanel);

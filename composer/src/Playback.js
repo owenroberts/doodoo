@@ -71,6 +71,25 @@ function Playback(app) {
 				callback: value => { useMetro = value; },
 			}
 		}, playBackPanel);
+
+		app.ui.addCallback({
+			row: true,
+			callback() {
+				if (!doodoo) return;
+				doodoo.printLoops();
+			},
+			text: 'Print Loops',
+			key: 'p',
+		});
+
+		app.ui.addCallback({
+			callback() {
+				if (!doodoo) return;
+				doodoo.printParams();
+			},
+			text: 'Print Params',
+			key: 'shift-p',
+		});
 	}
 
 	return { connect, isRecording };

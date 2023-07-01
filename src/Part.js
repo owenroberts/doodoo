@@ -28,6 +28,8 @@ function Part(melody, def, defaultDuration, debug) {
 	const voiceAttack = new ValueRange(...def.voiceAttack);
 	const voiceCurve = new ValueList(def.voiceAttackCurve, def.voiceAttackCurveIndex, def.voiceAttackCurveUpdateChance);
 
+	const beats = getBeats(melody, dd);
+	console.log('beats', beats)
 	const defaultLoop = {
 		noteDuration: 4,
 		count: 0,
@@ -36,8 +38,8 @@ function Part(melody, def, defaultDuration, debug) {
 		startIndex: 0,
 		startDelay: 0,
 		harmony: 0,
-		melody: melody,
-		countEnd: melody.length - 1,
+		melody: beats,
+		countEnd: beats.length - 1,
 		beatCount: 1,
 		attack: 0.5,
 		restChance: 0,
@@ -93,17 +95,8 @@ function Part(melody, def, defaultDuration, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			const duration = durationList.getRandom();
-			let mel = melody.flatMap(beat => {
-				const [n, d] = beat; // note, duration
-				let b = dd / duration;
-				// n. ... 
-				let a = [[n, duration + 'n']];
-				for (let i = 1; i < b; i++) {
-					a.push([null, dd + 'n']);
-				}
-				return a;
-			});
-			
+			console.lo
+			let mel = getBeats(melody);
 			const repeat = duration > 9 ? random(def.repeat) : 1;
 
 			loops.push({
@@ -130,6 +123,29 @@ function Part(melody, def, defaultDuration, debug) {
 			startDelay = startDelayList.getRandom();
 		}
 		return loops;
+	}
+
+	// compute all beats from melody
+	function getBeats(mel, duration) {
+		let m = mel.flatMap(beat => {
+			let [n, d] = beat; // note, duration
+			d = +d.slice(0, -1)
+			let b = duration / d;
+			let a = [[n, d + 'n']];
+			console.log(n, d, duration, b);
+			/* n.
+				let nd = d.includes('.') ? 
+					+d.slice(0, -2) :
+					+d.slice(0, -1);
+				let b = duration / nd;
+				if (d.includes(.)) b += (duration / nd)
+			*/
+			for (let i = 1; i < b; i++) {
+				a.push([null, dd + 'n']);
+			}
+			return a;
+		});
+		return m;
 	}
 
 	function update() {

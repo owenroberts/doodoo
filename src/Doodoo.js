@@ -21,6 +21,7 @@ function Doodoo(params, callback) {
 	let autoLoad = params.autoLoad ?? true;
 	let useOctave = params.useOctave ?? false;
 	let sequence = params.sequence ?? [[true]];
+	// console.log('doodoo sequence', sequence);
 	
 	let samples;
 	let voices = params.voices || [params.samples]; // fix for old data
@@ -132,7 +133,7 @@ function Doodoo(params, callback) {
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
-		if (autoStart || playOnStart) playTheme();
+		if (autoStart || playOnStart) generateLoops();
 		
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -154,7 +155,7 @@ function Doodoo(params, callback) {
 		if (withRecording) recorder.start();
 	}
 
-	function playTheme() {
+	function generateLoops() {
 		currentCount = 0;
 		loops = [];
 
@@ -162,6 +163,7 @@ function Doodoo(params, callback) {
 	
 		currentParts.forEach(part => {
 			part.getLoops().forEach(params => {
+				// console.log('params', params.melody);
 				const part = {
 					...params,
 					melody: params.harmony === 0 ? 
@@ -170,11 +172,15 @@ function Doodoo(params, callback) {
 					voice: getVoice(params.voice || random(voices), params)
 				};
 				loops.push(part);
+				// console.log('part', part.melody);
 			});
 		});
 
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
+		const smallestDuration = Math.max(...loops.flatMap(loop => loop.melody.map(b => b[1].slice(0, -1))));
+		toneLoop.interval = smallestDuration + 'n';
+		
 		let mutationCount = currentParts.map(part => part.update())[0];
 		if (params.onMutate) params.onMutate(mutationCount);
 		
@@ -206,6 +212,7 @@ function Doodoo(params, callback) {
 				if (loop.count % 1 !== 0 && !loop.doubler) continue;
 				if (chance(loop.restChance)) continue;
 				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.melody.length];
+				console.log(beat);
 				if (beat[0] !== null) {
 					const [note, duration] = beat;
 					// time offset for doubles
@@ -219,7 +226,7 @@ function Doodoo(params, callback) {
 		}
 
 		currentCount++;
-		if (currentCount === currentCountTotal) playTheme();
+		if (currentCount === currentCountTotal) generateLoops();
 	}
 
 	function getVoice(voice, params) {
@@ -372,7 +379,7 @@ function Doodoo(params, callback) {
 			playOnStart = true;
 			return;
 		}
-		playTheme();
+		generateLoops();
 		toneLoop.start(Tone.Transport.seconds);
 		isPlaying = true;
 		if (withRecording) recorder.start();

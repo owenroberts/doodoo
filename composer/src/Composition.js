@@ -42,6 +42,7 @@ function Composition(app, defaults) {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
+		// console.log('get sequence', sequence);
 		return { tonic, transform, bpm, voices, title, duration, scale, useOctave, sequence, parts };
 	}
 
@@ -72,8 +73,6 @@ function Composition(app, defaults) {
 			scale = data.scale.map(i => +i);
 			scaleUI.set(scale);
 		}
-		
-		
 	}
 
 	function connect() {
@@ -160,25 +159,6 @@ function Composition(app, defaults) {
 		compositionPanel.add(voicesUI);
 		voiceRow = compositionPanel.addRow();
 
-		app.ui.addCallback({
-			row: true,
-			callback() {
-				if (!doodoo) return;
-				doodoo.printLoops();
-			},
-			text: 'Print Loops',
-			key: 'p',
-		}, 'composition');
-
-		app.ui.addCallback({
-			callback() {
-				if (!doodoo) return;
-				doodoo.printParams();
-			},
-			text: 'Print Params',
-			key: 'shift-p',
-		}, 'composition');
-		
 		
 	}
 

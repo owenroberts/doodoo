@@ -12,6 +12,7 @@ function FilesIO(app) {
 
 	function saveLocal(composition, controls) { 
 		if (!composition) composition = app.composition.get();
+		// console.log('save local seq', [...composition.sequence]);
 		if (composition.parts.length === 0) {
 			let continueSave = confirm('No melody, continue save?');
 			if (!continueSave) return;
@@ -34,7 +35,7 @@ function FilesIO(app) {
 	}
 
 	function clear() {
-		app.composition.clear();
+		app.melody.clear();
 		localStorage.setItem('comp', '');
 	}
 
