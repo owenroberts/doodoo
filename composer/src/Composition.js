@@ -13,9 +13,11 @@ function Composition(app, defaults) {
 	let scale = defaults.scale;
 	let useOctave = defaults.useOctave || false;
 	let voices = []; // no default ??
+	let stacking = [[]];
 	
 	/* ui settings */	
 	let scaleRow, scaleUI, voiceRow;
+	let stackRows;
 
 	function getMIDINote(noteIndex) {
 		return MIDI_NOTES[noteIndex];
@@ -42,8 +44,7 @@ function Composition(app, defaults) {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
-		// console.log('get sequence', sequence);
-		return { tonic, transform, bpm, voices, title, duration, scale, useOctave, sequence, parts };
+		return { tonic, transform, bpm, voices, title, duration, scale, useOctave, sequence, parts, stacking };
 	}
 
 	function load(data) {
@@ -72,6 +73,31 @@ function Composition(app, defaults) {
 		if (data.scale) {
 			scale = data.scale.map(i => +i);
 			scaleUI.set(scale);
+		}
+
+		if (data.stacking) {
+			stacking = data.stacking;
+			stackRows.clear();
+			
+			for (let i = 0; i < data.stacking.length; i++) {
+				const stack = data.stacking[i];
+				const row = stackRows.add(new UIRow({ class: 'break' }));
+				row.add(new UILabel({ text: 'Stack ' + i }));
+				for (let j = 0; j < stack.length; j++) {
+					const voice = stack[j];
+					const v = new UICollection();
+					v.add(new UILabel({ text: voice }));
+					v.add(new UIButton({
+						text: 'x',
+						callback: () => {
+							row.remove(v);
+							let idx = stacking[i].indexOf(voice);
+							stacking[i].splice(idx, 1);
+						}
+					}));
+					row.add(v);
+				}
+			}
 		}
 	}
 
@@ -140,26 +166,96 @@ function Composition(app, defaults) {
 		});
 		compositionPanel.add(scaleUI);
 
+		const voiceOptions = [
+			{ "value": "choir", "text": "Choir" },
+			{ "value": "fmSynth", "text": "FMSynth" },
+			{ "value": "toms", "text": "Toms" },
+			{ "value": "bamboo", "text": "Bamboo" },
+			{ "value": "strings", "text": "Strings" },
+			{ "value": "flute", "text": "Flute" },
+			{ "value": "guitar", "text": "Guitar" },
+			{ "value": "piano", "text": "Piano" },
+		];
+
 		const voicesUI = new UISelectButton({
 			label: 'Voices',
 			callback: addVoice,
 			"selected": "synth",
-			"options": [
-				{ "value": "choir", "text": "Choir" },
-				{ "value": "fmSynth", "text": "FMSynth" },
-				{ "value": "toms", "text": "Toms" },
-				{ "value": "bamboo", "text": "Bamboo" },
-				{ "value": "strings", "text": "Strings" },
-				{ "value": "flute", "text": "Flute" },
-				{ "value": "guitar", "text": "Guitar" },
-				{ "value": "piano", "text": "Piano" },
-			]
+			"options": voiceOptions
 		});
 		compositionPanel.add(new UILabel({ class: 'break' }));
 		compositionPanel.add(voicesUI);
 		voiceRow = compositionPanel.addRow();
 
+		const stackingRow = compositionPanel.addRow();
+		// stacking -- voices to use on loop n, n + 1 etc
+		stackingRow.add(new UILabel({ text: "Stacking" }))
+		stackRows = new UIRow({ class: 'break' });
 		
+		const stackIndex = new UINumberStep({
+			min: 0,
+			max: stacking.length - 1,
+			value: stacking.length - 1,
+		});
+		
+		const stackingUI = new UISelectButton({
+			label: 'Stacking Voices',
+			"selected": "synth",
+			options: voiceOptions,
+			callback: value => {
+				let row;
+				let index = stackIndex.value;
+				if (stackRows.children.length === 0) {
+					row = stackRows.add(new UIRow({ class: 'break' }));
+					row.add(new UILabel({ text: 'Stack 0' }));
+				} else {
+					row = stackRows.children[index];
+				}
+				stacking[index].push(value);
+				const v = new UICollection();
+				v.add(new UILabel({ text: value }));
+				v.add(new UIButton({
+					text: 'x',
+					callback: () => {
+						row.remove(v);
+						let i = stacking[index].indexOf(value);
+						stacking[index].splice(i, 1);
+					}
+				}));
+				row.add(v);
+			}
+		});
+
+		const stackingSubtract = new UIButton({
+			text: '–',
+			class: 'left-end',
+			callback: () => {
+				if (stackRows.children.length === 0) return;
+				stackRows.pop();
+				stacking.pop();
+				if (stackRows.children.length === 0) return;
+				stackIndex.max = stackRows.children.length - 1;
+				stackIndex.update(stackRows.children.length - 1);
+			}
+		});
+		
+		const stackingAdd = new UIButton({
+			text: '+',
+			class: 'right-end',
+			callback: () => {
+				let row = stackRows.add(new UIRow({ class: 'break' }));
+				row.add(new UILabel({ text: 'Stack ' + (stackRows.children.length - 1) }));
+				stackIndex.max = stackRows.children.length - 1
+				stackIndex.update(stackRows.children.length - 1);
+				stacking.push([]);
+			}
+		});
+
+		stackingRow.add(stackIndex);
+		stackingRow.add(stackingSubtract);
+		stackingRow.add(stackingAdd);
+		stackingRow.add(stackingUI);
+		stackingRow.add(stackRows);
 	}
 
 	return { connect, load, get };

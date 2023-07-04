@@ -22,9 +22,13 @@ function Doodoo(params, callback) {
 	let useOctave = params.useOctave ?? false;
 	let sequence = params.sequence ?? [[true]];
 	// console.log('doodoo sequence', sequence);
+
+	
 	
 	let samples;
-	let voices = params.voices || [params.samples]; // fix for old data
+	let voices = params.voices ?? [params.samples]; // fix for old data
+	let stacking = params.stacking ?? [];
+
 	if (params.controls) {
 		if (params.controls.voiceList) {
 			params.controls.voiceList
@@ -160,22 +164,27 @@ function Doodoo(params, callback) {
 		loops = [];
 
 		let currentParts = parts.filter((p, i) => sequence[i][currentPart]);
-	
-		currentParts.forEach(part => {
-			part.getLoops().forEach(params => {
-				// console.log('params', params.melody);
-				const part = {
+
+		for (let i = 0; i < currentParts.length; i++) {
+			const part = currentParts[i];
+			const loopies = part.getLoops();
+			for (let j = 0; j < loopies.length; j++) {
+				const params = loopies[j];
+				let voice = stacking[j] ? 
+					random(stacking[j]) :
+					params.voice ?? random(voices);
+
+				const loop = {
 					...params,
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
-					voice: getVoice(params.voice || random(voices), params)
+					voice: getVoice(voice, params)
 				};
-				loops.push(part);
-				// console.log('part', part.melody);
-			});
-		});
-
+				loops.push(loop);
+			}
+		}
+	
 		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
 		const smallestDuration = Math.max(...loops.flatMap(loop => loop.melody.map(b => b[1].slice(0, -1))));
