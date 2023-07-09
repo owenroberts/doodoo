@@ -21,9 +21,8 @@ function Doodoo(params, callback) {
 	let autoLoad = params.autoLoad ?? true;
 	let useOctave = params.useOctave ?? false;
 	let sequence = params.sequence ?? [[true]];
+	let onLoop = params.onLoop;
 	// console.log('doodoo sequence', sequence);
-
-	
 	
 	let samples;
 	let voices = params.voices ?? [params.samples]; // fix for old data
@@ -89,9 +88,9 @@ function Doodoo(params, callback) {
 		if (Array.isArray(params.parts[0][0])) {
 			for (let i = 0; i < params.parts.length; i++) {
 				const melody = params.parts[i];
-				parts.push(new Part(melody, def, defaultDuration, debug));
 				const durations = params.parts[i].map(p => parseInt(p[1]));
 				defaultDuration = Math.max(...durations) + 'n';
+				parts.push(new Part(melody, def, defaultDuration, debug));
 			}
 		} else {
 			const melody = params.parts;
@@ -114,7 +113,8 @@ function Doodoo(params, callback) {
 	const useMetro = params.useMetro;
 	let metro;
 
-	let usesSamples = voices.some(v => !v.includes('Synth'));
+	let usesSamples = [...voices, ...stacking.flatMap(v => v)].some(v => !v.includes('Synth'));
+
 	let samplesLoaded = false;
 	let playOnStart = false; // if trying to play before loaded
 	if (autoLoad) loadTone();
@@ -170,9 +170,12 @@ function Doodoo(params, callback) {
 			const loopies = part.getLoops();
 			for (let j = 0; j < loopies.length; j++) {
 				const params = loopies[j];
-				let voice = stacking[j] ? 
-					random(stacking[j]) :
-					params.voice ?? random(voices);
+				let voice = params.voice ?? random(voices);
+				if (stacking[j]) {
+					if (stacking[j].length > 0) {
+						voice = random(stacking[j]);
+					}
+				}
 
 				const loop = {
 					...params,
@@ -207,6 +210,8 @@ function Doodoo(params, callback) {
 				if (recorder) saveRecording();
 			}
 		}
+
+		if (onLoop) onLoop(totalPlays, mutationCount);
 	}
 
 	function loop(time) {
@@ -302,7 +307,8 @@ function Doodoo(params, callback) {
 
 	function loadSamples() {
 		let urls = {};
-		voices.forEach(voice => {
+		const allVoices = new Set([...voices, ...stacking.flatMap(v => v)]);
+		allVoices.forEach(voice => {
 			if (voice === 'choir') {
 				'AEIOU'.split('').forEach(letter => {
 					const voiceSampleURLS = SamplePaths['choir'+letter];

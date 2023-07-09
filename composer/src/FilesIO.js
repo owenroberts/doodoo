@@ -40,8 +40,8 @@ function FilesIO(app) {
 	}
 
 	function saveFile() {
-		if (app.composition.isRecording()) return;
-		app.composition.update(); // updates local storage
+		if (app.playback.isRecording()) return;
+		// app.composition.update(); // updates local storage
 		const json = localStorage.getItem('comp');
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
 		const name = prompt("Name composition", app.composition.get().title);

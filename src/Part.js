@@ -131,7 +131,7 @@ function Part(melody, def, defaultDuration, debug) {
 			d = +d.slice(0, -1);
 			let b = duration / d;
 			let a = [[n, d + 'n']];
-			// console.log(n, d, duration, b);
+			// console.log('n', n, d, duration, b, dd);
 			/* n.
 				let nd = d.includes('.') ? 
 					+d.slice(0, -2) :
