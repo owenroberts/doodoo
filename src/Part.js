@@ -95,7 +95,7 @@ function Part(melody, def, defaultDuration, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			const duration = durationList.getRandom();
-			let mel = getBeats(melody);
+			let mel = getBeats(melody, dd);
 			const repeat = duration > 9 ? random(def.repeat) : 1;
 
 			loops.push({
