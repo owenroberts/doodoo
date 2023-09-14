@@ -324,7 +324,6 @@ function Controls(app, defaults, controls) {
 			
 			}
 		}
-
 	}
 
 	function get() {

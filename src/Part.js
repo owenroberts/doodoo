@@ -84,7 +84,8 @@ function Part(melody, def, defaultDuration, debug) {
 		}
 
 		const loops = [];
-		const loopNum = loopNums.getRandInt();
+		const loopNum = Math.min(def.maxLoops, loopNums.getRandInt());
+		// add max loop num, just a number input
 		// let startIndex = startIndexes.getRandInt();
 		const startIndexStep = new ValueWalker(...def.indexStep);
 		startIndexStep.set(startIndexes.getRandInt());

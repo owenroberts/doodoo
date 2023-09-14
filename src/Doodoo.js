@@ -24,6 +24,7 @@ function Doodoo(params, callback) {
 	let onLoop = params.onLoop;
 	// console.log('doodoo sequence', sequence);
 	
+	
 	let samples;
 	let voices = params.voices ?? [params.samples]; // fix for old data
 	let stacking = params.stacking ?? [];

@@ -68,6 +68,11 @@ let controls = [
 		"step": 1,
 	},
 	{
+		"key": "maxLoops",
+		"type": "number",
+		"value": 5
+	},
+	{
 		"key": "harmonyChance",
 		"type": "walker",
 		"value": [0.6, 0.01, 0.5, 0, 1, 0],
