@@ -96,7 +96,7 @@ function Part(melody, def, defaultDuration, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			const duration = durationList.getRandom();
-			let mel = getBeats(melody, dd);
+			let mel = getBeats(melody, dd, duration);
 			const repeat = duration > 9 ? random(def.repeat) : 1;
 
 			loops.push({
@@ -117,7 +117,6 @@ function Part(melody, def, defaultDuration, debug) {
 				voiceAttackCurve: voiceCurve.getRandom(),
 			});
 
-
 			// is this right? -- startIndex can't be negative
 			startIndexStep.update();
 			startDelay = startDelayList.getRandom();
@@ -126,11 +125,19 @@ function Part(melody, def, defaultDuration, debug) {
 	}
 
 	// compute all beats from melody
-	function getBeats(mel, duration) {
+	function getBeats(mel, dd, duration) {
+		// console.log('dur', duration, 'dd', dd);
 		let m = mel.flatMap(beat => {
 			let [n, d] = beat; // note, duration
 			d = +d.slice(0, -1);
-			let b = duration / d;
+			let b = dd / d;
+			
+			if (duration && duration < dd) {
+				// console.log(d, dd, duration);
+				b = dd / duration;
+				d = (dd / d) * (d / duration);
+				// console.log(d, b);
+			} 
 			let a = [[n, d + 'n']];
 			// console.log('n', n, d, duration, b, dd);
 			/* n.

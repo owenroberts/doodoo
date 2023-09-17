@@ -143,7 +143,9 @@ function Composition(app, defaults) {
 					{ "value": "1n", "text": "Whole 1n" },
 					{ "value": "2n", "text": "Half 2n" },
 					{ "value": "4n", "text": "Quarter 4n" },
-					{ "value": "8n", "text": "Eighth 8n" }
+					{ "value": "8n", "text": "Eighth 8n" },
+					{ "value": "16n", "text": "Sixteenth 16n" },
+
 				],
 				callback: value => { duration = value; }
 			},

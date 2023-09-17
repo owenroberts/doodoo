@@ -101,6 +101,7 @@ function Doodoo(params, callback) {
 			defaultDuration = Math.max(...durations) + 'n';
 		}
 	}
+	console.log('def dur', defaultDuration);
 
 	let currentPart = 0;
 	let totalPlays = 0;
