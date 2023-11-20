@@ -16,7 +16,11 @@ function Controls(app, defaults, controls) {
 		startIndex: 0,
 		startDelay: 0,
 		harmony: 0,
-		voice: 'choir', // make list later
+		voice: 'choir', // make list later,
+		voiceAttack: 0.1,
+		voiceRelease: 1,
+		voiceCurve: "linear",
+
 	};
 
 	function labelFromKey(key) {

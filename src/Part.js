@@ -26,7 +26,8 @@ function Part(melody, def, defaultDuration, debug) {
 	const voiceList = new ValueList(def.voiceList, def.voiceIndex, def.voiceChance);
 
 	const voiceAttack = new ValueRange(...def.voiceAttack);
-	const voiceCurve = new ValueList(def.voiceAttackCurve, def.voiceAttackCurveIndex, def.voiceAttackCurveUpdateChance);
+	const voiceRelease = new ValueRange(...def.voiceRelease);
+	const voiceCurve = new ValueList(def.voiceCurve, def.voiceCurveIndex, def.voiceCurveUpdateChance);
 
 	const beats = getBeats(melody, dd);
 	// console.log('beats', beats)
@@ -44,7 +45,8 @@ function Part(melody, def, defaultDuration, debug) {
 		attack: 0.5,
 		restChance: 0,
 		voiceAttack: 0.1,
-		voiceAttackCurve: 'linear',
+		voiceRelease: 1,
+		voiceCurve: 'linear',
 	};
 
 	const startLoops = def.startLoops.map(count => {
@@ -114,7 +116,8 @@ function Part(melody, def, defaultDuration, debug) {
 				restChance: restChance.getRandom(),
 				voice: voiceList.getRandom(),
 				voiceAttack: voiceAttack.getRandom(),
-				voiceAttackCurve: voiceCurve.getRandom(),
+				voiceRelease: voiceRelease.getRandom(),
+				voiceCurve: voiceCurve.getRandom(),
 			});
 
 			// is this right? -- startIndex can't be negative

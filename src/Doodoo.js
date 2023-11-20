@@ -101,7 +101,7 @@ function Doodoo(params, callback) {
 			defaultDuration = Math.max(...durations) + 'n';
 		}
 	}
-	console.log('def dur', defaultDuration);
+	// console.log('def dur', defaultDuration);
 
 	let currentPart = 0;
 	let totalPlays = 0;
@@ -233,7 +233,7 @@ function Doodoo(params, callback) {
 					const [note, duration] = beat;
 					// time offset for doubles
 					let t = j * Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds();
-					loop.voice.triggerAttackRelease(note, duration, time + t, attackStep.get());
+					loop.voice.triggerAttackRelease(note, '32n', time + t, attackStep.get());
 				}
 			}
 			
@@ -267,7 +267,9 @@ function Doodoo(params, callback) {
 			volume: params.volume || -12,
 			envelope: {
 				attack: params.voiceAttack,
-				attackCurve: params.voiceAttackCurve,
+				attackCurve: params.voiceCurve,
+				release: params.voiceRelease,
+				releaseCurve: params.voiceCurve, // this one maybe take out ...
 			}
 		});
 		return fmSynth;
@@ -284,11 +286,11 @@ function Doodoo(params, callback) {
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: params.volume || 0,
-			release: 1,
 			attack: attack,
-			curve: params.voiceAttackCurve,
+			release: params.voiceRelease,
+			curve: params.voiceCurve,
 		});
-		// console.log(sampler.attack, sampler.release);
+		// console.log(sampler, sampler.attack, sampler.release);
 		return sampler;
 	}
 

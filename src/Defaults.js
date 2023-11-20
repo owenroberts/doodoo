@@ -26,17 +26,24 @@ let controls = [
 		"step": 0.1
 	},
 	{
-		"key": "voiceAttackCurve",
+		"key": "voiceRelease",
+		"type": "range",
+		"value": [0.1, 0.5, 0, 0],
+		"range": [0, 1],
+		"step": 0.1
+	},
+	{
+		"key": "voiceCurve",
 		"type": "list",
 		"value": [...curves],
 	},
 	{
-		"key": "voiceAttackCurveIndex",
+		"key": "voiceCurveIndex",
 		"type": "number",
 		"value": 1,
 	},
 	{
-		"key": "voiceAttackCurveUpdateChance",
+		"key": "voiceCurveUpdateChance",
 		"type": "chance",
 		"value": 0.1,
 	},
