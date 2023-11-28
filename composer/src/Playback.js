@@ -37,7 +37,7 @@ function Playback(app) {
 		const playBackPanel = app.ui.getPanel('playback', { label: 'Play Back' });
 
 		app.ui.addCallbacks([
-			{ callback: play, key: 'space', text: 'Play', args: [false] },
+			{ callback: play, key: '/', text: 'Play', args: [false] },
 			{ 
 				key: '.', 
 				text: 'Play Once',
