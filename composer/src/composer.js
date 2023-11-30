@@ -20,6 +20,7 @@ app.playback = new Playback(app);
 app.melody = new Melody(app, comp);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
+app.meter = new Meter(app);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();
@@ -29,6 +30,7 @@ app.melody.connect();
 app.playback.connect();
 app.score.connect();
 app.controls.connect();
+app.meter.connect();
 
 app.ui.settings = Settings(app, {
 	name: 'doodoo',

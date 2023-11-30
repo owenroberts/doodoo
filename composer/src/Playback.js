@@ -12,8 +12,8 @@ function Playback(app) {
 			doodoo.stop();
 			Tone.Transport.cancel();
 		}
-		
-		doodoo = new Doodoo({ 
+
+		doodoo = new Doodoo({
 			...comp,
 			withRecording: withRecording,
 			withCount: withCount,
@@ -23,6 +23,8 @@ function Playback(app) {
 			},
 			useMetro: useMetro,
 			controls: app.controls.get(),
+			useMeter: app.meter.isOpen(),
+			setMeter: app.meter.setMeter
 		});
 		app.fio.saveLocal(comp);
 		app.score.update(doodoo.getLoops());

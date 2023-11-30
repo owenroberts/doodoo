@@ -22,6 +22,11 @@ function Doodoo(params, callback) {
 	let useOctave = params.useOctave ?? false;
 	let sequence = params.sequence ?? [[true]];
 	let onLoop = params.onLoop;
+	let volume = params.volume ?? 0;
+	console.log('volume', volume);
+	let useMeter = params.useMeter;
+	let meter;
+
 	// console.log('doodoo sequence', sequence);
 	
 	
@@ -139,6 +144,13 @@ function Doodoo(params, callback) {
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
+
+		if (useMeter) {
+			meter = new Tone.Meter({ channels: 2 });
+			Tone.Destination.connect(meter);
+			params.setMeter(meter)
+		}
+		
 		if (autoStart || playOnStart) generateLoops();
 		
 		if (useMetro) {
@@ -179,12 +191,14 @@ function Doodoo(params, callback) {
 					}
 				}
 
+				const v = volume + (loopies.length * -3);
+
 				const loop = {
 					...params,
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
-					voice: getVoice(voice, params)
+					voice: getVoice(voice, { ...params, volume : v })
 				};
 				loops.push(loop);
 			}
@@ -264,7 +278,7 @@ function Doodoo(params, callback) {
 
 	function getSynth(params) {
 		const fmSynth = new Tone.FMSynth({ 
-			volume: params.volume || -12,
+			volume: params.volume || -6,
 			envelope: {
 				attack: params.voiceAttack,
 				attackCurve: params.voiceCurve,
@@ -272,6 +286,7 @@ function Doodoo(params, callback) {
 				releaseCurve: params.voiceCurve, // this one maybe take out ...
 			}
 		});
+		console.log('fm', fmSynth.volume.value);
 		return fmSynth;
 	}
 
@@ -290,6 +305,7 @@ function Doodoo(params, callback) {
 			release: params.voiceRelease,
 			curve: params.voiceCurve,
 		});
+		console.log('sampler', sampler.volume.value);
 		// console.log(sampler, sampler.attack, sampler.release);
 		return sampler;
 	}
