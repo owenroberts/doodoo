@@ -23,7 +23,6 @@ function Doodoo(params, callback) {
 	let sequence = params.sequence ?? [[true]];
 	let onLoop = params.onLoop;
 	let volume = params.volume ?? 0;
-	console.log('volume', volume);
 	let useMeter = params.useMeter;
 	let meter;
 
@@ -191,14 +190,14 @@ function Doodoo(params, callback) {
 					}
 				}
 
-				const v = volume + (loopies.length * -3);
+				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
 
 				const loop = {
 					...params,
 					melody: params.harmony === 0 ? 
 						getMelody(params.melody, tonic, transform) :
 						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
-					voice: getVoice(voice, { ...params, volume : v })
+					voice: getVoice(voice, { ...params, volume: volume })
 				};
 				loops.push(loop);
 			}
@@ -286,7 +285,6 @@ function Doodoo(params, callback) {
 				releaseCurve: params.voiceCurve, // this one maybe take out ...
 			}
 		});
-		console.log('fm', fmSynth.volume.value);
 		return fmSynth;
 	}
 
@@ -305,7 +303,6 @@ function Doodoo(params, callback) {
 			release: params.voiceRelease,
 			curve: params.voiceCurve,
 		});
-		console.log('sampler', sampler.volume.value);
 		// console.log(sampler, sampler.attack, sampler.release);
 		return sampler;
 	}
