@@ -113,6 +113,7 @@ function Doodoo(params, callback) {
 
 	let toneLoop;
 	let loops = [];
+	let fxToDispose = [];
 	let currentCountTotal = 0;
 	let currentCount = 0;
 
@@ -174,7 +175,29 @@ function Doodoo(params, callback) {
 
 	function generateLoops() {
 		currentCount = 0;
+		const disposeMe = [];
+		for (let i = 0; i < loops.length; i++) {
+			disposeMe.push(loops[i].voice);
+		}
+		for (let i = 0; i < fxToDispose.length; i++) {
+			disposeMe.push(fxToDispose[i]);
+		}
 		loops = [];
+		fxToDispose = [];
+		for (let i = 0; i < disposeMe.length; i++) {
+			const d = disposeMe[i];
+			// console.log('wet', disposeMe[i].wet)
+			// console.log('volume', disposeMe[i].volume)
+
+			// this seems to cause clipping
+			// if (d.wet) d.wet.linearRampToValueAtTime(0, 1);
+			// if (d.volume) d.volume.linearRampToValueAtTime(0, 1);
+
+			// if (disposeMe[i].releaseAll) disposeMe[i].releaseAll();
+			setTimeout(() => {
+				disposeMe[i].dispose(); // way to calculate this??
+			}, 1000);
+		}
 
 		let currentParts = parts.filter((p, i) => sequence[i][currentPart]);
 
@@ -270,6 +293,7 @@ function Doodoo(params, callback) {
 			if (withRecording) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			v.connect(f);
+			fxToDispose.push(f);
 		});
 
 		return v;
