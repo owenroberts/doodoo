@@ -253,7 +253,7 @@ function Doodoo(params, callback) {
 	}
 
 	function loop(time) {
-		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);	
+		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
 			const attackStep = new ValueWalker(...def.attackStep);
@@ -269,7 +269,7 @@ function Doodoo(params, callback) {
 					const [note, duration] = beat;
 					// time offset for doubles
 					let t = j * Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds();
-					loop.voice.triggerAttackRelease(note, '32n', time + t, attackStep.get());
+					loop.voice.triggerAttackRelease(note, duration, time + t, attackStep.get());
 				}
 			}
 			
@@ -391,12 +391,12 @@ function Doodoo(params, callback) {
 	}
 
 	function moveTonic(dir) {
-		let n = MIDI_NOTES.indexOf(transform) + dir;
-		transform = MIDI_NOTES[n];
+		let n = MIDI_NOTES.indexOf(transpose) + dir;
+		transpose = MIDI_NOTES[n];
 	}
 
 	function setTonic(note) {
-		transform = note;
+		transpose = note;
 	}
 
 	function printLoops() {

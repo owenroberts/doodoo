@@ -9,58 +9,58 @@ function Composition(app, defaults) {
 	let tonic = defaults.tonic;
 	let duration = defaults.duration;
 	let bpm = defaults.bpm;
-	let transform = defaults.transform || defaults.tonic;
+	let transpose = defaults.transpose || defaults.tonic;
 	let scale = defaults.scale;
 	let useOctave = defaults.useOctave || false;
-	let voices = []; // no default ??
+	let instruments = []; // no default ??
 	let stacking = [[]];
 	
 	/* ui settings */	
-	let scaleRow, scaleUI, voiceRow;
+	let scaleRow, scaleUI, instrumentRow;
 	let stackRows;
 
 	function getMIDINote(noteIndex) {
 		return MIDI_NOTES[noteIndex];
 	}
 
-	function addVoice(voice) {
-		if (!voice) return;
-		if (!Array.isArray(voices)) voices = [voices]; // fix for old data
-		if (voices.includes(voice)) return;
-		voices.push(voice);
-		const voiceCollection = new UICollection({ class: 'voice-collection' });
-		voiceCollection.append(new UILabel({ "text": voice }));
-		voiceCollection.append(new UIButton({
+	function addInstrument(instrument) {
+		if (!instrument) return;
+		if (!Array.isArray(instruments)) instruments = [instruments]; // fix for old data
+		if (instruments.includes(instrument)) return;
+		instruments.push(instrument);
+		const instrumentCollection = new UICollection({ class: 'instrument-collection' });
+		instrumentCollection.append(new UILabel({ "text": instrument }));
+		instrumentCollection.append(new UIButton({
 			"text": "X",
 			callback: () => {
-				voices.splice(voices.indexOf(voice), 1);
-				voiceRow.remove(voiceCollection);
+				instruments.splice(instruments.indexOf(instrument), 1);
+				instrumentRow.remove(instrumentCollection);
 			}
 		}));
-		voiceRow.append(voiceCollection, voice);
+		instrumentRow.append(instrumentCollection, instrument);
 	}
 
 	function get() {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
-		return { tonic, transform, bpm, voices, title, duration, scale, useOctave, sequence, parts, stacking };
+		return { tonic, transpose, bpm, instruments, title, duration, scale, useOctave, sequence, parts, stacking };
 	}
 
 	function load(data) {
 		if (data.title) app.ui.faces.title.update(data.title);
-		if (data.transform) app.ui.faces.transform.update(data.transform);
+		if (data.transpose) app.ui.faces.transpose.update(data.transpose);
 		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
 		if (data.duration) app.ui.faces.duration.update(data.duration);
 		if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
 
-		if (data.voices) {
-			voices = [];
-			voiceRow.clear();
-			let v = Array.isArray(data.voices) ? [...data.voices] : [data.voices];
-			v.forEach(voice => { addVoice(voice) });
+		if (data.instruments) {
+			instruments = [];
+			instrumentRow.clear();
+			let i = Array.isArray(data.instruments) ? [...data.instruments] : [data.instruments];
+			i.forEach(instrument => { addInstrument(instrument) });
 		} else {
-			defaults.voices.forEach(voice => { addVoice(voice) });
+			defaults.instruments.forEach(instrument => { addInstrument(instrument) });
 		}
 		
 		if (data.tonic) {
@@ -84,14 +84,14 @@ function Composition(app, defaults) {
 				const row = stackRows.add(new UIRow({ class: 'break' }));
 				row.add(new UILabel({ text: 'Stack ' + i }));
 				for (let j = 0; j < stack.length; j++) {
-					const voice = stack[j];
+					const instrument = stack[j];
 					const v = new UICollection();
-					v.add(new UILabel({ text: voice }));
+					v.add(new UILabel({ text: instrument }));
 					v.add(new UIButton({
 						text: 'x',
 						callback: () => {
 							row.remove(v);
-							let idx = stacking[i].indexOf(voice);
+							let idx = stacking[i].indexOf(instrument);
 							stacking[i].splice(idx, 1);
 						}
 					}));
@@ -119,13 +119,13 @@ function Composition(app, defaults) {
 				list: [...MIDI_NOTES, 'null', 'rest'],
 				callback: value => { tonic = value; }
 			},
-			'transform': {
+			'transpose': {
 				type: 'UIListStep',
-				value: transform,
-				label: 'Tonic Transform',
+				value: transpose,
+				label: 'Tonic transpose',
 				class: 'note-edit',
 				list: [...MIDI_NOTES, 'null', 'rest'],
-				callback: value => { transform = value; }
+				callback: value => { transpose = value; }
 			},
 			'bpm': {
 				value: bpm,
@@ -168,7 +168,7 @@ function Composition(app, defaults) {
 		});
 		compositionPanel.add(scaleUI);
 
-		const voiceOptions = [
+		const instrumentOptions = [
 			{ "value": "choir", "text": "Choir" },
 			{ "value": "fmSynth", "text": "FMSynth" },
 			{ "value": "toms", "text": "Toms" },
@@ -179,18 +179,18 @@ function Composition(app, defaults) {
 			{ "value": "piano", "text": "Piano" },
 		];
 
-		const voicesUI = new UISelectButton({
-			label: 'Voices',
-			callback: addVoice,
+		const instrumentsUI = new UISelectButton({
+			label: 'Instruments',
+			callback: addInstrument,
 			"selected": "synth",
-			"options": voiceOptions
+			"options": instrumentOptions
 		});
 		compositionPanel.add(new UILabel({ class: 'break' }));
-		compositionPanel.add(voicesUI);
-		voiceRow = compositionPanel.addRow();
+		compositionPanel.add(instrumentsUI);
+		instrumentRow = compositionPanel.addRow();
 
 		const stackingRow = compositionPanel.addRow();
-		// stacking -- voices to use on loop n, n + 1 etc
+		// stacking -- instruments to use on loop n, n + 1 etc
 		stackingRow.add(new UILabel({ text: "Stacking" }))
 		stackRows = new UIRow({ class: 'break' });
 		
@@ -201,9 +201,9 @@ function Composition(app, defaults) {
 		});
 		
 		const stackingUI = new UISelectButton({
-			label: 'Stacking Voices',
+			label: 'Stacking Instruments',
 			"selected": "synth",
-			options: voiceOptions,
+			options: instrumentOptions,
 			callback: value => {
 				let row;
 				let index = stackIndex.value;

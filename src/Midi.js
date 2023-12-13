@@ -30,32 +30,32 @@ function constrainNoteRange(midiNoteNum) {
 	return midiNoteNum;
 }
 
-function getMelody(melody, tonic, transform, scale) {
-	return melody.map(beat => {
-		if (beat[0] === null) { return beat; }
+function getMelody(melody, tonic, transpose, scale) {
+	return melody.map(note => {
+		if (note[0] === null) { return note; }
 		else {
-			const [note, duration] = beat;
+			const [pitch, beat] = note;
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
-			const midiTransform = MIDI_NOTES.indexOf(transform);
-			const tonicDelta = midiTonic - midiTransform;
-			const midiNote = MIDI_NOTES.indexOf(note) - tonicDelta;
-			return [MIDI_NOTES[constrainNoteRange(midiNote)], duration];
+			const midiTranspose = MIDI_NOTES.indexOf(transpose);
+			const tonicDelta = midiTonic - midiTranspose;
+			const midiPitch = MIDI_NOTES.indexOf(pitch) - tonicDelta;
+			return [MIDI_NOTES[constrainNoteRange(midiPitch)], beat];
 		}
 	});
 }
 
-function getHarmony(melody, tonic, transform, interval, scale, useOctave=false) {
-	return melody.map(beat => {
-		if (beat[0] === null) { return beat; }
+function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) {
+	return melody.map(note => {
+		if (note[0] === null) { return note; }
 		else {
-			const [note, duration] = beat;
-			const midiNote = MIDI_NOTES.indexOf(note);
+			const [pitch, beat] = note;
+			const midiPitch = MIDI_NOTES.indexOf(pitch);
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
-			const midiTransform = MIDI_NOTES.indexOf(transform);
-			const tonicDelta = midiTonic - midiTransform; // change in key
-			const octave = (Math.floor(midiNote / 12) - Math.floor(midiTonic) / 12) * 12; // differences in octaves (C4 comes before B4)
+			const midiTranspose = MIDI_NOTES.indexOf(transpose);
+			const tonicDelta = midiTonic - midiTranspose; // change in key
+			const octave = (Math.floor(midiPitch / 12) - Math.floor(midiTonic) / 12) * 12; // differences in octaves (C4 comes before B4)
 
-			const diff = midiNote - midiTonic; // difference between note and tonic
+			const diff = midiPitch - midiTonic; // difference between note and tonic
 			const scaleIndex = diff < 0 ?
 				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 				scale.indexOf(diff % 12); // above tonic
@@ -73,7 +73,7 @@ function getHarmony(melody, tonic, transform, interval, scale, useOctave=false) 
 
 			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff); // 1+ octave above or below
 			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta + octave;
-			return [(MIDI_NOTES[constrainNoteRange(returnMidi)]), duration];
+			return [(MIDI_NOTES[constrainNoteRange(returnMidi)]), beat];
 		}
 	});
 }

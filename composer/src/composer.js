@@ -1,6 +1,7 @@
 // getting global objects into iife
 const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
+const { props } = DoodooProps;
 const { Interface, Settings } = UI;
 const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid } = UI.Elements;
 
@@ -9,9 +10,9 @@ const comp = {
 	title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
 	tonic: 'C4', // def to transform ...
 	scale: [0, 2, 4, 5, 7, 9, 11],
-	duration:  '4n',
+	beat:  '4n',
 	bpm: 120,
-	voices: ['choir']
+	instruments: ['choir']
 }; // composition defaults
 
 app.controls = new Controls(app, defaults, controls); // doodoo defaults control
@@ -21,6 +22,7 @@ app.melody = new Melody(app, comp);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 app.meter = new Meter(app);
+app.modulators = new Modulators(app, props);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();
@@ -31,6 +33,7 @@ app.playback.connect();
 app.score.connect();
 app.controls.connect();
 app.meter.connect();
+app.modulators.connect();
 
 app.ui.settings = Settings(app, {
 	name: 'doodoo',

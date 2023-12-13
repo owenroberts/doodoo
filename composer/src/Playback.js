@@ -13,7 +13,7 @@ function Playback(app) {
 			Tone.Transport.cancel();
 		}
 
-		doodoo = new Doodoo({
+		doodoo = new NewDoo({
 			...comp,
 			withRecording: withRecording,
 			withCount: withCount,
