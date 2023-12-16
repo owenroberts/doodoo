@@ -24,7 +24,8 @@ function Playback(app) {
 			useMetro: useMetro,
 			controls: app.controls.get(),
 			useMeter: app.meter.isOpen(),
-			setMeter: app.meter.setMeter
+			setMeter: app.meter.setMeter,
+			props: app.modulators.get()
 		});
 		app.fio.saveLocal(comp);
 		app.score.update(doodoo.getLoops());

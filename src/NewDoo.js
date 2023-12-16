@@ -8,6 +8,8 @@
 
 function NewDoo(params, callback) {
 
+	console.log('new doo', params.props);
+
 	let defaultBeat = params.beat ?? '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
@@ -29,6 +31,8 @@ function NewDoo(params, callback) {
 	let withRecording = params.withRecording ?? false;
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
+
+	const props = { ...params.props };
 
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp
@@ -53,8 +57,8 @@ function NewDoo(params, callback) {
 	for (let i = 0; i < params.parts.length; i++) {
 		const part = params.parts[i];
 		const beats = part.map(p => parseInt(p[1]));
-		defaultBeat = Math.max(...beats) + 'n';
-		parts.push(new NewPart(part, def, defaultBeat, debug));
+		defaultBeat = Math.max(...beats) + 'n';  
+		parts.push(new NewPart(part, props, defaultBeat, debug));
 	}
 
 	if (withRecording) {
@@ -171,7 +175,8 @@ function NewDoo(params, callback) {
 		toneLoop.interval = smallestBeat + 'n';
 		
 		// let mutationCount = currentParts.map(part => part.update())[0];
-		if (params.onMutate) params.onMutate(mutationCount);
+		currentParts.forEach(part => { part.update(); });
+		if (params.onMutate) params.onMutate(totalPlays);
 		
 		// move to next index in sequence (if more than one)
 		sequenceIndex++;

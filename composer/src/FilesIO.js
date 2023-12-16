@@ -18,10 +18,20 @@ function FilesIO(app) {
 			if (!continueSave) return;
 		}
 		if (!controls) controls = app.controls.get();
+		const mods = app.modulators.get();
+		const saveMods = {};
+		for (const m in mods) {
+			if (mods[m].isMod) saveMods[m] = mods[m];
+		}
+
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));
 
-		localStorage.setItem('comp', JSON.stringify({ ...composition, controls }));
+		localStorage.setItem('comp', JSON.stringify({ 
+			...composition, 
+			controls, 
+			mods: saveMods
+		}));
 	}
 
 	function loadLocal() {
@@ -31,6 +41,7 @@ function FilesIO(app) {
 			app.composition.load(data);
 			app.melody.load(data);
 			app.controls.load(data.controls);
+			app.modulators.load(data.mods);
 		}
 	}
 
