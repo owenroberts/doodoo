@@ -6,12 +6,12 @@ function Modulators(app, props) {
 	
 	let panel;
 	const minMaxDefaults = {
-		value: 0,
 		min: 0,
 		max: 0,
 		chance: 0,
 		step: 1,
 		kick: 0,
+		type: 'walk',
 	};
 
 	function labelFromKey(key) {
@@ -36,51 +36,51 @@ function Modulators(app, props) {
 		const tree = getModTree(labelFromKey(prop), props[prop], params);
 		panel.add(tree);
 
-		if (params.minMod.value) {
-			const minTree = getModTree(labelFromKey(prop + 'Min Mod'), props[prop].minMod, minMaxDefaults);
-			tree.add(minTree);
-		} else {
-			const minModBtn = new UIButton({
-				text: 'Min Mod',
-				callback: () => {
-					const minTree = getModTree(labelFromKey(prop + 'Min Mod'), props[prop].minMod, minMaxDefaults);
-					tree.add(minTree);
-					minModBtn.remove();
-				}
-			});
-			tree.add(minModBtn);
-		}
+		for (const minMax in { minMod: params.minMod, maxMod: params.maxMod }) {
+			// console.log(minMax, params[minMax], Object.keys(params[minMax]).length)
 
-		if (params.maxMod.value) {
-			const maxTree = getModTree(labelFromKey(prop + 'Max Mod'), props[prop].maxMod, minMaxDefaults);
-			tree.add(maxTree);
-		} else {
-			const maxModBtn = new UIButton({
-				text: 'Max Mod',
-				callback: () => {
-					const maxTree = getModTree(labelFromKey(prop + 'Max Mod'), props[prop].maxMod, minMaxDefaults);
-					tree.add(maxTree);
-					maxModBtn.remove();
-				}
-			});
-			tree.add(maxModBtn);
+			for (const mmProp in minMaxDefaults) {
+				props[prop][minMax][mmProp] = params[minMax][mmProp] ?? minMaxDefaults[mmProp];
+			}
+
+			const mTree = getModTree(
+				labelFromKey(prop + ' ' + minMax),
+				props[prop][minMax],
+				{ ...minMaxDefaults, ...params[minMax] },
+			);
+			
+			if (Object.keys(params[minMax]).length > 0) {
+				tree.add(mTree);
+			} else {
+				const mBtn = new UIButton({
+					text: labelFromKey(minMax),
+					callback: () => {
+						tree.add(mTree);
+						mBtn.remove();
+					}
+				});
+				tree.add(mBtn);
+			}
 		}
 	}
 
 	function getModTree(title, prop, params) {
-		console.log('mod tree', title, prop, params);
+		// console.log(title, prop, params);
 
 		const tree = new UITree({ title: title });
 
-		tree.add(new UILabel({ text: "Value" }));
-		tree.add(new UINumberStep({
-			value: params.value,
-			step: params.step,
-			callback: value => {
-				prop.value = value;
-			}
-		}));
-		tree.addBreak();
+		if (params.value) {
+			tree.add(new UILabel({ text: "Value" }));
+			tree.add(new UINumberStep({
+				value: params.value,
+				step: params.step,
+				callback: value => {
+					prop.value = value;
+					// console.log('value', prop);
+				}
+			}));
+			tree.addBreak();
+		}
 
 		tree.add(new UILabel({ text: "Min" }));
 		tree.add(new UINumberStep({
@@ -88,6 +88,7 @@ function Modulators(app, props) {
 			step: params.step,
 			callback: value => {
 				prop.min = value;
+				// console.log('min', prop);
 			}
 		}));
 		tree.addBreak();
@@ -98,6 +99,7 @@ function Modulators(app, props) {
 			step: params.step,
 			callback: value => {
 				prop.max = value;
+				// console.log('max', prop);
 			}
 		}));
 		tree.addBreak();
@@ -126,7 +128,7 @@ function Modulators(app, props) {
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
 			value: params.type,
-			options: ['value', 'range', 'walk'],
+			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
 			callback: value => { prop.type = value; }
 		}));
 		tree.addBreak();

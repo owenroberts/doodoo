@@ -13,9 +13,9 @@ function NewPart(part, props, defaultBeat, debug) {
 		mods[prop] = new Modulator(props[prop]); // modulator replaces default props
 	}
 
-	function update() {
+	function update(totalPlays) {
 		for (const mod in mods) {
-			mods[mod].update();
+			mods[mod].update(totalPlays);
 		}
 	}
 

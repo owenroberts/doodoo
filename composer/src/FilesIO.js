@@ -23,6 +23,7 @@ function FilesIO(app) {
 		for (const m in mods) {
 			if (mods[m].isMod) saveMods[m] = mods[m];
 		}
+		console.log('save mods', saveMods);
 
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));

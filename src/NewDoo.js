@@ -175,7 +175,8 @@ function NewDoo(params, callback) {
 		toneLoop.interval = smallestBeat + 'n';
 		
 		// let mutationCount = currentParts.map(part => part.update())[0];
-		currentParts.forEach(part => { part.update(); });
+		// console.log('total plays', totalPlays);
+		currentParts.forEach(part => { part.update(totalPlays); });
 		if (params.onMutate) params.onMutate(totalPlays);
 		
 		// move to next index in sequence (if more than one)
