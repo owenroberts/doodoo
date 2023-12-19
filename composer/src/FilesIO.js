@@ -19,11 +19,8 @@ function FilesIO(app) {
 		}
 		if (!controls) controls = app.controls.get();
 		const mods = app.modulators.get();
-		const saveMods = {};
-		for (const m in mods) {
-			if (mods[m].isMod) saveMods[m] = mods[m];
-		}
-		console.log('save mods', saveMods);
+
+		console.log('save mods', mods);
 
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));
@@ -31,7 +28,7 @@ function FilesIO(app) {
 		localStorage.setItem('comp', JSON.stringify({ 
 			...composition, 
 			controls, 
-			mods: saveMods
+			mods,
 		}));
 	}
 

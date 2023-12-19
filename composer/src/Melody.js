@@ -295,6 +295,17 @@ function Melody(app, defaults) {
 			{ callback: clear, text: 'Clear', key: '0' },
 		], melodyPanel);
 
+		sequenceGrid = app.ui.addUI({
+			type: 'UIToggleGrid',
+			text: 'Part Sequencer',
+			value: sequence,
+			callback: value => {
+				sequence = value;
+			}
+		}, melodyPanel);
+
+		melodyPanel.addRow('melody', 'break');
+
 		app.ui.addProps({
 			'noteInput': {
 				type: 'UIListStep',
@@ -328,16 +339,7 @@ function Melody(app, defaults) {
 
 		melodyPanel.addRow(undefined, 'break');
 
-		sequenceGrid = app.ui.addUI({
-			type: 'UIToggleGrid',
-			text: 'Part Sequencer',
-			value: sequence,
-			callback: value => {
-				sequence = value;
-			}
-		}, melodyPanel);
-
-		melodyPanel.addRow('melody', 'break');
+		
 
 		partRows[0] = melodyPanel.addRow('part-0', 'break-line-up');
 		partRows[0].addClass('part');

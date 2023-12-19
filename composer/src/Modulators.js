@@ -1,10 +1,13 @@
 /*
 	ui section to add a modulator
+	defaults are the default properties in Properites.js
+	props are modified props
 */
 
-function Modulators(app, props) {
+function Modulators(app, defaults) {
 	
 	let panel;
+	let props = {};
 	const minMaxDefaults = {
 		min: 0,
 		max: 0,
@@ -20,40 +23,87 @@ function Modulators(app, props) {
 		return label;
 	}
 
-	function add() {
+	function addProp() {
 		const propName = app.ui.faces.propSelect.value;
 		if (!propName) return;
+		if (!props[propName]) {
+			props[propName] = structuredClone(defaults[propName]);
+		}
 		if (props[propName].isMod) return;
-		const defaults = props[propName];
-		addMod(propName, defaults);
-	}
+		// const params = structuredClone(defaults[prop]);
+		console.log(props[propName]);
+		// addMod(propName, defaults);
+		const prop = props[propName];
 
-	function addMod(prop, params) {
 
-		props[prop].isMod = true;
 		panel.addRow();
-
-		const tree = getModTree(labelFromKey(prop), props[prop], params);
+		const tree = new UITree({ title: labelFromKey(propName) });
+		tree.open();
 		panel.add(tree);
 
-		for (const minMax in { minMod: params.minMod, maxMod: params.maxMod }) {
-			// console.log(minMax, params[minMax], Object.keys(params[minMax]).length)
+		
+		const propType = 'number'; // default prop type
+		const propRow = new UIRow();
 
-			for (const mmProp in minMaxDefaults) {
-				props[prop][minMax][mmProp] = params[minMax][mmProp] ?? minMaxDefaults[mmProp];
+		tree.add(new UILabel({ text: "Prop Type" }));
+		const propTypeSelect = new UISelect({
+			options: ['number', 'number-list', 'string-list', 'note-list'],
+			callback: value => { 
+				console.log('prop type', value);
+				propRow.clear();
+				prop.mod = undefined;
+				if (value == 'number') addValue(propRow, prop);
 			}
+		})
+		tree.add(propTypeSelect, undefined, true);
+		tree.add(propRow, undefined, true);
 
-			const mTree = getModTree(
-				labelFromKey(prop + ' ' + minMax),
-				props[prop][minMax],
-				{ ...minMaxDefaults, ...params[minMax] },
-			);
-			
-			if (Object.keys(params[minMax]).length > 0) {
+		if (prop.value) addValue(propRow, prop);
+
+		tree.add(new UIButton({
+			text: '+ Mod',
+			callback: () => {
+				console.log('mod', prop);
+				if (prop.mod) return;
+				prop.mod = {};
+				// const modTree = getModTree();
+				const mod = addMod(labelFromKey(propName + 'Mod'), prop)
+				propRow.add(mod);
+			}
+		}), undefined, true);
+		
+		console.log('tree', tree);
+
+	}
+
+	function addValue(propRow, prop) {
+		propRow.add(new UILabel({ text: "Value" }));
+		propRow.add(new UINumberStep({
+			value: prop.value ?? 0,
+			step: prop.step ?? 1,
+			callback: value => { prop.value = value; }
+		}));
+		// propRow.addBreak();
+	}
+
+	function addList() {
+
+	}
+
+	function addMod(title, prop) {
+
+		const tree = getModTree(title, prop.mod);
+		panel.add(tree);
+
+		for (const mm in { minMod: 'minMod', maxMod: 'maxMod' }) {
+			if (prop.mod[mm]) {
+				const mTree = getModTree(labelFromKey(title + ' ' + mm), prop.mod[mm]);
 				tree.add(mTree);
 			} else {
+				prop.mod[mm] = {};
+				const mTree = getModTree(labelFromKey(title + ' ' + mm), prop.mod[mm]);
 				const mBtn = new UIButton({
-					text: labelFromKey(minMax),
+					text: labelFromKey(mm),
 					callback: () => {
 						tree.add(mTree);
 						mBtn.remove();
@@ -62,81 +112,59 @@ function Modulators(app, props) {
 				tree.add(mBtn);
 			}
 		}
+		return tree;
 	}
 
-	function getModTree(title, prop, params) {
+	function getModTree(title, mod) {
 		// console.log(title, prop, params);
 
 		const tree = new UITree({ title: title });
 
-		if (params.value) {
-			tree.add(new UILabel({ text: "Value" }));
-			tree.add(new UINumberStep({
-				value: params.value,
-				step: params.step,
-				callback: value => {
-					prop.value = value;
-					// console.log('value', prop);
-				}
-			}));
-			tree.addBreak();
-		}
-
 		tree.add(new UILabel({ text: "Min" }));
 		tree.add(new UINumberStep({
-			value: params.min,
-			step: params.step,
-			callback: value => {
-				prop.min = value;
-				// console.log('min', prop);
-			}
+			value: mod.min ?? 0,
+			step: mod.step ?? 1,
+			callback: value => { mod.min = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Max" }));
 		tree.add(new UINumberStep({
-			value: params.max,
-			step: params.step,
-			callback: value => {
-				prop.max = value;
-				// console.log('max', prop);
-			}
+			value: mod.max ?? 1,
+			step: mod.step ?? 1,
+			callback: value => { mod.max = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Step" }));
 		tree.add(new UINumberStep({
-			value: params.step,
+			value: mod.step ?? 1,
 			step: 0.1,
-			callback: value => {
-				prop.step = value;
-			}
+			callback: value => { mod.step = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
-			value: params.chance,
+			value: mod.chance ?? 0,
 			label: 'Chance',
 			step: 0.005,
-			callback: value => {
-				prop.chance = value;
-			}
+			callback: value => { mod.chance = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
-			value: params.type,
+			value: mod.type ?? 'value',
 			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			callback: value => { prop.type = value; }
+			callback: value => { mod.type = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Kick In" }));
 		tree.add(new UINumberStep({
-			value: params.kick,
-			callback: value => { prop.kick = value; }
+			value: mod.kick ?? 0,
+			callback: value => { mod.kick = value; }
 		}));
 		tree.addBreak();
 
@@ -160,13 +188,14 @@ function Modulators(app, props) {
 				type: "UIInputSearch",
 				listName: "prop-list",
 				label: "Add mod:",
-				options: Object.keys(props),
+				options: Object.keys(defaults),
+				selected: 'loopNum',
 				// callback: 
 			}
 		});
 
 		app.ui.addCallbacks([
-			{ callback: add, key: 'm', text: '+' },
+			{ callback: addProp, key: 'm', text: '+' },
 			{ 
 				key: 'shift-p', 
 				text: 'Print Props',
