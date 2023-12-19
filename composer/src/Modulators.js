@@ -31,7 +31,7 @@ function Modulators(app, defaults) {
 		}
 		if (props[propName].isMod) return;
 		// const params = structuredClone(defaults[prop]);
-		console.log(props[propName]);
+		// console.log(props[propName]);
 		// addMod(propName, defaults);
 		const prop = props[propName];
 
@@ -41,7 +41,6 @@ function Modulators(app, defaults) {
 		tree.open();
 		panel.add(tree);
 
-		
 		const propType = 'number'; // default prop type
 		const propRow = new UIRow();
 
@@ -52,42 +51,44 @@ function Modulators(app, defaults) {
 				console.log('prop type', value);
 				propRow.clear();
 				prop.mod = undefined;
-				if (value == 'number') addValue(propRow, prop);
+				if (value == 'number') addValue(propRow, prop, propName, 'Value', 0);
 			}
 		})
 		tree.add(propTypeSelect, undefined, true);
 		tree.add(propRow, undefined, true);
 
-		if (prop.value) addValue(propRow, prop);
+		if (prop.value) addValue(propRow, prop, propName, 'Value', 0);
 
-		tree.add(new UIButton({
-			text: '+ Mod',
-			callback: () => {
-				console.log('mod', prop);
-				if (prop.mod) return;
-				prop.mod = {};
-				// const modTree = getModTree();
-				const mod = addMod(labelFromKey(propName + 'Mod'), prop)
-				propRow.add(mod);
-			}
-		}), undefined, true);
-		
 		console.log('tree', tree);
 
 	}
 
-	function addValue(propRow, prop) {
-		propRow.add(new UILabel({ text: "Value" }));
+	function addValue(propRow, prop, propName, label, level) {
+		console.log('add val', prop, propName, label, level);
+		propRow.add(new UILabel({ text: label }));
 		propRow.add(new UINumberStep({
 			value: prop.value ?? 0,
 			step: prop.step ?? 1,
 			callback: value => { prop.value = value; }
 		}));
+
+		if (level > 1) return;
+		propRow.add(new UIButton({
+			text: '+Mod',
+			callback: () => {
+				console.log('prop', prop);
+				if (prop.mod) return;
+				prop.mod = { min: {}, max: {}, step: {}, chance: {}, kick: {}, type: {}, };
+				
+				// const modTree = getModTree();
+				// const mod = addMod(labelFromKey(propName + 'Mod'), prop);
+				// propRow.add(mod);
+
+				const tree = getModTree(labelFromKey(propName + 'Mod'), prop.mod, level+1);
+				propRow.add(tree);
+			}
+		}));
 		// propRow.addBreak();
-	}
-
-	function addList() {
-
 	}
 
 	function addMod(title, prop) {
@@ -115,56 +116,93 @@ function Modulators(app, defaults) {
 		return tree;
 	}
 
-	function getModTree(title, mod) {
-		// console.log(title, prop, params);
+	function getModTree(title, mod, level) {
+		// console.log('mod tree', title, mod);
 
 		const tree = new UITree({ title: title });
 
-		tree.add(new UILabel({ text: "Min" }));
-		tree.add(new UINumberStep({
-			value: mod.min ?? 0,
-			step: mod.step ?? 1,
-			callback: value => { mod.min = value; }
-		}));
-		tree.addBreak();
+		const minRow = new UIRow({ class: 'break' });
+		tree.add(minRow);
+		addValue(minRow, mod.min, title + ' Min', 'Min', level);
+		
+		// tree.add(new UINumberStep({
+		// 	value: mod.min?.value ?? 0,
+		// 	step: mod.step?.value ?? 1,
+		// 	// callback: value => { mod.min = value };
+		// 	callback: value => { 
+		// 		if (!mod.min) mod.min = {};
+		// 		mod.min.value = value;
+		// 	}
+		// }));
+		
+		// // only one level of this shit!
+		// if (mod.min?.mod && isFirstLevel) {
+		// 	const minTree = getModTree(title + 'Min Mod', mod.min.mod, false);
+		// 	tree.add(minTree);
+		// } else if (isFirstLevel) {
+		// 	const minBtn = new UIButton({
+		// 		text: '+Mod',
+		// 		callback: () => {
+		// 			if (!mod.min) mod.min = { mod: {} };
+		// 			const minTree = getModTree(title + 'Min Mod', mod.min.mod, false);
+		// 			tree.add(minTree);
+		// 			mBtn.remove();
+		// 		}
+		// 	});
+		// 	tree.add(minBtn);
+		// }
+		// tree.addBreak();
 
 		tree.add(new UILabel({ text: "Max" }));
 		tree.add(new UINumberStep({
-			value: mod.max ?? 1,
-			step: mod.step ?? 1,
-			callback: value => { mod.max = value; }
+			value: mod.max?.value ?? 1,
+			step: mod.step?.value ?? 1,
+			// callback: value => { mod.max = value; }
+			callback: value => { 
+				if (!mod.max) mod.max = {};
+				mod.max.value = value;
+			}
 		}));
 		tree.addBreak();
 
+		if (mod.max?.mod && isFirstLevel) {
+			const maxTree = getModTree(title + 'Max Mod', mod.max.mod, false);
+			tree.add(maxTree);
+		}
+
 		tree.add(new UILabel({ text: "Step" }));
 		tree.add(new UINumberStep({
-			value: mod.step ?? 1,
+			value: mod.step?.value ?? 1,
 			step: 0.1,
-			callback: value => { mod.step = value; }
+			// callback: value => { mod.step = value; }
+			callback: value => { mod.step = { value }; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
-			value: mod.chance ?? 0,
+			value: mod.chance?.value ?? 0,
 			label: 'Chance',
 			step: 0.005,
-			callback: value => { mod.chance = value; }
+			// callback: value => { mod.chance = value; }
+			callback: value => { mod.chance = { value }; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
-			value: mod.type ?? 'value',
+			value: mod.type?.value ?? 'value',
 			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			callback: value => { mod.type = value; }
+			// callback: value => { mod.type = value; }
+			callback: value => { mod.type = { value }; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Kick In" }));
 		tree.add(new UINumberStep({
-			value: mod.kick ?? 0,
-			callback: value => { mod.kick = value; }
+			value: mod.kick?.value ?? 0,
+			// callback: value => { mod.kick = value; }
+			callback: value => { mod.kick = { value }; }
 		}));
 		tree.addBreak();
 
