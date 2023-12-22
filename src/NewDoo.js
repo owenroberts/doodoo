@@ -8,8 +8,6 @@
 
 function NewDoo(params, callback) {
 
-	console.log('new doo', params.props);
-
 	let defaultBeat = params.beat ?? '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
@@ -32,7 +30,7 @@ function NewDoo(params, callback) {
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
 
-	const props = { ...params.props };
+	const props = structuredClone(params.props);
 
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp

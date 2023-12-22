@@ -20,7 +20,7 @@ function FilesIO(app) {
 		if (!controls) controls = app.controls.get();
 		const mods = app.modulators.get();
 
-		console.log('save mods', mods);
+		// console.log('save mods', mods);
 
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));

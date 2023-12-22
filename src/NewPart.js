@@ -10,7 +10,7 @@ function NewPart(part, props, defaultBeat, debug) {
 
 	/* set up modulators */
 	for (const prop in props) {
-		mods[prop] = new Modulator(props[prop]); // modulator replaces default props
+		mods[prop] = new Property(props[prop]); // modulator replaces default props
 	}
 
 	function update(totalPlays) {

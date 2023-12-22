@@ -78,6 +78,7 @@ function Composition(app, defaults) {
 		if (data.stacking) {
 			stacking = data.stacking;
 			stackRows.clear();
+
 			
 			for (let i = 0; i < data.stacking.length; i++) {
 				const stack = data.stacking[i];
