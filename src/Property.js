@@ -5,7 +5,8 @@
 */
 
 function Property(params) {
-	console.log('property', params);
+	// console.log('property params', params);
+	
 	let value = params.value ?? 0;
 	let isMod = false;
 	let mod;

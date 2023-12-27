@@ -8,13 +8,13 @@ function Modulators(app, defaults) {
 	
 	let panel;
 	let props = {};
-	const minMaxDefaults = {
-		min: 0,
-		max: 0,
-		chance: 0,
-		step: 1,
-		kick: 0,
-		type: 'walk',
+	let modDefaults = {
+		min: { value: 0, step: 0.1 },
+		max: { value: 1, step: 0.1 },
+		step: { value: 1, step: 0.01 },
+		kick: { value: 0, step: 1 },
+		chance: { value: 0, step: 0.0005 },
+		type: { value: 'value', options: ['value', 'range', 'walk', 'walkUp', 'walkDown'] },
 	};
 
 	function labelFromKey(key) {
@@ -23,16 +23,17 @@ function Modulators(app, defaults) {
 		return label;
 	}
 
-	function addProp() {
+	function addNewProp() {
 		const prop = app.ui.faces.propSelect.value;
 		if (!prop) return;
+		if (props[prop]) return;
 		if (!props[prop]) {
 			props[prop] = structuredClone(defaults[prop]);
 		}
-		addMod(prop);
+		addProp(prop);
 	}
 
-	function addMod(prop) {
+	function addProp(prop) {
 
 		panel.addRow();
 		const tree = new UITree({ title: labelFromKey(prop) });
@@ -47,106 +48,108 @@ function Modulators(app, defaults) {
 			options: ['number', 'number-list', 'string-list', 'note-list'],
 			callback: value => { 
 				propRow.clear();
-				prop.mod = undefined;
-				if (value == 'number') addValue(propRow, prop, 'Value', 0);
+				// props[prop].mod = undefined;
+				delete props[prop].mod;
+				if (value == 'number') addValue(propRow, prop, 'Value');
 			}
 		})
 		propRow.add(propTypeSelect, undefined, true);
 		tree.add(propRow);
 
-		if (props[prop].value) addValue(propRow, prop, 'Value', 0);
+		if (props[prop].value) addValue(propRow, prop, 'Value');
 
 		// console.log('tree', tree);
 	}
 
-	function addValue(propRow, prop, label, level) {
+	function getPropFromString(propString) {
+		let prop, propLast;
+		if (propString.includes('-')) {
+			prop = props;
+			const parts = propString.split('-');
+			for (let i = 0; i < parts.length; i++) {
+				prop = prop[parts[i]];
+			}
+			propLast = parts[parts.length - 1];
+		} else {
+			prop = props[propString];
+			propLast = propString;
+		}
+		const params = { ...defaults[propLast], ...modDefaults[propLast], ...structuredClone(prop), };
 
-		// need to rethink adding mods here, use mod string??
-		// mod string, loopNum, loopNum-mod-min
-		// const p = props[prop]; // can do it this way // but will it sucK??
+		// console.log('get prop from string', propString, prop);
+		return { prop, params };
+	}
+
+	function addValue(propRow, propString, label, level=0) {
+
+		const { prop, params } = getPropFromString(propString);
+		// console.log('prop', propString, prop, params);
 
 		propRow.add(new UILabel({ text: label }));
 		propRow.add(new UINumberStep({
-			value: props[prop].value ?? 0,
-			step: props[prop].step ?? 1,
-			callback: value => { 
-				props[prop].value = value;
+			...params, // step, options, etc from defaults
+			value: prop.value ?? 0,
+			// step: prop.step ?? 1, // big f-ing ???
+			callback: value => {
+				// console.log(propString, value, prop);
+				prop.value = value;
 			}
 		}));
 
-		if (level > 1) return;
-		propRow.add(new UIButton({
-			text: '+Mod',
-			callback: () => {
-				// console.log('prop', prop);
-				if (props[prop].mod) return;
-				props[prop].mod = { min: {}, max: {}, step: {}, chance: {}, kick: {}, type: {}, };
-				
-				const tree = getModTree(labelFromKey(prop + 'Mod'), props[prop].mod, level+1);
-				propRow.add(tree);
-			}
-		}));
+		if (prop.mod) {
+			propRow.addBreak();
+			const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
+			propRow.add(tree);
+		} else if (level < 2) {
+			propRow.add(new UIButton({
+				text: '+Mod',
+				callback: () => {
+					// console.log('prop', prop);
+					if (prop.mod) return;
+					prop.mod = structuredClone(modDefaults);
+					const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
+					propRow.add(tree);
+				}
+			}));
+		}
 	}
 
-	function getModTree(title, mod, level) {
+	function getModTree(title, propString, level) {
 		// console.log('mod tree', title, mod);
+		const { prop } = getPropFromString(propString);
 
 		const tree = new UITree({ title: title });
 
-		const minRow = new UIRow({ class: 'break' });
-		tree.add(minRow);
-		addValue(minRow, mod.min, title + ' Min', 'Min', level);
+		const minRow = tree.add(new UIRow({ class: 'break' }));
+		addValue(minRow, propString + '-min', 'Min', level);
 
-		tree.add(new UILabel({ text: "Max" }));
-		tree.add(new UINumberStep({
-			value: mod.max?.value ?? 1,
-			step: mod.step?.value ?? 1,
-			// callback: value => { mod.max = value; }
-			callback: value => { 
-				if (!mod.max) mod.max = {};
-				mod.max.value = value;
-			}
-		}));
-		tree.addBreak();
+		const maxRow = tree.add(new UIRow({ class: 'break' }));
+		addValue(maxRow, propString + '-max', 'Max', level);
 
-		if (mod.max?.mod && isFirstLevel) {
-			const maxTree = getModTree(title + 'Max Mod', mod.max.mod, false);
-			tree.add(maxTree);
-		}
-
-		tree.add(new UILabel({ text: "Step" }));
-		tree.add(new UINumberStep({
-			value: mod.step?.value ?? 1,
-			step: 0.1,
-			// callback: value => { mod.step = value; }
-			callback: value => { mod.step = { value }; }
-		}));
-		tree.addBreak();
+		const stepRow = tree.add(new UIRow({ class: 'break' }));
+		addValue(stepRow, propString + '-step', 'Step', level);
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
-			value: mod.chance?.value ?? 0,
+			value: prop.chance?.value ?? 0,
 			label: 'Chance',
 			step: 0.005,
-			// callback: value => { mod.chance = value; }
-			callback: value => { mod.chance = { value }; }
+			callback: value => { prop.chance.value = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
-			value: mod.type?.value ?? 'value',
+			value: prop.type?.value ?? 'value',
 			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			// callback: value => { mod.type = value; }
-			callback: value => { mod.type = { value }; }
+			callback: value => { prop.type.value = value; }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Kick In" }));
 		tree.add(new UINumberStep({
-			value: mod.kick?.value ?? 0,
-			// callback: value => { mod.kick = value; }
-			callback: value => { mod.kick = { value }; }
+			value: prop.kick?.value ?? 0,
+			callback: value => { prop.kick.value = value; }
 		}));
 		tree.addBreak();
 
@@ -160,7 +163,7 @@ function Modulators(app, defaults) {
 	function load(mods) {
 		for (const prop in mods) {
 			props[prop] = structuredClone(mods[prop]);
-			addMod(prop, mods[prop]);
+			addProp(prop, mods[prop]);
 		}
 	}
 
@@ -178,7 +181,7 @@ function Modulators(app, defaults) {
 		});
 
 		app.ui.addCallbacks([
-			{ callback: addProp, key: 'm', text: '+' },
+			{ callback: addNewProp, key: 'm', text: '+' },
 			{ 
 				key: 'shift-p', 
 				text: 'Print Props',
