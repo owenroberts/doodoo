@@ -15,6 +15,7 @@ function Modulators(app, defaults) {
 		kick: { value: 0, step: 1 },
 		chance: { value: 0, step: 0.0005 },
 		type: { value: 'value', options: ['value', 'range', 'walk', 'walkUp', 'walkDown'] },
+		index: { value: 0, step: 1 },
 	};
 
 	function labelFromKey(key) {
@@ -51,12 +52,14 @@ function Modulators(app, defaults) {
 				// props[prop].mod = undefined;
 				delete props[prop].mod;
 				if (value == 'number') addValue(propRow, prop, 'Value');
+				if (value == 'number-list') addList(propRow, prop);
 			}
 		})
 		propRow.add(propTypeSelect, undefined, true);
 		tree.add(propRow);
 
 		if (props[prop].value) addValue(propRow, prop, 'Value');
+		if (props[prop].list) addList(propRow, prop);
 
 		// console.log('tree', tree);
 	}
@@ -83,19 +86,56 @@ function Modulators(app, defaults) {
 	function addValue(propRow, propString, label, level=0) {
 
 		const { prop, params } = getPropFromString(propString);
-		// console.log('prop', propString, prop, params);
+		console.log('prop', propString, prop, params);
 
 		propRow.add(new UILabel({ text: label }));
 		propRow.add(new UINumberStep({
 			...params, // step, options, etc from defaults
-			value: prop.value ?? 0,
+			value: params.value ?? 0,
 			// step: prop.step ?? 1, // big f-ing ???
 			callback: value => {
 				// console.log(propString, value, prop);
 				prop.value = value;
 			}
 		}));
+		addMod(propRow, propString, label, level);
 
+		// if (prop.mod) {
+		// 	propRow.addBreak();
+		// 	const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
+		// 	propRow.add(tree);
+		// } else if (level < 2) {
+		// 	propRow.add(new UIButton({
+		// 		text: '+Mod',
+		// 		callback: () => {
+		// 			// console.log('prop', prop);
+		// 			if (prop.mod) return;
+		// 			prop.mod = structuredClone(modDefaults);
+		// 			const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
+		// 			propRow.add(tree);
+		// 		}
+		// 	}));
+		// }
+	}
+
+	function addList(propRow, propString, level=0) {
+		const { prop, params } = getPropFromString(propString);
+
+		propRow.add(new UILabel({ text: 'List' }));
+		propRow.add(new UINumberList({
+			list: params.list ?? [],
+			callback: list => { prop.list = list; }
+		}));
+		propRow.addBreak();
+		addValue(propRow, propString + '-index', 'Index', level+1);
+
+		// index prop doesn't exist .... 
+		addMod(propRow, propString + '-index', 'Index', level);
+	}
+
+	function addMod(propRow, propString, label, level) {
+		const { prop, params } = getPropFromString(propString);
+		console.log('add mod', propString, prop, params);
 		if (prop.mod) {
 			propRow.addBreak();
 			const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
@@ -104,7 +144,6 @@ function Modulators(app, defaults) {
 			propRow.add(new UIButton({
 				text: '+Mod',
 				callback: () => {
-					// console.log('prop', prop);
 					if (prop.mod) return;
 					prop.mod = structuredClone(modDefaults);
 					const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
