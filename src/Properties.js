@@ -12,6 +12,7 @@ const props = {
 		value: 1,
 		step: 1,
 	}, // number of loops per part
+	test: {},
 };
 
 window.DoodooProps = { props };
