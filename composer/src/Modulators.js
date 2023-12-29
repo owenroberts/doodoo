@@ -75,12 +75,10 @@ function Modulators(app, defaults) {
 					const step = +prompt('Step?', 1);
 					props[prop] = { value: 0, step, type: propType }; 
 				}
-				// how to set step?
 				addValue(row, prop, 'Value');
 			break;
 			case 'number-list':
 				// set default if prop isn't passed
-				console.log('props prop', props[prop])
 				if (!props[prop].hasOwnProperty('index')) {
 					props[prop] = { index: 0, list: [], type: propType };
 				}
