@@ -29,26 +29,44 @@ function Modulators(app, defaults) {
 
 	function addNewProp() {
 		const prop = app.ui.faces.propSelect.value;
+		app.ui.faces.propSelect.value = '';
 		if (!prop) return;
 		if (props[prop]) return;
 		if (!props[prop]) {
 			props[prop] = structuredClone(defaults[prop]);
 		}
-		addProp(prop);
+		addProp(prop, true);
 	}
 
-	function addProp(prop) {
+	function addProp(prop, isOpen) {
 
 		const tree = new UITree({ title: labelFromKey(prop) });
-		tree.open();
+		if (isOpen) tree.open();
+
+		const removeBtn = propsRow.add(new UIButton({
+			text: 'X',
+			callback: () => {
+				delete props[prop];
+				propsRow.remove(tree);
+				propsRow.remove(removeBtn);
+			}
+		}));
+		
 		propsRow.add(tree);
+		propsRow.addBreak();
 
 		const propRow = new UIRow({ class: 'break' });
 		const propParamsRow = new UIRow({ class: 'break' });
+
+		// console.log('props', prop, props[prop]);
 		
 		propRow.add(new UILabel({ text: "Prop Type" }));
+		let propType = 'number';
+		if (props[prop].hasOwnProperty('type')) propType = props[prop].type;
+		else if (props[prop].hasOwnProperty('list')) propType = 'number-list';
+
 		const propTypeSelect = new UISelect({
-			value: props[prop].type ?? 'number',
+			value: propType,
 			options: ['number', 'number-list', 'string-list', 'note-list'],
 			callback: type => { 
 				propParamsRow.clear();
@@ -59,10 +77,12 @@ function Modulators(app, defaults) {
 		propRow.add(propTypeSelect, undefined, true);
 		tree.add(propRow);
 
-		if (props[prop].value) addPropType(propParamsRow, 'number', prop);
-		if (props[prop].list) addPropType(propParamsRow, 'number-list', prop);
+		if (props[prop].hasOwnProperty('value')) addPropType(propParamsRow, 'number', prop);
+		if (props[prop].hasOwnProperty('list')) addPropType(propParamsRow, 'number-list', prop);
 
 		propRow.add(propParamsRow);
+
+
 
 		// console.log('tree', tree);
 	}
@@ -73,14 +93,14 @@ function Modulators(app, defaults) {
 				// set default if prop isn't passed
 				if (!props[prop].hasOwnProperty('value')) {
 					const step = +prompt('Step?', 1);
-					props[prop] = { value: 0, step, type: propType }; 
+					props[prop] = { value: 0, step, type: propType, ...defaults[prop] }; 
 				}
 				addValue(row, prop, 'Value');
 			break;
 			case 'number-list':
 				// set default if prop isn't passed
 				if (!props[prop].hasOwnProperty('index')) {
-					props[prop] = { index: 0, list: [], type: propType };
+					props[prop] = { index: 0, list: [], type: propType, ...defaults[prop] };
 				}
 				addList(row, prop);
 			break;
@@ -144,9 +164,8 @@ function Modulators(app, defaults) {
 	}
 
 	function addList(row, propString, level=0) {
-		// let { prop, params } = getPropFromString(propString);
+		
 		const params = getParams(propString);
-		// console.log('add list prop', propString, prop);
 
 		row.add(new UILabel({ text: 'List' }));
 		row.add(new UINumberList({
@@ -168,32 +187,56 @@ function Modulators(app, defaults) {
 	}
 
 	function addMod(row, propString, label, level) {
-		// const { prop, params } = getPropFromString(propString);
 
-		// const params = getParams(propString);
-		const prop = getPropFromString(propString);
-		// console.log('add mod', propString, prop);
+		let prop = getPropFromString(propString);
 
+		// if mod property doesn't exist get default
+		if (!prop) prop = modDefaults[propString.split('-').pop()];
+		
+		// make sure mod has all properties
 		if (prop.mod) {
-			row.addBreak();
-			const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
-			row.add(tree);
-		} else if (level < 2) {
+			for (const def in modDefaults) {
+				if (!prop.mod.hasOwnProperty(def)) {
+					prop.mod[def] = modDefaults[def];
+				}
+			}
+		}
+
+		if (level < 2) {
 			row.add(new UIButton({
 				text: '+Mod',
 				callback: () => {
 					if (prop.mod) return;
 					prop.mod = structuredClone(modDefaults);
-					const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
-					row.add(tree);
+					addModTree(row, propString, label, level);
 				}
 			}));
 		}
+
+		if (prop.mod) {
+			row.addBreak();
+			addModTree(row, propString, label, level);
+		}
+	}
+
+	function addModTree(row, propString, label, level) {
+		const prop = getPropFromString(propString);
+		const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", level+1);
+		row.add(tree);
+		const removeBtn = row.add(new UIButton({
+			text: 'X',
+			callback: () => {
+				delete prop.mod;
+				row.remove(tree);
+				row.remove(removeBtn);
+			}
+		}));
 	}
 
 	function getModTree(title, propString, level) {
-		// console.log('mod tree', title, mod);
 		const prop = getPropFromString(propString);
+		const params = getParams(propString);
+		// console.log('mod tree', propString, prop);
 
 		const tree = new UITree({ title: title });
 
@@ -208,25 +251,29 @@ function Modulators(app, defaults) {
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
-			value: prop.chance?.value ?? 0,
+			value: params.chance?.value ?? 0,
 			label: 'Chance',
 			step: 0.005,
-			callback: value => { prop.chance.value = value; }
+			// callback: value => { prop.chance.value = value; }
+			callback: value => { updateProp(propString + '-chance', value); }
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
-			value: prop.type?.value ?? 'value',
+			value: params.type?.value ?? 'value',
 			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			callback: value => { prop.type.value = value; }
+			// callback: value => { prop.type.value = value; }
+			callback: value => { updateProp(propString + '-type', value); }
+
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Kick In" }));
 		tree.add(new UINumberStep({
-			value: prop.kick?.value ?? 0,
-			callback: value => { prop.kick.value = value; }
+			value: params.kick?.value ?? 0,
+			// callback: value => { prop.kick.value = value; }
+			callback: value => { updateProp(propString + '-kick', value); }
 		}));
 		tree.addBreak();
 
@@ -240,7 +287,7 @@ function Modulators(app, defaults) {
 	function load(mods) {
 		for (const prop in mods) {
 			props[prop] = structuredClone(mods[prop]);
-			addProp(prop, mods[prop]);
+			addProp(prop, false);
 		}
 	}
 
@@ -253,8 +300,7 @@ function Modulators(app, defaults) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(defaults),
-				selected: 'loopNum',
-				// callback: 
+				// selected: 'loopNum',
 			}
 		});
 

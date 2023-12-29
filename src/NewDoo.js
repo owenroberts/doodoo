@@ -30,7 +30,7 @@ function NewDoo(params, callback) {
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
 
-	const props = structuredClone(params.props);
+	const props = { ...structuredClone(DoodooProps.props), ...structuredClone(params.props) };
 
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp

@@ -5,7 +5,7 @@
 	list with mod mods index
 */
 
-function Property(params) {
+function Property(params={}) {
 	// console.log('property params', params);
 
 	let type = params.hasOwnProperty('value') ? 'value' : 'list';
@@ -23,7 +23,6 @@ function Property(params) {
 			new Modulator(value, params.mod) :
 			new Modulator(index, params.mod) ;
 	}
-
 
 	function update(totalPlays) {
 		if (isMod) mod.update(totalPlays);

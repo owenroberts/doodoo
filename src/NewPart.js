@@ -8,6 +8,8 @@ function NewPart(part, props, defaultBeat, debug) {
 	let defaultBeatNum = +defaultBeat.slice(0, -1); // default beat number for math
 	let mods = {};
 
+	console.log('new part props', props);
+
 	/* set up modulators */
 	for (const prop in props) {
 		mods[prop] = new Property(props[prop]); // modulator replaces default props
@@ -42,7 +44,8 @@ function NewPart(part, props, defaultBeat, debug) {
 	function get() {
 		const loops = []; // need a better word, voices? instruments?
 		const loopNum = mods.loopNum.getInt();
-		console.log('loop num', loopNum);
+		// console.log('loop num', loopNum);
+		// harm chance always 0
 		for (let i = 0; i < loopNum; i++) {
 			const currentBeat = defaultBeat;
 			const melody = getBeats(currentBeat);
@@ -51,10 +54,15 @@ function NewPart(part, props, defaultBeat, debug) {
 				count: 0, // count through loop
 				countEnd: melody.length - 1,
 				beatCount: 1, // doubler param ... need this?
-				harmony: 0, // default tonic,
+				// harmony: 0, // default tonic,
+				// harmony: chance(mods.harmonyChance.get()) ?
+					// mods.harmonyList.get() : 0,
+				harmony: mods.harmonyList.get(),
 				instrument: 'fmSynth',
 			});
 		}
+
+		console.log('harmonies', loops.map(l => l.harmony));
 		return loops;
 	}
 

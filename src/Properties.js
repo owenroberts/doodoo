@@ -8,11 +8,16 @@
 */
 
 const props = {
-	loopNum: {
-		value: 1,
-		step: 1,
-	}, // number of loops per part
-	test: {},
+	loopNum: { value: 1, step: 1, }, // number of loops per part
+	harmonyList: { 
+		list: [0, 4, 5, 2, 3, 6, 7],
+		// this looks wacked, but better than alternative ... ?
+		mod: { 
+			type: { value: 'range' },
+			min: { value: 0 }, 
+			max: { value: 5 } 
+		},
+	},
 };
 
 window.DoodooProps = { props };
