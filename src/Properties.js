@@ -9,6 +9,7 @@
 
 const props = {
 	loopNum: { value: 1, step: 1, }, // number of loops per part
+	harmonyChance: { value: 0, step: 0.01, mod: { min: { value: 0.5 }, max: { value: 0.5} } },
 	harmonyList: { 
 		list: [0, 4, 5, 2, 3, 6, 7],
 		// this looks wacked, but better than alternative ... ?

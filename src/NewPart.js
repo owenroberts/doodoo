@@ -8,7 +8,7 @@ function NewPart(part, props, defaultBeat, debug) {
 	let defaultBeatNum = +defaultBeat.slice(0, -1); // default beat number for math
 	let mods = {};
 
-	console.log('new part props', props);
+	// console.log('new part props', props);
 
 	/* set up modulators */
 	for (const prop in props) {
@@ -55,9 +55,8 @@ function NewPart(part, props, defaultBeat, debug) {
 				countEnd: melody.length - 1,
 				beatCount: 1, // doubler param ... need this?
 				// harmony: 0, // default tonic,
-				// harmony: chance(mods.harmonyChance.get()) ?
-					// mods.harmonyList.get() : 0,
-				harmony: mods.harmonyList.get(),
+				harmony: chance(mods.harmonyChance.get()) ?
+					mods.harmonyList.get() : 0,
 				instrument: 'fmSynth',
 			});
 		}

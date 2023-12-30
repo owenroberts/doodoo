@@ -35,6 +35,7 @@ function Modulators(app, defaults) {
 		if (!props[prop]) {
 			props[prop] = structuredClone(defaults[prop]);
 		}
+		// console.log('add new prop', prop, props[prop]);
 		addProp(prop, true);
 	}
 
@@ -61,6 +62,7 @@ function Modulators(app, defaults) {
 		// console.log('props', prop, props[prop]);
 		
 		propRow.add(new UILabel({ text: "Prop Type" }));
+		
 		let propType = 'number';
 		if (props[prop].hasOwnProperty('type')) propType = props[prop].type;
 		else if (props[prop].hasOwnProperty('list')) propType = 'number-list';
@@ -189,6 +191,7 @@ function Modulators(app, defaults) {
 	function addMod(row, propString, label, level) {
 
 		let prop = getPropFromString(propString);
+		// console.log('add mod', prop);
 
 		// if mod property doesn't exist get default
 		if (!prop) prop = modDefaults[propString.split('-').pop()];
@@ -306,6 +309,14 @@ function Modulators(app, defaults) {
 
 		app.ui.addCallbacks([
 			{ callback: addNewProp, key: 'm', text: '+' },
+			{
+				text: 'Collapse',
+				callback: () => {
+					propsRow.uiChildren
+						.filter(c => c.constructor.name === 'UITree')
+						.forEach(c => { c.close(); });
+				}
+			},
 			{ 
 				key: 'shift-p', 
 				text: 'Print Props',
