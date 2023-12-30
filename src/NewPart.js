@@ -58,10 +58,13 @@ function NewPart(part, props, defaultBeat, debug) {
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: 'fmSynth',
+				startIndex: mods.startIndex.getInt(),
 			});
 		}
 
-		console.log('harmonies', loops.map(l => l.harmony));
+		// console.log('harmonies', loops.map(l => l.harmony));
+		console.log('start indexes', loops.map(l => l.startIndex));
+
 		return loops;
 	}
 

@@ -2,8 +2,8 @@
 	NewDoo
 	All properties used anywhere in Doodoo lol
 	kick, when to start modding
-	use [value, min, max, step, chance]?
-	walk, walkUp, walkDown
+	value (just the value), range (random), walk, walkUp, walkDown
+	anything that has a value (or list+index) can have a mod	
 
 */
 
@@ -18,6 +18,23 @@ const props = {
 			min: { value: 0 }, 
 			max: { value: 5 } 
 		},
+	},
+	// melody starts at a different note -- omg
+	startIndex: { 
+		value: 0, 
+		mod: { 
+			max: { 
+				value: 0, 
+				mod: { 
+					min: { value: 0 }, 
+					max: { value: 8 }, 
+					chance: { value: 0.3 }, 
+					type: { value: 'walkUp' }
+				},
+			},
+			type: { value: 'range' },
+			chance: { value: 1 }, // to update the max mod -- think more on this
+		}
 	},
 };
 
