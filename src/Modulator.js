@@ -2,20 +2,22 @@
 	handles change over time
 	each property can be mod
 	{ value, mod }, or { list, index, mod }
+
+	needs defaults bc property defaults are 0
 */
 
 function Modulator(value, params) {
 
 	// console.log('mod params', params);
 
-	let min = new Property(params.min);
-	let max = new Property(params.max);
-	let step = new Property(params.step);
+	let min = new Property(params.min ?? { value: 0 });
+	let max = new Property(params.max ?? { value: 1 });
+	let step = new Property(params.step ?? { value: 1 });
 	// "kick in" index, wait plays before starting
-	let kick = new Property(params.kick);
-	let updateChance = new Property(params.chance);
+	let kick = new Property(params.kick ?? { value: 0 });
+	let updateChance = new Property(params.chance ?? { value: 0.5 });
 	// let type = params.type ?? 'value'; // range, walk, value is no mod, walkUp, walkDown
-	let type = new Property(params.type);
+	let type = new Property(params.type ?? { value: 'value' });
 
 	/*
 		have to keep track if mod is "kicked off"
@@ -25,8 +27,10 @@ function Modulator(value, params) {
 
 
 	function update(totalPlays) {
-		if (totalPlays < kick.get()) return;
-		if (totalPlays >= kick.get()) isKicked = true;
+		if (!isKicked) {
+			if (totalPlays < kick.get()) return;
+			if (totalPlays >= kick.get()) isKicked = true;
+		}
 		if (!chance(updateChance.get())) return;
 		
 		min.update(totalPlays);

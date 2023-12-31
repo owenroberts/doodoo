@@ -29,8 +29,15 @@ function NewDoo(params, callback) {
 	let withRecording = params.withRecording ?? false;
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
+	
+	let useDefaultProps = params.useDefaultProps ?? true;
+	const props = params.props ? structuredClone(params.props) : {};
+	for (const prop in DoodooProps.props) {
+		if (props.hasOwnProperty(prop)) continue;
+		props[prop] = useDefaultProps ? structuredClone(DoodooProps.props[prop]) : {};
+	}
 
-	const props = { ...structuredClone(DoodooProps.props), ...structuredClone(params.props) };
+	// console.log('new doo props', useDefaultProps, props);
 
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp

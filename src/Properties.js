@@ -3,20 +3,66 @@
 	All properties used anywhere in Doodoo lol
 	kick, when to start modding
 	value (just the value), range (random), walk, walkUp, walkDown
-	anything that has a value (or list+index) can have a mod	
+	anything that has a value (or list+index) can have a mod
+
+	should there be kind of generic default set up that does something interesting?
+	or should it be only if something is composed?
+	also means defaults need to be undone
 
 */
 
 const props = {
-	loopNum: { value: 1, step: 1, }, // number of loops per part
-	harmonyChance: { value: 0, step: 0.01, mod: { min: { value: 0.5 }, max: { value: 0.5} } },
+	loopNum: { 
+		value: 1, 
+		step: 1,
+		mod: {
+			type: { value: 'range' },
+			min: { 
+				value: 1,
+				chance: 1,
+				mod: {
+					min: { value: 1 },
+					max: { value: 3 },
+					type: { value: 'walkUp' },
+					chance: { value: 0.5 },
+				}
+			},
+			max: { 
+				value: 1,
+				mod: {
+					min: { value: 1 },
+					max: { value: 5 },
+					type: { value: 'walkUp' },
+					chance: { value: 0.5 },
+				}
+			},
+		}
+	}, // number of loops per part
+	harmonyChance: { 
+		value: 0, 
+		step: 0.01,
+		mod: { 
+			min: { value: 0.5 },
+			max: { value: 0.5 },
+			kick: { value: 1 },
+			chance: { value: 1 },
+		} 
+	},
 	harmonyList: { 
-		list: [0, 4, 5, 2, 3, 6, 7],
-		// this looks wacked, but better than alternative ... ?
+		list: [4, 5, 3, 7, 2, 6],
+		index: 0,
 		mod: { 
 			type: { value: 'range' },
 			min: { value: 0 }, 
-			max: { value: 5 } 
+			max: { 
+				value: 0,
+				mod: {
+					min: { value: 0 },
+					max: { value: 5 },
+					step: { value: 1 },
+					type: { value: 'walkUp' },
+				}
+			},
 		},
 	},
 	// melody starts at a different note -- omg
@@ -36,6 +82,23 @@ const props = {
 			chance: { value: 1 }, // to update the max mod -- think more on this
 		}
 	},
+	beatList: {
+		list: [4, 2, 1, 8, 16, 32],
+		index: 0,
+		mod: {
+			type: { value: 'range' },
+			chance: { value: 1 },
+			min: { value: 0 },
+			max: { 
+				value: 0,
+				mod: {
+					max: { value: 6 },
+					chance: { value: 0.3 },
+					type: { value: 'walkUp' }
+				}
+			},
+		}
+	}
 };
 
 window.DoodooProps = { props };

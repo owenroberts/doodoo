@@ -25,7 +25,8 @@ function Playback(app) {
 			controls: app.controls.get(),
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
-			props: app.modulators.get()
+			props: app.modulators.get().mods,
+			useDefaultProps: true,
 		});
 		app.fio.saveLocal(comp);
 		app.score.update(doodoo.getLoops());

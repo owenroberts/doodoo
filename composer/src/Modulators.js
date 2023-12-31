@@ -13,7 +13,7 @@ function Modulators(app, defaults) {
 		max: { value: 1, step: 0.1 },
 		step: { value: 1, step: 0.01 },
 		kick: { value: 0, step: 1 },
-		chance: { value: 0, step: 0.0005 },
+		chance: { value: 0.5, step: 0.0005 },
 		type: { value: 'value', options: ['value', 'range', 'walk', 'walkUp', 'walkDown'] },
 	};
 
@@ -296,7 +296,7 @@ function Modulators(app, defaults) {
 
 	function connect() {
 		panel = app.ui.getPanel('modulators', { label: 'Modulators' });
-		
+
 		app.ui.addUIs({
 			propSelect: {
 				type: "UIInputSearch",
@@ -331,7 +331,7 @@ function Modulators(app, defaults) {
 			}
 		]);
 
-		propsRow = panel.add(new UIRow());
+		propsRow = panel.add(new UIRow({ class: "break" }));
 	}
 
 	return { connect, get, load };

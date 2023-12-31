@@ -8,7 +8,8 @@
 function Property(params={}) {
 	// console.log('property params', params);
 
-	let type = params.hasOwnProperty('value') ? 'value' : 'list';
+	// default to value if no list and no value
+	let type = params.hasOwnProperty('list') ? 'list' : 'value'; 
 
 	let value = params.value ?? 0;
 	let index = params.index ?? 0;
