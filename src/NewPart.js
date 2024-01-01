@@ -17,7 +17,7 @@ function NewPart(part, props, defaultBeat, debug) {
 
 	/* set up modulators */
 	for (const prop in props) {
-		mods[prop] = new Property(props[prop]); // modulator replaces default props
+		mods[prop] = new Property(props[prop], prop); // modulator replaces default props
 	}
 
 	// console.log('new part mods', mods);
@@ -61,16 +61,36 @@ function NewPart(part, props, defaultBeat, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			let beatMod = mods.beatList.get();
-			// console.log('beat mod', beatMod);
+			// console.log('* beat mod', beatMod);
 			// new beat duration can't be smaller than default -- for now
 			if (beatMod > defaultBeat / 2) beatMod = 4;
-			const melody = getBeats(beatMod);
-			
+			let melody = getBeats(beatMod);
+
+
+			let startIndex = mods.startIndex.getInt();
+			if (startIndex > 0) {
+				console.log('start index', i, startIndex);
+				console.log('mel', melody.map(n => n[0]));
+
+				// find the next note
+				while (melody[startIndex][0] === null) {
+					startIndex++;
+					if (startIndex >= melody.length) {
+						startIndex = 0;
+					}
+					console.log('while', startIndex, melody[startIndex][0]);
+				}
+
+				melody = melody.slice(startIndex).concat(melody.slice(0, startIndex));
+				console.log('new mel', melody.map(n => n[0]));
+			}
+
 			const startDelay = i > 0 ? mods.startDelay.getInt() : 0;
+			// console.log('start delay', i, startDelay);
 			for (let i = 0; i < startDelay; i++) {
 				melody.unshift([null, defaultBeatNum + 'n']);
 			}
-			// console.log('start delay', i, startDelay);
+			console.log('final mel', i, melody.map(n => n[0]));
 
 			loops.push({
 				melody: melody,
@@ -81,7 +101,7 @@ function NewPart(part, props, defaultBeat, debug) {
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: 'fmSynth',
-				startIndex: mods.startIndex.getInt(),
+				
 			});
 		}
 

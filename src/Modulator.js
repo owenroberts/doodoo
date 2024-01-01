@@ -6,7 +6,7 @@
 	needs defaults bc property defaults are 0
 */
 
-function Modulator(value, params) {
+function Modulator(value, params, propName) {
 
 	// console.log('mod params', params);
 
@@ -32,7 +32,7 @@ function Modulator(value, params) {
 			if (totalPlays >= kick.get()) isKicked = true;
 		}
 		if (!chance(updateChance.get())) return;
-		
+
 		min.update(totalPlays);
 		max.update(totalPlays);
 

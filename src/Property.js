@@ -5,11 +5,12 @@
 	list with mod mods index
 */
 
-function Property(params={}) {
+function Property(params={}, propName) {
 	// console.log('property params', params);
 
 	// default to value if no list and no value
-	let type = params.hasOwnProperty('list') ? 'list' : 'value'; 
+	let type = params.hasOwnProperty('list') ? 'list' : 'value';
+	// console.log(propName, params);
 
 	let value = params.value ?? 0;
 	let index = params.index ?? 0;
@@ -21,8 +22,8 @@ function Property(params={}) {
 	if (params.mod) {
 		isMod = true;
 		mod = type === 'value' ? 
-			new Modulator(value, params.mod) :
-			new Modulator(index, params.mod) ;
+			new Modulator(value, params.mod, propName) :
+			new Modulator(index, params.mod, propName) ;
 	}
 
 	function update(totalPlays) {
@@ -32,6 +33,7 @@ function Property(params={}) {
 	function get() {
 		if (type === 'list') {
 			let i = isMod ? Math.round(mod.get()) : index;
+			// if (propName === 'beatList') console.log('index', i);
 			return list[Math.min(list.length - 1, i)];
 		} 
 

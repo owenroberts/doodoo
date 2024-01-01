@@ -128,7 +128,7 @@ function NewDoo(params, callback) {
 			if (loop.count > loop.countEnd) continue;
 			for (let j = 0; j < loop.beatCount; j++) {
 				if (loop.count % 1 !== 0) continue;
-				const noteIndex = Math.floor(loop.count + loop.startIndex) % loop.melody.length;
+				const noteIndex = Math.floor(loop.count) % loop.melody.length;
 				const note = loop.melody[noteIndex];
 				if (note[0] !== null) {
 					const [pitch, beat] = note;

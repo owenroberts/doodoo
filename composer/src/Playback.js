@@ -25,7 +25,7 @@ function Playback(app) {
 			controls: app.controls.get(),
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
-			props: app.modulators.get().mods,
+			props: app.modulators.get(),
 			useDefaultProps: true,
 		});
 		app.fio.saveLocal(comp);

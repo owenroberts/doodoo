@@ -100,7 +100,7 @@ const props = {
 		}
 	},
 	startDelay: {
-		list: [0, 1, 2, 4, 0.5, 8, 12, 16, 3, 5, 7, 11],
+		list: [0, 1, 2, 4, 8, 3, 5, 7],
 		index: 6,
 		mod: {
 			min: { value: 0 },
