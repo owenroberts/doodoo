@@ -61,10 +61,16 @@ function NewPart(part, props, defaultBeat, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			let beatMod = mods.beatList.get();
-			console.log('beat mod', beatMod);
+			// console.log('beat mod', beatMod);
 			// new beat duration can't be smaller than default -- for now
 			if (beatMod > defaultBeat / 2) beatMod = 4;
 			const melody = getBeats(beatMod);
+			
+			const startDelay = i > 0 ? mods.startDelay.getInt() : 0;
+			for (let i = 0; i < startDelay; i++) {
+				melody.unshift([null, defaultBeatNum + 'n']);
+			}
+			// console.log('start delay', i, startDelay);
 
 			loops.push({
 				melody: melody,

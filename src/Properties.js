@@ -65,6 +65,23 @@ const props = {
 			},
 		},
 	},
+	beatList: {
+		list: [4, 2, 1, 8, 16, 32],
+		index: 0,
+		mod: {
+			type: { value: 'range' },
+			chance: { value: 1 },
+			min: { value: 0 },
+			max: { 
+				value: 0,
+				mod: {
+					max: { value: 6 },
+					chance: { value: 0.3 },
+					type: { value: 'walkUp' }
+				}
+			},
+		}
+	},
 	// melody starts at a different note -- omg
 	startIndex: { 
 		value: 0, 
@@ -82,23 +99,24 @@ const props = {
 			chance: { value: 1 }, // to update the max mod -- think more on this
 		}
 	},
-	beatList: {
-		list: [4, 2, 1, 8, 16, 32],
-		index: 0,
+	startDelay: {
+		list: [0, 1, 2, 4, 0.5, 8, 12, 16, 3, 5, 7, 11],
+		index: 6,
 		mod: {
+			min: { value: 0 },
 			type: { value: 'range' },
 			chance: { value: 1 },
-			min: { value: 0 },
 			max: { 
-				value: 0,
+				value: 6,
 				mod: {
-					max: { value: 6 },
+					max: { value: 12 },
 					chance: { value: 0.3 },
-					type: { value: 'walkUp' }
+					type: { value: 'walkUp' },
 				}
 			},
+			
 		}
-	}
+	},
 };
 
 window.DoodooProps = { props };
