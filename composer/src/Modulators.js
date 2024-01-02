@@ -209,7 +209,7 @@ function Modulators(app, defaults) {
 		row.addBreak();
 
 		row.add(new UILabel({ text: 'Index' }));
-		console.log('length', params.stack.length)
+		// console.log('length', params.stack.length)
 		const index = row.add(new UINumberStep({
 			min: 0,
 			max: params.stack.length - 1,
@@ -246,7 +246,7 @@ function Modulators(app, defaults) {
 		row.addBreak();
 
 		function addStack(i, list) {
-			console.log('add stack', i, list);
+			// console.log('add stack', i, list);
 			const stackRow = row.add(new UIRow());
 			stackRow.add(new UILabel({ text: 'Stack ' + i }));
 			const stack = stackRow.add(new UIInputList({
@@ -260,10 +260,10 @@ function Modulators(app, defaults) {
 		function updateStack() {
 			const s = [];
 			for (let i = 0; i < stacks.length; i++) {
-				console.log(i, stacks[i]);
+				// console.log(i, stacks[i]);
 				s[i] = { list: stacks[i].stack.list };
 			}
-			console.log('update stacks', s);
+			// console.log('update stacks', s);
 			updateProp(propString, s, 'stack');
 		}
 

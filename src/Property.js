@@ -10,11 +10,13 @@ function Property(params={}, propName) {
 
 	// default to value if no list and no value
 	let type = params.hasOwnProperty('list') ? 'list' : 'value';
+	if (params.hasOwnProperty('stack')) type = 'stack';
 	// console.log(propName, params);
 
 	let value = params.value ?? 0;
 	let index = params.index ?? 0;
 	let list = params.list ?? [];
+	let stack = params.stack ?? [];
 
 	let isMod = false;
 	let mod;
@@ -30,7 +32,20 @@ function Property(params={}, propName) {
 		if (isMod) mod.update(totalPlays);
 	}
 
-	function get() {
+	function get(loopIndex) {
+
+		if (type === 'stack') {
+			let value;
+			if (loopIndex < stack.length) {
+				value = random(stack[loopIndex].list);
+			} else {
+				// get all the options in stack
+				// maybe change later
+				value = random(stack.flatMap(v => v.list));
+			}
+			return value;
+		}
+
 		if (type === 'list') {
 			let i = isMod ? Math.round(mod.get()) : index;
 			// if (propName === 'beatList') console. log('index', i);

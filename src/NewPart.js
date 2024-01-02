@@ -90,7 +90,7 @@ function NewPart(part, props, defaultBeat, debug) {
 			for (let i = 0; i < startDelay; i++) {
 				melody.unshift([null, defaultBeatNum + 'n']);
 			}
-			console.log('final mel', i, melody.map(n => n[0]));
+			// console.log('final mel', i, melody.map(n => n[0]));
 
 			loops.push({
 				melody: melody,
@@ -100,7 +100,7 @@ function NewPart(part, props, defaultBeat, debug) {
 				// harmony: 0, // default tonic,
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
-				instrument: 'fmSynth',
+				instrument: mods.instruments.get(i),
 				
 			});
 		}
