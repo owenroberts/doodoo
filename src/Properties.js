@@ -12,6 +12,10 @@
 */
 
 const props = {
+	instruments: {
+		stack: [{ list: ['choir'] }],
+		options: ['fmSynth', 'choir', 'toms', 'flute', 'strings', 'guitar', 'piano', 'bamboo',]
+	},
 	loopNum: { 
 		value: 1, 
 		step: 1,
@@ -117,6 +121,7 @@ const props = {
 			
 		}
 	},
+
 };
 
 window.DoodooProps = { props };

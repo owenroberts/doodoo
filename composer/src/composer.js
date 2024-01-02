@@ -3,7 +3,7 @@ const { MIDI_NOTES } = DoodooMidi;
 const { defaults, controls } = DoodooControls;
 const { props } = DoodooProps;
 const { Interface, Settings } = UI;
-const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid, UISelect } = UI.Elements;
+const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid, UISelect, UIList, UIListAdd } = UI.Elements;
 
 const app = {};
 const comp = {

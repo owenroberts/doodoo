@@ -66,25 +66,22 @@ function Modulators(app, defaults) {
 		let propType = 'number';
 		if (props[prop].hasOwnProperty('type')) propType = props[prop].type;
 		else if (props[prop].hasOwnProperty('list')) propType = 'number-list';
+		else if (props[prop].hasOwnProperty('stack')) propType = 'stack';
 
 		const propTypeSelect = new UISelect({
 			value: propType,
-			options: ['number', 'number-list', 'string-list', 'note-list'],
+			options: ['number', 'number-list', 'string-list', 'note-list', 'stack'],
 			callback: type => { 
 				propParamsRow.clear();
 				delete props[prop].mod;
 				addPropType(propParamsRow, type, prop);
 			}
 		})
-		propRow.add(propTypeSelect, undefined, true);
+		propRow.add(propTypeSelect);
 		tree.add(propRow);
 
-		if (props[prop].hasOwnProperty('value')) addPropType(propParamsRow, 'number', prop);
-		if (props[prop].hasOwnProperty('list')) addPropType(propParamsRow, 'number-list', prop);
-
+		addPropType(propParamsRow, propType, prop);
 		propRow.add(propParamsRow);
-
-
 
 		// console.log('tree', tree);
 	}
@@ -105,6 +102,12 @@ function Modulators(app, defaults) {
 					props[prop] = { index: 0, list: [], type: propType, ...defaults[prop] };
 				}
 				addList(row, prop);
+			break;
+			case 'stack':
+				if (!props[prop].hasOwnProperty('stack')) {
+					props[prop] = { 'stack': [[]], options: [], ...defaults[prop] };
+				}
+				addStack(row, prop);
 			break;
 		}
 	}
@@ -186,6 +189,87 @@ function Modulators(app, defaults) {
 		
 		// index prop doesn't exist .... 
 		addMod(row, propString, 'Index', level);
+	}
+
+	function addStack(row, propString, level=0) {
+		const params = getParams(propString);
+
+		const stacks = [];
+
+		const select = row.add(new UISelectButton({
+			selected: "choir",
+			options: params.options ?? [],
+			// callback: addInstrument,
+			callback: value => {
+				if (!stacks[index.value]) return;
+				stacks[index.value].stack.pushItem(value);
+				updateStack(); 
+			}
+		}));
+		row.addBreak();
+
+		row.add(new UILabel({ text: 'Index' }));
+		console.log('length', params.stack.length)
+		const index = row.add(new UINumberStep({
+			min: 0,
+			max: params.stack.length - 1,
+			value: 0,
+		}));
+
+		// remove stack
+		row.add(new UIButton({
+			text: '–',
+			class: 'left-end',
+			callback: () => {
+				if (stacks.length === 0) return;
+				const removeStack = stacks.pop();
+				row.remove(removeStack);
+				if (stacks.length === 0) return;
+				index.max = stacks.length - 1;
+				index.update(stacks.length - 1);
+				updateStack(); 
+			}
+		}));
+
+		// add stack
+		row.add(new UIButton({
+			text: '+',
+			class: 'right-end',
+			callback: () => {
+				addStack(stacks.length)
+				index.max = stacks.length - 1;
+				index.update(stacks.length - 1);
+				updateStack(); 
+			}
+		}));
+
+		row.addBreak();
+
+		function addStack(i, list) {
+			console.log('add stack', i, list);
+			const stackRow = row.add(new UIRow());
+			stackRow.add(new UILabel({ text: 'Stack ' + i }));
+			const stack = stackRow.add(new UIInputList({
+				list: list ?? [],
+				callback: () => { updateStack(); }
+			}), 'stack');
+			row.addBreak();
+			stacks.push(stackRow);
+		}
+
+		function updateStack() {
+			const s = [];
+			for (let i = 0; i < stacks.length; i++) {
+				console.log(i, stacks[i]);
+				s[i] = { list: stacks[i].stack.list };
+			}
+			console.log('update stacks', s);
+			updateProp(propString, s, 'stack');
+		}
+
+		for (let i = 0; i < params.stack.length; i++) {
+			const stack = addStack(i, params.stack[i].list);
+		}
 	}
 
 	function addMod(row, propString, label, level) {

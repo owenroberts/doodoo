@@ -152,10 +152,10 @@ function NewDoo(params, callback) {
 		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
 
 		for (let i = 0; i < currentParts.length; i++) {
-			const voices = currentParts[i].get(); // voices in part, or tracks?
-			for (let j = 0; j < voices.length; j++) {
-				const voiceParams = voices[j];
-				let instrument = voiceParams.instrument ?? random(instruments);
+			const partLoops = currentParts[i].get(); // voices in part, or tracks?
+			for (let j = 0; j < partLoops.length; j++) {
+				const loopParams = partLoops[j];
+				let instrument = loopParams.instrument ?? random(instruments);
 				if (stacking[j]) {
 					if (stacking[j].length > 0) {
 						instrument = random(stacking[j]);
@@ -164,11 +164,11 @@ function NewDoo(params, callback) {
 
 				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
 				const loop = {
-					...voiceParams,
-					melody: voiceParams.harmony === 0 ? 
-						getMelody(voiceParams.melody, tonic, transpose) :
-						getHarmony(voiceParams.melody, tonic, transpose, voiceParams.harmony, scale, useOctave),
-					instrument: getInstrument(instrument, { ...voiceParams, volume: volume })
+					...loopParams,
+					melody: loopParams.harmony === 0 ? 
+						getMelody(loopParams.melody, tonic, transpose) :
+						getHarmony(loopParams.melody, tonic, transpose, loopParams.harmony, scale, useOctave),
+					instrument: getInstrument(instrument, { ...loopParams, volume: volume })
 				};
 				loops.push(loop);
 			}

@@ -33,7 +33,7 @@ function Property(params={}, propName) {
 	function get() {
 		if (type === 'list') {
 			let i = isMod ? Math.round(mod.get()) : index;
-			// if (propName === 'beatList') console.log('index', i);
+			// if (propName === 'beatList') console. log('index', i);
 			return list[Math.min(list.length - 1, i)];
 		} 
 
