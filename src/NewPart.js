@@ -26,6 +26,16 @@ function NewPart(part, props, defaultBeat, debug) {
 		for (const mod in mods) {
 			mods[mod].update(totalPlays);
 		}
+
+		if (chance(mods.sliceChance.get())) {
+			let index = randInt(part.length);
+			let slice = part.slice(index, index + mods.sliceLength.getInt());
+			part.push(...slice);
+		}
+
+		if (chance(mods.shiftChance.get()) && part.length > mods.shiftLength.get()) {
+			part.shift();
+		}
 	}
 
 	// convert melody to beats with params
@@ -69,8 +79,8 @@ function NewPart(part, props, defaultBeat, debug) {
 
 			let startIndex = mods.startIndex.getInt();
 			if (startIndex > 0) {
-				console.log('start index', i, startIndex);
-				console.log('mel', melody.map(n => n[0]));
+				// console.log('start index', i, startIndex);
+				// console.log('mel', melody.map(n => n[0]));
 
 				// find the next note
 				while (melody[startIndex][0] === null) {
@@ -82,7 +92,7 @@ function NewPart(part, props, defaultBeat, debug) {
 				}
 
 				melody = melody.slice(startIndex).concat(melody.slice(0, startIndex));
-				console.log('new mel', melody.map(n => n[0]));
+				// console.log('new mel', melody.map(n => n[0]));
 			}
 
 			const startDelay = i > 0 ? mods.startDelay.getInt() : 0;
@@ -97,11 +107,9 @@ function NewPart(part, props, defaultBeat, debug) {
 				count: 0, // count through loop
 				countEnd: melody.length - 1,
 				beatCount: 1, // doubler param ... need this?
-				// harmony: 0, // default tonic,
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: mods.instruments.get(i),
-				
 			});
 		}
 

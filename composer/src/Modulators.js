@@ -372,6 +372,8 @@ function Modulators(app, defaults) {
 	}
 
 	function load(mods) {
+		propsRow.clear();
+		props = {};
 		for (const prop in mods) {
 			props[prop] = structuredClone(mods[prop]);
 			addProp(prop, false);
