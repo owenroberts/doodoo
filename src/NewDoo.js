@@ -172,7 +172,6 @@ function NewDoo(params, callback) {
 					if (loop.double) {
 						beat = +defaultBeat.slice(0, -1) * 2 + 'n';
 						let t = Tone.Time(beat).toSeconds();
-						console.log('double', beat, t);
 						loop.instrument.triggerAttackRelease(pitch, beat, time + t, 1);
 					}
 					loop.instrument.triggerAttackRelease(pitch, beat, time, 1);

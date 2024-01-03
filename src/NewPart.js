@@ -39,7 +39,7 @@ function NewPart(part, props, defaultBeat, debug) {
 	}
 
 	// convert melody to beats with params
-	function getBeats(beatMod) {
+	function getBeats(beatMod, beatRatio) {
 		// console.log('dur', duration, 'dd', dd);
 		let beats = part.flatMap(note => {
 			let [pitch, beat] = note; // note, duration
@@ -68,13 +68,20 @@ function NewPart(part, props, defaultBeat, debug) {
 		const loops = []; // need a better word, voices? instruments?
 		const loopNum = mods.loopNum.getInt();
 		
+		// new beat mod can't be smaller than default -- for now
+		// maybe needs to be defaultBeatNum / 2, not sure after working on repeat
+		// console.log('deafult', defaultBeatNum)
+		const beatMods = [...Array(loopNum)].map(() => Math.min(defaultBeatNum, mods.beatList.get()));
+		const minBeat = Math.min(...beatMods);
+		
 		for (let i = 0; i < loopNum; i++) {
 			
-			let beatMod = mods.beatList.get();
-			// console.log('* beat mod', beatMod);
-			// new beat duration can't be smaller than default -- for now
-			if (beatMod > defaultBeat / 2) beatMod = 4;
-			let melody = getBeats(beatMod);
+			let melody = getBeats(beatMods[i]);
+			
+			// repeat if shorter beat mod
+			for (let j = 1; j < (beatMods[i] / minBeat); j++) {
+				melody.concat(getBeats(beatMods[i]));
+			}
 
 
 			let startIndex = mods.startIndex.getInt();
@@ -88,11 +95,12 @@ function NewPart(part, props, defaultBeat, debug) {
 					if (startIndex >= melody.length) {
 						startIndex = 0;
 					}
-					console.log('while', startIndex, melody[startIndex][0]);
+					// console.log('while', startIndex, melody[startIndex][0]);
 				}
 
 				melody = melody.slice(startIndex).concat(melody.slice(0, startIndex));
 				// console.log('new mel', melody.map(n => n[0]));
+
 			}
 
 			const startDelay = i > 0 ? mods.startDelay.getInt() : 0;
@@ -101,6 +109,9 @@ function NewPart(part, props, defaultBeat, debug) {
 				melody.unshift([null, defaultBeatNum + 'n']);
 			}
 			// console.log('final mel', i, melody.map(n => n[0]));
+
+			// console.log('part length', i, melody.length, defaultBeat);
+			// console.log('part', melody.map(n => n[1]));
 
 			loops.push({
 				melody: melody,
@@ -115,6 +126,7 @@ function NewPart(part, props, defaultBeat, debug) {
 		}
 
 		// console.log('loop num', loopNum);
+		// console.log('loop length', loops.map(l => l.melody.length));
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
 

@@ -23,7 +23,7 @@ function Modulator(value, params, propName) {
 		have to keep track if mod is "kicked off"
 		so can return value, not range
 	*/
-	let isKicked = false;
+	let isKicked = kick.get() > 0 ? false : true;
 
 
 	function update(totalPlays) {

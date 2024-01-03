@@ -9,8 +9,8 @@ function Modulators(app, defaults) {
 	let panel, propsRow;
 	let props = {};
 	let modDefaults = {
-		min: { value: 0, step: 0.1 },
-		max: { value: 1, step: 0.1 },
+		min: { value: 0, step: 1 },
+		max: { value: 1, step: 1 },
 		step: { value: 1, step: 0.01 },
 		kick: { value: 0, step: 1 },
 		chance: { value: 0.5, step: 0.0005 },
