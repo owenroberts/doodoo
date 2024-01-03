@@ -16,12 +16,12 @@ function NewDoo(params, callback) {
 	let useOctave = params.useOctave ?? false; // in transposition, continue through to octave vs looping around to begging of octave
 	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major default
 	let sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
-	let instruments = params.instruments;
-	let stacking = params.stacking ?? [];
 	let volume = params.volume ?? 0;
 	let autoLoad = params.autoLoad ?? true;
 	let autoStart = params.autoStart ?? true;
 	let playOnStart = false; // if trying to play before loaded
+
+	let startLoops = params.startLoops ?? [];
 	
 	let useMeter = params.useMeter ?? false;
 	let setMeter = params.setMeter ?? false;
@@ -41,11 +41,18 @@ function NewDoo(params, callback) {
 
 	let samples; // holds the samples
 	// look for samples in props.instruments stack
+
 	let loadInstruments = [...new Set([
 		...props.instruments.stack
-		.flatMap(e => e.list)
-		.filter(i => !i.includes('Synth'))
+			.flatMap(e => e.list)
+			.filter(i => !i.includes('Synth')),
+		...startLoops
+			.flatMap(count => count)
+			.flatMap(loop => loop)
+			.filter(loop => loop.instrument)
+			.map(loop => loop.instrument)
 	])];
+	// console.log('load instruments', loadInstruments);
 	
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp
@@ -67,10 +74,11 @@ function NewDoo(params, callback) {
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
+	
 	for (let i = 0; i < params.parts.length; i++) {
 		const part = params.parts[i];
 		const beats = part.map(p => parseInt(p[1]));
-		defaultBeat = Math.max(...beats) + 'n';  
+		defaultBeat = Math.max(...beats) + 'n';
 		parts.push(new NewPart(part, props, defaultBeat, debug));
 	}
 
@@ -197,6 +205,15 @@ function NewDoo(params, callback) {
 			const partLoops = currentParts[i].get(); // voices in part, or tracks?
 			for (let j = 0; j < partLoops.length; j++) {
 				const loopParams = partLoops[j];
+				
+				// overwrite start loops values
+				if (startLoops[totalPlays]) {
+					if (startLoops[totalPlays][j]) {
+						for (const prop in startLoops[totalPlays][j]) {
+							loopParams[prop] = startLoops[i][j][prop];
+						}
+					}
+				}
 				
 
 				// const v = volume + (loopies.length * -3); // lower volume of multiple loops

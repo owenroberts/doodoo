@@ -19,6 +19,7 @@ function FilesIO(app) {
 		}
 		if (!controls) controls = app.controls.get();
 		const mods = app.modulators.get();
+		const startLoops = app.startLoops.get();
 
 		// console.log('save mods', mods);
 
@@ -29,6 +30,7 @@ function FilesIO(app) {
 			...composition, 
 			controls, 
 			mods,
+			startLoops,
 		}));
 	}
 
@@ -40,6 +42,7 @@ function FilesIO(app) {
 			app.melody.load(data);
 			app.controls.load(data.controls);
 			app.modulators.load(data.mods);
+			app.startLoops.load(data.startLoops);
 		}
 	}
 

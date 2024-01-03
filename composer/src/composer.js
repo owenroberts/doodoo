@@ -23,6 +23,7 @@ app.fio = new FilesIO(app);
 app.score = new Score(app);
 app.meter = new Meter(app);
 app.modulators = new Modulators(app, props);
+app.startLoops = new StartLoops(app, props);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();
@@ -34,6 +35,7 @@ app.score.connect();
 app.controls.connect();
 app.meter.connect();
 app.modulators.connect();
+app.startLoops.connect();
 
 app.ui.settings = Settings(app, {
 	name: 'doodoo',
@@ -47,5 +49,6 @@ app.ui.settings.load(); // wtf -- load settings and shit ...
 app.composition.load({});
 app.controls.load();
 app.score.draw([]);
+// app.startLoops.load();
 
 // console.log(app);
