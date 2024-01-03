@@ -21,6 +21,7 @@ let SamplePaths = {
 		"G4": "G4.ogg",
 	},
 	"toms": { "A#3": "Tom606_EQ_FADE.ogg" },
+	"crow_bass": { "C4": "C4.wav" },
 	"choirA": {
 		"A2": "CH-AA-A2.mp3",
 		"A3": "CH-AA-A3.mp3",
@@ -142,3 +143,5 @@ let SamplePaths = {
 		"G4": "CH-UU-G4.mp3",
 	},
 };
+
+window.SamplePaths = SamplePaths;

@@ -28,6 +28,7 @@ function logError(err) {
 }
 
 function jsTask(done, sourcePath, buildPath, useBrowserSync) {
+	console.log(sourcePath);
 	return src(sourcePath)
 		.pipe(sourcemaps.init())
 		.pipe(concat('doodoo.min.js'))
@@ -73,7 +74,7 @@ function libTask() {
 }
 
 function doodooTask() {
-	return jsTask(null, './src/**/*.js', './build', true);
+	return jsTask(null, ['./src/SamplePaths.js', './src/**/*.js',], './build', true);
 }
 
 function sassTask(sourcePath, buildPath) {

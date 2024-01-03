@@ -10,11 +10,12 @@
 	also means defaults need to be undone
 
 */
-
+console.log(Object.keys(SamplePaths))
 const props = {
 	instruments: {
 		stack: [{ list: ['choir'] }],
-		options: ['fmSynth', 'choir', 'toms', 'flute', 'strings', 'guitar', 'piano', 'bamboo',]
+		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
+		// options: ['fmSynth', 'choir', 'toms', 'flute', 'strings', 'guitar', 'piano', 'bamboo', 'crow_bass']
 	},
 	loopNum: { 
 		value: 1, 
