@@ -168,7 +168,13 @@ function NewDoo(params, callback) {
 				const noteIndex = Math.floor(loop.count) % loop.melody.length;
 				const note = loop.melody[noteIndex];
 				if (note[0] !== null) {
-					const [pitch, beat] = note;
+					let [pitch, beat] = note;
+					if (loop.double) {
+						beat = +defaultBeat.slice(0, -1) * 2 + 'n';
+						let t = Tone.Time(beat).toSeconds();
+						console.log('double', beat, t);
+						loop.instrument.triggerAttackRelease(pitch, beat, time + t, 1);
+					}
 					loop.instrument.triggerAttackRelease(pitch, beat, time, 1);
 				}
 			}

@@ -10,7 +10,6 @@
 	also means defaults need to be undone
 
 */
-console.log(Object.keys(SamplePaths))
 const props = {
 	instruments: {
 		stack: [{ list: ['choir'] }],
@@ -162,7 +161,12 @@ const props = {
 			max: { value: 32, },
 			type: { value: 'range' },
 		}
-	}
+	},
+	// play two notes at half time for each note
+	doubleChance: {
+		value: 0.1,
+		step: 0.05,
+	},
 
 };
 

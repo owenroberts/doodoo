@@ -6,8 +6,6 @@
 
 function Modulators(app, defaults) {
 
-	console.log('defaults', defaults);
-
 	let panel, propsRow;
 	let props = {};
 	let modDefaults = {

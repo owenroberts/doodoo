@@ -110,6 +110,7 @@ function NewPart(part, props, defaultBeat, debug) {
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: mods.instruments.get(i),
+				double: chance(mods.doubleChance.get()),
 			});
 		}
 
