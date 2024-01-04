@@ -176,13 +176,15 @@ function NewDoo(params, callback) {
 				const noteIndex = Math.floor(loop.count) % loop.melody.length;
 				const note = loop.melody[noteIndex];
 				if (note[0] !== null) {
-					let [pitch, beat] = note;
+					let [pitch, beat, velocity] = note;
+					// console.log(pitch, beat, velocity);
+					if (!velocity) velocity = 1;
 					if (loop.double) {
 						beat = +defaultBeat.slice(0, -1) * 2 + 'n';
 						let t = Tone.Time(beat).toSeconds();
-						loop.instrument.triggerAttackRelease(pitch, beat, time + t, 1);
+						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					}
-					loop.instrument.triggerAttackRelease(pitch, beat, time, 1);
+					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 			}
 			
@@ -198,12 +200,13 @@ function NewDoo(params, callback) {
 		playBeatCount = 0;
 		disposePrevious();
 		loops = [];
-		
+
 		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
 
 		for (let i = 0; i < currentParts.length; i++) {
 			const partLoops = currentParts[i].get(); // voices in part, or tracks?
 			for (let j = 0; j < partLoops.length; j++) {
+
 				const loopParams = partLoops[j];
 				
 				// overwrite start loops values
@@ -214,7 +217,6 @@ function NewDoo(params, callback) {
 						}
 					}
 				}
-				
 
 				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
 				const loop = {

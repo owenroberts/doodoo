@@ -48,6 +48,11 @@ function Modulator(value, params, propName) {
 		if (value > max.get()) value = max.get();
 	}
 
+	function set(_value) {
+		value = _value;
+		clamp();
+	}
+
 	function get() {
 		if (type.get() === 'range' && isKicked) {
 			return random(min.get(), max.get());
@@ -57,6 +62,6 @@ function Modulator(value, params, propName) {
 		}
 	}
 
-	return { update, get };
+	return { update, get, set };
 
 }

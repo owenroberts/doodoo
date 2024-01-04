@@ -167,7 +167,37 @@ const props = {
 		value: 0.1,
 		step: 0.05,
 	},
-
+	// velocity, note velocity that is really loudness
+	velocityStart: {
+		value: 0.75,
+		step: 0.05,
+		mod: {
+			min: { value: 0.25 },
+			max: { value: 0.85 },
+			type: { value: 'range' },
+		}
+	},
+	// step between values
+	velocityStep: {
+		value: 0.5,
+		step: 0.01,
+		mod: {
+			min: { value: 0.1 },
+			max: { value: 1 },
+			chance: { value: 0.66 },
+			type: { value: 'walk' },
+			step: { 
+				value: 0.01,
+				mod: {
+					min: { value: 0.01 },
+					max: { value: 0.1 },
+					type: { value: 'range' },
+					chance: { value: 0.2 },
+				}
+			},
+			
+		}
+	},
 };
 
 window.DoodooProps = { props };

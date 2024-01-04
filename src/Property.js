@@ -55,10 +55,15 @@ function Property(params={}, propName) {
 		return isMod ? mod.get() : value;
 	}
 
+	function set(_value) {
+		value = _value;
+		if (mod) mod.set(value);
+	}
+
 	function getInt() {
 		return Math.floor(get());
 	}
 
-	return { update, get, getInt };
+	return { update, get, set, getInt };
 
 }

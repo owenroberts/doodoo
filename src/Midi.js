@@ -34,12 +34,13 @@ function getMelody(melody, tonic, transpose, scale) {
 	return melody.map(note => {
 		if (note[0] === null) { return note; }
 		else {
-			const [pitch, beat] = note;
+			const pitch = note[0];
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
 			const midiTranspose = MIDI_NOTES.indexOf(transpose);
 			const tonicDelta = midiTonic - midiTranspose;
 			const midiPitch = MIDI_NOTES.indexOf(pitch) - tonicDelta;
-			return [MIDI_NOTES[constrainNoteRange(midiPitch)], beat];
+			note[0] = MIDI_NOTES[constrainNoteRange(midiPitch)];
+			return note;
 		}
 	});
 }
@@ -48,7 +49,7 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 	return melody.map(note => {
 		if (note[0] === null) { return note; }
 		else {
-			const [pitch, beat] = note;
+			const pitch = note[0];
 			const midiPitch = MIDI_NOTES.indexOf(pitch);
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
 			const midiTranspose = MIDI_NOTES.indexOf(transpose);
@@ -73,7 +74,8 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 
 			let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff); // 1+ octave above or below
 			let returnMidi = MIDI_NOTES.indexOf(tonic) + midiHarmony + offset - tonicDelta + octave;
-			return [(MIDI_NOTES[constrainNoteRange(returnMidi)]), beat];
+			note[0] = (MIDI_NOTES[constrainNoteRange(returnMidi)])
+			return note;
 		}
 	});
 }
