@@ -7,6 +7,7 @@
 */
 
 function NewDoo(params, callback) {
+	console.log('new doo params', params);
 
 	let defaultBeat = params.beat ?? '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
@@ -37,7 +38,7 @@ function NewDoo(params, callback) {
 		props[prop] = useDefaultProps ? structuredClone(DoodooProps.props[prop]) : {};
 	}
 
-	// console.log('new doo props', useDefaultProps, props);
+	console.log('new doo props', useDefaultProps, props);
 
 	let samples; // holds the samples
 	// look for samples in props.instruments stack
@@ -71,15 +72,19 @@ function NewDoo(params, callback) {
 	let meter;
 	let recorder;
 
+	// have to get default beat before going through the parts ...
+	params.parts.forEach(part => {
+		part.forEach(note => {
+			if (parseInt[note[1]] > parseInt[defaultBeat]) defaultBeat = beat;
+		});
+	});
+
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 	
 	for (let i = 0; i < params.parts.length; i++) {
-		const part = params.parts[i];
-		const beats = part.map(p => parseInt(p[1]));
-		defaultBeat = Math.max(...beats) + 'n';
-		parts.push(new NewPart(part, props, defaultBeat, debug));
+		parts.push(new NewPart(params.parts[i], props, defaultBeat, debug));
 	}
 
 	if (withRecording) {
@@ -177,14 +182,16 @@ function NewDoo(params, callback) {
 				const note = loop.melody[noteIndex];
 				if (note[0] !== null) {
 					let [pitch, beat, velocity] = note;
-					// console.log(pitch, beat, velocity);
 					if (!velocity) velocity = 1;
 					if (loop.double) {
-						beat = +defaultBeat.slice(0, -1) * 2 + 'n';
+						// still weird w fmSynth idky
+						beat = parseInt(beat) * 2 + 'n';
 						let t = Tone.Time(beat).toSeconds();
+						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+					} else {
+						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 					}
-					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 			}
 			
@@ -277,6 +284,7 @@ function NewDoo(params, callback) {
 	}
 
 	function getSynth(loopParams) {
+		// console.log('synth params', loopParams.attack, loopParams.release);
 		const fmSynth = new Tone.FMSynth({ 
 			volume: loopParams.volume ?? -6,
 			envelope: {
@@ -369,7 +377,8 @@ function NewDoo(params, callback) {
 
 	return {
 		play, stop,
-		getLoops: () => { return loops; }
+		getLoops: () => { return loops; },
+		printLoops: () => { console.log('loops', loops); }, // debug
 	}
 }
 
