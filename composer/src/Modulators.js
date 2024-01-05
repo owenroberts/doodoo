@@ -173,7 +173,14 @@ function Modulators(app, defaults) {
 		const params = getParams(propString);
 
 		row.add(new UILabel({ text: 'List' }));
-		row.add(new UINumberList({
+		let uiClass = UINumberList;
+		if (params.list) {
+			if (typeof params.list[0] === 'string') uiClass = UIInputList;
+		} else {
+			if (prompt('Type? string or number', 'string') === 'string') uiClass = UIInputList;
+		}
+		
+		row.add(new uiClass({
 			list: params.list ?? [],
 			callback: list => { updateProp(propString, list, 'list'); }
 		}));

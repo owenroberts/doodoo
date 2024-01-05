@@ -55,7 +55,9 @@ function NewPart(part, props, defaultBeat, debug) {
 			// 	newBeat = (defaultBeatNum /  ) * (newBeat / currentBeat);
 			// }
 
-			let newPart = [[pitch, newBeat + 'n', mods.velocityStep.get()]];
+			let firstPitch = chance(mods.rest.get()) ? null : pitch;
+			console.log('rest', mods.rest.get(), firstPitch);
+			let newPart = [[firstPitch, newBeat + 'n', mods.velocityStep.get()]];
 			mods.velocityStep.update(); // update for next note
 			
 			for (let i = 1; i < beatsInDefault; i++) {
@@ -119,7 +121,7 @@ function NewPart(part, props, defaultBeat, debug) {
 
 			// console.log('part length', i, melody.length, defaultBeat);
 			// console.log('part', melody.map(n => n[1]));
-			console.log('vel', melody.map(n => n[2]));
+			// console.log('vel', melody.map(n => n[2]));
 
 
 			loops.push({
@@ -130,6 +132,9 @@ function NewPart(part, props, defaultBeat, debug) {
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: mods.instruments.get(i),
+				attack: mods.attack.get(),
+				curve: mods.curve.get(),
+				release: mods.release.get(),
 				double: chance(mods.doubleChance.get()),
 			});
 		}

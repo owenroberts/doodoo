@@ -7,11 +7,12 @@ function StartLoops(app) {
 
 	let startLoopsRow;
 	let startLoops = [];
-	// let props = [...Object.keys(defaults)];
 	let defaults = {
 		instrument: 'choir',
 		harmony: 0,
 		double: false,
+		attack: 0,
+		release: 1,
 	};
 
 	function addLoopCount(index, loops) {

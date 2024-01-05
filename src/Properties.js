@@ -198,6 +198,47 @@ const props = {
 			
 		}
 	},
+	// ASDR, ish, maybe bundle ...
+	attack: {
+		value: 0.1,
+		step: 0.05,
+		mod: {
+			type: { value: 'range' },
+			min: { value: 0.1 },
+			max: { value: 0.5 },
+		}
+	},
+	curve: {
+		list: ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"],
+		index: 0,
+		mod: {
+			chance: { value: 0.1 },
+			min: { value: 0 },
+			max: { value: 6 },
+			type: { value: 'range' },
+		}
+	},
+	release: {
+		value: 0.5,
+		step: 0.05,
+		mod: {
+			type: { value: 'range' },
+			min: { value: 0.1 },
+			max: { value: 0.5},
+		}
+	},
+	// add decay and sustain?? and curves?? - only fm synth uses all those in envelope
+	// chance of rest ... 
+	rest: {
+		value: 0,
+		step: 0.05,
+		mod: {
+			min: { value: 0 },
+			max: { value: 0.25 },
+			type: { value: 'range' },
+		}
+	}
+
 };
 
 window.DoodooProps = { props };

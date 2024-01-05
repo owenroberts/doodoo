@@ -278,12 +278,12 @@ function NewDoo(params, callback) {
 
 	function getSynth(loopParams) {
 		const fmSynth = new Tone.FMSynth({ 
-			volume: loopParams.volume || -6,
+			volume: loopParams.volume ?? -6,
 			envelope: {
-				// attack: voiceParams.voiceAttack,
-				// attackCurve: voiceParams.voiceCurve,
-				// release: voiceParams.voiceRelease,
-				// releaseCurve: voiceParams.voiceCurve, // this one maybe take out ...
+				attack: loopParams.attack,
+				attackCurve: loopParams.curve,
+				release: loopParams.release,
+				releaseCurve: loopParams.curve,
 			}
 		});
 		return fmSynth;
@@ -295,9 +295,9 @@ function NewDoo(params, callback) {
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: loopParams.volume ?? 0,
-			// attack: attack,
-			// release: voiceParams.voiceRelease,
-			// curve: voiceParams.voiceCurve,
+			attack: loopParams.attack,
+			release: loopParams.release,
+			curve: loopParams.curve,
 		});
 		return sampler;
 	}
