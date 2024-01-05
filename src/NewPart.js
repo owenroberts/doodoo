@@ -10,7 +10,7 @@ function NewPart(part, props, defaultBeat, debug) {
 	// so beat mod can only make it slower ...
 	// think on this more ... 
 
-	let defaultBeatNum = +defaultBeat.slice(0, -1); 
+	let defaultBeatNum = parseInt(defaultBeat);
 	let mods = {};
 
 	// console.log('new part props', props);
@@ -43,7 +43,7 @@ function NewPart(part, props, defaultBeat, debug) {
 		// console.log('dur', duration, 'dd', dd);
 		let beats = part.flatMap(note => {
 			let [pitch, beat] = note; // note, duration
-			let beatNum = +beat.slice(0, -1);
+			let beatNum = parseInt(beat);
 			
 			// apply mod -- defaults to 4, quarter for now
 			let newBeat = (beatMod / 4) * beatNum;
@@ -76,8 +76,11 @@ function NewPart(part, props, defaultBeat, debug) {
 		// new beat mod can't be smaller than default -- for now
 		// maybe needs to be defaultBeatNum / 2, not sure after working on repeat
 		// console.log('deafult', defaultBeatNum)
-		const beatMods = [...Array(loopNum)].map(() => Math.min(defaultBeatNum, mods.beatList.get()));
-		const minBeat = Math.min(...beatMods);
+		// const beatMods = [...Array(loopNum)].map(() => Math.min(defaultBeatNum, mods.beatList.get()));
+		const beatMods = [...Array(loopNum)].map(() => mods.beatList.get());
+		const maxBeat = Math.min(...beatMods);
+		console.log('beatMods', beatMods)
+		// console.log('minBeat', minBeat);
 		
 		for (let i = 0; i < loopNum; i++) {
 			
@@ -85,10 +88,12 @@ function NewPart(part, props, defaultBeat, debug) {
 			mods.velocityStep.set(mods.velocityStart.get()); 
 			let melody = getBeats(beatMods[i]);
 			
-			
 			// repeat if shorter beat mod
-			for (let j = 1; j < (beatMods[i] / minBeat); j++) {
-				melody.concat(getBeats(beatMods[i]));
+			console.log('repeat', beatMods[i], maxBeat, (beatMods[i] / maxBeat), melody.length);
+			const copy = [...melody];
+			for (let j = 1; j < (beatMods[i] / maxBeat); j++) {
+				// console.log('concat', j);
+				melody = melody.concat([...copy]);
 			}
 
 
@@ -119,7 +124,7 @@ function NewPart(part, props, defaultBeat, debug) {
 			// console.log('final mel', i, melody.map(n => n[0]));
 
 			// console.log('part length', i, melody.length, defaultBeat);
-			// console.log('part', melody.map(n => n[1]));
+			// console.log('beats', melody.map(n => n[1]));
 			// console.log('vel', melody.map(n => n[2]));
 
 
@@ -139,7 +144,7 @@ function NewPart(part, props, defaultBeat, debug) {
 		}
 
 		// console.log('loop num', loopNum);
-		// console.log('loop length', loops.map(l => l.melody.length));
+		console.log('loop length', loops.map(l => l.melody.length));
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
 

@@ -357,7 +357,7 @@ function Modulators(app, defaults) {
 		tree.add(new UIChance({
 			value: params.chance?.value ?? 0,
 			label: 'Chance',
-			step: 0.005,
+			step: 0.05,
 			// callback: value => { prop.chance.value = value; }
 			callback: value => { updateProp(propString + '-chance', value); }
 		}));

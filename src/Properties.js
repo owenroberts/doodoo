@@ -237,6 +237,7 @@ const props = {
 			min: { value: 0, type: 'chance', step: 0.05, },
 			max: { value: 0.25, type: 'chance', step: 0.05, },
 			type: { value: 'range' },
+			kick: { value: 2 },
 		}
 	},
 };

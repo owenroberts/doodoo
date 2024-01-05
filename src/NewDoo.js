@@ -75,9 +75,16 @@ function NewDoo(params, callback) {
 	// have to get default beat before going through the parts ...
 	params.parts.forEach(part => {
 		part.forEach(note => {
-			if (parseInt[note[1]] > parseInt[defaultBeat]) defaultBeat = beat;
+			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = beat;
 		});
 	});
+	// console.log(params.props.beatList);
+	// console.log('default beat', defaultBeat);
+	params.props.beatList.list.forEach(beat => {
+		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
+	});
+	console.log('default beat', defaultBeat);
+
 
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
@@ -239,7 +246,7 @@ function NewDoo(params, callback) {
 	
 		playTotalBeats = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
-		const smallestBeat = Math.max(...loops.flatMap(loop => loop.melody.map(b => b[1].slice(0, -1))));
+		const smallestBeat = Math.max(...loops.flatMap(loop => loop.melody.map(b => parseInt(b[1]))));
 		toneLoop.interval = smallestBeat + 'n';
 		
 		// let mutationCount = currentParts.map(part => part.update())[0];
