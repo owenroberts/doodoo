@@ -238,8 +238,7 @@ const props = {
 			max: { value: 0.25, type: 'chance', step: 0.05, },
 			type: { value: 'range' },
 		}
-	}
-
+	},
 };
 
 window.DoodooProps = { props };
