@@ -232,9 +232,10 @@ const props = {
 	rest: {
 		value: 0,
 		step: 0.05,
+		type: 'chance',
 		mod: {
-			min: { value: 0 },
-			max: { value: 0.25 },
+			min: { value: 0, type: 'chance', step: 0.05, },
+			max: { value: 0.25, type: 'chance', step: 0.05, },
 			type: { value: 'range' },
 		}
 	}

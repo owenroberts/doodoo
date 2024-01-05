@@ -62,7 +62,7 @@ function Modulators(app, defaults) {
 		// console.log('props', prop, props[prop]);
 		
 		propRow.add(new UILabel({ text: "Prop Type" }));
-		
+
 		let propType = 'number';
 		if (props[prop].hasOwnProperty('type')) propType = props[prop].type;
 		else if (props[prop].hasOwnProperty('list')) propType = 'number-list';
@@ -70,7 +70,7 @@ function Modulators(app, defaults) {
 
 		const propTypeSelect = new UISelect({
 			value: propType,
-			options: ['number', 'number-list', 'string-list', 'note-list', 'stack'],
+			options: ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance'],
 			callback: type => { 
 				propParamsRow.clear();
 				delete props[prop].mod;
@@ -89,6 +89,7 @@ function Modulators(app, defaults) {
 	function addPropType(row, propType, prop) {
 		switch(propType) {
 			case 'number':
+			case 'chance':
 				// set default if prop isn't passed
 				if (!props[prop].hasOwnProperty('value')) {
 					const step = +prompt('Step?', 1);
@@ -113,6 +114,7 @@ function Modulators(app, defaults) {
 	}
 
 	function getPropFromString(propString) {
+		// console.log('get', propString);
 		let prop;
 		if (propString.includes('-')) {
 			prop = props;
@@ -123,7 +125,7 @@ function Modulators(app, defaults) {
 		} else {
 			prop = props[propString];
 		}
-
+		// console.log('return', prop);
 		return prop;
 	}
 
@@ -160,11 +162,17 @@ function Modulators(app, defaults) {
 	function addValue(row, propString, label, level=0) {
 		const params = getParams(propString);
 		row.add(new UILabel({ text: label }));
-		row.add(new UINumberStep({
+		// console.log(propString, params);
+		
+		let uiClass = UINumberStep;
+		if (params?.type === 'chance') uiClass = UIChance;
+		row.add(new uiClass({
 			...params, // step, options, etc from defaults
 			value: params.value ?? 0,
+			label: 'Chance',
 			callback: value => { updateProp(propString, value); }
 		}));
+
 		addMod(row, propString, label, level);
 	}
 
@@ -173,15 +181,17 @@ function Modulators(app, defaults) {
 		const params = getParams(propString);
 
 		row.add(new UILabel({ text: 'List' }));
+		
 		let uiClass = UINumberList;
-		if (params.list) {
-			if (typeof params.list[0] === 'string') uiClass = UIInputList;
-		} else {
+		if (typeof params.list[0] === 'string') {
+			uiClass = UIInputList;
+		} else if (!params.list) {
 			if (prompt('Type? string or number', 'string') === 'string') uiClass = UIInputList;
 		}
-		
+
 		row.add(new uiClass({
 			list: params.list ?? [],
+
 			callback: list => { updateProp(propString, list, 'list'); }
 		}));
 		row.addBreak();
@@ -282,7 +292,7 @@ function Modulators(app, defaults) {
 	function addMod(row, propString, label, level) {
 
 		let prop = getPropFromString(propString);
-		// console.log('add mod', prop);
+		// console.log('add mod', propString, prop);
 
 		// if mod property doesn't exist get default
 		if (!prop) prop = modDefaults[propString.split('-').pop()];
