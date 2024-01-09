@@ -141,9 +141,15 @@ function NewPart(part, props, defaultBeat, debug) {
 			while (Object.keys(fx).length < mods.fxLimit.get() + 1 && 
 				whileCount < props.fxList.list.length) {
 				const f = mods.fxList.get();
-				if (chance(mods[f]?.get().chance)) fx[f] = f.get();
+				if (mods[f]) {
+					if (chance(mods[f].get().chance)) {
+						fx[f] = mods[f].get();
+					}
+				}
 				whileCount++;
 			}
+
+			console.log('fx', fx);
 
 			loops.push({
 				melody: melody,
@@ -165,6 +171,7 @@ function NewPart(part, props, defaultBeat, debug) {
 		// console.log('loop length', loops.map(l => l.melody.length));
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
+		// console.log('fx', loops.map(l => Object.keys(l.fx).toString()));
 
 		// console.log('loops', loops);
 		return loops;

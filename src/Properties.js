@@ -259,7 +259,228 @@ const props = {
 		type: 'bundle',
 		chance: { value: 1 },
 		decay: { value: 5, step: 0.1, range: [0.5, 32] },
+	},
+	distortion: {
+		type: 'bundle',
+		chance: { value: 0.25, type: "chance" },
+		distortion: {
+			value: 0.1,
+			step: 0.01,
+			mod: {
+				min: { value: 0.05 },
+				max: { value: 0.2 },
+				type: { value: 'range' },
+			}
+		}
+	},
+	bitCrush: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		bits: {
+			list: [3, 4, 6, 8, 12, 16],
+			mod: {
+				min: { value: 0 },
+				max: { value: 5 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		}
+	},
+	autoFilter: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			list: ['2n', '4n', '8n', '16n', '32n'],
+			mod: {
+				min: { value: 0 },
+				max: { value: 4 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		}
+	},
+	autoPanner: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			list: ['2n', '4n', '8n', '16n', '32n'],
+			mod: {
+				min: { value: 0 },
+				max: { value: 4 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		}
+	},
+	cheby: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		order: {
+			value: 16,
+			mod: {
+				min: { value: 0 },
+				max: { value: 100 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		}
+	},
+	chorus: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			value: 4,
+			mod: {
+				min: { value: 1 },
+				max: { value: 12 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		delay: {
+			value: 2.5,
+			mod: {
+				min: { value: 0.1 },
+				max: { value: 12 },
+				step: { value: 0.1 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		depth: {
+			value: 0.5,
+			mod: {
+				min: { value: 0 },
+				max: { value: 1 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+	},
+	feedback: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		feedback: {
+			value: 0.25,
+			mod: {
+				min: { value: 0.1 },
+				max: { value: 1 },
+				step: { value: 0.01 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		delay: {
+			list: ['8n', '4n', '16n', '32n'],
+			mod: {
+				min: { value: 0 },
+				max: { value: 3 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+	},
+	phaser: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			value: 15,
+			mod: {
+				min: { value: 0 },
+				max: { value: 32 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		octaves: {
+			value: 5,
+			mod: {
+				min: { value: 1 },
+				max: { value: 16 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		base: {
+			value: 1000,
+			mod: {
+				min: { value: 0 },
+				max: { value: 10_000 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+	},
+	pingPong: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		feedback: {
+			value: 0.25,
+			mod: {
+				min: { value: 0.1 },
+				max: { value: 1 },
+				step: { value: 0.01 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		delay: {
+			list: ['1n', '2n', '4n', '8n', '16n', '32n', '2t', '4t', '8t', '16t', '32t'],
+			mod: {
+				min: { value: 0 },
+				max: { value: 10 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+	},
+	tremolo: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			value: 9,
+			mod: {
+				min: { value: 1 },
+				max: { value: 18 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		depth: {
+			value: 0.25,
+			mod: {
+				min: { value: 0.1 },
+				max: { value: 1 },
+				step: { value: 0.05 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+	},
+	vibrato: {
+		type: "bundle",
+		chance: { value: 0.25, type: "chance" },
+		frequency: {
+			value: 9,
+			mod: {
+				min: { value: 1 },
+				max: { value: 18 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
+		depth: {
+			value: 0.25,
+			mod: {
+				min: { value: 0.1 },
+				max: { value: 1 },
+				step: { value: 0.05 },
+				type: { value: 'range' },
+				chance: { value: 1 }
+			}
+		},
 	}
+
 };
 
 window.DoodooProps = { props };

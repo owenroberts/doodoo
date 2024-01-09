@@ -7,60 +7,50 @@ function Effects(def) {
 	const fxFuncs = {
 		reverb: (params) => {
 			// { decay: (voiceName === 'toms' ? 0.5 : def.reverbDecay) }
-			const decay = params.decay;
-			return new Tone.Reverb(decay);
+			return new Tone.Reverb(params.decay);
 		},
 		distortion: (params) => {
-			const dist = random(params.distortion);
-			return new Tone.Distortion(dist);
+			return new Tone.Distortion(params.distortion);
 		},
 		bitCrush: (params) => {
-			const bits = random(params.bitCrushBits);
-			return new Tone.BitCrusher(bits);
+			return new Tone.BitCrusher(params.bits);
 		},
 		autoFilter: (params) => {
-			const freq = random(params.autoFilterFrequency);
-			return new Tone.AutoFilter(freq).start();
+			return new Tone.AutoFilter(params.frequency).start();
 		},
 		autoPanner: (params) => {
-			const freq = random(params.autoPannerFrequency);
-			return new Tone.AutoPanner(freq).start();
+			return new Tone.AutoPanner(params.frequency).start();
 		},
 		cheby: (params) => {
-			const order = randInt(params.chebyOrder);
-			return new Tone.Chebyshev(order);
+			return new Tone.Chebyshev(Math.round(params.order));
 		},
 		chorus: (params) => {
-			const freq = randInt(params.chorusFrequency);
-			const delay = random(params.chorusDelayTime);
-			const depth = random(params.chorusDepth);
+			const freq = Math.round(params.frequency);
+			const delay = params.delay;
+			const depth = params.depth;
 			return new Tone.Chorus(freq, delay, depth).start();
 		},
 		feedback: (params) => {
-			const feedback = random(params.feedback);
-			const delay = random(params.feedbackDelayTime);
-			return new Tone.FeedbackDelay(delay, feedback);
+			return new Tone.FeedbackDelay(params.delay, params.feedback);
 		},
 		phaser: (params) => {
-			const freq = randInt(params.phaserFrequency);
-			const octaves = randInt(params.phaserOctaves);
-			const base = randInt(params.phaserBaseFrequency);
-			return new Tone.Phaser(freq, octaves, base);
-		},
-		tremolo: (params) => {
-			const freq = randInt(...params.tremoloFrequency);
-			const depth = random(...params.tremoloDepth);
-			return new Tone.Tremolo(freq, depth).start();
+			const frequency = Math.floor(params.frequency);
+			const octaves = Math.floor(params.octaves);
+			const base = Math.floor(params.base);
+			return new Tone.Phaser(frequency, octaves, base);
 		},
 		pingPong: (params) => {
-			const delay = random(params.pingPongDelayTime);
-			const feedback = random(params.pingPongFeedback);
-			return new Tone.PingPongDelay(delay, feedback);
+			return new Tone.PingPongDelay(params.delay, params.feedback);
+		},
+		tremolo: (params) => {
+			const frequency = Math.floor(params.frequency);
+			const depth = params.depth;
+			return new Tone.Tremolo(frequency, depth).start();
 		},
 		vibrato: (params) => {
-			const freq = randInt(...params.vibratoFrequency);
-			const depth = random(params.vibratoDepth);
-			return new Tone.Vibrato(freq, depth);
+			const frequency = Math.floor(params.frequency);
+			const depth = params.depth;
+			return new Tone.Vibrato(frequency, depth);
 		},
 	};
 
