@@ -70,7 +70,7 @@ const props = {
 		},
 	},
 	beatList: {
-		list: [4, 2, 1, 8, 16, 32],
+		list: [4, 2, 1, 8, 16],
 		index: 0,
 		mod: {
 			type: { value: 'range' },
@@ -240,6 +240,16 @@ const props = {
 			kick: { value: 2 },
 		}
 	},
+
+	// fx
+
+	// limit of fx added to a instrument
+	fxLimit: { value: 1 },
+	reverb: {
+		type: 'bundle',
+		chance: { value: 1 },
+		decay: { value: 5, step: 0.1, range: [0.5, 32] },
+	}
 };
 
 window.DoodooProps = { props };

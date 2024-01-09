@@ -9,7 +9,6 @@ function Composition(app, defaults) {
 	let title = defaults.title;
 	let tonic = defaults.tonic;
 	// only really matters if melody has no beats or default is lower than beats in mel
-	let beat = defaults.beat; 
 	let bpm = defaults.bpm;
 	let transpose = defaults.transpose || defaults.tonic;
 	let scale = defaults.scale;
@@ -27,14 +26,13 @@ function Composition(app, defaults) {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
-		return { tonic, transpose, bpm, title, beat, scale, useOctave, sequence, parts };
+		return { tonic, transpose, bpm, title, scale, useOctave, sequence, parts };
 	}
 
 	function load(data) {
 		if (data.title) app.ui.faces.title.update(data.title);
 		if (data.transpose) app.ui.faces.transpose.update(data.transpose);
 		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
-		if (data.beat) app.ui.faces.beat.update(data.beat);
 		if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
 		
 		if (data.tonic) {
@@ -82,14 +80,6 @@ function Composition(app, defaults) {
 				type: 'UINumberStep',
 				range: [60, 250],
 				callback: value => { bpm = value;}
-			},
-			'beat': {
-				value: beat,
-				"type": "UISelect",
-				label: "Default Beat",
-				selected: '4n',
-				options: [ "1n", "2n",  "4n", "8n",  "16n" ],
-				callback: value => { beat = value; }
 			},
 			'useOctave': {
 				type: 'UIToggleCheck',

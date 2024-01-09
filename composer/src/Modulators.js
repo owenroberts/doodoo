@@ -2,6 +2,11 @@
 	ui section to add a modulator
 	defaults are the default properties in Properites.js
 	props are modified props
+	props updated using string that references props obj structure, to prevent passing references
+	propString 'curve-value', 'curve-mod-min', 'curve-mod-min-mod-max' etc
+
+	
+
 */
 
 function Modulators(app, defaults) {
@@ -28,26 +33,35 @@ function Modulators(app, defaults) {
 	}
 
 	function addNewProp() {
-		const prop = app.ui.faces.propSelect.value;
+		const propName = app.ui.faces.propSelect.value;
 		app.ui.faces.propSelect.value = '';
-		if (!prop) return;
-		if (props[prop]) return;
-		if (!props[prop]) {
-			props[prop] = structuredClone(defaults[prop]);
+		if (!propName) return;
+		if (props[propName]) return;
+		if (!props[propName]) {
+			props[propName] = structuredClone(defaults[propName]);
 		}
 		// console.log('add new prop', prop, props[prop]);
-		addProp(prop, true);
+		addProp(propName, true);
 	}
 
-	function addProp(prop, isOpen) {
+	function getPropType(propString) {
+		const params = getParams(propString);
+		let type = 'number';
+		if (params.hasOwnProperty('type')) type = params.type;
+		else if (params.hasOwnProperty('list')) type = 'number-list';
+		else if (params.hasOwnProperty('stack')) type = 'stack';
+		return type;
+	}
 
-		const tree = new UITree({ title: labelFromKey(prop) });
+	function addProp(propName, isOpen) {
+
+		const tree = new UITree({ title: labelFromKey(propName) });
 		if (isOpen) tree.open();
 
 		const removeBtn = propsRow.add(new UIButton({
 			text: 'X',
 			callback: () => {
-				delete props[prop];
+				delete props[propName];
 				propsRow.remove(tree);
 				propsRow.remove(removeBtn);
 			}
@@ -62,53 +76,87 @@ function Modulators(app, defaults) {
 		// console.log('props', prop, props[prop]);
 		
 		propRow.add(new UILabel({ text: "Prop Type" }));
-
-		let propType = 'number';
-		if (props[prop].hasOwnProperty('type')) propType = props[prop].type;
-		else if (props[prop].hasOwnProperty('list')) propType = 'number-list';
-		else if (props[prop].hasOwnProperty('stack')) propType = 'stack';
+		const propType = getPropType(propName);
 
 		const propTypeSelect = new UISelect({
 			value: propType,
-			options: ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance'],
+			options: ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle'],
 			callback: type => { 
 				propParamsRow.clear();
-				delete props[prop].mod;
-				addPropType(propParamsRow, type, prop);
+				delete props[propName].mod;
+				addPropType(propParamsRow, type, propName);
 			}
 		})
 		propRow.add(propTypeSelect);
 		tree.add(propRow);
 
-		addPropType(propParamsRow, propType, prop);
+		addPropType(propParamsRow, propType, propName);
 		propRow.add(propParamsRow);
 
 		// console.log('tree', tree);
 	}
 
-	function addPropType(row, propType, prop) {
+	function addPropType(row, propType, propString) {
+		const params = getParams(propString);
 		switch(propType) {
 			case 'number':
 			case 'chance':
-				// set default if prop isn't passed
-				if (!props[prop].hasOwnProperty('value')) {
+				// set default if propName isn't passed
+				
+				if (!params.hasOwnProperty('value')) {
 					const step = +prompt('Step?', 1);
-					props[prop] = { value: 0, step, type: propType, ...defaults[prop] }; 
+					updateProp(propString, 0, 'value');
+					updateProp(propString, step, 'step');
+					updateProp(propString, propType, 'type');
+					const defaults = getDefaults(propString);
+					for (const prop in defaults) {
+						updateProp(propString, prop, defaults[prop]);
+					}
+
+					// props[propName] = { value: 0, step, type: propType, ...defaults[propName] }; 
 				}
-				addValue(row, prop, 'Value');
+				addValue(row, propString, 'Value');
 			break;
 			case 'number-list':
 				// set default if prop isn't passed
-				if (!props[prop].hasOwnProperty('index')) {
-					props[prop] = { index: 0, list: [], type: propType, ...defaults[prop] };
+				if (!params.hasOwnProperty('list')) {
+					updateProp(propString, 0, 'index');
+					updateProp(propString, [], 'list');
+					updateProp(propString, propType, 'type');
+					const defaults = getDefaults(propString);
+					for (const prop in defaults) {
+						updateProp(propString, prop, defaults[prop]);
+					}
 				}
-				addList(row, prop);
+				
+				addList(row, propString);
 			break;
 			case 'stack':
-				if (!props[prop].hasOwnProperty('stack')) {
-					props[prop] = { 'stack': [[]], options: [], ...defaults[prop] };
+				if (!params.hasOwnProperty('stack')) {
+					updateProp(propString, [[]], 'stack');
+					updateProp(propString, [], 'options');
+					updateProp(propString, propType, 'type');
+					const defaults = getDefaults(propString);
+					for (const prop in defaults) {
+						updateProp(propString, prop, defaults[prop]);
+					}
 				}
-				addStack(row, prop);
+				addStack(row, propString);
+			break;
+			case 'bundle':
+				console.log(propString, params);
+				for (const param in params) {
+					console.log(param);
+					if (param === 'type') continue;
+					// console.log()
+					console.log(propString, param);
+					// const propString = ;
+					row.add(new UILabel({ text: app.ui.labelFromKey(param) }));
+					row.addBreak();
+					const propType = getPropType(`${propString}-${param}`);
+					addPropType(row, propType, `${propString}-${param}`);
+				}
+				// needs ui to add params to bundle ... ?
 			break;
 		}
 	}
@@ -142,7 +190,23 @@ function Modulators(app, defaults) {
 			prop = props[propString];
 			propLast = propString;
 		}
-		return { ...defaults[propLast], ...modDefaults[propLast], ...structuredClone(prop), };
+		return structuredClone(prop);
+	}
+
+	function getDefaults(propString) {
+		let prop, propLast;
+		if (propString.includes('-')) {
+			prop = props;
+			const parts = propString.split('-');
+			for (let i = 0; i < parts.length; i++) {
+				prop = prop[parts[i]];
+			}
+			propLast = parts[parts.length - 1];
+		} else {
+			prop = props[propString];
+			propLast = propString;
+		}
+		return { ...defaults[propLast], ...modDefaults[propLast] };
 	}
 
 	function updateProp(propString, value, valueType="value") {
@@ -411,7 +475,17 @@ function Modulators(app, defaults) {
 		});
 
 		app.ui.addCallbacks([
-			{ callback: addNewProp, key: 'm', text: '+' },
+			{ 
+				key: 'm', 
+				text: '+', 
+				callback: () => {
+					if (app.ui.faces.propSelect.value.length === 0) {
+						app.ui.faces.propSelect.focus();
+					} else {
+						addNewProp();
+					}
+				},
+			},
 			{
 				text: 'Collapse',
 				callback: () => {

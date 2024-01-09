@@ -9,7 +9,7 @@
 function NewDoo(params, callback) {
 	console.log('new doo params', params);
 
-	let defaultBeat = params.beat ?? '4n'; // smallest unit of time
+	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
 		MIDI_NOTES[params.tonic];
@@ -78,13 +78,9 @@ function NewDoo(params, callback) {
 			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = beat;
 		});
 	});
-	// console.log(params.props.beatList);
-	// console.log('default beat', defaultBeat);
-	params.props.beatList.list.forEach(beat => {
+	props.beatList.list.forEach(beat => {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
 	});
-	console.log('default beat', defaultBeat);
-
 
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
