@@ -245,6 +245,16 @@ const props = {
 
 	// limit of fx added to a instrument
 	fxLimit: { value: 1 },
+	fxList: {
+		// reverb is separate
+		list: ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
+		index: 0,
+		mod: {
+			type: { value: 'range' },
+			min: { value: 0 },
+			max: { value: 10 },
+		}
+	},
 	reverb: {
 		type: 'bundle',
 		chance: { value: 1 },

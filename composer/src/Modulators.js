@@ -144,13 +144,8 @@ function Modulators(app, defaults) {
 				addStack(row, propString);
 			break;
 			case 'bundle':
-				console.log(propString, params);
 				for (const param in params) {
-					console.log(param);
 					if (param === 'type') continue;
-					// console.log()
-					console.log(propString, param);
-					// const propString = ;
 					row.add(new UILabel({ text: app.ui.labelFromKey(param) }));
 					row.addBreak();
 					const propType = getPropType(`${propString}-${param}`);

@@ -277,12 +277,13 @@ function NewDoo(params, callback) {
 		if (withRecording) i.chain(Tone.Destination, recorder);
 		else i.toDestination();
 
-		// effects.get(totalPlays, instrument).forEach(f => {
-		// 	if (withRecording) f.chain(Tone.Destination, recorder);
-		// 	else f.toDestination();
-		// 	i.connect(f);
-		// 	fxToDispose.push(f);
-		// });
+		for (const fxName in loopParams.fx) {
+			const f = effects.get(fxName, loopParams.fx[fxName]);
+			if (withRecording) f.chain(Tone.Destination, recorder);
+			else f.toDestination();
+			i.connect(f);
+			fxToDispose.push(f);
+		}
 		return i;
 	}
 

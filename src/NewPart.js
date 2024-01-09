@@ -17,7 +17,11 @@ function NewPart(part, props, defaultBeat, debug) {
 
 	/* set up modulators */
 	for (const prop in props) {
-		mods[prop] = new Property(props[prop], prop); // modulator replaces default props
+		if (props[prop]?.type === 'bundle') {
+			mods[prop] = new Bundle(props[prop], prop);
+		} else {
+			mods[prop] = new Property(props[prop], prop); // modulator replaces default props
+		}
 	}
 
 	// console.log('new part mods', mods);
@@ -126,6 +130,20 @@ function NewPart(part, props, defaultBeat, debug) {
 			// console.log('beats', melody.map(n => n[1]));
 			// console.log('vel', melody.map(n => n[2]));
 
+			const fx = {};
+			// get reverb first
+			if (chance(mods.reverb.get().chance)) {
+				// jesus that looks awful
+				fx.reverb = mods.reverb.get();
+			}
+
+			let whileCount = 0;
+			while (Object.keys(fx).length < mods.fxLimit.get() + 1 && 
+				whileCount < props.fxList.list.length) {
+				const f = mods.fxList.get();
+				if (chance(mods[f]?.get().chance)) fx[f] = f.get();
+				whileCount++;
+			}
 
 			loops.push({
 				melody: melody,
@@ -139,6 +157,7 @@ function NewPart(part, props, defaultBeat, debug) {
 				curve: mods.curve.get(),
 				release: mods.release.get(),
 				double: chance(mods.doubleChance.get()),
+				fx: fx,
 			});
 		}
 
@@ -147,7 +166,7 @@ function NewPart(part, props, defaultBeat, debug) {
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
 
-
+		// console.log('loops', loops);
 		return loops;
 	}
 
