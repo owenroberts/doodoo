@@ -131,14 +131,8 @@ function NewPart(part, props, defaultBeat, debug) {
 			// console.log('vel', melody.map(n => n[2]));
 
 			const fx = {};
-			// get reverb first
-			if (chance(mods.reverb.get().chance)) {
-				// jesus that looks awful
-				fx.reverb = mods.reverb.get();
-			}
-
 			let whileCount = 0;
-			while (Object.keys(fx).length < mods.fxLimit.get() + 1 && 
+			while (Object.keys(fx).length < mods.fxLimit.get() && 
 				whileCount < props.fxList.list.length) {
 				const f = mods.fxList.get();
 				if (mods[f]) {
@@ -147,6 +141,12 @@ function NewPart(part, props, defaultBeat, debug) {
 					}
 				}
 				whileCount++;
+			}
+
+			// always add reverb ... 
+			if (chance(mods.reverb.get().chance)) {
+				// jesus that looks awful
+				fx.reverb = mods.reverb.get();
 			}
 
 			console.log('fx', fx);

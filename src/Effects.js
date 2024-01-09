@@ -55,8 +55,6 @@ function Effects(def) {
 	};
 
 	function get(fxName, params) {
-		// console.log('effects get', fxName, params);
-		// console.log(fxFuncs[fxName](params))
 		return fxFuncs[fxName](params);
 	}
 

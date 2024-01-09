@@ -146,6 +146,16 @@ function NewDoo(params, callback) {
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
 
+		// master ing
+		var compressor = new Tone.Compressor({
+			"threshold" : -30,
+			"ratio" : 3,
+			"attack" : 0.5,
+			"release" : 0.1
+		});
+		const limiter = new Tone.Limiter(-20);
+		Tone.Master.chain(compressor, limiter);
+
 		if (useMeter) {
 			meter = new Tone.Meter({ channels: 2 });
 			Tone.Destination.connect(meter);
