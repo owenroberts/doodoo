@@ -1,128 +1,98 @@
 /*
-	main doodoo module
-	loads samples
-	sets default params
-	play back loop
-	record
-	add fx
-	etc
+	new doodoo greg paradigm
+	expose properties, add mutators to them
+	start with simple playback and add to it
 
-	sequence thing is also mad confusing
-	sequence is 2d array, a row for each part, columns are number of counts in sequence
+	note is beat + pitch
 */
 
 function Doodoo(params, callback) {
-	
-	let debug = params.debug;
-	let isPlaying = false;
-	let defaultDuration = params.duration ?? '4n';
-	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major
-	let autoStart = params.autoStart ?? true;
-	let autoLoad = params.autoLoad ?? true;
-	let useOctave = params.useOctave ?? false;
-	let sequence = params.sequence ?? [[true]];
-	let onLoop = params.onLoop;
-	let volume = params.volume ?? 0;
-	let useMeter = params.useMeter;
-	let meter;
+	// console.log('new doo params', params);
 
-	// console.log('doodoo sequence', sequence);
-	
-	let samples;
-	let voices = params.voices ?? [params.samples]; // fix for old data
-	let stacking = params.stacking ?? [];
-
-	if (params.controls) {
-		if (params.controls.voiceList) {
-			params.controls.voiceList
-				.filter(v => !voices.includes(v))
-				.forEach(v => { 
-					if (v) voices.push(v);
-				});
-		}
-		let startVoices = params.controls.startLoops.flatMap(c => c.flatMap(l => l.voice)).filter(v => !voices.includes(v));
-		if (startVoices.length > 0) {
-			startVoices.forEach(v => {
-				if (v) voices.push(v);
-			});
-		};
-	}
-	
-	if (voices.length === 0) voices.push('FMSynth');
-
-	let withRecording = params.withRecording;
-	let recorder;
-	let withCount = params.withCount;
-
-	if (withRecording) {
-		recorder = new Tone.Recorder();
-		if (!withCount) withCount = +prompt('Record number of mutations?', 10);
-	}
-	
+	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
 		MIDI_NOTES[params.tonic];
+	let transpose = params.transpose ?? tonic; // tranpose key -- because melody is relative to tonic
+	let useOctave = params.useOctave ?? false; // in transposition, continue through to octave vs looping around to begging of octave
+	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major default
+	let sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
+	let volume = params.volume ?? 0;
+	let autoLoad = params.autoLoad ?? true;
+	let autoStart = params.autoStart ?? true;
+	let playOnStart = false; // if trying to play before loaded
+	let startLoops = params.startLoops ?? [];
+	
+	let useMeter = params.useMeter ?? false;
+	let setMeter = params.setMeter ?? false;
+	let useMetro = params.useMetro ?? false;
+	let withRecording = params.withRecording ?? false;
+	let withCount = params.withCount ?? false;
+	let onLoop = params.onLoop ?? false;
+	
+	let useDefaultProps = params.useDefaultProps ?? true;
+	const props = params.props ? structuredClone(params.props) : {};
+	for (const prop in DoodooProps.props) {
+		if (props.hasOwnProperty(prop)) continue;
+		props[prop] = useDefaultProps ? structuredClone(DoodooProps.props[prop]) : {};
+	}
 
-	if (!params.transform) params.transform = params.tonic;
-	let transform = typeof params.transform === 'string' ?
-		params.transform :
-		MIDI_NOTES[params.transform];
+	// console.log('new doo props', useDefaultProps, props);
 
-	let def = { ...defaults, ...params.controls }; // defaults
-	// console.log('defaults', def);
-	let effects = new Effects(def);
+	let samples; // holds the samples
+	// look for samples in props.instruments stack
 
-	/*
-		parts data struture is currently convoluted
-		all compositions have one part so far -- but idea of multiple parts is cool
-		some parts are just notes with no durations ['C4', 'C4', 'A4'] etc
-		some parts are array of arrays [['C4', '4n'], ['A4', '4n']], these go inside another array which is the "part"
+	let loadInstruments = [...new Set([
+		...props.instruments.stack
+			.flatMap(e => e.list)
+			.filter(i => !i.includes('Synth')),
+		...startLoops
+			.flatMap(count => count)
+			.flatMap(loop => loop)
+			.filter(loop => loop.instrument)
+			.map(loop => loop.instrument)
+	])];
+	// console.log('load instruments', loadInstruments);
+	
+	let sequenceIndex = 0; // previously currentPart
+	let totalPlays = 0; // track total plays of comp
+	let modCount = 0; // num mods --> different from total plays? -- idts
 
-		for now use just [] and [[]] figure out [[[]]] later
-	*/
+	let isPlaying = false;
+	let toneLoop; // main loop, created in start and keeps time
 
 	let parts = [];
-	if (typeof params.parts[0] === 'string') {
-		const melody = params.parts.map(n => [n, defaultDuration]);
-		parts.push(new Part(melody, def, defaultDuration, debug));
-	} else if (typeof params.parts[0] === 'number') {
-		const melody = params.parts.map(n => [MIDI_NOTES[n], defaultDuration]);
-		parts.push(new Part(melody, def, defaultDuration, debug));
-	} else if (Array.isArray(params.parts[0])) {
-		if (Array.isArray(params.parts[0][0])) {
-			for (let i = 0; i < params.parts.length; i++) {
-				const melody = params.parts[i];
-				const durations = params.parts[i].map(p => parseInt(p[1]));
-				defaultDuration = Math.max(...durations) + 'n';
-				parts.push(new Part(melody, def, defaultDuration, debug));
-			}
-		} else {
-			const melody = params.parts;
-			parts.push(new Part(melody, def, defaultDuration, debug));
-
-			const durations = params.parts.map(p => parseInt(p[1]));
-			defaultDuration = Math.max(...durations) + 'n';
-		}
-	}
-	// console.log('def dur', defaultDuration);
-
-	let currentPart = 0;
-	let totalPlays = 0;
-	// let simultaneous = params.simultaneous || false;
-
-	let toneLoop;
-	let loops = [];
+	let loops = []; // list of generated loops (more like parts), need name for this!!!! tracks?
+	let totalBeats = 0;
+	let beatCount = 0;
+	let effects = new Effects();
 	let fxToDispose = [];
-	let currentCountTotal = 0;
-	let currentCount = 0;
+	let meter;
+	let recorder;
 
-	const useMetro = params.useMetro;
-	let metro;
+	// have to get default beat before going through the parts ...
+	params.parts.forEach(part => {
+		part.forEach(note => {
+			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = beat;
+		});
+	});
+	props.beatList.list.forEach(beat => {
+		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
+	});
 
-	let usesSamples = [...voices, ...stacking.flatMap(v => v)].some(v => !v.includes('Synth'));
+	// for now, treat parts as having the same format, determined by composer app
+	// later, module to convert old versions if necessary
+	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
+	
+	for (let i = 0; i < params.parts.length; i++) {
+		parts.push(new Part(params.parts[i], props, defaultBeat, debug));
+	}
 
-	let samplesLoaded = false;
-	let playOnStart = false; // if trying to play before loaded
+	if (withRecording) {
+		recorder = new Tone.Recorder();
+		if (!withCount) withCount = +prompt('Record number of modulations?', 10);
+	}
+
 	if (autoLoad) loadTone();
 
 	// start tone using async func to wait for tone
@@ -130,19 +100,59 @@ function Doodoo(params, callback) {
 		try {
 			await Tone.start();
 			// only load if using samples
-			if (usesSamples) load(start);
+			if (loadInstruments.length > 0) load(start); 
 			else start();
 		} catch(err) {
 			console.error('load tone error', err);
 		}
 	}
 
+	function load(callback) {
+		const urls = {};
+		for (let i = 0; i < loadInstruments.length; i++) {
+			const instrument = loadInstruments[i];
+			if (instrument === 'choir') {
+				'AEIOU'.split('').forEach(letter => {
+					const sampleURLs = SamplePaths['choir'+letter];
+					for (const note in sampleURLs) {
+						urls[`${instrument}-${letter}-${note}`] = `${instrument}/${letter}/${sampleURLs[note]}`;
+					}
+				});
+			} else {
+				for (const note in SamplePaths[instrument]) {
+					urls[`${instrument}-${note}`] = `${instrument}/${SamplePaths[instrument][note]}`;
+				}
+			}
+		}
+		console.time(`load ${loadInstruments.join(', ')}`);
+		samples = new Tone.ToneAudioBuffers({
+			urls: urls,
+			baseUrl: params.samplesURL || '../samples/',
+			onload: () => {
+				console.timeEnd(`load ${loadInstruments.join(', ')}`);
+				if (callback) callback();
+				samplesLoaded = true;
+			}
+		});
+	}
+
+	// start playback
 	function start() {
 		if (callback) callback();
-		toneLoop = new Tone.Loop(loop, defaultDuration);
+		toneLoop = new Tone.Loop(playLoops, defaultBeat);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
+
+		// master ing
+		var compressor = new Tone.Compressor({
+			"threshold": -30,
+			"ratio": 3,
+			"attack": 0.5,
+			"release": 0.1
+		});
+		const limiter = new Tone.Limiter(-20);
+		Tone.Master.chain(compressor, limiter);
 
 		if (useMeter) {
 			meter = new Tone.Meter({ channels: 2 });
@@ -172,17 +182,172 @@ function Doodoo(params, callback) {
 		if (withRecording) recorder.start();
 	}
 
+	function playLoops(time) {
+		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);
+		for (let i = 0; i < loops.length; i++) {
+			const loop = loops[i];
+			if (loop.count > loop.countEnd) continue;
+			for (let j = 0; j < loop.beatCount; j++) {
+				if (loop.count % 1 !== 0) continue;
+				const noteIndex = Math.floor(loop.count) % loop.melody.length;
+				const note = loop.melody[noteIndex];
+				if (note[0] !== null) {
+					let [pitch, beat, velocity] = note;
+					if (!velocity) velocity = 1;
+					if (loop.double) {
+						// still weird w fmSynth idky
+						beat = parseInt(beat) * 2 + 'n';
+						let t = Tone.Time(beat).toSeconds();
+						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+					} else {
+						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+					}
+				}
+			}
+			
+			loop.count += 1; // loop.counter;
+		}
+
+		beatCount++;
+		if (beatCount === totalBeats) generateLoops();
+	}
+
+	// generate next play through
 	function generateLoops() {
-		currentCount = 0;
+		beatCount = 0;
+		disposePrevious();
+		loops = [];
+
+		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
+
+		for (let i = 0; i < currentParts.length; i++) {
+			const partLoops = currentParts[i].get(); // voices in part, or tracks?
+			for (let j = 0; j < partLoops.length; j++) {
+
+				const loopParams = partLoops[j];
+				
+				// overwrite start loops values
+				if (startLoops[totalPlays]) {
+					if (startLoops[totalPlays][j]) {
+						for (const prop in startLoops[totalPlays][j]) {
+							loopParams[prop] = startLoops[i][j][prop];
+						}
+					}
+				}
+
+				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
+				const loop = {
+					...loopParams,
+					melody: loopParams.harmony === 0 ? 
+						getMelody(loopParams.melody, tonic, transpose) :
+						getHarmony(loopParams.melody, tonic, transpose, loopParams.harmony, scale, useOctave),
+					instrument: getInstrument(loopParams.instrument, { ...loopParams, volume: volume }),
+				};
+				loops.push(loop);
+			}
+		}
+	
+		totalBeats = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
+
+		const smallestBeat = Math.max(...loops.flatMap(loop => loop.melody.map(b => parseInt(b[1]))));
+		toneLoop.interval = smallestBeat + 'n';
+		
+		// console.log('total plays', totalPlays);
+		currentParts.forEach(part => { part.update(totalPlays); });
+		if (params.onModulate) params.onModulate(totalPlays);
+		
+		// move to next index in sequence (if more than one)
+		sequenceIndex++;
+		if (sequenceIndex >= sequence[0].length) sequenceIndex = 0;
+		
+		totalPlays++;
+		
+		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
+
+		if (withCount) {
+			if (totalPlays > withCount * sequence[0].length) {
+				Tone.Transport.stop();
+				isPlaying = false;
+				if (recorder) saveRecording();
+			}
+		}
+
+		if (onLoop) onLoop(totalPlays);
+	}
+
+	function getInstrument(instrument, loopParams) {
+		const i = instrument.includes('Synth') ?
+			getSynth(loopParams) :
+			getSampler(instrument, loopParams);
+
+		if (withRecording) i.chain(Tone.Destination, recorder);
+		else i.toDestination();
+
+		for (const fxName in loopParams.fx) {
+			const f = effects.get(fxName, loopParams.fx[fxName]);
+			if (withRecording) f.chain(Tone.Destination, recorder);
+			else f.toDestination();
+			i.connect(f);
+			fxToDispose.push(f);
+		}
+		return i;
+	}
+
+	function getSynth(loopParams) {
+		// console.log('synth params', loopParams.attack, loopParams.release);
+		const fmSynth = new Tone.FMSynth({ 
+			volume: loopParams.volume ?? -6,
+			envelope: {
+				attack: loopParams.attack,
+				attackCurve: loopParams.curve,
+				release: loopParams.release,
+				releaseCurve: loopParams.curve,
+			}
+		});
+		return fmSynth;
+	}
+
+	function getSampler(instrument, loopParams) {
+		const sampleFiles = getSampleFiles(instrument);
+		
+		const sampler = new Tone.Sampler({
+			urls: sampleFiles,
+			volume: loopParams.volume ?? 0,
+			attack: loopParams.attack,
+			release: loopParams.release,
+			curve: loopParams.curve,
+		});
+		return sampler;
+	}
+
+	function getSampleFiles(instrument) {
+		const sampleFiles = {};
+		// just make choir aeiou choices, randomize with stacking ... ?? 
+		if (instrument === 'choir') {
+			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
+			for (const note in SamplePaths[instrument+letter]) {
+				sampleFiles[note] = samples.get(`${instrument}-${letter}-${note}`);
+			}
+		} else {
+			for (const note in SamplePaths[instrument]) {
+				sampleFiles[note] = samples.get(`${instrument}-${note}`);
+			}
+		}
+		return sampleFiles;
+	}
+
+	// dispose synths/samplers/fx from prevous playthrough
+	function disposePrevious() {
 		const disposeMe = [];
 		for (let i = 0; i < loops.length; i++) {
-			disposeMe.push(loops[i].voice);
+			disposeMe.push(loops[i].instrument);
 		}
 		for (let i = 0; i < fxToDispose.length; i++) {
 			disposeMe.push(fxToDispose[i]);
 		}
-		loops = [];
-		fxToDispose = [];
+		
+		
 		for (let i = 0; i < disposeMe.length; i++) {
 			const d = disposeMe[i];
 			// console.log('wet', disposeMe[i].wet)
@@ -198,185 +363,8 @@ function Doodoo(params, callback) {
 			}, 1000);
 		}
 
-		let currentParts = parts.filter((p, i) => sequence[i][currentPart]);
-
-		for (let i = 0; i < currentParts.length; i++) {
-			const part = currentParts[i];
-			const loopies = part.getLoops();
-			for (let j = 0; j < loopies.length; j++) {
-				const params = loopies[j];
-				let voice = params.voice ?? random(voices);
-				if (stacking[j]) {
-					if (stacking[j].length > 0) {
-						voice = random(stacking[j]);
-					}
-				}
-
-				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
-
-				const loop = {
-					...params,
-					melody: params.harmony === 0 ? 
-						getMelody(params.melody, tonic, transform) :
-						getHarmony(params.melody, tonic, transform, params.harmony, scale, useOctave),
-					voice: getVoice(voice, { ...params, volume: volume })
-				};
-				loops.push(loop);
-			}
-		}
-	
-		currentCountTotal = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
-
-		const smallestDuration = Math.max(...loops.flatMap(loop => loop.melody.map(b => b[1].slice(0, -1))));
-		toneLoop.interval = smallestDuration + 'n';
-		
-		let mutationCount = currentParts.map(part => part.update())[0];
-		if (params.onMutate) params.onMutate(mutationCount);
-		
-		currentPart++;
-		if (currentPart >= sequence[0].length) currentPart = 0;
-		
-		totalPlays++;
-		
-		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
-
-		if (withCount) {
-			if (totalPlays > withCount * sequence[0].length) {
-				Tone.Transport.stop();
-				isPlaying = false;
-				if (recorder) saveRecording();
-			}
-		}
-
-		if (onLoop) onLoop(totalPlays, mutationCount);
-	}
-
-	function loop(time) {
-		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);
-		for (let i = 0; i < loops.length; i++) {
-			const loop = loops[i];
-			const attackStep = new ValueWalker(...def.attackStep);
-			attackStep.set(loop.attack);
-			if (loop.count > loop.countEnd) continue;
-			for (let j = 0; j < loop.beatCount; j++) {
-				if (loop.count < loop.startDelay) continue;
-				if (loop.count % 1 !== 0 && !loop.doubler) continue;
-				if (chance(loop.restChance)) continue;
-				const beat = loop.melody[Math.floor(loop.count - loop.startDelay + loop.startIndex) % loop.melody.length];
-				// console.log(beat);
-				if (beat[0] !== null) {
-					const [note, duration] = beat;
-					// time offset for doubles
-					let t = j * Tone.Time(`${+duration.slice(0, -1) * 2}n`).toSeconds();
-					loop.voice.triggerAttackRelease(note, duration, time + t, attackStep.get());
-				}
-			}
-			
-			loop.count += 1; // loop.counter;
-			attackStep.update();
-		}
-
-		currentCount++;
-		if (currentCount === currentCountTotal) generateLoops();
-	}
-
-	function getVoice(voice, params) {
-		const v = voice.includes('Synth') ?
-			getSynth(params) :
-			getSampler(voice, params);
-		
-		if (withRecording) v.chain(Tone.Destination, recorder);
-		else v.toDestination();
-
-		effects.get(totalPlays, voice).forEach(f => {
-			if (withRecording) f.chain(Tone.Destination, recorder);
-			else f.toDestination();
-			v.connect(f);
-			fxToDispose.push(f);
-		});
-
-		return v;
-	}
-
-	function getSynth(params) {
-		const fmSynth = new Tone.FMSynth({ 
-			volume: params.volume || -6,
-			envelope: {
-				attack: params.voiceAttack,
-				attackCurve: params.voiceCurve,
-				release: params.voiceRelease,
-				releaseCurve: params.voiceCurve, // this one maybe take out ...
-			}
-		});
-		return fmSynth;
-	}
-
-	function getSampler(voice, params) {
-		const sampleFiles = getSampleFiles(voice);
-		const attack = ['toms'].includes(voice) ?
-			params.voiceAttack / 4 :
-			params.voiceAttack;
-		
-		// console.log(voice, params.voiceAttack, attack);
-
-		const sampler = new Tone.Sampler({
-			urls: sampleFiles,
-			volume: params.volume || 0,
-			attack: attack,
-			release: params.voiceRelease,
-			curve: params.voiceCurve,
-		});
-		// console.log(sampler, sampler.attack, sampler.release);
-		return sampler;
-	}
-
-	function getSampleFiles(voice) {
-		const sampleFiles = {};
-		if (voice === 'choir') {
-			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
-			for (const note in SamplePaths[voice+letter]) {
-				sampleFiles[note] = samples.get(`${voice}-${letter}-${note}`);
-			}
-		} else {
-			for (const note in SamplePaths[voice]) {
-				sampleFiles[note] = samples.get(`${voice}-${note}`);
-			}
-		}
-		return sampleFiles;
-	}
-
-	function loadSamples() {
-		let urls = {};
-		const allVoices = new Set([...voices, ...stacking.flatMap(v => v)]);
-		allVoices.forEach(voice => {
-			if (voice === 'choir') {
-				'AEIOU'.split('').forEach(letter => {
-					const voiceSampleURLS = SamplePaths['choir'+letter];
-					for (const note in voiceSampleURLS) {
-						urls[`${voice}-${letter}-${note}`] = `${voice}/${letter}/${voiceSampleURLS[note]}`;
-					}
-				});
-			} else {
-				for (const note in SamplePaths[voice]) {
-					urls[`${voice}-${note}`] = `${voice}/${SamplePaths[voice][note]}`;
-				}
-			}
-		});
-		return urls;
-	}
-
-	function load(callback) {
-		let urls = loadSamples();
-		console.time(`load ${voices.join(', ')}`);
-		samples = new Tone.ToneAudioBuffers({
-			urls: urls,
-			baseUrl: params.samplesURL || '../samples/',
-			onload: () => {
-				console.timeEnd(`load ${voices.join(', ')}`);
-				if (callback) callback();
-				samplesLoaded = true;
-			}
-		});
+		loops = [];
+		fxToDispose = [];
 	}
 
 	async function saveRecording() {
@@ -398,18 +386,6 @@ function Doodoo(params, callback) {
 		transpose = note;
 	}
 
-	function printLoops() {
-		console.log('loops', loops); // debug
-	}
-
-	function printParams() {
-		console.log(parts.map(p => p.getParams()));
-	}
-
-	function getLoops() {
-		return loops;
-	}
-
 	function moveBPM(n) {
 		let b = Tone.Transport.bpm.value;
 		Tone.Transport.bpm.value = b + n;
@@ -419,10 +395,14 @@ function Doodoo(params, callback) {
 		Tone.Transport.bpm.value = bpm; // starts 128
 	}
 
-	function getIsPlaying() {
-		return isPlaying;
+	function modulate() {
+		totalPlays++;
+		parts.forEach(part => {
+			part.update(totalPlays);
+		});
 	}
 
+	// better name
 	function isRecording() {
 		if (!recorder) return false;
 		return recorder.state === 'started' || recorder.state === 'paused';
@@ -447,13 +427,14 @@ function Doodoo(params, callback) {
 		if (withRecording && recorder.state === 'started') saveRecording();
 	}
 
-	function mutate() {
-		parts.forEach(part => {
-			part.update();
-		});
-	}
+	return {
+		play, stop, isRecording, modulate,
+		getLoops: () => { return loops; },
+		getStatusIsPlaying: () => { return isPlaying; },
+		printLoops: () => { console.log('loops', loops); }, // debug
+		printParams: () => { console.log(parts.map(p => p.getParams())); }, // debug
 
-	return { play, stop, mutate, moveTonic, setTonic, moveBPM, setBPM, getIsPlaying, isRecording, printLoops, getLoops, printParams };
+	}
 }
 
 window.Doodoo = Doodoo;
@@ -488,4 +469,3 @@ window.Doodoo = Doodoo;
 */
 
 // https://github.com/saebekassebil/teoria
-

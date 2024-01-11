@@ -102,12 +102,11 @@ function StartLoops(app) {
 	}
 
 	function load(data) {
-		if (data) {
-			startLoops = structuredClone(data);
-			startLoopsRow.clear();
-			for (let i = 0; i < startLoops.length; i++) {
-				addLoopCount(i, startLoops[i]);
-			}
+		if (!data.startLoops) return;
+		startLoops = structuredClone(data.startLoops);
+		startLoopsRow.clear();
+		for (let i = 0; i < data.startLoops.length; i++) {
+			addLoopCount(i, data.startLoops[i]);
 		}
 	}
 

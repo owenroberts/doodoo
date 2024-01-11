@@ -10,9 +10,9 @@ function Composition(app, defaults) {
 	let tonic = defaults.tonic;
 	// only really matters if melody has no beats or default is lower than beats in mel
 	let bpm = defaults.bpm;
-	let transpose = defaults.transpose || defaults.tonic;
+	let transpose = defaults.transpose ?? defaults.tonic;
 	let scale = defaults.scale;
-	let useOctave = defaults.useOctave || false;
+	let useOctave = defaults.useOctave ?? false;
 	
 	/* ui settings */	
 	let scaleRow, scaleUI;

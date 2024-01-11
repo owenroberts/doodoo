@@ -2,7 +2,7 @@ function Playback(app) {
 
 	let doodoo;
 	let useMetro = false;
-	let mutationCountUI;
+	let modCountUI;
 
 	function play(withRecording, withCount) {
 		const comp = app.composition.get();
@@ -13,16 +13,15 @@ function Playback(app) {
 			Tone.Transport.cancel();
 		}
 
-		doodoo = new NewDoo({
+		doodoo = new Doodoo({
 			...comp,
 			withRecording: withRecording,
 			withCount: withCount,
-			onMutate: count => {
-				mutationCountUI.text = 'Mutation: ' + count;
+			onModulate: count => {
+				modCountUI.text = 'Modulation: ' + count;
 				app.score.update(doodoo.getLoops());
 			},
 			useMetro: useMetro,
-			controls: app.controls.get(),
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
 			props: app.modulators.get(),
@@ -57,15 +56,14 @@ function Playback(app) {
 			{ 
 				key: 'd', 
 				text: 'Mutate',
-				callback: () => { if (doodoo) doodoo.mutate(); },
+				callback: () => { if (doodoo) doodoo.modulate(); },
 			},
 		], playBackPanel);
 
-		mutationCountUI = new UILabel({
-			id: 'mutation-count',
-			text: 'Mutation 0',
-		});
-		playBackPanel.add(mutationCountUI);
+		modCountUI = playBackPanel.add(new UILabel({
+			id: 'modulation-count',
+			text: 'Modulation 0',
+		}));
 
 		app.ui.addProps({
 			'useMetro': {

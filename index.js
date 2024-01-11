@@ -39,7 +39,7 @@ window.addEventListener("load", function() {
 		const playBtn = document.createElement('button');
 		const recordBtn = document.createElement('button');
 		const stopBtn = document.createElement('button');
-		const mutateBtn = document.createElement('button');
+		const modulateBtn = document.createElement('button');
 
 		let voice = 'choir';
 		const synthSelect = document.createElement('select');
@@ -62,12 +62,12 @@ window.addEventListener("load", function() {
 		playBtn.textContent = 'Play';
 		recordBtn.textContent = 'Record';
 		stopBtn.textContent = 'Stop';
-		mutateBtn.textContent = 'Mutate';
+		modulateBtn.textContent = 'Modulate';
 
 		div.appendChild(playBtn);
 		div.appendChild(recordBtn);
 		div.appendChild(stopBtn);
-		div.appendChild(mutateBtn);
+		div.appendChild(modulateBtn);
 		div.appendChild(synthSelect);
 
 		playBtn.addEventListener('click', () => { play(false); })
@@ -75,8 +75,8 @@ window.addEventListener("load", function() {
 		stopBtn.addEventListener('click', ev => {
 			doodoo.stop();
 		});
-		mutateBtn.addEventListener('click', () => {
-			doodoo.mutate();
+		modulateBtn.addEventListener('click', () => {
+			doodoo.modulate();
 		});
 
 		function play(withRecording) {

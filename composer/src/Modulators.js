@@ -13,6 +13,7 @@ function Modulators(app, defaults) {
 
 	let panel, propsRow;
 	let props = {};
+	let propsUI = {};
 	let modDefaults = {
 		min: { value: 0, step: 1 },
 		max: { value: 1, step: 1 },
@@ -225,12 +226,13 @@ function Modulators(app, defaults) {
 		
 		let uiClass = UINumberStep;
 		if (params?.type === 'chance') uiClass = UIChance;
-		row.add(new uiClass({
+		const ui = row.add(new uiClass({
 			...params, // step, options, etc from defaults
 			value: params.value ?? 0,
 			label: 'Chance',
 			callback: value => { updateProp(propString, value); }
 		}));
+		propsUI[propString] = { value: ui }
 
 		addMod(row, propString, label, level);
 	}
@@ -248,20 +250,21 @@ function Modulators(app, defaults) {
 			if (prompt('Type? string or number', 'string') === 'string') uiClass = UIInputList;
 		}
 
-		row.add(new uiClass({
+		const listUI = row.add(new uiClass({
 			list: params.list ?? [],
-
 			callback: list => { updateProp(propString, list, 'list'); }
 		}));
 		row.addBreak();
 
 		row.add(new UILabel({ text: 'Index' }));
-		row.add(new UINumberStep({
+		const indexUI = row.add(new UINumberStep({
 			value: params.index ?? 0,
 			min: 0,
 			step: 1,
 			callback: index => { updateProp(propString, index, 'index'); }
-		}))
+		}));
+
+		propsUI[propString] = { list: listUI, index: indexUI };
 		
 		// index prop doesn't exist .... 
 		addMod(row, propString, 'Index', level);
@@ -447,11 +450,12 @@ function Modulators(app, defaults) {
 		return props;
 	}
 
-	function load(mods) {
+	function load(data) {
+		if (!data.mods) return;
 		propsRow.clear();
 		props = {};
-		for (const prop in mods) {
-			props[prop] = structuredClone(mods[prop]);
+		for (const prop in data.mods) {
+			props[prop] = structuredClone(data.mods[prop]);
 			addProp(prop, false);
 		}
 	}
@@ -481,6 +485,11 @@ function Modulators(app, defaults) {
 					}
 				},
 			},
+		]);
+
+		panel.addRow();
+
+		app.ui.addCallbacks([
 			{
 				text: 'Collapse',
 				callback: () => {
@@ -499,6 +508,17 @@ function Modulators(app, defaults) {
 				callback: () => {
 					props = {};
 					propsRow.clear();
+				}
+			},
+			{
+				text: 'Zero Effects',
+				callback: () => {
+					const fxList = ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',];
+					fxList.forEach(f => {
+						if (!props.hasOwnProperty(f)) return;
+						updateProp(f + '-chance', 0);
+						propsUI[f + '-chance'].value.update(0); // crazy?
+					});
 				}
 			}
 		]);

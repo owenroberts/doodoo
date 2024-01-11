@@ -17,11 +17,8 @@ function FilesIO(app) {
 			let continueSave = confirm('No melody, continue save?');
 			if (!continueSave) return;
 		}
-		if (!controls) controls = app.controls.get();
 		const mods = app.modulators.get();
 		const startLoops = app.startLoops.get();
-
-		// console.log('save mods', mods);
 
 		//  later
 		// localStorage.setItem('comp-' + composition.title, JSON.stringify({ ...composition, controls }));
@@ -40,8 +37,7 @@ function FilesIO(app) {
 			const data = JSON.parse(compData);
 			app.composition.load(data);
 			app.melody.load(data);
-			app.controls.load(data.controls);
-			app.modulators.load(data.mods);
+			app.modulators.load(data);
 			app.startLoops.load(data.startLoops);
 		}
 	}
