@@ -99,49 +99,48 @@ function Modulators(app, defaults) {
 
 	function addPropType(row, propType, propString) {
 		const params = getParams(propString);
+		const defaults = getDefaults(propString);
+		
 		switch(propType) {
 			case 'number':
 			case 'chance':
-				// set default if propName isn't passed
 				
+				updateProp(propString, propType, 'type');
+
+				// set default if not existing isn't passed
 				if (!params.hasOwnProperty('value')) {
 					const step = +prompt('Step?', 1);
 					updateProp(propString, 0, 'value');
 					updateProp(propString, step, 'step');
-					updateProp(propString, propType, 'type');
-					const defaults = getDefaults(propString);
-					for (const prop in defaults) {
-						updateProp(propString, prop, defaults[prop]);
-					}
-
-					// props[propName] = { value: 0, step, type: propType, ...defaults[propName] }; 
 				}
 				addValue(row, propString, 'Value');
 			break;
 			case 'number-list':
 				// set default if prop isn't passed
+				updateProp(propString, propType, 'type');
+
 				if (!params.hasOwnProperty('list')) {
-					updateProp(propString, 0, 'index');
-					updateProp(propString, [], 'list');
-					updateProp(propString, propType, 'type');
-					const defaults = getDefaults(propString);
-					for (const prop in defaults) {
-						updateProp(propString, prop, defaults[prop]);
-					}
+					updateProp(propString, defaults.list ?? [], 'list');
+				}
+
+				if (!params.hasOwnProperty('index')) {
+					updateProp(propString, defaults.index ?? 0, 'index');
 				}
 				
 				addList(row, propString);
 			break;
 			case 'stack':
+
+				updateProp(propString, propType, 'type');
+
 				if (!params.hasOwnProperty('stack')) {
-					updateProp(propString, [[]], 'stack');
-					updateProp(propString, [], 'options');
-					updateProp(propString, propType, 'type');
-					const defaults = getDefaults(propString);
-					for (const prop in defaults) {
-						updateProp(propString, prop, defaults[prop]);
-					}
+					updateProp(propString, defaults.stack ?? [[]], 'stack');
 				}
+
+				if (!params.hasOwnProperty('options')) {
+					updateProp(propString, defaults.options ?? [], 'options');
+				}
+
 				addStack(row, propString);
 			break;
 			case 'bundle':
@@ -272,9 +271,7 @@ function Modulators(app, defaults) {
 
 	function addStack(row, propString, level=0) {
 		const params = getParams(propString);
-
 		const stacks = [];
-
 		const select = row.add(new UISelectButton({
 			selected: "choir",
 			options: params.options ?? [],

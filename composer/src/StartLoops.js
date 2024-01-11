@@ -71,6 +71,7 @@ function StartLoops(app) {
 						startLoops[countIndex][loopIndex][key] = value;
 					}
 				}));
+				loopRow.addBreak();
 				startLoops[countIndex][loopIndex][key] = value;
 			break;
 			case "number":
@@ -81,6 +82,7 @@ function StartLoops(app) {
 						startLoops[countIndex][loopIndex][key] = value;
 					}
 				}));
+				loopRow.addBreak();
 				startLoops[countIndex][loopIndex][key] = value;
 			break;
 			case "string":
@@ -91,6 +93,7 @@ function StartLoops(app) {
 						startLoops[countIndex][loopIndex][key] = value;
 					}
 				}));
+				loopRow.addBreak();
 				startLoops[countIndex][loopIndex][key] = value;
 			break;
 		}

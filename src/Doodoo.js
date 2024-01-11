@@ -73,9 +73,10 @@ function Doodoo(params, callback) {
 	// have to get default beat before going through the parts ...
 	params.parts.forEach(part => {
 		part.forEach(note => {
-			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = beat;
+			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = note[1];
 		});
 	});
+	
 	props.beatList.list.forEach(beat => {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
 	});

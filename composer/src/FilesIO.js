@@ -4,10 +4,11 @@
 
 function FilesIO(app) {
 
-	function load(data) {
+function load(data) {
 		app.composition.load(data);
 		app.melody.load(data);
-		if (data.controls) app.controls.load(data.controls);
+		app.modulators.load(data);
+		app.startLoops.load(data);
 	}
 
 	function saveLocal(composition, controls) { 
@@ -38,7 +39,7 @@ function FilesIO(app) {
 			app.composition.load(data);
 			app.melody.load(data);
 			app.modulators.load(data);
-			app.startLoops.load(data.startLoops);
+			app.startLoops.load(data);
 		}
 	}
 
