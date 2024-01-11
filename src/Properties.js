@@ -87,6 +87,27 @@ const props = {
 			},
 		}
 	},
+	playBeatChance: {
+		type: "chance",
+		value: 0.5,
+	},
+	playBeatList: {
+		list: [4, 16, 8, 4, 2, 1],
+		index: 0,
+		mod: {
+			type: { value: 'range' },
+			chance: { value: 1 },
+			min: { value: 0 },
+			max: { 
+				value: 0,
+				mod: {
+					max: { value: 6 },
+					chance: { value: 0.3 },
+					type: { value: 'walkUp' }
+				}
+			},
+		}
+	},
 	// melody starts at a different note -- omg
 	startIndex: { 
 		value: 0, 
@@ -215,7 +236,15 @@ const props = {
 		mod: {
 			chance: { value: 0.1 },
 			min: { value: 0 },
-			max: { value: 6 },
+			max: { 
+				value: 0,
+				mod: {
+					min: { value: 0 },
+					max: { value: 6 },
+					type: { value: 'walkUp' },
+					chance: { value: 0.25 },
+				}
+			},
 			type: { value: 'range' },
 		}
 	},
@@ -245,7 +274,16 @@ const props = {
 	// fx
 
 	// limit of fx added to a instrument
-	fxLimit: { value: 1 },
+	fxLimit: {
+		"value": 0,
+		"mod": {
+			"min": { "value": 1, },
+			"max": { "value": 1, },
+            "step": { "value": 1, },
+			"kick": { "value": 4, },
+			"chance": { "value": 1, },
+		}
+	},
 	fxList: {
 		// reverb is separate
 		list: ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
@@ -365,7 +403,7 @@ const props = {
 			value: 0.25,
 			mod: {
 				min: { value: 0.1 },
-				max: { value: 1 },
+				max: { value: 0.5 },
 				step: { value: 0.01 },
 				type: { value: 'range' },
 				chance: { value: 1 }

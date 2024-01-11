@@ -76,7 +76,7 @@ function Doodoo(params, callback) {
 			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = note[1];
 		});
 	});
-	
+
 	props.beatList.list.forEach(beat => {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
 	});
@@ -152,8 +152,10 @@ function Doodoo(params, callback) {
 			"attack": 0.5,
 			"release": 0.1
 		});
-		const limiter = new Tone.Limiter(-20);
-		Tone.Master.chain(compressor, limiter);
+		// const limiter = new Tone.Limiter(-20);
+		// Tone.Master.chain(compressor, limiter);
+		Tone.Master.chain(compressor);
+
 
 		if (useMeter) {
 			meter = new Tone.Meter({ channels: 2 });
@@ -223,8 +225,17 @@ function Doodoo(params, callback) {
 		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
 
 		for (let i = 0; i < currentParts.length; i++) {
-			const partLoops = currentParts[i].get(); // voices in part, or tracks?
-			for (let j = 0; j < partLoops.length; j++) {
+			let partLoops = currentParts[i].get(); // voices in part, or tracks?
+			let len = partLoops.length;
+			if (startLoops[totalPlays]) {
+				while (partLoops.length < startLoops[totalPlays].length) {
+					const newLoops = currentParts[i].get();
+					partLoops = partLoops.concat(newLoops);
+				}
+				len = Math.min(startLoops[totalPlays].length, partLoops.length);
+			}
+			
+			for (let j = 0; j < len; j++) {
 
 				const loopParams = partLoops[j];
 				

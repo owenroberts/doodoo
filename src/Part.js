@@ -58,6 +58,11 @@ function Part(part, props, defaultBeat, debug) {
 			// }
 
 			let firstPitch = chance(mods.rest.get()) ? null : pitch;
+			// let playBeat = chance(mods.playBeatChance.get()) ? mods.playBeatList.get() : 'def',
+			if (chance(mods.playBeatChance.get())) {
+				console.log('play beat');
+				newBeat = mods.playBeatList.get();
+			}
 			let newPart = [[firstPitch, newBeat + 'n', mods.velocityStep.get()]];
 			mods.velocityStep.update(); // update for next note
 			
@@ -169,6 +174,7 @@ function Part(part, props, defaultBeat, debug) {
 		// console.log('loop length', loops.map(l => l.melody.length));
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
+		// console.log('curve', loops.map(l => l.curve));
 		// console.log('fx', loops.map(l => Object.keys(l.fx).toString()));
 
 		// console.log('loops', loops);

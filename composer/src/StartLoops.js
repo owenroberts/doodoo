@@ -13,6 +13,7 @@ function StartLoops(app) {
 		double: false,
 		attack: 0,
 		release: 1,
+		playBeat: 'def', // play beat def means it plays the beat, beat notation means replace
 	};
 
 	function addLoopCount(index, loops) {
