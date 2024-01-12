@@ -10,6 +10,7 @@ function Part(part, props, defaultBeat, debug) {
 	// think on this more ... 
 
 	// let defaultBeatNum = parseInt(defaultBeat);
+	console.log('def beat', defaultBeat);
 	let mods = {};
 
 	// console.log('new part props', props);
@@ -59,26 +60,27 @@ function Part(part, props, defaultBeat, debug) {
 
 			let firstPitch = chance(mods.rest.get()) ? null : pitch;
 			// let playBeat = chance(mods.playBeatChance.get()) ? mods.playBeatList.get() : 'def',
-			if (chance(mods.playBeatChance.get())) {
-				console.log('play beat');
-				newBeat = mods.playBeatList.get();
-			}
+			// if (chance(mods.playBeatChance.get())) {
+			// 	// console.log('play beat');
+			// 	newBeat = mods.playBeatList.get();
+			// }
+			// console.log('vel', mods.velocityStep.get());
 			let newPart = [[firstPitch, newBeat + 'n', mods.velocityStep.get()]];
 			mods.velocityStep.update(); // update for next note
 			
 			for (let i = 1; i < beatsInDefault; i++) {
-				newPart.push([null, defaultBeat, mods.velocityStep.get()]);
-				mods.velocityStep.update();
+				// console.log('def beat', defaultBeat)
+				newPart.push([null, defaultBeat]);
 			}
 			return newPart;
 		});
 		return beats;
 	}
 
-	function get() {
+	function get(startLoops) {
 
 		const loops = []; // need a better word, voices? instruments?
-		const loopNum = mods.loopNum.getInt();
+		const loopNum = startLoops?.length ?? mods.loopNum.getInt();
 		
 		// new beat mod can't be smaller than default -- for now
 		// maybe needs to be defaultBeatNum / 2, not sure after working on repeat
@@ -92,7 +94,9 @@ function Part(part, props, defaultBeat, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			// set beginning velocity before generating loop
-			mods.velocityStep.set(mods.velocityStart.get()); 
+			// console.log('vel start', mods.velocityStart.get());
+			mods.velocityStep.set(mods.velocityStart.get());
+			// console.log('vel set', mods.velocityStep.get());
 			let melody = getBeats(beatMods[i]);
 			
 			// repeat if shorter beat mod
@@ -102,7 +106,6 @@ function Part(part, props, defaultBeat, debug) {
 				// console.log('concat', j);
 				melody = melody.concat([...copy]);
 			}
-
 
 			let startIndex = mods.startIndex.getInt();
 			if (startIndex > 0) {
@@ -154,11 +157,10 @@ function Part(part, props, defaultBeat, debug) {
 				fx.reverb = mods.reverb.get();
 			}
 
-			loops.push({
+			const loop = {
 				melody: melody,
 				count: 0, // count through loop
 				countEnd: melody.length - 1,
-				beatCount: 1, // doubler param ... need this?
 				harmony: chance(mods.harmonyChance.get()) ?
 					mods.harmonyList.get() : 0,
 				instrument: mods.instruments.get(i),
@@ -167,7 +169,18 @@ function Part(part, props, defaultBeat, debug) {
 				release: mods.release.get(),
 				double: chance(mods.doubleChance.get()),
 				fx: fx,
-			});
+				playBeat: chance(mods.playBeatChance.get()) ? mods.playBeatList.get() : 'def',
+			};
+
+			if (startLoops) {
+				if (startLoops[i]) {
+					for (const prop in startLoops[i]) {
+						loop[prop] = startLoops[i][prop];
+					}
+				}
+			}
+
+			loops.push(loop);
 		}
 
 		// console.log('loop num', loopNum);
@@ -177,7 +190,7 @@ function Part(part, props, defaultBeat, debug) {
 		// console.log('curve', loops.map(l => l.curve));
 		// console.log('fx', loops.map(l => Object.keys(l.fx).toString()));
 
-		// console.log('loops', loops);
+		console.log('loops', loops);
 		return loops;
 	}
 

@@ -78,7 +78,7 @@ function Doodoo(params, callback) {
 	});
 
 	props.beatList.list.forEach(beat => {
-		if (beat > parseInt(defaultBeat)) defaultBeat = beat;
+		if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
 	});
 
 	// for now, treat parts as having the same format, determined by composer app
@@ -190,25 +190,23 @@ function Doodoo(params, callback) {
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
 			if (loop.count > loop.countEnd) continue;
-			for (let j = 0; j < loop.beatCount; j++) {
-				if (loop.count % 1 !== 0) continue;
-				const noteIndex = Math.floor(loop.count) % loop.melody.length;
-				const note = loop.melody[noteIndex];
-				if (note[0] !== null) {
-					let [pitch, beat, velocity] = note;
-					if (!velocity) velocity = 1;
-					if (loop.double) {
-						// still weird w fmSynth idky
-						beat = parseInt(beat) * 2 + 'n';
-						let t = Tone.Time(beat).toSeconds();
-						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
-						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
-					} else {
-						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
-					}
+			if (loop.count % 1 !== 0) continue;
+			const noteIndex = Math.floor(loop.count) % loop.melody.length;
+			const note = loop.melody[noteIndex];
+			if (note[0] !== null) {
+				let [pitch, beat, velocity] = note;
+				if (loop.playBeat !== 'def') beat = loop.playBeat + 'n';
+				if (!velocity) velocity = 1;
+				if (loop.double) {
+					// still weird w fmSynth idky
+					beat = parseInt(beat) * 2 + 'n';
+					let t = Tone.Time(beat).toSeconds();
+					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+					loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+				} else {
+					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 			}
-			
 			loop.count += 1; // loop.counter;
 		}
 
@@ -225,19 +223,20 @@ function Doodoo(params, callback) {
 		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
 
 		for (let i = 0; i < currentParts.length; i++) {
-			let partLoops = currentParts[i].get(); // voices in part, or tracks?
+			let partLoops = currentParts[i].get(startLoops[totalPlays]); // voices in part, or tracks?
 			let len = partLoops.length;
-			if (startLoops[totalPlays]) {
-				while (partLoops.length < startLoops[totalPlays].length) {
-					const newLoops = currentParts[i].get();
-					partLoops = partLoops.concat(newLoops);
-				}
-				len = Math.min(startLoops[totalPlays].length, partLoops.length);
-			}
+			// if (startLoops[totalPlays]) {
+			// 	while (partLoops.length < startLoops[totalPlays].length) {
+			// 		const newLoops = currentParts[i].get();
+			// 		partLoops = partLoops.concat(newLoops);
+			// 	}
+			// 	len = Math.min(startLoops[totalPlays].length, partLoops.length);
+			// }
 			
 			for (let j = 0; j < len; j++) {
 
 				const loopParams = partLoops[j];
+				// console.log('loop params', j, loopParams);
 				
 				// overwrite start loops values
 				if (startLoops[totalPlays]) {
@@ -307,11 +306,12 @@ function Doodoo(params, callback) {
 	}
 
 	function getSynth(loopParams) {
-		// console.log('synth params', loopParams.attack, loopParams.release);
+		// console.log('synth params', loopParams.attack, loopParams.curve);
 		const fmSynth = new Tone.FMSynth({ 
 			volume: loopParams.volume ?? -6,
+
 			envelope: {
-				attack: loopParams.attack,
+				attack: Math.max(0.1, loopParams.attack),
 				attackCurve: loopParams.curve,
 				release: loopParams.release,
 				releaseCurve: loopParams.curve,
@@ -322,7 +322,6 @@ function Doodoo(params, callback) {
 
 	function getSampler(instrument, loopParams) {
 		const sampleFiles = getSampleFiles(instrument);
-		
 		const sampler = new Tone.Sampler({
 			urls: sampleFiles,
 			volume: loopParams.volume ?? 0,

@@ -118,7 +118,8 @@ const props = {
 					min: { value: 0 }, 
 					max: { value: 8 }, 
 					chance: { value: 0.3 }, 
-					type: { value: 'walkUp' }
+					type: { value: 'walkUp' },
+					kick: { value: 2 },
 				},
 			},
 			type: { value: 'range' },
@@ -127,11 +128,12 @@ const props = {
 	},
 	startDelay: {
 		list: [0, 1, 2, 4, 8, 3, 5, 7],
-		index: 6,
+		index: 0,
 		mod: {
 			min: { value: 0 },
 			type: { value: 'range' },
 			chance: { value: 1 },
+			kick: { value: 2 },
 			max: { 
 				value: 6,
 				mod: {

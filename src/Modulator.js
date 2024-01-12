@@ -50,7 +50,7 @@ function Modulator(value, params, propName) {
 
 	function set(_value) {
 		value = _value;
-		clamp();
+		if (isKicked) clamp();
 	}
 
 	function get() {
