@@ -121,12 +121,14 @@ function Part(part, props, defaultBeat, debug) {
 				fx.reverb = mods.reverb.get();
 			}
 
+			const harmony = mods.harmony.get(); // this actually looks chill
+
 			const loop = {
 				melody: melody,
 				count: 0, // count through loop
 				countEnd: melody.length - 1,
-				harmony: chance(mods.harmonyChance.get()) ?
-					mods.harmonyList.get() : 0,
+				harmony: chance(harmony.chance) ?
+					harmony.interval : 0,
 				instrument: mods.instruments.get(i),
 				attack: mods.attack.get(),
 				curve: mods.curve.get(),

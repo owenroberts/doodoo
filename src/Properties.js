@@ -43,30 +43,33 @@ const props = {
 			},
 		}
 	}, // number of loops per part
-	harmonyChance: { 
-		value: 0, 
-		step: 0.01,
-		mod: { 
-			min: { value: 0.5 },
-			max: { value: 0.5 },
-			kick: { value: 1 },
-			chance: { value: 1 },
-		} 
-	},
-	harmonyList: { 
-		list: [4, 5, 3, 7, 2, 6],
-		index: 0,
-		mod: { 
-			type: { value: 'range' },
-			min: { value: 0 }, 
-			max: { 
-				value: 0,
-				mod: {
-					min: { value: 0 },
-					max: { value: 5 },
-					step: { value: 1 },
-					type: { value: 'walkUp' },
-				}
+	harmony: {
+		type: 'bundle',
+		chance: { 
+			value: 0, 
+			step: 0.01,
+			mod: { 
+				min: { value: 0.5 },
+				max: { value: 0.5 },
+				kick: { value: 1 },
+				chance: { value: 1 },
+			} 
+		},
+		interval: { 
+			list: [4, 5, 3, 7, 2, 6],
+			index: 0,
+			mod: { 
+				type: { value: 'range' },
+				min: { value: 0 }, 
+				max: { 
+					value: 0,
+					mod: {
+						min: { value: 0 },
+						max: { value: 5 },
+						step: { value: 1 },
+						type: { value: 'walkUp' },
+					}
+				},
 			},
 		},
 	},
@@ -359,7 +362,7 @@ const props = {
 			value: 16,
 			mod: {
 				min: { value: 0 },
-				max: { value: 100 },
+				max: { value: 40 },
 				type: { value: 'range' },
 				chance: { value: 1 }
 			}
