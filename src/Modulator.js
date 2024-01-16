@@ -15,7 +15,7 @@ function Modulator(value, params, propName) {
 	let step = new Property(params.step ?? { value: 1 });
 	// "kick in" index, wait plays before starting
 	let kick = new Property(params.kick ?? { value: 0 });
-	let updateChance = new Property(params.chance ?? { value: 0.5 });
+	let chup = new Property(params.chance ?? { value: 0.5 }); // chance of update
 	// let type = params.type ?? 'value'; // range, walk, value is no mod, walkUp, walkDown
 	let type = new Property(params.type ?? { value: 'value' });
 
@@ -31,7 +31,7 @@ function Modulator(value, params, propName) {
 			if (totalPlays < kick.get()) return;
 			if (totalPlays >= kick.get()) isKicked = true;
 		}
-		if (!chance(updateChance.get())) return;
+		if (!chance(chup.get())) return;
 
 		min.update(totalPlays);
 		max.update(totalPlays);

@@ -167,7 +167,7 @@ function Part(part, props, defaultBeat, debug) {
 				attack: mods.attack.get(),
 				curve: mods.curve.get(),
 				release: mods.release.get(),
-				double: chance(mods.doubleChance.get()),
+				double: chance(mods.double.get()),
 				fx: fx,
 				playBeat: chance(mods.playBeatChance.get()) ? mods.playBeatList.get() : 'def',
 			};

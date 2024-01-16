@@ -115,9 +115,9 @@ const props = {
 			max: { 
 				value: 0, 
 				mod: { 
-					min: { value: 0 }, 
-					max: { value: 8 }, 
-					chance: { value: 0.3 }, 
+					min: { value: 0 },
+					max: { value: 8 },
+					chance: { value: 0.2 },
 					type: { value: 'walkUp' },
 					kick: { value: 2 },
 				},
@@ -130,15 +130,16 @@ const props = {
 		list: [0, 1, 2, 4, 8, 3, 5, 7],
 		index: 0,
 		mod: {
-			min: { value: 0 },
 			type: { value: 'range' },
 			chance: { value: 1 },
 			kick: { value: 2 },
+			min: { value: 0 },
 			max: { 
-				value: 6,
+				value: 0,
 				mod: {
+					min: { value: 0 },
 					max: { value: 12 },
-					chance: { value: 0.3 },
+					chance: { value: 0.2 },
 					type: { value: 'walkUp' },
 				}
 			},
@@ -187,7 +188,7 @@ const props = {
 		}
 	},
 	// play two notes at half time for each note
-	doubleChance: {
+	double: {
 		value: 0.1,
 		step: 0.05,
 	},
@@ -288,7 +289,7 @@ const props = {
 	},
 	fxList: {
 		// reverb is separate
-		list: ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
+		list: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
 		index: 0,
 		mod: {
 			type: { value: 'range' },
@@ -303,7 +304,7 @@ const props = {
 	},
 	distortion: {
 		type: 'bundle',
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		distortion: {
 			value: 0.1,
 			step: 0.01,
@@ -316,7 +317,7 @@ const props = {
 	},
 	bitCrush: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		bits: {
 			list: [3, 4, 6, 8, 12, 16],
 			mod: {
@@ -329,7 +330,7 @@ const props = {
 	},
 	autoFilter: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
 			mod: {
@@ -342,7 +343,7 @@ const props = {
 	},
 	autoPanner: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
 			mod: {
@@ -355,7 +356,7 @@ const props = {
 	},
 	cheby: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		order: {
 			value: 16,
 			mod: {
@@ -368,7 +369,7 @@ const props = {
 	},
 	chorus: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 4,
 			mod: {
@@ -400,7 +401,7 @@ const props = {
 	},
 	feedback: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		feedback: {
 			value: 0.25,
 			mod: {
@@ -423,7 +424,7 @@ const props = {
 	},
 	phaser: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 15,
 			mod: {
@@ -454,7 +455,7 @@ const props = {
 	},
 	pingPong: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		feedback: {
 			value: 0.25,
 			mod: {
@@ -477,7 +478,7 @@ const props = {
 	},
 	tremolo: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 9,
 			mod: {
@@ -500,7 +501,7 @@ const props = {
 	},
 	vibrato: {
 		type: "bundle",
-		chance: { value: 0.25, type: "chance" },
+		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 9,
 			mod: {
