@@ -26,6 +26,10 @@ function Bundle(params={}, propName) {
 		return values;
 	}
 
-	return { update, get };
+	function set(param, value) {
+		props[param].set(value);
+	}
+
+	return { update, get, set };
 
 }

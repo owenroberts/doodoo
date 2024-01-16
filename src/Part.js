@@ -35,7 +35,6 @@ function Part(part, props, defaultBeat, debug) {
 
 		const shift = mods.shift.get();
 		if (chance(shift.chance) && part.length > shift.length) {
-			console.log('shift')
 			part.shift();
 		}
 	}
@@ -50,8 +49,8 @@ function Part(part, props, defaultBeat, debug) {
 			let beatsInDefault = parseInt(defaultBeat) / newBeat;
 			
 			let firstPitch = chance(mods.rest.get()) ? null : pitch;
-			let newPart = [[firstPitch, newBeat + 'n', mods.velocityStep.get()]];
-			mods.velocityStep.update(); // update for next note
+			let newPart = [[firstPitch, newBeat + 'n', mods.velocity.get().step]];
+			mods.velocity.update(); // update for next note
 			
 			for (let i = 1; i < beatsInDefault; i++) {
 				newPart.push([null, defaultBeat]);
@@ -74,7 +73,8 @@ function Part(part, props, defaultBeat, debug) {
 		for (let i = 0; i < loopNum; i++) {
 			
 			// set beginning velocity before generating loop
-			mods.velocityStep.set(mods.velocityStart.get());
+			const velocity = mods.velocity.get();
+			mods.velocity.set('step', velocity.start);
 			let melody = getBeats(beatMods[i]);
 			
 			// repeat if shorter beat mod
@@ -122,6 +122,7 @@ function Part(part, props, defaultBeat, debug) {
 			}
 
 			const harmony = mods.harmony.get(); // this actually looks chill
+			const playBeat = mods.playBeat.get();
 
 			const loop = {
 				melody: melody,
@@ -135,7 +136,7 @@ function Part(part, props, defaultBeat, debug) {
 				release: mods.release.get(),
 				double: chance(mods.double.get()),
 				fx: fx,
-				playBeat: chance(mods.playBeatChance.get()) ? mods.playBeatList.get() : 'def',
+				playBeat: chance(playBeat.chance) ? playBeat.beat : 'def',
 			};
 
 			if (startLoops) {
@@ -154,6 +155,8 @@ function Part(part, props, defaultBeat, debug) {
 		// console.log('harmonies', loops.map(l => l.harmony));
 		// console.log('start indexes', loops.map(l => l.startIndex));
 		// console.log('curve', loops.map(l => l.curve));
+		// console.log('play beats', loops.map(l => l.playBeat));
+
 		// console.log('fx', loops.map(l => Object.keys(l.fx).toString()));
 		// console.log('loops', loops);
 		
