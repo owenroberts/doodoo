@@ -315,6 +315,7 @@ function Doodoo(params, callback) {
 				attackCurve: loopParams.curve,
 				release: loopParams.release,
 				releaseCurve: loopParams.curve,
+				// sustain: 0,
 			}
 		});
 		return fmSynth;

@@ -19,7 +19,7 @@ function Modulators(app, defaults) {
 		max: { value: 1, step: 1 },
 		step: { value: 1, step: 0.01 },
 		kick: { value: 0, step: 1 },
-		chance: { value: 0.5, step: 0.0005 },
+		chance: { value: 0.5, step: 0.05 },
 		type: { value: 'value', options: ['value', 'range', 'walk', 'walkUp', 'walkDown'] },
 	};
 
@@ -85,19 +85,19 @@ function Modulators(app, defaults) {
 			callback: type => { 
 				propParamsRow.clear();
 				delete props[propName].mod;
-				addPropType(propParamsRow, type, propName);
+				addPropUI(propParamsRow, type, propName);
 			}
 		})
 		propRow.add(propTypeSelect);
 		tree.add(propRow);
 
-		addPropType(propParamsRow, propType, propName);
+		addPropUI(propParamsRow, propType, propName);
 		propRow.add(propParamsRow);
 
 		// console.log('tree', tree);
 	}
 
-	function addPropType(row, propType, propString) {
+	function addPropUI(row, propType, propString) {
 		const params = getParams(propString);
 		const defaults = getDefaults(propString);
 		
@@ -146,10 +146,11 @@ function Modulators(app, defaults) {
 			case 'bundle':
 				for (const param in params) {
 					if (param === 'type') continue;
-					row.add(new UILabel({ text: app.ui.labelFromKey(param) }));
-					row.addBreak();
+					row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
+					// row.addBreak();
 					const propType = getPropType(`${propString}-${param}`);
-					addPropType(row, propType, `${propString}-${param}`);
+					addPropUI(row, propType, `${propString}-${param}`);
+					row.addBreak();
 				}
 				// needs ui to add params to bundle ... ?
 			break;

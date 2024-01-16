@@ -147,45 +147,43 @@ const props = {
 		}
 	},
 	// chance to slice a part of the melody and concat to end
-	sliceChance: {
-		value: 0.1,
-		step: 0.05,
-	},
-	// length of slice
-	sliceLength: {
-		value: 1,
-		mod: {
-			type: { value: 'range' },
-			min: { value: 1 },
-			max: { 
-				value: 3,
-				mod: {
-					max: { value: 8 },
-					type: { type: 'walkUp' },
-				}
-			},
-		}		
+	slice: {
+		type: 'bundle',
+		chance: { value: 0.1, step: 0.05 },
+		length: {
+			value: 1,
+			mod: {
+				type: { value: 'range' },
+				min: { value: 1 },
+				max: { 
+					value: 3,
+					mod: {
+						max: { value: 8 },
+						type: { type: 'walkUp' },
+					}
+				},
+			}
+		}
 	},
 	// chance to shift the first note in melody off
-	shiftChance: {
-		value: 0.2,
-		step: 0.05,
-	},
-	// min length of melody for shift
-	shiftLength: {
-		value: 16,
-		mod: {
-			min: { 
-				value: 16,
-				mod: {
-					min: { value: 8 },
-					max: { value: 16 },
-					type: { value: 'walkDown' },
-				}
-			},
-			max: { value: 32, },
-			type: { value: 'range' },
-		}
+	shift: {
+		type: 'bundle',
+		chance: { value: 0.2, step: 0.05, },
+		length: {
+			value: 16,
+			mod: {
+				min: { 
+					value: 16,
+					mod: {
+						min: { value: 8 },
+						max: { value: 16 },
+						type: { value: 'walkDown' },
+					}
+				},
+				max: { value: 32, },
+				type: { value: 'range' },
+			}
+		},
 	},
 	// play two notes at half time for each note
 	double: {
