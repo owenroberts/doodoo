@@ -4,6 +4,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const terser = require('gulp-terser');
 const iife = require("gulp-iife");
+const merge = require('merge-stream');
 
 const browserSync = require('browser-sync').create();
 const gulpif = require('gulp-if');
@@ -47,14 +48,14 @@ function doodooTest() {
 		.pipe(dest('./buildTest'))
 }
 
-function composerTask() {
-	return src('./composer/src/*.js')
+function composerTask(sourcePath='./composer/src/*.js', buildPath='./build') {
+	return src(sourcePath)
 		.pipe(sourcemaps.init())
 		.pipe(concat('composer.min.js'))
 		.pipe(iife({}))
 		.pipe(terser().on('error', logError))
 		.pipe(sourcemaps.write('./src_maps'))
-		.pipe(dest('./build'))
+		.pipe(dest(buildPath))
 		.pipe(browserSync.stream());
 }
 
@@ -85,8 +86,14 @@ function sassTask(sourcePath, buildPath) {
 		.pipe(dest(buildPath))
 }
 
+
 function exportTask() {
-	return jsTask(null, ['./doodoo/src/SamplePaths.js', './doodoo/src/**/*.js',], './doodoo/build', false);
+	// update composer too ... 
+	const tasks = [
+		composerTask('./doodoo/composer/src/*.js', './doodoo/build'),
+		jsTask(null, ['./doodoo/src/SamplePaths.js', './doodoo/src/**/*.js',], './doodoo/build', false)
+	];
+	return merge(...tasks);
 }
 
 function watchTask(){

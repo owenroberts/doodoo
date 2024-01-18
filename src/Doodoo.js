@@ -7,7 +7,7 @@
 */
 
 function Doodoo(params, callback) {
-	// console.log('new doo params', params);
+	console.log('new doo params', params);
 
 	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
@@ -29,9 +29,10 @@ function Doodoo(params, callback) {
 	let withRecording = params.withRecording ?? false;
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
+	let onNote = params.onNote ?? false;
 	
 	let useDefaultProps = params.useDefaultProps ?? true;
-	const props = params.props ? structuredClone(params.props) : {};
+	const props = params.mods ? structuredClone(params.mods) : {};
 	for (const prop in DoodooProps.props) {
 		if (props.hasOwnProperty(prop)) continue;
 		props[prop] = useDefaultProps ? structuredClone(DoodooProps.props[prop]) : {};
@@ -193,7 +194,7 @@ function Doodoo(params, callback) {
 			if (loop.count % 1 !== 0) continue;
 			const noteIndex = Math.floor(loop.count) % loop.melody.length;
 			const note = loop.melody[noteIndex];
-			if (note[0] !== null) {
+			if (note[0] !== null && note[0] !== 'rest') {
 				let [pitch, beat, velocity] = note;
 				if (loop.playBeat !== 'def') beat = loop.playBeat + 'n';
 				if (!velocity) velocity = 1;
@@ -206,7 +207,9 @@ function Doodoo(params, callback) {
 				} else {
 					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
+
 			}
+			if (onNote) onNote({ loopIndex: i, note: note, });
 			loop.count += 1; // loop.counter;
 		}
 

@@ -1,0 +1,176 @@
+{
+    "tonic": "C4",
+    "transpose": "C4",
+    "bpm": 120,
+    "title": "longy_1",
+    "scale": [0, 2, 4, 5, 7, 9, 11],
+    "useOctave": true,
+    "sequence": [
+        [true]
+    ],
+    "parts": [
+        [
+            ["F3", "4n"],
+            ["C4", "4n"],
+            ["G4", "4n"],
+            ["A4", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["F3", "4n"],
+            ["C4", "4n"],
+            ["G4", "4n"],
+            ["E5", "4n"],
+            ["A4", "4n"],
+            ["B4", "4n"],
+            ["A4", "4n"],
+            ["G4", "4n"],
+            ["F3", "4n"],
+            ["A3", "4n"],
+            ["E3", "4n"],
+            ["C4", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["rest", "4n"],
+            ["F3", "4n"],
+            ["C4", "4n"],
+            ["E5", "4n"],
+            ["rest", "4n"],
+            ["G4", "4n"],
+            ["A4", "4n"],
+            ["B4", "4n"],
+            ["rest", "4n"]
+        ]
+    ],
+    "mods":
+    {
+        "instruments":
+        {
+            "stack": [
+            {
+                "list": ["fmSynth"]
+            },
+            {
+                "list": ["fmSynth"]
+            },
+            {
+                "list": ["choir", "crow_bass", "flute"]
+            }],
+            "options": ["choir", "fmSynth", "bamboo", "piano", "flute", "guitar", "strings", "toms", "crow_bass", "choirA", "choirE", "choirI", "choirO", "choirU"],
+            "type": "stack"
+        },
+        "beatList":
+        {
+            "list": [4, 8, 2, 16, 1],
+            "index": 0,
+            "mod":
+            {
+                "type":
+                {
+                    "value": "range"
+                },
+                "chance":
+                {
+                    "value": 1
+                },
+                "min":
+                {
+                    "value": 0
+                },
+                "max":
+                {
+                    "value": 0,
+                    "mod":
+                    {
+                        "max":
+                        {
+                            "value": 6
+                        },
+                        "chance":
+                        {
+                            "value": 0.3
+                        },
+                        "type":
+                        {
+                            "value": "walkUp"
+                        },
+                        "min":
+                        {
+                            "value": 0,
+                            "step": 1
+                        },
+                        "step":
+                        {
+                            "value": 1,
+                            "step": 0.01
+                        },
+                        "kick":
+                        {
+                            "value": 0,
+                            "step": 1
+                        }
+                    }
+                },
+                "step":
+                {
+                    "value": 1,
+                    "step": 0.01
+                },
+                "kick":
+                {
+                    "value": 0,
+                    "step": 1
+                }
+            },
+            "type": "number-list"
+        },
+        "shift":
+        {
+            "type": "bundle",
+            "chance":
+            {
+                "value": 0.2,
+                "step": 0.05,
+                "type": "number"
+            },
+            "length":
+            {
+                "value": 32,
+                "mod":
+                {
+                    "min":
+                    {
+                        "value": 32
+                    },
+                    "max":
+                    {
+                        "value": 48
+                    },
+                    "type":
+                    {
+                        "value": "walk"
+                    },
+                    "step":
+                    {
+                        "value": 1,
+                        "step": 0.01
+                    },
+                    "kick":
+                    {
+                        "value": 0,
+                        "step": 1
+                    },
+                    "chance":
+                    {
+                        "value": 0.5,
+                        "step": 0.05
+                    }
+                },
+                "type": "number"
+            }
+        }
+    },
+    "startLoops": []
+}

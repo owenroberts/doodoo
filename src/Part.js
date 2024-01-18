@@ -48,7 +48,7 @@ function Part(part, props, defaultBeat, debug) {
 			let newBeat = (beatMod / 4) * parseInt(beat);
 			let beatsInDefault = parseInt(defaultBeat) / newBeat;
 			
-			let firstPitch = chance(mods.rest.get()) ? null : pitch;
+			let firstPitch = chance(mods.rest.get()) ? 'rest' : pitch;
 			let newPart = [[firstPitch, newBeat + 'n', mods.velocity.get().step]];
 			mods.velocity.update(); // update for next note
 			
@@ -75,7 +75,9 @@ function Part(part, props, defaultBeat, debug) {
 			// set beginning velocity before generating loop
 			const velocity = mods.velocity.get();
 			mods.velocity.set('step', velocity.start);
+
 			let melody = getBeats(beatMods[i]);
+
 			
 			// repeat if shorter beat mod
 			const copy = [...melody];

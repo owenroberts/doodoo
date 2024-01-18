@@ -24,7 +24,6 @@ const props = {
 			type: { value: 'range' },
 			min: { 
 				value: 1,
-				chance: 1,
 				mod: {
 					min: { value: 1 },
 					max: { value: 3 },

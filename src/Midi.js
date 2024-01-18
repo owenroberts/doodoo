@@ -32,7 +32,7 @@ function constrainNoteRange(midiNoteNum) {
 
 function getMelody(melody, tonic, transpose, scale) {
 	return melody.map(note => {
-		if (note[0] === null) { return note; }
+		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
 			const pitch = note[0];
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
@@ -47,7 +47,7 @@ function getMelody(melody, tonic, transpose, scale) {
 
 function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) {
 	return melody.map(note => {
-		if (note[0] === null) { return note; }
+		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
 			const pitch = note[0];
 			const midiPitch = MIDI_NOTES.indexOf(pitch);

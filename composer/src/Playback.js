@@ -1,5 +1,4 @@
 function Playback(app) {
-
 	let doodoo;
 	let useMetro = false;
 	let modCountUI;
@@ -24,7 +23,7 @@ function Playback(app) {
 			useMetro: useMetro,
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
-			props: app.modulators.get(),
+			mods: app.modulators.get(),
 			startLoops: app.startLoops.get(),
 			useDefaultProps: true,
 		});

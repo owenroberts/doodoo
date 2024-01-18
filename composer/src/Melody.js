@@ -148,7 +148,7 @@ function Melody(app, defaults) {
 				let duration = p.duration.value;
 				let noteFormatted;
 				if (['null', 'rest'].includes(note)) {
-					noteFormatted = null;
+					noteFormatted = "rest";
 				} else {
 					noteFormatted = midiFormat(note);
 					if (!noteFormatted) badFormatting = true;
