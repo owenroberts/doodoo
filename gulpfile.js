@@ -86,7 +86,6 @@ function sassTask(sourcePath, buildPath) {
 		.pipe(dest(buildPath))
 }
 
-
 function exportTask() {
 	// update composer too ... 
 	const tasks = [
@@ -117,7 +116,7 @@ task('lib', libTask);
 task('watchJS', watchTask);
 task('watch', parallel(browserSyncTask, watchTask));
 task('default', series('watch'));
-task('composer', composerTask);
+task('composer', () => { return composerTask(); });
 task('sass', () => { return sassTask('./composer/css/composer.scss', './composer/css'); });
 task('css', series('sass'));
 task('test', doodooTest);
