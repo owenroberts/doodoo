@@ -14,7 +14,7 @@ function random(min, max) {
 
 function randInt(min, max) {
 	if (!max) max = min, min = 0;
-	return Math.round( Math.random() * (max - min) + min );
+	return Math.round(Math.random() * (max - min) + min);
 }
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array

@@ -7,6 +7,7 @@ let SamplePaths = {
 		"A4": "A4.mp3",
 		"C4": "C4.mp3",
 	},
+	"trumpet": { "C4": "C4.wav" },
 	"flute": { "C5": "C5.wav" },
 	"guitar": { "C4": "C4.wav" },
 	"strings": {

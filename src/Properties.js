@@ -10,7 +10,6 @@
 	also means defaults need to be undone
 
 */
-
 const props = {
 	instruments: {
 		stack: [{ list: ['choir'] }],

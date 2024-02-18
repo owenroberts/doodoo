@@ -61,7 +61,7 @@ function Property(params={}, propName) {
 	}
 
 	function getInt() {
-		return Math.floor(get());
+		return Math.round(get());
 	}
 
 	return { update, get, set, getInt };
