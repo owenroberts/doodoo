@@ -7,18 +7,17 @@ function Melody(app, defaults) {
 	let parts = [];
 	let sequence = [[true]];
 
-	let duration = defaults.duration ?? '4n';
-	// const durationList = ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',];
-	const durationList = ['32n', '16n', '8n', '4n', '2n', '1n']; // n.s are hard use rests for now
+	let defaultBeat = defaults.beat ?? '4n';
+	// const beatList = ['32n', '16n', '8n', '8n.', '4n', '4n.', '2n', '2n.', '1n', '1n.',];
+	const beatList = ['32n', '16n', '8n', '4n', '2n', '1n']; // n.s are hard use rests for now
 
+	let pitchInput, beatInput, melodyPanel, sequenceGrid;
 
-	let noteInput, durationInput, melodyPanel, sequenceGrid;
-
-	function midiFormat(note) {
-		if (note.length === 1 || note.length > 3) return false;
-		let letter = note[0].toUpperCase();
-		let number = note[note.length - 1];
-		let sharp = note.includes('#') ? '#' : '';
+	function midiFormat(pitch) {
+		if (pitch.length === 1 || pitch.length > 3) return false;
+		let letter = pitch[0].toUpperCase();
+		let number = pitch[pitch.length - 1];
+		let sharp = pitch.includes('#') ? '#' : '';
 
 		if (isNaN(+number) || !'ABCDEFG'.includes(letter)) {
 			return false;
@@ -27,82 +26,99 @@ function Melody(app, defaults) {
 		return letter + sharp + number;
 	}
 
-	function addNote(n, d, skipUpdate, insertBefore) {
-
-		let note = n || app.ui.faces.noteInput.value.toUpperCase();
-		let duration = d || app.ui.faces.durationInput.value;
+	function addNote(p, b, partIndex, skipUpdate, insertBefore) {
+		if (partIndex === undefined) partIndex = currentPart;
+		let pitch = p || pitchInput.value.toUpperCase();
+		let beat = b || beatInput.value;
 		// console.log('part index', insertBefore);
+		const myRow = partRows[partIndex];
 
-		let part = new UICollection({ class: "note-collection" });
-		part.addClass('d' + duration.replace(/\./g, 'dot'));
+		let note = new UICollection({ class: "note-collection" });
+		note.addClass('b' + beat.replace(/\./g, 'dot'));
 		
-		let noteEdit = new UIListStep({ 
-			value: note, 
-			class: 'note-edit', 
+		let pitchEdit = new UIListStep({ 
+			value: pitch, 
+			class: 'pitch-edit', 
 			list: [...MIDI_NOTES, 'null', 'rest']
 		});
 		
-		let durEdit = new UIListStep({ 
-			value: duration,
-			class: 'duration-edit',
+		let beatEdit = new UIListStep({ 
+			value: beat,
+			class: 'beat-edit',
 			callback: value => {
 				if (!value.includes('n')) {
 					if (['1','2','4','8','16','32'].includes(value)) {
 						value += 'n';
 					} else {
-						value = duration;
+						value = beat;
 					}
-					durEdit.value = value;
+					beatEdit.value = value;
 				}
-				part.el.className = 'note-collection d' + value.replace(/\./g, 'dot');
+				note.el.className = 'note-collection b' + value.replace(/\./g, 'dot');
 				update();
 				updateDisplay();
 			},
-			list: [...durationList],
+			list: [...beatList],
 		});
 
 		let doubleBtn = new UIButton({
 			text: "+",
 			class: 'double-btn',
 			callback: () => {
-				addNote(noteEdit.value, durEdit.value, false, part);
+				addNote(pitchEdit.value, beatEdit.value, partIndex, false, note);
 			}
 		});
-		
+
+		let endBtn = new UIButton({
+			text: ">",
+			class: 'end-btn',
+			callback: () => {
+				addNote(pitchEdit.value, beatEdit.value, partIndex, false, false);
+			}
+		});
+
+		let restBtn = new UIButton({
+			text: '𝄽',
+			class: 'rest-btn',
+			callback: () => { pitchEdit.value = 'rest'; },
+		});
+
 		let removeBtn = new UIButton({ 
 			text: "x",
 			class: 'remove-btn',
 			callback: () => {
-				// melodyRow.remove(part);
-				partRows[currentPart].remove(part);
+				myRow.remove(note);
 				update();
 				updateDisplay();
 			}
 		});
 
 		if (insertBefore) {
-			partRows[currentPart].insert(part, insertBefore);
+			myRow.insert(note, insertBefore);
 		} else {
-			partRows[currentPart].append(part);
+			myRow.append(note);
 		}
 		
-		part.append(noteEdit, 'note');
-		part.append(durEdit, 'duration');
-		part.append(doubleBtn);
-		part.append(removeBtn);
+		note.append(pitchEdit, 'pitch');
+		note.append(beatEdit, 'beat');
+		note.append(endBtn);
+		note.append(restBtn);
+		note.append(doubleBtn);
+		note.append(removeBtn);
 		
 
 		if (!skipUpdate) update();
 		if (!skipUpdate) updateDisplay();
 	}
 
-	function addNotes(notes) {
+	function addNotes(notes, partNum) {
+		const pn = partNum ?? currentPart;
 		notes.forEach(note => {
-			if (note === null) return addNote('rest', duration, true);
-			const n = typeof note === 'string' ? note : note[0];
-			const d = typeof note === 'string' ? duration : note[1];
-			if (n === null) addNote('rest', d, true);
-			else addNote(n, d, true);
+			if (note === null) return addNote('rest', defaultBeat, pn,  true);
+			const pitch = typeof note === 'string' ? note : note[0];
+			const beat = typeof note === 'string' ? defaultBeat : note[1];
+			if (pitch === null) addNote('rest', beat, pn, true);
+			else addNote(pitch, beat, pn, true);
 		});
 	}
 
@@ -131,8 +147,8 @@ function Melody(app, defaults) {
 	function doubleIt() {
 		// double current melody
 		const part = partRows[currentPart].children;
-		part.forEach(beat => {
-			addNote(beat.note.value, beat.duration.value, true);
+		part.forEach(note => {
+			addNote(note.pitch.value, note.beat.value, currentPart, true);
 		});
 		update();
 		updateDisplay();
@@ -143,25 +159,25 @@ function Melody(app, defaults) {
 		
 		function makePart(children) {
 			let badFormatting = false;
-			const part = Array.from(children).map(p => {
-				let note = p.note.value;
-				let duration = p.duration.value;
-				let noteFormatted;
-				if (['null', 'rest'].includes(note)) {
-					noteFormatted = "rest";
+			const part = Array.from(children).map(note => {
+				let pitch = note.pitch.value;
+				let beat = note.beat.value;
+				let pitchFormatted;
+				if (['null', 'rest'].includes(pitch)) {
+					pitchFormatted = "rest";
 				} else {
-					noteFormatted = midiFormat(note);
-					if (!noteFormatted) badFormatting = true;
+					pitchFormatted = midiFormat(pitch);
+					if (!pitchFormatted) badFormatting = true;
 				}
 
-				if (duration.length > 3) badFormatting = true;
-				if (isNaN(+duration[0])) badFormatting = true;
-				if (duration.length === 1) duration += 'n';
-				return [noteFormatted, duration];
+				if (beat.length > 3) badFormatting = true;
+				if (isNaN(+beat[0])) badFormatting = true;
+				if (beat.length === 1) beat += 'n';
+				return [pitchFormatted, beat];
 			});
 
 			if (badFormatting) {
-				return alert('use notes in MIDI format like C4 or C#4, durations like 1n, 2n, 4n, 8n, etc.');
+				return alert('use notes in MIDI format like C4 or C#4, beats like 1n, 2n, 4n, 8n, etc.');
 			}
 			return part;
 		}
@@ -181,9 +197,9 @@ function Melody(app, defaults) {
 		const w = app.ui.panels.melody.el.getBoundingClientRect().width;
 
 		// get smallest note
-		const durations = parts.flatMap(p => { return p.map(n => n[1]) });
-		let noteDivision = Math.max(...durations.map(d => parseInt(d)));
-		if (durations.includes(noteDivision + 'n.')) noteDivision * 2;
+		const beats = parts.flatMap(p => { return p.map(n => n[1]) });
+		let noteDivision = Math.max(...beats.map(d => parseInt(d)));
+		if (beats.includes(noteDivision + 'n.')) noteDivision * 2;
 		if (noteDivision < 0) noteDivision = '4n';
 
 		// start with 4 notes per line, add 4 more if it can handle four more (make it 2?)
@@ -194,11 +210,12 @@ function Melody(app, defaults) {
 
 		app.ui.panels.melody.setProp('--column-width', Math.floor((w - 3*npl ) / npl));
 		app.ui.panels.melody.setProp('--notes-per-row', npl);
-		app.ui.panels.melody.setProp('--default-duration', noteDivision);
+		app.ui.panels.melody.setProp('--default-beat', noteDivision);
 	}
 
 	function clear() {
-		partRows.forEach(part => part.clear());
+		// partRows.forEach(part => part.clear());
+		partRows[currentPart].clear();
 	}
 
 	function load(data) {
@@ -222,7 +239,7 @@ function Melody(app, defaults) {
 							partRows[i].addClass('part');
 							app.ui.faces.currentPart.addOption(i, 'Part ' + i);
 						}
-						addNotes(data.parts[i]);
+						addNotes(data.parts[i], i);
 					}
 				} else { 
 					addNotes(data.parts); 
@@ -306,23 +323,22 @@ function Melody(app, defaults) {
 
 		melodyPanel.addRow('melody', 'break');
 
-		app.ui.addProps({
-			'noteInput': {
-				type: 'UIListStep',
-				value: 'C4',
-				class: 'note-edit',
-				list: [...MIDI_NOTES, 'null', 'rest']
-			},
-			'durationInput': {
-				type: 'UIListStep',
-				value: '4n',
-				list: [...durationList],
-				callback: value => { 
-					if (!value.includes('n')) return;
-					duration = value;
-				}
+		pitchInput = app.ui.addProp('pitchInput', {
+			type: 'UIListStep',
+			value: 'C4',
+			class: 'pitch-edit',
+			list: [...MIDI_NOTES, 'null', 'rest']
+		});
+
+		beatInput = app.ui.addProp('beatInput', {
+			type: 'UIListStep',
+			value: '4n',
+			list: [...beatList],
+			callback: value => { 
+				if (!value.includes('n')) return;
+				defaultBeat = value;
 			}
-		}, melodyPanel);
+		});
 
 		app.ui.addUI({ 
 			type: 'UIButton', 

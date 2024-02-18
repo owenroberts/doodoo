@@ -21,7 +21,7 @@
 	--column-width: 80;
 	--num-rows: 1; 
 	--row-height: 60;
-	--default-duration: 4;
+	--default-beat: 4;
 }
 
 // #melody,
@@ -61,15 +61,15 @@
 			}
 		}
 
-		.note-edit { 
+		.pitch-edit { 
 			&, &:focus-visible {
 				border-bottom: 1px solid $text-color;
 			}
 
 		}
 
-		.duration-edit,
-		.note-edit {
+		.beat-edit,
+		.pitch-edit {
 			margin: 0;
 			.btn { margin: 0; }
 			input[type=text] { 
@@ -79,6 +79,8 @@
 		}
 
 		.remove-btn,
+		.end-btn,
+		.rest-btn,
 		.double-btn {
 			grid-column: 2 / span 1;
 			grid-row: 1 / span 1;
@@ -94,25 +96,35 @@
 			}
 		}
 
-		.double-btn {
+		.double-btn,
+		.rest-btn,
+		.end-btn {
 			top: 0;
 			bottom: auto;
 		}
 
-		&.d1n { grid-column: span calc(var(--default-duration) / 1); }
-		&.d1ndot { grid-column: span calc(var(--default-duration) / 1 + var(--default-duration) / 2); }
+		.end-btn {
+			right: 12px;
+		}
 
-		&.d2n { grid-column: span calc(var(--default-duration) / 2); }
-		&.d2ndot { grid-column: span calc(var(--default-duration) / 2 + var(--default-duration) / 4); }
+		.rest-btn {
+			right: 24px;
+		}
+
+		&.b1n { grid-column: span calc(var(--default-beat) / 1); }
+		&.b1ndot { grid-column: span calc(var(--default-beat) / 1 + var(--default-beat) / 2); }
+
+		&.b2n { grid-column: span calc(var(--default-beat) / 2); }
+		&.b2ndot { grid-column: span calc(var(--default-beat) / 2 + var(--default-beat) / 4); }
 		
-		&.d4n { grid-column: span calc(var(--default-duration) / 4); }
-		&.d4ndot { grid-column: span calc(var(--default-duration) / 4 + var(--default-duration) / 8); }
+		&.b4n { grid-column: span calc(var(--default-beat) / 4); }
+		&.b4ndot { grid-column: span calc(var(--default-beat) / 4 + var(--default-beat) / 8); }
 		
-		&.d8n { grid-column: span calc(var(--default-duration) / 8); }
-		&.d8ndot { grid-column: span calc(var(--default-duration) / 8 + var(--default-duration) / 16); }
+		&.b8n { grid-column: span calc(var(--default-beat) / 8); }
+		&.b8ndot { grid-column: span calc(var(--default-beat) / 8 + var(--default-beat) / 16); }
 		
-		// &.d16n { grid-column: span calc(var(--default-duration) / 16); }
-		// &.d32n { grid-column: span calc(var(--default-duration) / 32); }
+		// &.b16n { grid-column: span calc(var(--default-beat) / 16); }
+		// &.b32n { grid-column: span calc(var(--default-beat) / 32); }
 	}
 }
 

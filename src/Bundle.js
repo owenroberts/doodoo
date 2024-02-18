@@ -11,9 +11,9 @@ function Bundle(params={}, propName) {
 		props[param] = new Property(params[param], param);
 	}
 
-	function update(totalPlays) {
+	function update(playCount) {
 		for (const prop in props) {
-			props[prop].update(totalPlays);
+			props[prop].update(playCount);
 		}
 	}
 

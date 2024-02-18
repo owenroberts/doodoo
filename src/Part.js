@@ -10,6 +10,7 @@ function Part(part, props, defaultBeat, debug) {
 	// think on this more ... 
 	
 	let mods = {};
+	let playCount = 0;
 
 	/* set up modulators */
 	for (const prop in props) {
@@ -20,10 +21,10 @@ function Part(part, props, defaultBeat, debug) {
 		}
 	}
 
-
-	function update(totalPlays) {
+	function update() {
+		playCount++;
 		for (const mod in mods) {
-			mods[mod].update(totalPlays);
+			mods[mod].update(playCount);
 		}
 
 		const slice = mods.slice.get();
@@ -77,13 +78,12 @@ function Part(part, props, defaultBeat, debug) {
 			mods.velocity.set('step', velocity.start);
 
 			let melody = getBeats(beatMods[i]);
-
 			
 			// repeat if shorter beat mod
-			const copy = [...melody];
+			const clone = structuredClone(melody);
 			for (let j = 1; j < (beatMods[i] / maxBeat); j++) {
-				// console.log('concat', j);
-				melody = melody.concat([...copy]);
+				const copy = structuredClone(melody);
+				melody = melody.concat(copy);
 			}
 
 			let startIndex = mods.startIndex.getInt();
@@ -174,5 +174,8 @@ function Part(part, props, defaultBeat, debug) {
 		return params;
 	}
 
-	return { get, update, getParams };
+	return { 
+		get, update, getParams,
+		getCount: () => { return playCount; },
+	};
 }

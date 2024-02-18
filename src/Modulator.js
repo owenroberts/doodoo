@@ -26,15 +26,15 @@ function Modulator(value, params, propName) {
 	let isKicked = kick.get() > 0 ? false : true;
 
 
-	function update(totalPlays) {
+	function update(playCount) {
 		if (!isKicked) {
-			if (totalPlays < kick.get()) return;
-			if (totalPlays >= kick.get()) isKicked = true;
+			if (playCount < kick.get()) return;
+			if (playCount >= kick.get()) isKicked = true;
 		}
 		if (!chance(chup.get())) return;
 
-		min.update(totalPlays);
-		max.update(totalPlays);
+		min.update(playCount);
+		max.update(playCount);
 
 		if (type.get() === 'walk') value += (chance(0.5) ? step.get() : -step.get());
 		if (type.get() === 'walkUp') value += step.get();

@@ -28,8 +28,8 @@ function Property(params={}, propName) {
 			new Modulator(index, params.mod, propName) ;
 	}
 
-	function update(totalPlays) {
-		if (isMod) mod.update(totalPlays);
+	function update(playCount) {
+		if (isMod) mod.update(playCount);
 	}
 
 	function get(loopIndex) {

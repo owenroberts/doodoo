@@ -3,7 +3,7 @@ function Playback(app) {
 	let useMetro = false;
 	let modCountUI;
 
-	function play(withRecording, withCount) {
+	function play(withRecording, withCount, noMods) {
 		const comp = app.composition.get();
 		if (comp.parts.every(p => p.length === 0)) return alert('Add notes to the melody.');
 
@@ -16,6 +16,7 @@ function Playback(app) {
 			...comp,
 			withRecording: withRecording,
 			withCount: withCount,
+			noMods: noMods,
 			onModulate: count => {
 				modCountUI.text = 'Modulation: ' + count;
 				app.score.update(doodoo.getLoops());
@@ -40,7 +41,7 @@ function Playback(app) {
 		const playBackPanel = app.ui.getPanel('playback', { label: 'Play Back' });
 
 		app.ui.addCallbacks([
-			{ callback: play, key: '/', text: 'Play', args: [false] },
+			{ callback: play, key: '/', text: 'Play' },
 			{ 
 				key: '.', 
 				text: 'Play Once',
@@ -52,6 +53,10 @@ function Playback(app) {
 				callback: () => { if (doodoo) doodoo.stop(); }, 
 			},
 			{ callback: play, key: 'r', text: 'Record', args: [true] },
+			{
+				key: 'shift-/', text: 'Play wo Mods',
+				callback: () => { play(false, false, true); }, 
+			},
 			{ 
 				key: 'd', 
 				text: 'Mutate',

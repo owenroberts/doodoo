@@ -7,7 +7,6 @@
 */
 
 function Doodoo(params, callback) {
-	console.log('new doo params', params);
 
 	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
@@ -30,6 +29,7 @@ function Doodoo(params, callback) {
 	let withCount = params.withCount ?? false;
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
+	let noMods = params.noMods ?? false;
 	
 	let useDefaultProps = params.useDefaultProps ?? true;
 	const props = params.mods ? structuredClone(params.mods) : {};
@@ -42,7 +42,6 @@ function Doodoo(params, callback) {
 
 	let samples; // holds the samples
 	// look for samples in props.instruments stack
-
 	let loadInstruments = [...new Set([
 		...props.instruments.stack
 			.flatMap(e => e.list)
@@ -51,12 +50,12 @@ function Doodoo(params, callback) {
 			.flatMap(count => count)
 			.flatMap(loop => loop)
 			.filter(loop => loop.instrument)
+			.filter(loop => !loop.instrument.includes('Synth'))
 			.map(loop => loop.instrument)
 	])];
-	// console.log('load instruments', loadInstruments);
 	
 	let sequenceIndex = 0; // previously currentPart
-	let totalPlays = 0; // track total plays of comp
+	let totalPlays = 0; // track total plays of comp -- differnt than part play count (could be)
 	let modCount = 0; // num mods --> different from total plays? -- idts
 
 	let isPlaying = false;
@@ -70,6 +69,7 @@ function Doodoo(params, callback) {
 	let fxToDispose = [];
 	let meter;
 	let recorder;
+	let metro;
 
 	// have to get default beat before going through the parts ...
 	params.parts.forEach(part => {
@@ -153,9 +153,9 @@ function Doodoo(params, callback) {
 			"attack": 0.5,
 			"release": 0.1
 		});
-		// const limiter = new Tone.Limiter(-20);
-		// Tone.Master.chain(compressor, limiter);
-		Tone.Master.chain(compressor);
+		const limiter = new Tone.Limiter(-20);
+		Tone.Master.chain(compressor, limiter);
+		// Tone.Master.chain(compressor);
 
 
 		if (useMeter) {
@@ -223,38 +223,47 @@ function Doodoo(params, callback) {
 		disposePrevious();
 		loops = [];
 
-		let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
+		// let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
+
+		let currentParts = [];
+		let longestMelody = 0;
+		for (let i = 0; i < parts.length; i++) {
+			if (sequence[i][sequenceIndex]) {
+				const starts = startLoops[parts[i].getCount()];
+				const loops = parts[i].get(starts);
+				loops.forEach(l => {
+					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
+				});
+				currentParts.push(loops);
+			}
+		}
+
+		// make parts match length ... 
+		for (let i = 0; i < currentParts.length; i++) {
+			const loops = currentParts[i];
+			for (let j = 0; j < loops.length; j++) {
+				const loop = loops[j];
+				const ratio = Math.floor(longestMelody / loop.melody.length);
+				const clone = structuredClone(loop.melody);
+				for (let k = 1; k < ratio; k++) {
+					const copy = structuredClone(clone);
+					loop.melody = loop.melody.concat(copy);
+				}
+				loop.countEnd = loop.melody.length - 1;
+			}
+		}
 
 		for (let i = 0; i < currentParts.length; i++) {
-			let partLoops = currentParts[i].get(startLoops[totalPlays]); // voices in part, or tracks?
-			let len = partLoops.length;
-			// if (startLoops[totalPlays]) {
-			// 	while (partLoops.length < startLoops[totalPlays].length) {
-			// 		const newLoops = currentParts[i].get();
-			// 		partLoops = partLoops.concat(newLoops);
-			// 	}
-			// 	len = Math.min(startLoops[totalPlays].length, partLoops.length);
-			// }
-			
-			for (let j = 0; j < len; j++) {
+			let partLoops = currentParts[i];
+			for (let j = 0; j < partLoops.length; j++) {
 
 				const loopParams = partLoops[j];
-				// console.log('loop params', j, loopParams);
-				
-				// overwrite start loops values
-				if (startLoops[totalPlays]) {
-					if (startLoops[totalPlays][j]) {
-						for (const prop in startLoops[totalPlays][j]) {
-							loopParams[prop] = startLoops[i][j][prop];
-						}
-					}
-				}
 
 				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
 				const loop = {
 					...loopParams,
 					melody: loopParams.harmony === 0 ? 
-						getMelody(loopParams.melody, tonic, transpose) :
+						getMelody(loopParams.melody, tonic, transpose, scale) :
 						getHarmony(loopParams.melody, tonic, transpose, loopParams.harmony, scale, useOctave),
 					instrument: getInstrument(loopParams.instrument, { ...loopParams, volume: volume }),
 				};
@@ -267,9 +276,12 @@ function Doodoo(params, callback) {
 		const smallestBeat = Math.max(...loops.flatMap(loop => loop.melody.map(b => parseInt(b[1]))));
 		toneLoop.interval = smallestBeat + 'n';
 		
-		// console.log('total plays', totalPlays);
-		currentParts.forEach(part => { part.update(totalPlays); });
-		if (params.onModulate) params.onModulate(totalPlays);
+		if (!noMods) {
+			for (let i = 0; i < parts.length; i++) {
+				if (sequence[i][sequenceIndex]) parts[i].update();
+			}
+			if (params.onModulate) params.onModulate(totalPlays);
+		}
 		
 		// move to next index in sequence (if more than one)
 		sequenceIndex++;
@@ -309,18 +321,18 @@ function Doodoo(params, callback) {
 	}
 
 	function getSynth(loopParams) {
-		// console.log('synth params', loopParams.attack, loopParams.curve);
+		// console.log('synth params', loopParams);
 		const fmSynth = new Tone.FMSynth({ 
 			volume: loopParams.volume ?? -6,
-
 			envelope: {
 				attack: Math.max(0.1, loopParams.attack),
 				attackCurve: loopParams.curve,
 				release: loopParams.release,
-				releaseCurve: loopParams.curve,
+				// releaseCurve: loopParams.curve, // leave on default exponential ...
 				// sustain: 0,
 			}
 		});
+		// console.log(fmSynth.envelope);
 		return fmSynth;
 	}
 
@@ -340,7 +352,7 @@ function Doodoo(params, callback) {
 		const sampleFiles = {};
 		// just make choir aeiou choices, randomize with stacking ... ?? 
 		if (instrument === 'choir') {
-			const letter = totalPlays < 3 ? 'U' : random('AEIOU'.split(''));
+			const letter = random('AEIOU'.split(''));
 			for (const note in SamplePaths[instrument+letter]) {
 				sampleFiles[note] = samples.get(`${instrument}-${letter}-${note}`);
 			}
@@ -354,14 +366,16 @@ function Doodoo(params, callback) {
 
 	// dispose synths/samplers/fx from prevous playthrough
 	function disposePrevious() {
+		
 		const disposeMe = [];
+		
 		for (let i = 0; i < loops.length; i++) {
 			disposeMe.push(loops[i].instrument);
 		}
+
 		for (let i = 0; i < fxToDispose.length; i++) {
 			disposeMe.push(fxToDispose[i]);
 		}
-		
 		
 		for (let i = 0; i < disposeMe.length; i++) {
 			const d = disposeMe[i];
@@ -374,8 +388,9 @@ function Doodoo(params, callback) {
 
 			// if (disposeMe[i].releaseAll) disposeMe[i].releaseAll();
 			setTimeout(() => {
+				// console.log('dispose me', disposeMe[i].volume.value);
 				disposeMe[i].dispose(); // way to calculate this??
-			}, 1000);
+			}, 2000);
 		}
 
 		loops = [];
@@ -412,9 +427,7 @@ function Doodoo(params, callback) {
 
 	function modulate() {
 		totalPlays++;
-		parts.forEach(part => {
-			part.update(totalPlays);
-		});
+		parts.forEach(part => { part.update(); });
 	}
 
 	// better name
@@ -448,7 +461,6 @@ function Doodoo(params, callback) {
 		getStatusIsPlaying: () => { return isPlaying; },
 		printLoops: () => { console.log('loops', loops); }, // debug
 		printParams: () => { console.log(parts.map(p => p.getParams())); }, // debug
-
 	}
 }
 
