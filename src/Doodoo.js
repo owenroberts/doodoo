@@ -21,6 +21,10 @@ function Doodoo(params, callback) {
 	let autoStart = params.autoStart ?? true;
 	let playOnStart = false; // if trying to play before loaded
 	let startLoops = params.startLoops ?? [];
+
+	if (!startLoops[0].hasOwnProperty('counts')) {
+		return alert('Old startloops!');
+	} // need an alert for now because this will throw errors
 	
 	let useMeter = params.useMeter ?? false;
 	let setMeter = params.setMeter ?? false;
@@ -138,7 +142,6 @@ function Doodoo(params, callback) {
 		});
 	}
 
-	// start playback
 	function start() {
 		if (callback) callback();
 		toneLoop = new Tone.Loop(playLoops, defaultBeat);
@@ -217,7 +220,6 @@ function Doodoo(params, callback) {
 		if (beatCount === totalBeats) generateLoops();
 	}
 
-	// generate next play through
 	function generateLoops() {
 		beatCount = 0;
 		disposePrevious();
@@ -229,8 +231,18 @@ function Doodoo(params, callback) {
 		let longestMelody = 0;
 		for (let i = 0; i < parts.length; i++) {
 			if (sequence[i][sequenceIndex]) {
-				const starts = startLoops[parts[i].getCount()];
-				const loops = parts[i].get(starts);
+				const partCount = parts[i].getCount();
+				let startCounter = 0;
+				let startIndex = 0;
+				for (let j = 0; j < startLoops.length; j++) {
+					if (partCount < startCounter + startLoops[j].counts) {
+						startIndex = j;
+						break;
+					} else {
+						startCounter += startLoops[j].counts;
+					}
+				}
+				const loops = parts[i].get(startLoops[startIndex].loops);
 				loops.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});

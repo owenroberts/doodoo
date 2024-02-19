@@ -16,16 +16,24 @@ function StartLoops(app) {
 		playBeat: 4, // play beat def means it plays the beat, beat notation means replace
 	};
 
-	function addLoopCount(index, loops) {
+	function addCount(index) {
 		startLoopsRow.addBreak();
 		const countRow = startLoopsRow.add(new UITree({ title: "Count " + index }), 'count' + index);
+		
+		countRow.add(new UINumberStep({
+			text: 'Counts',
+			value: startLoops[index].counts,
+			callback: value => { startLoops[index].counts = value; },
+		}));
+		countRow.addBreak();
+
 		countRow.add(new UILabel({ text: "Loops" }));
 
 		countRow.add(new UIButton({
 			text: '–',
 			class: 'left-end',
 			callback: () => {
-				startLoops[index].pop();
+				startLoops[index].loops.pop();
 				countRow.removeK('loop' + startLoops[index].length);
 			}
 		}));
@@ -34,13 +42,13 @@ function StartLoops(app) {
 			text: '+',
 			class: 'right-end',
 			callback: () => {
-				startLoops[index].push({});
-				addLoop(index, startLoops[index].length - 1, {}, countRow);
+				startLoops[index].loops.push({});
+				addLoop(index, startLoops[index].loops.length - 1, {}, countRow);
 			}
 		}));
 
-		for (let i = 0; i < loops.length; i++) {
-			addLoop(index, i, loops[i], countRow);
+		for (let i = 0; i < startLoops[index].loops.length; i++) {
+			addLoop(index, i, startLoops[index].loops[i], countRow);
 		}
 	}
 
@@ -69,33 +77,33 @@ function StartLoops(app) {
 				loopRow.add(new UIToggleCheck({
 					value: value,
 					callback: value => {
-						startLoops[countIndex][loopIndex][key] = value;
+						startLoops[countIndex].loops[loopIndex][key] = value;
 					}
 				}));
 				loopRow.addBreak();
-				startLoops[countIndex][loopIndex][key] = value;
+				startLoops[countIndex].loops[loopIndex][key] = value;
 			break;
 			case "number":
 				loopRow.add(new UILabel({ text: label }));
 				loopRow.add(new UINumberStep({
 					value: value,
 					callback: value => {
-						startLoops[countIndex][loopIndex][key] = value;
+						startLoops[countIndex].loops[loopIndex][key] = value;
 					}
 				}));
 				loopRow.addBreak();
-				startLoops[countIndex][loopIndex][key] = value;
+				startLoops[countIndex].loops[loopIndex][key] = value;
 			break;
 			case "string":
 				loopRow.add(new UILabel({ text: label }));
 				loopRow.add(new UIText({
 					value: value,
 					callback: value => {
-						startLoops[countIndex][loopIndex][key] = value;
+						startLoops[countIndex].loops[loopIndex][key] = value;
 					}
 				}));
 				loopRow.addBreak();
-				startLoops[countIndex][loopIndex][key] = value;
+				startLoops[countIndex].loops[loopIndex][key] = value;
 			break;
 		}
 		loopRow.append(new UILabel({ class: 'break' }));
@@ -106,11 +114,16 @@ function StartLoops(app) {
 	}
 
 	function load(data) {
+		console.log(data);
 		if (!data.startLoops) return;
-		startLoops = structuredClone(data.startLoops);
+		if (data.startLoops[0].hasOwnProperty('counts')) {
+			startLoops = structuredClone(data.startLoops);
+		} else {
+			alert('Old startloops!');
+		}
 		startLoopsRow.clear();
 		for (let i = 0; i < data.startLoops.length; i++) {
-			addLoopCount(i, data.startLoops[i]);
+			addCount(i);
 		}
 	}
 
@@ -148,9 +161,9 @@ function StartLoops(app) {
 			text: '+',
 			class: 'right-end',
 			callback: () => {
-				const count = [{}];
-				startLoops.push(count);
-				addLoopCount(startLoops.length - 1, count);
+				// const count = [{ counts: 1, loops: []}];
+				startLoops.push({ counts: 1, loops: []});
+				addCount(startLoops.length - 1);
 			}
 		}));
 
