@@ -23,7 +23,7 @@ function Doodoo(params, callback) {
 	let startLoops = params.startLoops ?? [];
 
 	if (!startLoops[0].hasOwnProperty('counts')) {
-		return alert('Old startloops!');
+		return alert('Old start loops!');
 	} // need an alert for now because this will throw errors
 	
 	let useMeter = params.useMeter ?? false;
@@ -232,17 +232,17 @@ function Doodoo(params, callback) {
 		for (let i = 0; i < parts.length; i++) {
 			if (sequence[i][sequenceIndex]) {
 				const partCount = parts[i].getCount();
-				let startCounter = 0;
 				let startIndex = 0;
 				for (let j = 0; j < startLoops.length; j++) {
-					if (partCount < startCounter + startLoops[j].counts) {
+					if (partCount < startIndex + startLoops[j].counts) {
 						startIndex = j;
 						break;
 					} else {
-						startCounter += startLoops[j].counts;
+						startIndex += startLoops[j].counts;
 					}
 				}
-				const loops = parts[i].get(startLoops[startIndex].loops);
+				const starts = startIndex < startLoops.length ? startLoops[startIndex].loops : {};
+				const loops = parts[i].get(starts);
 				loops.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});

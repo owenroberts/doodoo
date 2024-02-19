@@ -4,7 +4,7 @@
 
 function FilesIO(app) {
 
-function load(data) {
+	function load(data) {
 		app.composition.load(data);
 		app.melody.load(data);
 		app.modulators.load(data);

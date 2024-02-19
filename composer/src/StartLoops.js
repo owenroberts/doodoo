@@ -34,7 +34,7 @@ function StartLoops(app) {
 			class: 'left-end',
 			callback: () => {
 				startLoops[index].loops.pop();
-				countRow.removeK('loop' + startLoops[index].length);
+				countRow.removeK('loop' + startLoops[index].loops.length);
 			}
 		}));
 
@@ -114,12 +114,11 @@ function StartLoops(app) {
 	}
 
 	function load(data) {
-		console.log(data);
 		if (!data.startLoops) return;
 		if (data.startLoops[0].hasOwnProperty('counts')) {
 			startLoops = structuredClone(data.startLoops);
 		} else {
-			alert('Old startloops!');
+			alert('Old start loops!');
 		}
 		startLoopsRow.clear();
 		for (let i = 0; i < data.startLoops.length; i++) {

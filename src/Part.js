@@ -63,6 +63,8 @@ function Part(part, props, defaultBeat, debug) {
 
 	function get(startLoops) {
 
+		console.log(startLoops);
+
 		const loops = []; // need a better word, voices? instruments?
 		const loopNum = startLoops?.length ?? mods.loopNum.getInt();
 		
