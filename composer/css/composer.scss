@@ -139,3 +139,21 @@ header {
 	grid-template-columns: repeat(var(--cols), 1fr);
 	grid-template-rows: repeat(var(--rows), 20px);
 }
+
+#monitor-panel {
+
+	#mRow {
+		flex-wrap: wrap;
+	}
+
+	.monitor-prop.ui-collection {
+		margin-right: 0.5em;
+		border-right: 1px dotted;
+		padding-right: 0.5em;
+	}
+
+	label.prop-value {
+		white-space: normal;
+		text-align: left;
+	}
+}

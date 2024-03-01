@@ -357,6 +357,7 @@ function Doodoo(params, callback) {
 			release: loopParams.release,
 			curve: loopParams.curve,
 		});
+		sampler.instrument = instrument;
 		return sampler;
 	}
 

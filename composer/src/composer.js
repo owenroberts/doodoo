@@ -20,6 +20,7 @@ app.melody = new Melody(app, comp);
 app.fio = new FilesIO(app);
 app.score = new Score(app);
 app.meter = new Meter(app);
+app.monitor = new Monitor(app);
 app.modulators = new Modulators(app, props);
 app.startLoops = new StartLoops(app, props);
 
@@ -31,6 +32,7 @@ app.melody.connect();
 app.playback.connect();
 app.score.connect();
 app.meter.connect();
+app.monitor.connect();
 app.modulators.connect();
 app.startLoops.connect();
 

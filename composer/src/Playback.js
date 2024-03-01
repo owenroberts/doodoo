@@ -20,6 +20,7 @@ function Playback(app) {
 			onModulate: count => {
 				modCountUI.text = 'Modulation: ' + count;
 				app.score.update(doodoo.getLoops());
+				app.monitor.update(doodoo.getLoops());
 			},
 			useMetro: useMetro,
 			useMeter: app.meter.isOpen(),

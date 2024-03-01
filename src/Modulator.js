@@ -65,3 +65,5 @@ function Modulator(value, params, propName) {
 	return { update, get, set };
 
 }
+
+window.Modulator = Modulator;

@@ -11,7 +11,7 @@ function FilesIO(app) {
 		app.startLoops.load(data);
 	}
 
-	function saveLocal(composition, controls) { 
+	function saveLocal(composition) { 
 		if (!composition) composition = app.composition.get();
 		// console.log('save local seq', [...composition.sequence]);
 		if (composition.parts.length === 0) {
@@ -26,7 +26,6 @@ function FilesIO(app) {
 
 		localStorage.setItem('comp', JSON.stringify({ 
 			...composition, 
-			controls, 
 			mods,
 			startLoops,
 		}));
@@ -57,6 +56,7 @@ function FilesIO(app) {
 		if (!name) return;
 		saveAs(blob, name + '.json');
 		app.ui.faces.title.update(name);
+		saveLocal();
 	}
 
 	function loadMidi(data, fileName, filePath) {

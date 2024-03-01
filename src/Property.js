@@ -67,3 +67,5 @@ function Property(params={}, propName) {
 	return { update, get, set, getInt };
 
 }
+
+window.Property = Property;
