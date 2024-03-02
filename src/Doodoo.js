@@ -22,9 +22,12 @@ function Doodoo(params, callback) {
 	let playOnStart = false; // if trying to play before loaded
 	let startLoops = params.startLoops ?? [];
 
-	if (!startLoops[0].hasOwnProperty('counts')) {
-		return alert('Old start loops!');
-	} // need an alert for now because this will throw errors
+	console.log('sl', startLoops);
+	if (startLoops.length > 0) {
+		if (!startLoops[0].hasOwnProperty('counts')) {
+			return alert('Old start loops!');
+		} // need an alert for now because this will throw errors
+	}
 	
 	let useMeter = params.useMeter ?? false;
 	let setMeter = params.setMeter ?? false;

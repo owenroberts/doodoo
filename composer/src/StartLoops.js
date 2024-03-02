@@ -115,6 +115,7 @@ function StartLoops(app) {
 
 	function load(data) {
 		if (!data.startLoops) return;
+		if (data.startLoops.length < 1) return;
 		if (data.startLoops[0].hasOwnProperty('counts')) {
 			startLoops = structuredClone(data.startLoops);
 		} else {

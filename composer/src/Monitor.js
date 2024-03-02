@@ -64,11 +64,7 @@ function Monitor(app) {
 				label: `${prop}:`,
 				class: 'monitor-prop',
 				isOn: true,
-				callback: value => { 
-					if (prop === 'attack') console.log('callback', prop, value);
-					props[prop] = value; 
-					// console.log(props); 
-				},
+				callback: value => { props[prop] = value; },
 			});
 		}
 

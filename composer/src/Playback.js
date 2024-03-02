@@ -29,6 +29,7 @@ function Playback(app) {
 			startLoops: app.startLoops.get(),
 			useDefaultProps: true,
 		});
+		// setting?
 		app.fio.saveLocal(comp);
 		app.score.update(doodoo.getLoops());
 	}

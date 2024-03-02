@@ -2,7 +2,7 @@
 const { MIDI_NOTES } = DoodooMidi;
 const { props } = DoodooProps;
 const { Interface, Settings } = UI;
-const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid, UISelect, UIList, UIListAdd } = UI.Elements;
+const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid, UISelect, UIList, UIListAdd, UIModal } = UI.Elements;
 
 const app = {};
 const comp = {
@@ -49,4 +49,4 @@ app.composition.load({});
 app.score.draw([]);
 // app.startLoops.load();
 
-// console.log(app);
+console.log('app', app);
