@@ -23,6 +23,18 @@ let SamplePaths = {
 	},
 	"toms": { "A#3": "Tom606_EQ_FADE.ogg" },
 	"crow_bass": { "C4": "C4.wav" },
+	"kr55": {
+		"C4": "Bassdrum.wav",
+		"C#4": "Claves.wav",
+		"D4": "Conga.wav",
+		"D#4": "Cowbell.wav",
+		"E4": "Cymbal.wav",
+		"F4": "Hat Closed.wav",
+		"F#4": "Hat Open.wav",
+		"G4": "Rim Shot.wav",
+		"G#4": "Snaredrum.wav",
+		"A4": "Tom.wav",
+	},
 	"choirA": {
 		"A2": "CH-AA-A2.mp3",
 		"A3": "CH-AA-A3.mp3",

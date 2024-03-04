@@ -62,6 +62,7 @@ function StartLoops(app) {
 				addLoopControl(prop, defaults[prop], countIndex, loopIndex, loopRow);
 			}
 		}));
+		loopRow.addBreak();
 
 		for (const key in loop) {
 			addLoopControl(key, loop[key], countIndex, loopIndex, loopRow);
