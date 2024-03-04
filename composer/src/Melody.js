@@ -213,22 +213,23 @@ function Melody(app, defaults) {
 		app.ui.panels.melody.setProp('--default-beat', noteDivision);
 	}
 
-	function clear() {
-		// partRows.forEach(part => part.clear());
+	function clearPart() {
 		partRows[currentPart].clear();
 	}
 
+	function clearAll() {
+		partRows.forEach(part => part.clear());
+	}
+
 	function load(data) {
-		// console.log('load sequence', [...data.sequence]);
 		if (data.sequence) {
-			// fuckin shit, should i use app.ui here?
-			sequence = data.sequence;
-			sequenceGrid.update(data.sequence);
+			sequence = structuredClone(data.sequence);
+			sequenceGrid.update(sequence);
 		}
 
 		if (data.parts) {
 			// console.log('data', [...data.parts]);
-			clear();
+			clearAll();
 			parts = [];
 			if (Array.isArray(data.parts[0])) {
 				if (Array.isArray(data.parts[0][0])) {
@@ -309,7 +310,7 @@ function Melody(app, defaults) {
 		app.ui.addCallbacks([
 			{ callback: addPart, text: '+' },
 			{ callback: removePart, text: '–' },
-			{ callback: clear, text: 'Clear', key: '0' },
+			{ callback: clearPart, text: 'Clear', key: '0' },
 		], melodyPanel);
 
 		sequenceGrid = app.ui.addUI({
@@ -355,14 +356,12 @@ function Melody(app, defaults) {
 
 		melodyPanel.addRow(undefined, 'break');
 
-		
-
 		partRows[0] = melodyPanel.addRow('part-0', 'break-line-up');
 		partRows[0].addClass('part');
 	}
 
 	return { 
-		connect, clear, update, load,
+		connect, clearAll, update, load,
 		getParts() { return parts; },
 		getSequence() { return sequence; },
 	};

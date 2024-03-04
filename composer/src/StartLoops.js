@@ -121,6 +121,7 @@ function StartLoops(app) {
 		} else {
 			alert('Old start loops!');
 		}
+		
 		startLoopsRow.clear();
 		for (let i = 0; i < data.startLoops.length; i++) {
 			addCount(i);

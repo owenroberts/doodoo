@@ -5,7 +5,9 @@ function Playback(app) {
 
 	function play(withRecording, withCount, noMods) {
 		const comp = app.composition.get();
-		if (comp.parts.every(p => p.length === 0)) return alert('Add notes to the melody.');
+		if (comp.parts.every(p => p.length === 0)) {
+			return alert('Add notes to the melody.');
+		}
 
 		if (doodoo) {
 			doodoo.stop();
@@ -30,7 +32,7 @@ function Playback(app) {
 			useDefaultProps: true,
 		});
 		// setting?
-		app.fio.saveLocal(comp);
+		app.fio.saveLocal(false);
 		app.score.update(doodoo.getLoops());
 	}
 

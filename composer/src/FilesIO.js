@@ -6,6 +6,12 @@ function FilesIO(app) {
 
 	let versionSelect, versions = [];
 
+	function clearVersions() {
+		versions = [];
+		versionSelect.clearOptions();
+
+	}
+
 	function load(data) {
 		app.composition.load(data);
 		app.melody.load(data);
@@ -14,11 +20,10 @@ function FilesIO(app) {
 
 		// load versions
 		if (data.versions) {
-			versions = [];
+			clearVersions()
 			for (let i = 0; i < data.versions.length; i++) {
-				console.log(i, data.versions[i])
 				versions[i] = data.versions[i];
-				const tag = JSON.parse(data.versions[i]).tag;
+				const tag = data.versions[i].tag;
 				versionSelect.addOption(i, `v${ i }${ tag !== undefined ? `: ${tag}` : ''}`);
 			}
 		}
@@ -29,10 +34,11 @@ function FilesIO(app) {
 		if (!title) alert('No title');
 		localStorage.removeItem('greg-' + title);
 		localStorage.removeItem('greg-title');
+		clearVersions()
 	}
 
-	function saveLocal(composition, needsTitleConfirm=true) { 
-		if (!composition) composition = app.composition.get();
+	function saveLocal(needsTitleConfirm=true) { 
+		const composition = app.composition.get();
 		// console.log('save local seq', [...composition.sequence]);
 		if (composition.parts.length === 0) {
 			let continueSave = confirm('No melody, continue save?');
@@ -40,7 +46,9 @@ function FilesIO(app) {
 		}
 
 		let title = app.ui.faces.title.value;
-		if (needsTitleConfirm) {
+		if (!title || needsTitleConfirm) {
+			// console.trace();
+			// console.log(title, needsTitleConfirm);
 			let confirmTitle = confirm(`Confirm title: ${title}`);
 			if (!confirmTitle) title = prompt('New title', title);
 		}
@@ -89,7 +97,6 @@ function FilesIO(app) {
 
 		const data = JSON.parse(localData);
 		app.ui.faces.title.update(title); // fuck off
-		console.log('load local', data);
 		load(data);
 	}
 
@@ -114,7 +121,7 @@ function FilesIO(app) {
 	}
 
 	function clear() {
-		app.melody.clear();
+		app.melody.clearAll();
 		// localStorage.setItem('comp', '');
 		clearLocal();
 	}
@@ -159,32 +166,39 @@ function FilesIO(app) {
 		const tag = prompt("Tag version?");
 		const copy = {};
 		if (tag !== undefined) copy.tag = tag;
+		copy.versionedOn = new Date().toDateString().replace(/ /g, '-');
 		for (const k in data) {
 			if (k === 'versions') continue;
+			if (k === 'title') continue;
 			copy[k] = data[k];
 		}
-		console.log('copy', copy);
-		versions.push(JSON.stringify(copy));
+		versions.push(copy);
 		const index = versions.length - 1;
 		versionSelect.addOption(index, `v${ index }${ tag !== undefined ? `: ${tag}` : ''}`);
-		saveLocal(undefined, false);
+		saveLocal(false);
 	}
 
 	function setVersion(value) {
 		if (value === 'current') return;
 		const saveCurrent = confirm('Save current to new version?');
 		if (saveCurrent) addVersion();
-		const data = saveLocal(undefined, false); // need to change this at all??
-		console.log('set data', data);
-		console.log(value, data.versions[value]);
-		const version = JSON.parse(data.versions[value]);
-		console.log('version', version);
+		const data = saveLocal(false); // need to change this at all??
+		const version = data.versions[value];
 		load(version);
 	}
 
 	function connect() {
 
 		const panel = app.ui.getPanel('fio', { label: 'Files IO' });
+
+		versionSelect = app.ui.addUI({
+			type: "UISelect",
+			label: "Version",
+			options: ["current"],
+			callback: setVersion,
+		});
+
+		app.ui.addCallback({ callback: addVersion, key: 'v', text: 'Add Version' });
 
 		app.ui.addCallbacks([
 			{ callback: saveLocal, key: 's', text: 'Save Local' },
@@ -207,15 +221,6 @@ function FilesIO(app) {
 				fileType: 'audio/midi'
 			},
 		]);
-
-		versionSelect = app.ui.addUI({
-			type: "UISelect",
-			label: "Version",
-			options: ["current"],
-			callback: setVersion,
-		});
-
-		app.ui.addCallback({ callback: addVersion, key: 'v', text: 'Add Version' });
 	}
 
 	return { connect, saveLocal };

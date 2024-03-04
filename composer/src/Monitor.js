@@ -39,7 +39,7 @@ function Monitor(app) {
 		mRow.clear();
 
 		for (let i = 0; i < loops.length; i++) {
-			const row = mRow.add(new UIRow());
+			const row = mRow.add(new UIRow({ class: 'break' }));
 			row.add(new UILabel({ text: `Loop ${i} -> `}));
 
 			const loop = loops[i];

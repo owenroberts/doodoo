@@ -22,7 +22,6 @@ function Doodoo(params, callback) {
 	let playOnStart = false; // if trying to play before loaded
 	let startLoops = params.startLoops ?? [];
 
-	console.log('sl', startLoops);
 	if (startLoops.length > 0) {
 		if (!startLoops[0].hasOwnProperty('counts')) {
 			return alert('Old start loops!');
@@ -54,7 +53,7 @@ function Doodoo(params, callback) {
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
 		...startLoops
-			.flatMap(count => count)
+			.flatMap(count => count.loops)
 			.flatMap(loop => loop)
 			.filter(loop => loop.instrument)
 			.filter(loop => !loop.instrument.includes('Synth'))
