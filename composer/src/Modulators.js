@@ -6,12 +6,13 @@
 	propString 'curve-value', 'curve-mod-min', 'curve-mod-min-mod-max' etc
 
 	
-
+	why props not mods?
 */
 
 function Modulators(app, defaults) {
 
 	let panel, propsRow;
+	let partModsTrees = [], partMods = {}, partModIndex = 0;
 	let props = {};
 	let propsUI = {};
 	let modDefaults = {
@@ -33,18 +34,6 @@ function Modulators(app, defaults) {
 		return label;
 	}
 
-	function addNewProp() {
-		const propName = app.ui.faces.propSelect.value;
-		app.ui.faces.propSelect.value = '';
-		if (!propName) return;
-		if (props[propName]) return;
-		if (!props[propName]) {
-			props[propName] = structuredClone(defaults[propName]);
-		}
-		// console.log('add new prop', prop, props[prop]);
-		addProp(propName, true);
-	}
-
 	function getPropType(propString) {
 		const params = getParams(propString);
 		let type = 'number';
@@ -52,6 +41,19 @@ function Modulators(app, defaults) {
 		else if (params.hasOwnProperty('list')) type = 'number-list';
 		else if (params.hasOwnProperty('stack')) type = 'stack';
 		return type;
+	}
+
+	function addNewProp(propName, partIndex=-1) {
+		// const propName = app.ui.faces.propSelect.value;
+		// app.ui.faces.propSelect.value = '';
+		if (!propName) return;
+		if (props[propName]) return;
+		if (!props[propName]) {
+			props[propName] = structuredClone(defaults[propName]);
+		}
+		// console.log('add new prop', prop, props[prop]);
+		console.log('add new prop', propName, partIndex);
+		addProp(propName, true);
 	}
 
 	function addProp(propName, isOpen) {
@@ -467,7 +469,6 @@ function Modulators(app, defaults) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(defaults),
-				// selected: 'loopNum',
 			}
 		});
 
@@ -479,7 +480,8 @@ function Modulators(app, defaults) {
 					if (app.ui.faces.propSelect.value.length === 0) {
 						app.ui.faces.propSelect.focus();
 					} else {
-						addNewProp();
+						addNewProp(app.ui.faces.propSelect.value);
+						app.ui.faces.propSelect.value = '';
 					}
 				},
 			},
@@ -522,6 +524,37 @@ function Modulators(app, defaults) {
 		]);
 
 		propsRow = panel.add(new UIRow({ class: "break" }));
+
+		panel = app.ui.getPanel('part-mods', { label: 'Part Mods' });
+
+		app.ui.addUIs({
+			partModSelect: {
+				type: "UIInputSearch",
+				listName: "prop-list",
+				label: "Add mod:",
+				options: Object.keys(defaults),
+			}
+		});
+
+		app.ui.addCallbacks([
+			{ 
+				text: '+', 
+				callback: () => {
+					if (app.ui.faces.partModSelect.value.length === 0) {
+						app.ui.faces.partModSelect.focus();
+					} else {
+						addNewProp(app.ui.faces.partModSelect.value, partModIndex);
+						app.ui.faces.partModSelect.value = '';
+					}
+				},
+			},
+		]);
+
+		app.ui.addProp('partModIndex', {
+			type: "UINumberStep",
+			value: 0,
+			callback: value => { partModIndex = value; }
+		});
 	}
 
 	return { connect, get, load };
