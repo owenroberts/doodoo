@@ -62,7 +62,8 @@ function FilesIO(app) {
 		const localSave = { 
 			...composition,
 			// title: title,
-			mods: app.modulators.get(),
+			mods: app.modulators.getMods(),
+			partMods: app.modulators.getPartMods(),
 			startLoops: app.startLoops.get(),
 			savedOn: new Date().toDateString().replace(/ /g, '-'),
 		};

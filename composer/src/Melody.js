@@ -308,8 +308,8 @@ function Melody(app, defaults) {
 		}, melodyPanel);
 
 		app.ui.addCallbacks([
-			{ callback: addPart, text: '+' },
-			{ callback: removePart, text: '–' },
+			{ callback: removePart, text: '–', class: 'left-end' },
+			{ callback: addPart, text: '+', class: 'right-end' },
 			{ callback: clearPart, text: 'Clear', key: '0' },
 		], melodyPanel);
 

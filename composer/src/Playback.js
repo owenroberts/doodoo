@@ -27,7 +27,8 @@ function Playback(app) {
 			useMetro: useMetro,
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
-			mods: app.modulators.get(),
+			mods: app.modulators.getMods(),
+			partMods: app.modulators.getPartMods(),
 			startLoops: app.startLoops.get(),
 			useDefaultProps: true,
 		});

@@ -52,6 +52,9 @@ function Doodoo(params, callback) {
 		...props.instruments.stack
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
+		...params.partMods.flatMap(m => m.instruments.stack)
+			.flatMap(e => e.list)
+			.filter(i => !i.includes('Synth')),
 		...startLoops
 			.flatMap(count => count.loops)
 			.flatMap(loop => loop)
@@ -93,7 +96,13 @@ function Doodoo(params, callback) {
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 	
 	for (let i = 0; i < params.parts.length; i++) {
-		parts.push(new Part(params.parts[i], props, defaultBeat, debug));
+		let partProps;
+		if (params?.partMods[i]) {
+			partProps = { ...props, ...params.partMods[i] };
+		} else {
+			partProps = { ...props };
+		}
+		parts.push(new Part(params.parts[i], partProps, defaultBeat, debug));
 	}
 
 	if (withRecording) {
