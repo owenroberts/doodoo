@@ -167,6 +167,17 @@ const props = {
 					}
 				},
 			}
+		},
+		harmChance: { value: 0.1, step: 0.05, },
+		harmList: {
+			list: [3, 4, 5],
+			index: 0,
+			mod: {
+				type: { value: 'range' },
+				chance: { value: 1 },
+				min: { value: 0 },
+				max: { value: 2 },
+			}
 		}
 	},
 	// chance to shift the first note in melody off

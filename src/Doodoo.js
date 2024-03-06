@@ -94,7 +94,7 @@ function Doodoo(params, callback) {
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
-	
+	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
 	for (let i = 0; i < params.parts.length; i++) {
 		let partProps;
 		if (params?.partMods[i]) {
@@ -102,7 +102,7 @@ function Doodoo(params, callback) {
 		} else {
 			partProps = { ...props };
 		}
-		parts.push(new Part(params.parts[i], partProps, defaultBeat, debug));
+		parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
 	}
 
 	if (withRecording) {

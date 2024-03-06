@@ -3,7 +3,7 @@
 	part of mod rewrite
 */
 
-function Part(part, props, defaultBeat, debug) {
+function Part(part, props, defaultBeat, comp, debug) {
 	// default beat number for math -- also smallest beat in entire composition
 	// this is the problem! can't go smaller than the smallest ... 
 	// so beat mod can only make it slower ...
@@ -29,11 +29,18 @@ function Part(part, props, defaultBeat, debug) {
 
 		const slice = mods.slice.get();
 		if (chance(slice.chance)) {
-			// console.log('slice 1', part.length);
+			// console.log('slice', slice);
+			// console.log('mel', part.map(n => `${n[0]},${n[1]}`));
 			let index = randInt(part.length);
 			let addSlice = part.slice(index, index + Math.round(slice.length));
+			// console.log('add', addSlice.map(n => `${n[0]},${n[1]}`));
+			if (chance(slice.harmChance)) {
+				const harm = slice.harmList;
+				addSlice = getHarmony(addSlice, comp.tonic, comp.transpose, harm, comp.scale, comp.useOctave);
+				// console.log('harm', harm, addSlice.map(n => `${n[0]},${n[1]}`));
+			}
 			part.push(...addSlice);
-			// console.log('slice 2', part.length);
+			// console.log('2', part.map(n => `${n[0]},${n[1]}`))
 		}
 
 		const shift = mods.shift.get();
