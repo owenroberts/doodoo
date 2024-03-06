@@ -94,9 +94,6 @@ function Modulators(app, defaults) {
 
 	function addNewProp(propName, partIndex=-1) {
 
-		console.log('add new part mods', partIndex, partMods[partIndex]);
-		console.log('part mods', partMods);
-
 		if (!propName) return;
 		if (props[propName] && partIndex < 0) return;
 		if (partIndex >= 0 && partMods[partIndex]) {

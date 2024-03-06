@@ -51,7 +51,7 @@ function Part(part, props, defaultBeat, debug) {
 			
 			let firstPitch = chance(mods.rest.get()) ? 'rest' : pitch;
 			let newPart = [[firstPitch, newBeat + 'n', mods.velocity.get().step]];
-			mods.velocity.update(); // update for next note
+			mods.velocity.update(playCount); // update for next note
 			
 			for (let i = 1; i < beatsInDefault; i++) {
 				newPart.push([null, defaultBeat]);
