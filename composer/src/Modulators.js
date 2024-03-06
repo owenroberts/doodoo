@@ -63,6 +63,9 @@ function Modulators(app, defaults) {
 
 	function getParams(propString, partIndex=-1) {
 		let prop = partIndex < 0 ? props : partMods[partIndex];
+		// console.trace();
+		console.log('prop', propString, partIndex, prop);
+		console.log(props);
 		if (propString.includes('-')) {
 			const children = propString.split('-');
 			for (let i = 0; i < children.length; i++) {
@@ -93,10 +96,12 @@ function Modulators(app, defaults) {
 	}
 
 	function addNewProp(propName, partIndex=-1) {
-		// const propName = app.ui.faces.propSelect.value;
-		// app.ui.faces.propSelect.value = '';
 		if (!propName) return;
 		if (props[propName] && partIndex < 0) return;
+		if (partIndex >= 0 && partMods[partIndex]) {
+			if (partMods[partIndex].hasOwnProperty(propName)) return;
+		}
+
 		const prop = structuredClone(defaults[propName]);
 		if (partIndex < 0 && !props[propName]) props[propName] = prop;
 		if (partIndex >= 0) {
@@ -105,13 +110,13 @@ function Modulators(app, defaults) {
 		}
 
 		if (partIndex >= 0) {
-			if (!partModTrees[partIndex]) addPartModTree(partIndex);
+			if (!partModTrees[partIndex]) addPartModTree(partIndex, true);
 		}
 
-		addProp(propName, partIndex);
+		addProp(propName, partIndex, true);
 	}
 
-	function addPartModTree(partIndex) {
+	function addPartModTree(partIndex, isOpen=false) {
 		const tree = new UITree({ title: `Part ${ partIndex }` });
 		const removeBtn = partModRow.add(new UIButton({
 			text: 'X',
@@ -124,22 +129,24 @@ function Modulators(app, defaults) {
 		}));
 		partModRow.add(tree);
 		partModTrees[partIndex] = tree;
+		if (isOpen) tree.open();
 	}
 
-	function addProp(propName, partIndex=-1) {
+	function addProp(propName, partIndex=-1, isOpen=false) {
 
 		const tree = new UITree({ title: labelFromKey(propName) });
 		const row = partIndex < 0 ? propsRow : partModTrees[partIndex];
 		const removeBtn = row.add(new UIButton({
 			text: 'X',
 			callback: () => {
-				delete props[propName];
+				removeProp(propName, partIndex);
 				row.remove(tree);
 				row.remove(removeBtn);
 			}
 		}));
 		
 		row.add(tree);
+		if (isOpen) tree.open();
 		row.addBreak();
 
 		const propRow = new UIRow({ class: 'break' });
@@ -230,6 +237,11 @@ function Modulators(app, defaults) {
 		}
 	}
 
+	function removeProp(propName, partIndex=-1) {
+		if (partIndex >= 0) delete partMods[partIndex][propName];
+		else delete props[propName];
+	}
+
 	function updateProp(propString, value, partIndex=-1, valueType="value") {
 		// let prop;
 		let prop = partIndex < 0 ? props : partMods[partIndex];
@@ -247,9 +259,9 @@ function Modulators(app, defaults) {
 	}
 
 	function addValue(row, propString, partIndex, label, level=0) {
-		const params = getParams(propString);
+		const params = getParams(propString, partIndex);
 		row.add(new UILabel({ text: label }));
-		// console.log(propString, params);
+		console.log(propString, params);
 		
 		let uiClass = UINumberStep;
 		if (params?.type === 'chance') uiClass = UIChance;
@@ -266,7 +278,7 @@ function Modulators(app, defaults) {
 
 	function addList(row, propString, partIndex, level=0) {
 		
-		const params = getParams(propString);
+		const params = getParams(propString, partIndex);
 
 		row.add(new UILabel({ text: 'List' }));
 		
@@ -424,8 +436,8 @@ function Modulators(app, defaults) {
 	}
 
 	function getModTree(title, propString, partIndex, level) {
-		const prop = getPropFromString(propString);
-		const params = getParams(propString);
+		const prop = getPropFromString(propString, partIndex);
+		const params = getParams(propString, partIndex);
 		// console.log('mod tree', propString, prop);
 
 		const tree = new UITree({ title: title });
@@ -523,7 +535,7 @@ function Modulators(app, defaults) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(defaults),
-				selected: 'instruments',
+				// selected: 'instruments',
 			}
 		});
 
@@ -584,7 +596,7 @@ function Modulators(app, defaults) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(defaults),
-				selected: 'instruments',
+				// selected: 'instruments',
 			}
 		});
 
