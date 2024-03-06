@@ -63,9 +63,6 @@ function Modulators(app, defaults) {
 
 	function getParams(propString, partIndex=-1) {
 		let prop = partIndex < 0 ? props : partMods[partIndex];
-		// console.trace();
-		console.log('prop', propString, partIndex, prop);
-		console.log(props);
 		if (propString.includes('-')) {
 			const children = propString.split('-');
 			for (let i = 0; i < children.length; i++) {
@@ -96,6 +93,10 @@ function Modulators(app, defaults) {
 	}
 
 	function addNewProp(propName, partIndex=-1) {
+
+		console.log('add new part mods', partIndex, partMods[partIndex]);
+		console.log('part mods', partMods);
+
 		if (!propName) return;
 		if (props[propName] && partIndex < 0) return;
 		if (partIndex >= 0 && partMods[partIndex]) {
@@ -122,7 +123,9 @@ function Modulators(app, defaults) {
 			text: 'X',
 			callback: () => {
 				// delete partMods[partIndex];
-				partMods.splice(partIndex, 1);
+				// partMods.splice(partIndex, 1);
+				partMods[partIndex] = undefined;
+				partModTrees[partIndex] = undefined;
 				partModRow.remove(tree);
 				partModRow.remove(removeBtn);
 			}
@@ -130,6 +133,7 @@ function Modulators(app, defaults) {
 		partModRow.add(tree);
 		partModTrees[partIndex] = tree;
 		if (isOpen) tree.open();
+		partModRow.addBreak();
 	}
 
 	function addProp(propName, partIndex=-1, isOpen=false) {
@@ -261,7 +265,6 @@ function Modulators(app, defaults) {
 	function addValue(row, propString, partIndex, label, level=0) {
 		const params = getParams(propString, partIndex);
 		row.add(new UILabel({ text: label }));
-		console.log(propString, params);
 		
 		let uiClass = UINumberStep;
 		if (params?.type === 'chance') uiClass = UIChance;
@@ -443,13 +446,13 @@ function Modulators(app, defaults) {
 		const tree = new UITree({ title: title });
 
 		const minRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(minRow, propString + '-min', 'Min', partIndex, level);
+		addValue(minRow, propString + '-min', partIndex, 'Min', level);
 
 		const maxRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(maxRow, propString + '-max', 'Max', partIndex, level);
+		addValue(maxRow, propString + '-max', partIndex, 'Max', level);
 
 		const stepRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(stepRow, propString + '-step', 'Step', partIndex, level);
+		addValue(stepRow, propString + '-step', partIndex, 'Step', level);
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
