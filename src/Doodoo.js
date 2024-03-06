@@ -261,11 +261,13 @@ function Doodoo(params, callback) {
 			}
 		}
 
+
 		// make parts match length ... 
 		for (let i = 0; i < currentParts.length; i++) {
 			const loops = currentParts[i];
 			for (let j = 0; j < loops.length; j++) {
 				const loop = loops[j];
+				// console.log(i, j, 'loop 1', loop.countEnd);
 				const ratio = Math.floor(longestMelody / loop.melody.length);
 				const clone = structuredClone(loop.melody);
 				for (let k = 1; k < ratio; k++) {
@@ -273,6 +275,7 @@ function Doodoo(params, callback) {
 					loop.melody = loop.melody.concat(copy);
 				}
 				loop.countEnd = loop.melody.length - 1;
+				// console.log(i, j, 'loop 2', loop.countEnd);
 			}
 		}
 

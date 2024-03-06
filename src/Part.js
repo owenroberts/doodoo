@@ -29,9 +29,11 @@ function Part(part, props, defaultBeat, debug) {
 
 		const slice = mods.slice.get();
 		if (chance(slice.chance)) {
+			// console.log('slice 1', part.length);
 			let index = randInt(part.length);
 			let addSlice = part.slice(index, index + Math.round(slice.length));
 			part.push(...addSlice);
+			// console.log('slice 2', part.length);
 		}
 
 		const shift = mods.shift.get();
@@ -82,7 +84,7 @@ function Part(part, props, defaultBeat, debug) {
 			// repeat if shorter beat mod
 			const clone = structuredClone(melody);
 			for (let j = 1; j < (beatMods[i] / maxBeat); j++) {
-				const copy = structuredClone(melody);
+				const copy = structuredClone(clone);
 				melody = melody.concat(copy);
 			}
 
