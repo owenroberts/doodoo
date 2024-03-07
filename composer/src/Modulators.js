@@ -21,12 +21,15 @@ function Modulators(app, defaults) {
 		step: { value: 1, step: 0.01 },
 		kick: { value: 0, step: 1 },
 		chance: { value: 0.5, step: 0.05 },
-		type: { value: 'value', options: ['value', 'range', 'walk', 'walkUp', 'walkDown'] },
+		type: { value: 'value' }, // options: ['value', 'range', 'walk', 'walkUp', 'walkDown']
+		bound: { value: 'stay' }, // options: ['reset', 'reverse', 'stay']
 	};
 
 	let propDefaults = {
 		index: { value: 0, step: 1 },
 	};
+
+	let typeOptions = ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle', 'graph-list'];
 
 	function labelFromKey(key) {
 		let label = key[0].toUpperCase() + key.substring(1);
@@ -38,7 +41,10 @@ function Modulators(app, defaults) {
 		const params = getParams(propString, partIndex);
 		let type = 'number';
 		if (params.hasOwnProperty('type')) type = params.type;
-		else if (params.hasOwnProperty('list')) type = 'number-list';
+		else if (params.hasOwnProperty('list')) {
+			if (typeof params.list[0] === 'string') type = 'string-list';
+			if (typeof params.list[0] === 'number') type = 'number-list';
+		}
 		else if (params.hasOwnProperty('stack')) type = 'stack';
 		return type;
 	}
@@ -158,7 +164,7 @@ function Modulators(app, defaults) {
 
 		const propTypeSelect = new UISelect({
 			value: propType,
-			options: ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle'],
+			options: typeOptions,
 			callback: type => { 
 				propParamsRow.clear();
 				delete props[propName].mod;
@@ -181,7 +187,8 @@ function Modulators(app, defaults) {
 		// console.log('params', params);
 		// console.log('defaults', defaults);
 		// console.log('type', propType);
-		
+		// console.log('propType', propType);
+
 		switch(propType) {
 			case 'number':
 			case 'chance':
@@ -197,6 +204,11 @@ function Modulators(app, defaults) {
 				addValue(row, propString, partIndex, 'Value');
 			break;
 			case 'number-list':
+			case 'string-list':
+			case 'graph-list':
+			case 'input-list':
+			case 'note-list':
+
 				// set default if prop isn't passed
 				updateProp(propString, propType, partIndex, 'type');
 
@@ -207,8 +219,14 @@ function Modulators(app, defaults) {
 				if (!params.hasOwnProperty('index')) {
 					updateProp(propString, defaults.index ?? 0, partIndex, 'index');
 				}
+
+				if (propType === 'graph-list') {
+					if (!params.hasOwnProperty('graph')) {
+						updateProp(propString, defaults.list ?? [], partIndex, 'graph');
+					}
+				}
 				
-				addList(row, propString, partIndex);
+				addList(row, propType, propString, partIndex);
 			break;
 			case 'stack':
 
@@ -276,22 +294,26 @@ function Modulators(app, defaults) {
 		addMod(row, propString, partIndex, label, level);
 	}
 
-	function addList(row, propString, partIndex, level=0) {
+	function addList(row, propType, propString, partIndex, level=0) {
 		
 		const params = getParams(propString, partIndex);
 
 		row.add(new UILabel({ text: 'List' }));
-		
-		let uiClass = UINumberList;
-		if (typeof params.list[0] === 'string') {
-			uiClass = UIInputList;
-		} else if (!params.list) {
-			if (prompt('Type? string or number', 'string') === 'string') uiClass = UIInputList;
-		}
+		let uiClass;
+		if (propType === 'number-list') uiClass = UINumberList;
+		if (propType === 'string-list') uiClass = UIInputList;
+		if (propType === 'graph-list') uiClass = UIGraph;
+
+		// console.log('list', propString, uiClass);
 
 		const listUI = row.add(new uiClass({
 			list: params.list ?? [],
-			callback: list => { updateProp(propString, list, partIndex, 'list'); }
+			app: app,
+			graph: params.graph,
+			callback: (list, graph) => {
+				updateProp(propString, list, partIndex, 'list'); 
+				if (graph) updateProp(propString, graph, partIndex, 'graph'); 
+			}
 		}));
 		row.addBreak();
 
@@ -461,6 +483,14 @@ function Modulators(app, defaults) {
 		}));
 		tree.addBreak();
 
+		tree.add(new UILabel({ text: "Kick In" }));
+		tree.add(new UINumberStep({
+			value: params.kick?.value ?? 0,
+			// callback: value => { prop.kick.value = value; }
+			callback: value => { updateProp(propString + '-kick', value, partIndex); }
+		}));
+		tree.addBreak();
+
 		tree.add(new UILabel({ text: "Type" }));
 		tree.add(new UISelect({
 			value: params.type?.value ?? 'value',
@@ -471,13 +501,16 @@ function Modulators(app, defaults) {
 		}));
 		tree.addBreak();
 
-		tree.add(new UILabel({ text: "Kick In" }));
-		tree.add(new UINumberStep({
-			value: params.kick?.value ?? 0,
-			// callback: value => { prop.kick.value = value; }
-			callback: value => { updateProp(propString + '-kick', value, partIndex); }
+		tree.add(new UILabel({ text: "Bound" }));
+		tree.add(new UISelect({
+			value: params.bound?.value ?? 'stay',
+			options: ['reset', 'reverse', 'stay'],
+			callback: value => { updateProp(propString + '-bound', value, partIndex); }
+
 		}));
 		tree.addBreak();
+
+		
 
 		return tree;
 	}
@@ -535,7 +568,7 @@ function Modulators(app, defaults) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(defaults),
-				// selected: 'instruments',
+				selected: 'loopNum',
 			}
 		});
 

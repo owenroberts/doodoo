@@ -9,7 +9,6 @@ function FilesIO(app) {
 	function clearVersions() {
 		versions = [];
 		versionSelect.clearOptions();
-
 	}
 
 	function load(data) {
@@ -61,7 +60,7 @@ function FilesIO(app) {
 		
 		const localSave = { 
 			...composition,
-			// title: title,
+			title: title,
 			mods: app.modulators.getMods(),
 			partMods: app.modulators.getPartMods(),
 			startLoops: app.startLoops.get(),

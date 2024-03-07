@@ -18,6 +18,7 @@ function Modulator(value, params, propName) {
 	let chup = new Property(params.chance ?? { value: 0.5 }); // chance of update
 	// let type = params.type ?? 'value'; // range, walk, value is no mod, walkUp, walkDown
 	let type = new Property(params.type ?? { value: 'value' });
+	let bound = new Property(params.bound ?? { value: 'stay' });
 
 	/*
 		have to keep track if mod is "kicked off"
@@ -36,9 +37,21 @@ function Modulator(value, params, propName) {
 		min.update(playCount);
 		max.update(playCount);
 
-		if (type.get() === 'walk') value += (chance(0.5) ? step.get() : -step.get());
-		if (type.get() === 'walkUp') value += step.get();
-		if (type.get() === 'walkDown') value -= step.get();
+		switch(type.get()) {
+			case 'walk': 
+				value += (chance(0.5) ? step.get() : -step.get());
+				
+			break;
+			case 'walkUp': 
+				value += step.get();
+			break;
+			case 'walkDown': 
+				value -= step.get();
+			break;
+		}
+
+		// worry about min and reverse later .... 
+		if (value > max.get() && bound.get() === 'reset') value = min.get();
 
 		clamp();
 	}
