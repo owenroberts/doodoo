@@ -422,6 +422,7 @@ function Doodoo(params, callback) {
 
 		loops = [];
 		fxToDispose = [];
+
 	}
 
 	async function saveRecording() {

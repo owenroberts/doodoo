@@ -81,7 +81,12 @@ window.addEventListener("load", function() {
 
 		function play(withRecording) {
 			if (!doodoo) {
-				doodoo = new Doodoo({ ...comp, voices: [voice], withRecording: withRecording });
+				doodoo = new Doodoo({ 
+					...comp, 
+					voices: [voice], 
+					withRecording: withRecording,
+					samplesURL: location.href.includes('doodoo') ?  './samples/' : './samples/doodoo/',
+				});
 				doodoo.title = comp.title;
 			} else if (doodoo.title !== comp.title) {
 				doodoo.stop();
