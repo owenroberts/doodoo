@@ -95,7 +95,15 @@ function Part(part, props, defaultBeat, comp, debug) {
 				melody = melody.concat(copy);
 			}
 
-			let startIndex = mods.startIndex.getInt();
+
+			let startIndex;
+			if (startLoops[i]) { // ugh
+				if (startLoops[i].hasOwnProperty('startIndex')) {
+					startIndex = startLoops[i].startIndex;
+				}
+			} else {
+				startIndex = startLoops[i]?.startIndex ?? mods.startIndex.getInt();
+			}
 			if (startIndex > 0) {
 				// find the next note
 				while (melody[startIndex][0] === null) {
@@ -107,7 +115,17 @@ function Part(part, props, defaultBeat, comp, debug) {
 				melody = melody.slice(startIndex).concat(melody.slice(0, startIndex));
 			}
 
-			const startDelay = i > 0 ? mods.startDelay.getInt() : 0;
+			let startDelay = 0;
+			if (i > 0) {
+				if (startLoops[i]) { // ugh
+					if (startLoops[i].hasOwnProperty('startDelay')) {
+						startDelay = startLoops[i].startDelay;
+					}
+				} else {
+				startDelay = mods.startDelay.getInt()
+				}	
+			}
+
 			for (let i = 0; i < startDelay; i++) {
 				melody.unshift([null, defaultBeat]);
 			}

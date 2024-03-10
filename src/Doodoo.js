@@ -47,12 +47,13 @@ function Doodoo(params, callback) {
 	// console.log('new doo props', useDefaultProps, props);
 
 	let samples; // holds the samples
+	let samplesLoaded = false;
 	// look for samples in props.instruments stack
 	let loadInstruments = [...new Set([
 		...props.instruments.stack
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
-		...params.partMods.flatMap(m => m.instruments.stack)
+		...params.partMods?.flatMap(m => m.instruments.stack)
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
 		...startLoops
@@ -97,8 +98,10 @@ function Doodoo(params, callback) {
 	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
 	for (let i = 0; i < params.parts.length; i++) {
 		let partProps;
-		if (params?.partMods[i]) {
-			partProps = { ...props, ...params.partMods[i] };
+		if (params.partMods.length > 0) {
+			if (params.partMods[i]) {
+				partProps = { ...props, ...params.partMods[i] };
+			}
 		} else {
 			partProps = { ...props };
 		}
@@ -466,7 +469,7 @@ function Doodoo(params, callback) {
 
 	function play() {
 		if (!autoLoad) return loadTone();
-		if (usesSamples && !samplesLoaded) {
+		if (loadInstruments.length > 0 && !samplesLoaded) {
 			playOnStart = true;
 			return;
 		}
