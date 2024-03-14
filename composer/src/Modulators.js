@@ -544,6 +544,8 @@ function Modulators(app, defaults) {
 		}
 		collapse();
 
+		if (!data.partMods) return;
+		
 		partModRow.clear();
 		partMods = [];
 		for (let i = 0; i < data.partMods.length; i++) {

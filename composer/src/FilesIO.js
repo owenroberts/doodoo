@@ -5,6 +5,7 @@
 function FilesIO(app) {
 
 	let versionSelect, versions = [];
+	let savedOn = new Date().toDateString().replace(/ /g, '-');
 
 	function clearVersions() {
 		versions = [];
@@ -26,6 +27,8 @@ function FilesIO(app) {
 				versionSelect.addOption(i, `v${ i }${ tag !== undefined ? `: ${tag}` : ''}`);
 			}
 		}
+
+		if (data.savedOn) savedOn = data.savedOn;
 	}
 
 	function clearLocal() {
@@ -60,11 +63,11 @@ function FilesIO(app) {
 		
 		const localSave = { 
 			...composition,
+			savedOn,
 			title: title,
 			mods: app.modulators.getMods(),
 			partMods: app.modulators.getPartMods(),
 			startLoops: app.startLoops.get(),
-			savedOn: new Date().toDateString().replace(/ /g, '-'),
 		};
 		if (versions.length > 0) localSave.versions = versions;
 
