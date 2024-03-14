@@ -1,3 +1,5 @@
+import Doodoo from './Doodoo.js';
+
 window.addEventListener("load", function() {
 	const doodooDiv = document.getElementById('doodoos');
 	let doodoo; // there's only one doodoo

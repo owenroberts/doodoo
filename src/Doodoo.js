@@ -6,8 +6,18 @@
 	note is beat + pitch
 */
 
-function Doodoo(params, callback) {
 
+
+// import { random, randInt, shuffle, chance } from './Random.js';
+import { DoodooProps } from './Properties.js';
+import { SamplePaths } from './SamplePaths.js';
+import Effects from './Effects.js';
+import Part from './Part.js';
+import * as Tone from 'tone';
+
+export default function Doodoo(params, callback) {
+
+	let debug = false;
 	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?
 		params.tonic :
@@ -39,20 +49,25 @@ function Doodoo(params, callback) {
 	
 	let useDefaultProps = params.useDefaultProps ?? true;
 	const props = params.mods ? structuredClone(params.mods) : {};
-	for (const prop in DoodooProps.props) {
+	for (const prop in DoodooProps) {
 		if (props.hasOwnProperty(prop)) continue;
-		props[prop] = useDefaultProps ? structuredClone(DoodooProps.props[prop]) : {};
+		props[prop] = useDefaultProps ? structuredClone(DoodooProps[prop]) : {};
 	}
+	console.log('props', props);
 
 	// console.log('new doo props', useDefaultProps, props);
 
+	// console.log('doodoo params', params);
 	let samples; // holds the samples
 	// look for samples in props.instruments stack
-	let loadInstruments = [...new Set([
-		...props.instruments.stack
+	const instruments = props.instruments?.stack ?? [];
+	const partMods = props.partMods ?? [];
+
+	const loadInstruments = [...new Set([
+		...instruments
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
-		...params.partMods.flatMap(m => m.instruments.stack)
+		...partMods.flatMap(m => m.instruments.stack)
 			.flatMap(e => e.list)
 			.filter(i => !i.includes('Synth')),
 		...startLoops
@@ -87,7 +102,7 @@ function Doodoo(params, callback) {
 		});
 	});
 
-	props.beatList.list.forEach(beat => {
+	props.beatList?.list.forEach(beat => {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
 	});
 
@@ -96,12 +111,14 @@ function Doodoo(params, callback) {
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
 	for (let i = 0; i < params.parts.length; i++) {
-		let partProps;
+		console.log(partMods, props);
+		let partProps = {};
 		if (params?.partMods[i]) {
 			partProps = { ...props, ...params.partMods[i] };
 		} else {
 			partProps = { ...props };
 		}
+		console.log('part props', props);
 		parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
 	}
 
@@ -492,7 +509,7 @@ function Doodoo(params, callback) {
 	}
 }
 
-window.Doodoo = Doodoo;
+// window.Doodoo = Doodoo;
 
 /*
 	

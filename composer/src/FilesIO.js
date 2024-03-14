@@ -2,7 +2,7 @@
 	files io for doodoo
 */
 
-function FilesIO(app) {
+export default function FilesIO(app) {
 
 	let versionSelect, versions = [];
 	let savedOn = new Date().toDateString().replace(/ /g, '-');

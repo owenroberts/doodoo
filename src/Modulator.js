@@ -6,7 +6,9 @@
 	needs defaults bc property defaults are 0
 */
 
-function Modulator(value, params, propName) {
+import Property from './Property.js';
+
+export default function Modulator(value, params, propName) {
 
 	// console.log('mod params', params);
 

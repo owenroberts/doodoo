@@ -10,7 +10,10 @@
 	also means defaults need to be undone
 
 */
-const props = {
+
+import { SamplePaths } from './SamplePaths.js';
+
+export const DoodooProps = {
 	instruments: {
 		stack: [{ list: ['choir'] }],
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
@@ -538,7 +541,5 @@ const props = {
 			}
 		},
 	},
-
 };
 
-window.DoodooProps = { props };

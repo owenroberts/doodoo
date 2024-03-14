@@ -3,7 +3,10 @@
 	part of mod rewrite
 */
 
-function Part(part, props, defaultBeat, comp, debug) {
+import Property from './Property.js';
+import Bundle from './Bundle.js';
+
+export default function Part(part, props, defaultBeat, comp, debug) {
 	// default beat number for math -- also smallest beat in entire composition
 	// this is the problem! can't go smaller than the smallest ... 
 	// so beat mod can only make it slower ...

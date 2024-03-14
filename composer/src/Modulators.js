@@ -9,7 +9,10 @@
 	why props not mods?
 */
 
-function Modulators(app, defaults) {
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UIRow } = UI.Elements;
+
+export default function Modulators(app, defaults) {
 
 	let panel, propsRow;
 	let partModRow, partModTrees = [], partMods = [], partModIndex = 0;

@@ -1,10 +1,19 @@
-function Playback(app) {
+/*
+	playback controls 
+*/
+
+import Doodoo from '../../src/Doodoo.js';
+
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UILabel } = UI.Elements;
+
+export default function Playback(app) {
 	let doodoo;
 	let useMetro = false;
 	let modCountUI;
 
 	function play(withRecording, withCount, noMods) {
-		const comp = app.composition.get();
+		const comp = app.composition.get() ?? {};
 		if (comp.parts.every(p => p.length === 0)) {
 			return alert('Add notes to the melody.');
 		}

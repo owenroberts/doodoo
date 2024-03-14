@@ -3,7 +3,9 @@
 	display is very convoluted nonsense that i should document at some point ...
 */
 
-function Score(app) {
+import { MIDI_NOTES } from '../../src/Midi.js';
+
+export default function Score(app) {
 
 	let panel;
 	const canvas = document.createElement('canvas');

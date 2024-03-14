@@ -1,8 +1,18 @@
 // getting global objects into iife
-const { MIDI_NOTES } = DoodooMidi;
-const { props } = DoodooProps;
+import { MIDI_NOTES } from '../../src/Midi.js';
+import { DoodooProps } from '../../src/Properties.js';
+import '../../build/ui.min.js'; // skip UI for now ... 
 const { Interface, Settings } = UI;
-const { UIElement, UICollection, UIButton, UILabel, UINumberStep, UIListStep, UIChance, UINumberList, UISelectButton, UIText, UIRow, UIToggleCheck, UIFile, UIInput, UIInputList, UITree, UIToggleGrid, UISelect, UIList, UIListAdd, UIModal, UIGraph } = UI.Elements;
+
+import Composition from './Composition.js';
+import FilesIO from './FilesIO.js';
+import Melody from './Melody.js';
+import Meter from './Meter.js';
+import Modulators from './Modulators.js';
+import Monitor from './Monitor.js';
+import Playback from './Playback.js';
+import Score from './Score.js';
+import StartLoops from './StartLoops.js';
 
 const app = {};
 const comp = {
@@ -21,8 +31,8 @@ app.fio = new FilesIO(app);
 app.score = new Score(app);
 app.meter = new Meter(app);
 app.monitor = new Monitor(app);
-app.modulators = new Modulators(app, props);
-app.startLoops = new StartLoops(app, props);
+app.modulators = new Modulators(app, DoodooProps);
+app.startLoops = new StartLoops(app, DoodooProps);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();

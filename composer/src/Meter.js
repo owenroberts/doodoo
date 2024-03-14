@@ -1,7 +1,7 @@
 /*
 	visualize overall loudness of the output
 */
-function Meter(app) {
+export default function Meter(app) {
 
 	let panel;
 	const interval = 1000 / 30;

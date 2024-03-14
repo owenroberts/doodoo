@@ -1,4 +1,13 @@
-function Melody(app, defaults) {
+/*
+	editing the melody!
+*/
+
+import { MIDI_NOTES } from '../../src/Midi.js';
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = UI.Elements;
+
+
+export default function Melody(app, defaults) {
 
 	let currentPart = 0;
 	let partRows = [];

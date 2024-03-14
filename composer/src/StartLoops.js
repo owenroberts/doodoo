@@ -3,7 +3,10 @@
 	set params for the beginning of the composition
 */
 
-function StartLoops(app) {
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UILabel, UIButton } = UI.Elements;
+
+export default function StartLoops(app) {
 
 	let startLoopsRow;
 	let startLoops = [];

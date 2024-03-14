@@ -3,7 +3,11 @@
 	these are constant values that can't be modded
 */
 
-function Composition(app, defaults) {
+import { MIDI_NOTES } from '../../src/Midi.js';
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UILabel, UINumberList } = UI.Elements;
+
+export default function Composition(app, defaults) {
 
 	/* comp props */
 	let title = defaults.title;

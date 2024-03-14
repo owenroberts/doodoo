@@ -2,7 +2,7 @@
 	monitor params
 */
 
-function Monitor(app) {
+export default function Monitor(app) {
 
 	const props = {
 		melody: true,

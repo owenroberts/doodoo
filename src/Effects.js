@@ -2,7 +2,7 @@
 	return effects to chain to synth
 */
 
-function Effects(def) {
+export default function Effects(def) {
 
 	const fxFuncs = {
 		reverb: (params) => {

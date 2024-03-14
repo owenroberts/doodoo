@@ -5,7 +5,10 @@
 	list with mod mods index
 */
 
-function Property(params={}, propName) {
+
+import Modulator from './Modulator.js';
+
+export default function Property(params={}, propName) {
 	// console.log('property params', params);
 
 	// default to value if no list and no value
@@ -67,4 +70,4 @@ function Property(params={}, propName) {
 
 }
 
-window.Property = Property;
+// window.Property = Property;
