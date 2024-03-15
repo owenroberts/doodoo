@@ -10,7 +10,7 @@
 */
 
 import '../../build/ui.min.js'; // skip UI for now ... 
-const { UIRow, UITree, UIButton, UIRow, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect,  } = UI.Elements;
+const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = UI.Elements;
 
 export default function Modulators(app, defaults) {
 

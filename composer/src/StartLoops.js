@@ -4,7 +4,7 @@
 */
 
 import '../../build/ui.min.js'; // skip UI for now ... 
-const { UILabel, UIButton, UITree, UINumberStep, UIButton, UISelectButton, UIToggleCheck, UIText } = UI.Elements;
+const { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } = UI.Elements;
 
 export default function StartLoops(app) {
 

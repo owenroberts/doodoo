@@ -23,12 +23,15 @@ export default function FilesIO(app) {
 
 		// load versions
 		if (data.versions) {
-			clearVersions()
+			clearVersions();
 			for (let i = 0; i < data.versions.length; i++) {
 				versions[i] = data.versions[i];
 				const tag = data.versions[i].tag;
 				versionSelect.addOption(i, `v${ i }${ tag !== undefined ? `: ${tag}` : ''}`);
 			}
+			// add "current"
+			versionSelect.addOption('current');
+			versionSelect.value = 'current';
 		}
 
 		if (data.savedOn) savedOn = data.savedOn;
@@ -181,6 +184,7 @@ export default function FilesIO(app) {
 		versions.push(copy);
 		const index = versions.length - 1;
 		versionSelect.addOption(index, `v${ index }${ tag !== undefined ? `: ${tag}` : ''}`);
+		versionSelect.value = index;
 		saveLocal(false);
 	}
 

@@ -19,8 +19,6 @@ import Part from './Part.js';
 
 export default function Doodoo(params, callback) {
 
-
-
 	let debug = false;
 	let defaultBeat = '4n'; // smallest unit of time
 	let tonic = typeof params.tonic === 'string' ?

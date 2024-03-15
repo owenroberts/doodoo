@@ -6,6 +6,7 @@
 import Property from './Property.js';
 import Bundle from './Bundle.js';
 import { random, randInt, chance } from './Random.js';
+import { getHarmony } from './Midi.js';
 
 export default function Part(part, props, defaultBeat, comp, debug) {
 	// default beat number for math -- also smallest beat in entire composition
