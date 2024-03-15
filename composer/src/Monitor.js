@@ -2,6 +2,9 @@
 	monitor params
 */
 
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UIRow, UILabel } = UI.Elements;
+
 export default function Monitor(app) {
 
 	const props = {

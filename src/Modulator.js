@@ -7,6 +7,7 @@
 */
 
 import Property from './Property.js';
+import { random, chance } from './Random.js';
 
 export default function Modulator(value, params, propName) {
 

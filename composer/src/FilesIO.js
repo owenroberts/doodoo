@@ -2,6 +2,9 @@
 	files io for doodoo
 */
 
+import '../../build/ui.min.js'; // skip UI for now ... 
+const { UIModel, UIButton } = UI.Elements;
+
 export default function FilesIO(app) {
 
 	let versionSelect, versions = [];

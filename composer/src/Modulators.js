@@ -10,7 +10,7 @@
 */
 
 import '../../build/ui.min.js'; // skip UI for now ... 
-const { UIRow } = UI.Elements;
+const { UIRow, UITree, UIButton, UIRow, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect,  } = UI.Elements;
 
 export default function Modulators(app, defaults) {
 
@@ -186,11 +186,6 @@ export default function Modulators(app, defaults) {
 	function addPropUI(row, propType, propString, partIndex) {
 		const params = getParams(propString, partIndex);
 		const defaults = getDefaults(propString, partIndex);
-
-		// console.log('params', params);
-		// console.log('defaults', defaults);
-		// console.log('type', propType);
-		// console.log('propType', propType);
 
 		switch(propType) {
 			case 'number':
@@ -512,9 +507,7 @@ export default function Modulators(app, defaults) {
 
 		}));
 		tree.addBreak();
-
 		
-
 		return tree;
 	}
 

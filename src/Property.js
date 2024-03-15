@@ -7,6 +7,7 @@
 
 
 import Modulator from './Modulator.js';
+import { random } from './Random.js';
 
 export default function Property(params={}, propName) {
 	// console.log('property params', params);
@@ -36,6 +37,7 @@ export default function Property(params={}, propName) {
 	}
 
 	function get(loopIndex) {
+
 
 		if (type === 'stack') {
 			let value;

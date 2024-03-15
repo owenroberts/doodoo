@@ -2,11 +2,12 @@
 	return effects to chain to synth
 */
 
+import * as Tone from 'tone';
+
 export default function Effects(def) {
 
 	const fxFuncs = {
 		reverb: (params) => {
-			// { decay: (voiceName === 'toms' ? 0.5 : def.reverbDecay) }
 			return new Tone.Reverb(params.decay);
 		},
 		distortion: (params) => {

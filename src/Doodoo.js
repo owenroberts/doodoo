@@ -8,14 +8,18 @@
 
 
 
-// import { random, randInt, shuffle, chance } from './Random.js';
+import * as Tone from 'tone';
 import { DoodooProps } from './Properties.js';
 import { SamplePaths } from './SamplePaths.js';
+import { random } from './Random.js';
+import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
 import Effects from './Effects.js';
 import Part from './Part.js';
-import * as Tone from 'tone';
+
 
 export default function Doodoo(params, callback) {
+
+
 
 	let debug = false;
 	let defaultBeat = '4n'; // smallest unit of time
@@ -53,7 +57,6 @@ export default function Doodoo(params, callback) {
 		if (props.hasOwnProperty(prop)) continue;
 		props[prop] = useDefaultProps ? structuredClone(DoodooProps[prop]) : {};
 	}
-	console.log('props', props);
 
 	// console.log('new doo props', useDefaultProps, props);
 
@@ -111,14 +114,12 @@ export default function Doodoo(params, callback) {
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
 	for (let i = 0; i < params.parts.length; i++) {
-		console.log(partMods, props);
 		let partProps = {};
 		if (params?.partMods[i]) {
 			partProps = { ...props, ...params.partMods[i] };
 		} else {
 			partProps = { ...props };
 		}
-		console.log('part props', props);
 		parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
 	}
 
@@ -171,6 +172,7 @@ export default function Doodoo(params, callback) {
 	}
 
 	function start() {
+
 		if (callback) callback();
 		toneLoop = new Tone.Loop(playLoops, defaultBeat);
 		Tone.Transport.start();
@@ -197,6 +199,7 @@ export default function Doodoo(params, callback) {
 		
 		if (autoStart || playOnStart) generateLoops();
 		
+
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
 				volume: -12,
@@ -255,6 +258,7 @@ export default function Doodoo(params, callback) {
 
 		// let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
 
+
 		let currentParts = [];
 		let longestMelody = 0;
 		for (let i = 0; i < parts.length; i++) {
@@ -269,7 +273,7 @@ export default function Doodoo(params, callback) {
 						startIndex += startLoops[j].counts;
 					}
 				}
-				const starts = startIndex < startLoops.length ? startLoops[startIndex].loops : {};
+				const starts = startIndex < startLoops.length ? startLoops[startIndex].loops : [];
 				const loops = parts[i].get(starts);
 				loops.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
@@ -301,16 +305,12 @@ export default function Doodoo(params, callback) {
 			for (let j = 0; j < partLoops.length; j++) {
 
 				const loopParams = partLoops[j];
-
-				// const v = volume + (loopies.length * -3); // lower volume of multiple loops
-				const loop = {
-					...loopParams,
-					melody: loopParams.harmony === 0 ? 
-						getMelody(loopParams.melody, tonic, transpose, scale) :
-						getHarmony(loopParams.melody, tonic, transpose, loopParams.harmony, scale, useOctave),
-					instrument: getInstrument(loopParams.instrument, { ...loopParams, volume: volume }),
-				};
-				loops.push(loop);
+				const harmony = loopParams.harmony;
+				const melody =  harmony === 0 ? 
+					getMelody(loopParams.melody, tonic, transpose, scale) :
+					getHarmony(loopParams.melody, tonic, transpose, harmony, scale, useOctave);
+				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
+				loops.push({ ...loopParams, melody, instrument, });
 			}
 		}
 	
