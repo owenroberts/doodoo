@@ -3,8 +3,8 @@
 */
 
 import { MIDI_NOTES } from '../../src/Midi.js';
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = UI.Elements;
+import { Elements } from '../../../ui/src/UI.js';
+const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = Elements;
 
 
 export default function Melody(app, defaults) {

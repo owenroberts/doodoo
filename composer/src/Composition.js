@@ -4,8 +4,10 @@
 */
 
 import { MIDI_NOTES } from '../../src/Midi.js';
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { UILabel, UINumberList } = UI.Elements;
+// import '../../build/ui.min.js'; // skip UI for now ... 
+// const { UILabel, UINumberList } = UI.Elements;
+import { Elements } from '../../../ui/src/UI.js';
+const { UILabel, UINumberList } = Elements;
 
 export default function Composition(app, defaults) {
 

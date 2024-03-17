@@ -1,8 +1,9 @@
 // getting global objects into iife
 import { MIDI_NOTES } from '../../src/Midi.js';
 import { DoodooProps } from '../../src/Properties.js';
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { Interface, Settings } = UI;
+// import '../../build/ui.min.js'; // skip UI for now ... 
+// const { Interface, Settings } = UI;
+import { Interface, Settings } from '../../../ui/src/UI.js';
 
 import Composition from './Composition.js';
 import FilesIO from './FilesIO.js';
@@ -57,6 +58,5 @@ app.ui.settings = Settings(app, {
 app.ui.settings.load(); // wtf -- load settings and shit ...
 app.composition.load({});
 app.score.draw([]);
-// app.startLoops.load();
 
-console.log('app', app);
+// console.log('app', app);

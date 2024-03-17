@@ -9,8 +9,8 @@
 	why props not mods?
 */
 
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = UI.Elements;
+import { Elements } from '../../../ui/src/UI.js';
+const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = Elements;
 
 export default function Modulators(app, defaults) {
 

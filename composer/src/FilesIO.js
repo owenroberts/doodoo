@@ -2,8 +2,8 @@
 	files io for doodoo
 */
 
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { UIModel, UIButton } = UI.Elements;
+import { Elements } from '../../../ui/src/UI.js';
+const { UIModal, UIButton } = Elements;
 
 export default function FilesIO(app) {
 

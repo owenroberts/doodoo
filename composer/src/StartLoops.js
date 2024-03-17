@@ -3,8 +3,8 @@
 	set params for the beginning of the composition
 */
 
-import '../../build/ui.min.js'; // skip UI for now ... 
-const { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } = UI.Elements;
+import { Elements } from '../../../ui/src/UI.js';
+const { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } = Elements;
 
 export default function StartLoops(app) {
 
@@ -118,6 +118,7 @@ export default function StartLoops(app) {
 	}
 
 	function load(data) {
+		console.log(data.startLoops);
 		if (!data.startLoops) return;
 		if (data.startLoops.length < 1) return;
 		if (data.startLoops[0].hasOwnProperty('counts')) {
