@@ -6,7 +6,7 @@
 import { Elements } from '../../../ui/src/UI.js';
 const { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } = Elements;
 
-export default function StartLoops(app) {
+export function StartLoops(app) {
 
 	let startLoopsRow;
 	let startLoops = [];
@@ -118,7 +118,6 @@ export default function StartLoops(app) {
 	}
 
 	function load(data) {
-		console.log(data.startLoops);
 		if (!data.startLoops) return;
 		if (data.startLoops.length < 1) return;
 		if (data.startLoops[0].hasOwnProperty('counts')) {

@@ -5,15 +5,15 @@ import { DoodooProps } from '../../src/Properties.js';
 // const { Interface, Settings } = UI;
 import { Interface, Settings } from '../../../ui/src/UI.js';
 
-import Composition from './Composition.js';
-import FilesIO from './FilesIO.js';
-import Melody from './Melody.js';
-import Meter from './Meter.js';
-import Modulators from './Modulators.js';
-import Monitor from './Monitor.js';
-import Playback from './Playback.js';
-import Score from './Score.js';
-import StartLoops from './StartLoops.js';
+import { Composition } from './Composition.js';
+import { FilesIO } from './FilesIO.js';
+import { Melody } from './Melody.js';
+import { Meter } from './Meter.js';
+import { Modulators } from './Modulators.js';
+import { Monitor } from './Monitor.js';
+import { Playback } from './Playback.js';
+import { Score } from './Score.js';
+import { StartLoops } from './StartLoops.js';
 
 const app = {};
 const comp = {

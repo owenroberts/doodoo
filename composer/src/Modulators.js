@@ -12,7 +12,7 @@
 import { Elements } from '../../../ui/src/UI.js';
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = Elements;
 
-export default function Modulators(app, defaults) {
+export function Modulators(app, defaults) {
 
 	let panel, propsRow;
 	let partModRow, partModTrees = [], partMods = [], partModIndex = 0;

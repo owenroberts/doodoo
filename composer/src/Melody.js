@@ -6,8 +6,7 @@ import { MIDI_NOTES } from '../../src/Midi.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = Elements;
 
-
-export default function Melody(app, defaults) {
+export function Melody(app, defaults) {
 
 	let currentPart = 0;
 	let partRows = [];

@@ -6,10 +6,10 @@
 	needs defaults bc property defaults are 0
 */
 
-import Property from './Property.js';
+import { Property } from './Property.js';
 import { random, chance } from './Random.js';
 
-export default function Modulator(value, params, propName) {
+export function Modulator(value, params, propName) {
 
 	// console.log('mod params', params);
 

@@ -1,7 +1,10 @@
 /*
 	visualize overall loudness of the output
 */
-export default function Meter(app) {
+
+import { Cool } from '../../../cool/cool.js';
+
+export function Meter(app) {
 
 	let panel;
 	const interval = 1000 / 30;

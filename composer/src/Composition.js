@@ -9,7 +9,7 @@ import { MIDI_NOTES } from '../../src/Midi.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UILabel, UINumberList } = Elements;
 
-export default function Composition(app, defaults) {
+export function Composition(app, defaults) {
 
 	/* comp props */
 	let title = defaults.title;

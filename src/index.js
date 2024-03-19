@@ -1,4 +1,4 @@
-import Doodoo from './Doodoo.js';
+import { Doodoo } from './Doodoo.js';
 
 window.addEventListener("load", function() {
 	const doodooDiv = document.getElementById('doodoos');
@@ -87,7 +87,8 @@ window.addEventListener("load", function() {
 					...comp, 
 					voices: [voice], 
 					withRecording: withRecording,
-					samplesURL: location.href.includes('doodoo') ?  './samples/' : './samples/doodoo/',
+					// samplesURL: location.href.includes('doodoo') ?  './samples/' : './samples/doodoo/',
+					samplesURL: './samples/'
 				});
 				doodoo.title = comp.title;
 			} else if (doodoo.title !== comp.title) {

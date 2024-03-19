@@ -2,7 +2,7 @@
 	"title": "Infinite Hell",
 	"tonic": "C4",
 	"transform": 54,
-	"parts": ["C4", "A3", "G3", "D4", "E4", "G4", "A4", "C5", "C4", "D5", "C5", "D5"],
+	"parts": [["C4", "A3", "G3", "D4", "E4", "G4", "A4", "C5", "C4", "D5", "C5", "D5"]],
 	"duration": "4n",
 	"voices": ["choir"],
 	"bpm": 112,

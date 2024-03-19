@@ -5,7 +5,7 @@
 import { Elements } from '../../../ui/src/UI.js';
 const { UIModal, UIButton } = Elements;
 
-export default function FilesIO(app) {
+export function FilesIO(app) {
 
 	let versionSelect, versions = [];
 	let savedOn = new Date().toDateString().replace(/ /g, '-');

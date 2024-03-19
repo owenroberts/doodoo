@@ -3,9 +3,9 @@
 	for fx, maybe other stuff later
 */
 
-import Property from './Property.js';
+import { Property } from './Property.js';
 
-export default function Bundle(params={}, propName) {
+export function Bundle(params={}, propName) {
 	
 	let type = 'bundle';
 	let props = {};

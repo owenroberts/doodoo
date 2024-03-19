@@ -3,11 +3,11 @@
 */
 
 import * as Tone from 'tone';
-import Doodoo from '../../src/Doodoo.js';
+import { Doodoo } from '../../src/Doodoo.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UILabel } = Elements;
 
-export default function Playback(app) {
+export function Playback(app) {
 	let doodoo;
 	let useMetro = false;
 	let modCountUI;

@@ -3,11 +3,11 @@ body {
 	background: radial-gradient(plum, lightblue);
 	font-family: verdana;
 	color: slateblue;
-	font-size:  18px;
+/*	font-size:  18px;*/
 }
 
 button, input, select {
-	font-size:  18px;
+/*	font-size:  18px;*/
 }
 
 button + button, button + select, span + button, button + span {

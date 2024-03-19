@@ -3,12 +3,12 @@
 	part of mod rewrite
 */
 
-import Property from './Property.js';
-import Bundle from './Bundle.js';
+import { Property } from './Property.js';
+import { Bundle } from './Bundle.js';
 import { random, randInt, chance } from './Random.js';
 import { getHarmony } from './Midi.js';
 
-export default function Part(part, props, defaultBeat, comp, debug) {
+export function Part(part, props, defaultBeat, comp, debug) {
 	// default beat number for math -- also smallest beat in entire composition
 	// this is the problem! can't go smaller than the smallest ... 
 	// so beat mod can only make it slower ...

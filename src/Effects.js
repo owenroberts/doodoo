@@ -4,7 +4,7 @@
 
 import * as Tone from 'tone';
 
-export default function Effects(def) {
+export function Effects(def) {
 
 	const fxFuncs = {
 		reverb: (params) => {

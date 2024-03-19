@@ -6,10 +6,10 @@
 */
 
 
-import Modulator from './Modulator.js';
+import { Modulator } from './Modulator.js';
 import { random } from './Random.js';
 
-export default function Property(params={}, propName) {
+export function Property(params={}, propName) {
 	// console.log('property params', params);
 
 	// default to value if no list and no value

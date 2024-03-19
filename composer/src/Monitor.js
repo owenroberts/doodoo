@@ -5,7 +5,7 @@
 import { Elements } from '../../../ui/src/UI.js';
 const { UIRow, UILabel } = Elements;
 
-export default function Monitor(app) {
+export function Monitor(app) {
 
 	const props = {
 		melody: true,

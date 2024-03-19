@@ -13,11 +13,10 @@ import { DoodooProps } from './Properties.js';
 import { SamplePaths } from './SamplePaths.js';
 import { random } from './Random.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
-import Effects from './Effects.js';
-import Part from './Part.js';
+import { Effects } from './Effects.js';
+import { Part } from './Part.js';
 
-
-export default function Doodoo(params, callback) {
+export function Doodoo(params, callback) {
 
 	let debug = false;
 	let defaultBeat = '4n'; // smallest unit of time
@@ -60,6 +59,7 @@ export default function Doodoo(params, callback) {
 
 	// console.log('doodoo params', params);
 	let samples; // holds the samples
+	let samplesLoaded = false;
 	// look for samples in props.instruments stack
 	const instruments = props.instruments?.stack ?? [];
 	const partMods = props.partMods ?? [];
@@ -113,8 +113,8 @@ export default function Doodoo(params, callback) {
 	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
 	for (let i = 0; i < params.parts.length; i++) {
 		let partProps = {};
-		if (params?.partMods[i]) {
-			partProps = { ...props, ...params.partMods[i] };
+		if (partMods[i]) {
+			partProps = { ...props, ...partMods[i] };
 		} else {
 			partProps = { ...props };
 		}
@@ -165,7 +165,8 @@ export default function Doodoo(params, callback) {
 				console.timeEnd(`load ${loadInstruments.join(', ')}`);
 				if (callback) callback();
 				samplesLoaded = true;
-			}
+			},
+			onerror: error => { console.error(error); },
 		});
 	}
 
