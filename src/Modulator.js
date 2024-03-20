@@ -7,7 +7,7 @@
 */
 
 import { Property } from './Property.js';
-import { random, chance } from './Random.js';
+import { random, chance } from '../../cool/cool.js';
 
 export function Modulator(value, params, propName) {
 

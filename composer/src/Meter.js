@@ -2,7 +2,7 @@
 	visualize overall loudness of the output
 */
 
-import { Cool } from '../../../cool/cool.js';
+import { map } from '../../../cool/cool.js';
 
 export function Meter(app) {
 
@@ -36,8 +36,8 @@ export function Meter(app) {
 			ctx.fillRect(0, 0, w, h);
 			
 			const v = toneMeter.getValue();
-			const left = Cool.map(v[0], -266, 0, 1, w - m * 8, true);
-			const right = Cool.map(v[1], -266, 0, 1, w - m * 8, true);
+			const left = map(v[0], -266, 0, 1, w - m * 8, true);
+			const right = map(v[1], -266, 0, 1, w - m * 8, true);
 
 			ctx.fillStyle = 'LawnGreen';
 			

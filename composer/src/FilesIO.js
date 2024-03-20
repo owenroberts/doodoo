@@ -4,11 +4,12 @@
 
 import { Elements } from '../../../ui/src/UI.js';
 const { UIModal, UIButton } = Elements;
+import { getDate } from '../../../cool/cool.js';
 
 export function FilesIO(app) {
 
 	let versionSelect, versions = [];
-	let savedOn = new Date().toDateString().replace(/ /g, '-');
+	let savedOn = getDate();
 
 	function clearVersions() {
 		versions = [];
@@ -175,7 +176,7 @@ export function FilesIO(app) {
 		const tag = prompt("Tag version?");
 		const copy = {};
 		if (tag !== undefined) copy.tag = tag;
-		copy.versionedOn = new Date().toDateString().replace(/ /g, '-');
+		copy.versionedOn = getDate();
 		for (const k in data) {
 			if (k === 'versions') continue;
 			if (k === 'title') continue;

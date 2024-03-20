@@ -1,8 +1,5 @@
-// getting global objects into iife
 import { MIDI_NOTES } from '../../src/Midi.js';
 import { DoodooProps } from '../../src/Properties.js';
-// import '../../build/ui.min.js'; // skip UI for now ... 
-// const { Interface, Settings } = UI;
 import { Interface, Settings } from '../../../ui/src/UI.js';
 
 import { Composition } from './Composition.js';
@@ -14,10 +11,13 @@ import { Monitor } from './Monitor.js';
 import { Playback } from './Playback.js';
 import { Score } from './Score.js';
 import { StartLoops } from './StartLoops.js';
+import { getDate } from '../../../cool/cool.js';
+
+import DefaultWorkspace from '../workspaces/Default.json';
 
 const app = {};
 const comp = {
-	title: 'Doodoo_' + new Date().toDateString().replace(/ /g, '-'),
+	title: 'Doodoo_' + getDate(),
 	tonic: 'C4', // def to transform ...
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	beat:  '4n',
@@ -52,7 +52,7 @@ app.ui.settings = Settings(app, {
 	workspaceFields: ['noteWidth'],
 	workspaces: [{
 		text: 'Default',
-		url: 'workspaces/Default.json',
+		url: DefaultWorkspace,
 	}]
 });
 app.ui.settings.load(); // wtf -- load settings and shit ...

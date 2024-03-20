@@ -6,15 +6,13 @@
 	note is beat + pitch
 */
 
-
-
 import * as Tone from 'tone';
 import { DoodooProps } from './Properties.js';
 import { SamplePaths } from './SamplePaths.js';
-import { random } from './Random.js';
 import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
 import { Effects } from './Effects.js';
 import { Part } from './Part.js';
+import { random } from '../../cool/cool.js';
 
 export function Doodoo(params, callback) {
 

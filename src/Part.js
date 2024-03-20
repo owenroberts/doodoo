@@ -5,7 +5,7 @@
 
 import { Property } from './Property.js';
 import { Bundle } from './Bundle.js';
-import { random, randInt, chance } from './Random.js';
+import { random, randInt, chance } from '../../cool/cool.js';
 import { getHarmony } from './Midi.js';
 
 export function Part(part, props, defaultBeat, comp, debug) {
