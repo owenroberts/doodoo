@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@tonejs/midi": "^2.0.28",
+    "sass": "^1.72.0",
     "vite": "^5.1.6"
   }
 }

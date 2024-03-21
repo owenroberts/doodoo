@@ -1,3 +1,5 @@
+import '../css/composer.scss';
+
 import { MIDI_NOTES } from '../../src/Midi.js';
 import { DoodooProps } from '../../src/Properties.js';
 import { Interface, Settings } from '../../../ui/src/UI.js';
@@ -25,15 +27,15 @@ const comp = {
 	instruments: ['choir']
 }; // composition defaults
 
-app.composition = new Composition(app, comp);
-app.playback = new Playback(app);
-app.melody = new Melody(app, comp);
-app.fio = new FilesIO(app);
-app.score = new Score(app);
-app.meter = new Meter(app);
-app.monitor = new Monitor(app);
-app.modulators = new Modulators(app, DoodooProps);
-app.startLoops = new StartLoops(app, DoodooProps);
+app.composition = Composition(app, comp);
+app.playback = Playback(app);
+app.melody = Melody(app, comp);
+app.fio = FilesIO(app);
+app.score = Score(app);
+app.meter = Meter(app);
+app.monitor = Monitor(app);
+app.modulators = Modulators(app, DoodooProps);
+app.startLoops = StartLoops(app, DoodooProps);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();
@@ -59,4 +61,4 @@ app.ui.settings.load(); // wtf -- load settings and shit ...
 app.composition.load({});
 app.score.draw([]);
 
-// console.log('app', app);
+console.log('app', app);
