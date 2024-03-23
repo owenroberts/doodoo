@@ -2,9 +2,9 @@
 	files io for doodoo
 */
 
+import { getDate } from '../../../cool/cool.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UIModal, UIButton } = Elements;
-import { getDate } from '../../../cool/cool.js';
 
 export function FilesIO(app) {
 
@@ -106,6 +106,7 @@ export function FilesIO(app) {
 		}
 
 		const data = JSON.parse(localData);
+		console.log(app.ui.faces.title);
 		app.ui.faces.title.update(title); // fuck off
 		load(data);
 	}

@@ -100,9 +100,7 @@ export function Composition(app, defaults) {
 		scaleRow = compositionPanel.addRow(undefined, 'break');
 		scaleUI = new UINumberList({
 			list: scale,
-			callback: value => { 
-				scale = value; 
-			}
+			callback: value => { scale = value; }
 		});
 		compositionPanel.add(scaleUI);
 	}
