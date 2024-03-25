@@ -216,9 +216,9 @@ export function Melody(app, defaults) {
 			npl += 4;
 		}
 
-		app.ui.panels.melody.setProp('--column-width', Math.floor((w - 3*npl ) / npl));
-		app.ui.panels.melody.setProp('--notes-per-row', npl);
-		app.ui.panels.melody.setProp('--default-beat', noteDivision);
+		app.ui.panels.melody.setStyle('--column-width', Math.floor((w - 3*npl ) / npl));
+		app.ui.panels.melody.setStyle('--notes-per-row', npl);
+		app.ui.panels.melody.setStyle('--default-beat', noteDivision);
 	}
 
 	function clearPart() {
@@ -289,7 +289,7 @@ export function Melody(app, defaults) {
 				value: 12,
 				label: 'Scale',
 				callback: value => {
-					melodyPanel.setProp('--ui-scale', value);
+					melodyPanel.setStyle('--ui-scale', value);
 					updateDisplay();
 				},
 				reset: true,
