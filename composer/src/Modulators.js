@@ -524,7 +524,7 @@ export function Modulators(app, defaults) {
 	}
 
 	function collapse() {
-		propsRow.uiChildren
+		propsRow.uiList
 			.filter(c => c.constructor.name === 'UITree')
 			.forEach(c => { c.close(); });
 	}

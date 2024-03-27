@@ -106,7 +106,6 @@ export function FilesIO(app) {
 		}
 
 		const data = JSON.parse(localData);
-		console.log(app.ui.faces.title);
 		app.ui.faces.title.update(title); // fuck off
 		load(data);
 	}
