@@ -154,7 +154,7 @@ export function Melody(app, defaults) {
 
 	function doubleIt() {
 		// double current melody
-		const part = partRows[currentPart].children;
+		const part = partRows[currentPart].getChildren();;
 		part.forEach(note => {
 			addNote(note.pitch.value, note.beat.value, currentPart, true);
 		});
@@ -191,10 +191,9 @@ export function Melody(app, defaults) {
 		}
 
 		for (let i = 0; i < partRows.length; i++) {
-			parts.push(makePart(partRows[i].children));
+			parts.push(makePart(partRows[i].getChildren()));
 		}
 
-		// console.log('update', parts);
 		return parts;
 	}
 
@@ -234,9 +233,7 @@ export function Melody(app, defaults) {
 			sequence = structuredClone(data.sequence);
 			sequenceGrid.update(sequence);
 		}
-
 		if (data.parts) {
-			// console.log('data', [...data.parts]);
 			clearAll();
 			parts = [];
 			if (Array.isArray(data.parts[0])) {
@@ -259,8 +256,6 @@ export function Melody(app, defaults) {
 			update(); // update parts only really, this is weird
 			currentPart = 0;
 			
-			// console.log('parts', [...parts], parts.length);
-			// console.log('load', sequence.length, parts.length);
 			if (!data.sequence) {
 				sequence.push(Array(parts.length).fill(true));
 				sequenceGrid.update(sequence);
@@ -270,9 +265,7 @@ export function Melody(app, defaults) {
 				}
 				sequenceGrid.update(sequence);
 			}
-			// console.log('seq grid', sequenceGrid)
 		}
-
 
 		update();
 		updateDisplay();

@@ -302,8 +302,6 @@ export function Modulators(app, defaults) {
 		if (propType === 'string-list') uiClass = UIInputList;
 		if (propType === 'graph-list') uiClass = UIGraph;
 
-		// console.log('list', propString, uiClass);
-
 		const listUI = row.add(new uiClass({
 			list: params.list ?? [],
 			app: app,

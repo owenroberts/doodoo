@@ -50,10 +50,9 @@ export function Meter(app) {
 			if (right > 2) {
 				ctx.fillText(Math.round(v[1]), w - 32, m * 6);
 			}
-
-
 		}
 	}
+	
 	timer = performance.now();
 	requestAnimationFrame(draw);
 
