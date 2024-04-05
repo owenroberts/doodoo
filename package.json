@@ -1,26 +1,26 @@
 {
-  "name": "doodoo",
-  "version": "0.0.1",
-  "description": "infinite background music",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/owenroberts/doodoo.git"
-  },
-  "author": "owen ribbit",
-  "license": "MIT",
-  "scripts": {
-    "test": "gulp test",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "file-saver": "^2.0.5",
-    "tone": "^14.7.77"
-  },
-  "devDependencies": {
-    "@tonejs/midi": "^2.0.28",
-    "sass": "^1.72.0",
-    "vite": "^5.1.6"
-  }
+	"name": "doodoo",
+	"version": "0.0.1",
+	"description": "infinite background music",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/owenroberts/doodoo.git"
+	},
+	"author": "owen ribbit",
+	"license": "MIT",
+	"scripts": {
+	"test": "gulp test",
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"file-saver": "^2.0.5",
+		"tone": "^14.7.77"
+	},
+	"devDependencies": {
+		"@tonejs/midi": "^2.0.28",
+		"sass": "^1.72.0",
+		"vite": "^5.1.6"
+	}
 }

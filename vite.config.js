@@ -6,7 +6,7 @@ export default defineConfig({
 		port: 8080
 	},
 	build: {
-    rollupOptions: {
+		rollupOptions: {
 			input: {
 				main: resolve(__dirname, 'index.html'),
 				nested: resolve(__dirname, 'composer/index.html'),

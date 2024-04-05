@@ -480,7 +480,7 @@ export function Doodoo(params, callback) {
 
 	function play() {
 		if (!autoLoad) return loadTone();
-		if (usesSamples && !samplesLoaded) {
+		if (loadInstruments.length > 0 && !samplesLoaded) {
 			playOnStart = true;
 			return;
 		}

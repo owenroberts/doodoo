@@ -29,7 +29,6 @@ export function Modulator(value, params, propName) {
 	*/
 	let isKicked = kick.get() > 0 ? false : true;
 
-
 	function update(playCount) {
 		if (!isKicked) {
 			if (playCount < kick.get()) return;
@@ -79,7 +78,4 @@ export function Modulator(value, params, propName) {
 	}
 
 	return { update, get, set };
-
 }
-
-window.Modulator = Modulator;
