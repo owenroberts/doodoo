@@ -60,7 +60,7 @@ export function Doodoo(params, callback) {
 	let samplesLoaded = false;
 	// look for samples in props.instruments stack
 	const instruments = props.instruments?.stack ?? [];
-	const partMods = props.partMods ?? [];
+	const partMods = params.partMods ?? [];
 
 	const loadInstruments = [...new Set([
 		...instruments
