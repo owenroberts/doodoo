@@ -54,7 +54,7 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
 			const midiTranspose = MIDI_NOTES.indexOf(transpose);
 			const tonicDelta = midiTonic - midiTranspose; // change in key
-			const octave = (Math.floor(midiPitch / 12) - Math.floor(midiTonic) / 12) * 12; // differences in octaves (C4 comes before B4)
+			const octave = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12; // differences in octaves (C4 comes before B4)
 
 			const diff = midiPitch - midiTonic; // difference between note and tonic
 			const scaleIndex = diff < 0 ?

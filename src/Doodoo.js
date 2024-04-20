@@ -303,7 +303,7 @@ export function Doodoo(params, callback) {
 
 				const loopParams = partLoops[j];
 				const harmony = loopParams.harmony;
-				const melody =  harmony === 0 ? 
+				const melody = harmony === 0 ? 
 					getMelody(loopParams.melody, tonic, transpose, scale) :
 					getHarmony(loopParams.melody, tonic, transpose, harmony, scale, useOctave);
 				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
