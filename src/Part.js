@@ -119,7 +119,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 
 			const fx = {};
 			let whileCount = 0;
-			// console.log('fx limit', mods.fxLimit.get(), Object.keys(fx).length);
+			
 			while (Object.keys(fx).length < mods.fxLimit.get() && 
 				whileCount < props.fxList.list.length) {
 				const f = mods.fxList.get();

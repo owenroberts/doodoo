@@ -293,16 +293,15 @@ export function Modulators(app, defaults) {
 	}
 
 	function addList(row, propType, propString, partIndex, level=0) {
-		
 		const params = getParams(propString, partIndex);
+		const defaults = getDefaults(propString, partIndex);
 
-		row.add(new UILabel({ text: 'List' }));
 		let uiClass;
 		if (propType === 'number-list') uiClass = UINumberList;
 		if (propType === 'string-list') uiClass = UIInputList;
 		if (propType === 'graph-list') uiClass = UIGraph;
 
-		const listUI = row.add(new uiClass({
+		const listUI = new uiClass({
 			list: params.list ?? [],
 			app: app,
 			graph: params.graph,
@@ -310,7 +309,22 @@ export function Modulators(app, defaults) {
 				updateProp(propString, list, partIndex, 'list'); 
 				if (graph) updateProp(propString, graph, partIndex, 'graph'); 
 			}
-		}));
+		});
+
+		// maybe other things have options ??
+		if (defaults.options) {
+			row.add(new UILabel({ text: 'Options' }));
+			row.add(new UISelectButton({
+				options: defaults.options,
+				callback: value => {
+					listUI.pushItem(value);
+				}
+			}));
+			row.addBreak();
+		}
+
+		row.add(new UILabel({ text: 'List' }));
+		row.add(listUI);
 		row.addBreak();
 
 		row.add(new UILabel({ text: 'Index' }));

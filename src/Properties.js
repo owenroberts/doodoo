@@ -308,6 +308,7 @@ export const DoodooProps = {
 	},
 	fxList: {
 		// reverb is separate
+		options: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
 		list: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
 		index: 0,
 		mod: {
