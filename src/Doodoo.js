@@ -149,6 +149,12 @@ export function Doodoo(params, callback) {
 						urls[`${instrument}-${letter}-${note}`] = `${instrument}/${letter}/${sampleURLs[note]}`;
 					}
 				});
+			} else if (instrument.includes('choir')) {
+				const letter = instrument.charAt(5);
+				const sampleURLs = SamplePaths['choir'+letter];
+				for (const note in sampleURLs) {
+					urls[`choir-${letter}-${note}`] = `choir/${letter}/${sampleURLs[note]}`;
+				}
 			} else {
 				for (const note in SamplePaths[instrument]) {
 					urls[`${instrument}-${note}`] = `${instrument}/${SamplePaths[instrument][note]}`;
@@ -392,10 +398,12 @@ export function Doodoo(params, callback) {
 	function getSampleFiles(instrument) {
 		const sampleFiles = {};
 		// just make choir aeiou choices, randomize with stacking ... ?? 
-		if (instrument === 'choir') {
-			const letter = random('AEIOU'.split(''));
-			for (const note in SamplePaths[instrument+letter]) {
-				sampleFiles[note] = samples.get(`${instrument}-${letter}-${note}`);
+		if (instrument.includes('choir')) {
+			const letter = instrument.charAt(5) ?
+				instrument.charAt(5) :
+				random('AEIOU'.split(''));
+			for (const note in SamplePaths['choir' + letter]) {
+				sampleFiles[note] = samples.get(`choir-${letter}-${note}`);
 			}
 		} else {
 			for (const note in SamplePaths[instrument]) {
