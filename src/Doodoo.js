@@ -240,6 +240,12 @@ export function Doodoo(params, callback) {
 					beat = parseInt(beat) * 2 + 'n';
 					let t = Tone.Time(beat).toSeconds();
 					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+					if (pitch === null) console.log('pitch', loop);
+					if (beat === null) console.log('beat', loop);
+					if (time === null) console.log('time', loop);
+					if (t === null) console.log('t', loop);
+					if (time + t === null) console.log('time + t', loop);
+					if (velocity === null) console.log('velocity', loop);
 					loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 				} else {
 					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
@@ -326,7 +332,7 @@ export function Doodoo(params, callback) {
 			for (let i = 0; i < parts.length; i++) {
 				if (sequence[i][sequenceIndex]) parts[i].update();
 			}
-			if (params.onModulate) params.onModulate(totalPlays);
+			if (params.onModulate) params.onModulate(totalPlays, totalPlays / sequence[0].length);
 		}
 		
 		// move to next index in sequence (if more than one)
