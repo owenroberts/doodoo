@@ -37,7 +37,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			// console.log('slice', slice);
 			// console.log('mel', part.map(n => `${n[0]},${n[1]}`));
 			let index = randInt(part.length);
-			let addSlice = part.slice(index, index + Math.round(slice.length));
+			let addSlice = part.slice(index, index + Math.round(slice.length)); // look at how slice works more ... 
 			// console.log('add', addSlice.map(n => `${n[0]},${n[1]}`));
 			if (chance(slice.harmChance)) {
 				const harm = slice.harmList;
