@@ -450,7 +450,6 @@ export function Doodoo(params, callback) {
 
 		loops = [];
 		fxToDispose = [];
-
 	}
 
 	async function saveRecording() {
@@ -507,6 +506,11 @@ export function Doodoo(params, callback) {
 	function stop() {
 		Tone.Transport.stop();
 		toneLoop.stop();
+		for (let i = 0; i < loops.length; i++) {
+			// loops[i].instrument.volume.rampTo(-128, 0.1, '+0');
+			loops[i].instrument.triggerRelease();
+		}
+		disposePrevious();
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
 	}
