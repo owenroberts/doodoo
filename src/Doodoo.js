@@ -197,7 +197,7 @@ export function Doodoo(params, callback) {
 		if (useMeter) {
 			meter = new Tone.Meter({ channels: 2 });
 			Tone.Destination.connect(meter);
-			params.setMeter(meter)
+			params.setMeter(meter);
 		}
 		
 		if (autoStart || playOnStart) generateLoops();
@@ -452,14 +452,27 @@ export function Doodoo(params, callback) {
 		fxToDispose = [];
 	}
 
-	async function saveRecording() {
-		const recording = await recorder.stop();
-		const url = URL.createObjectURL(recording);
-		const anchor = document.createElement("a");
-		const audioName = prompt('Name clip', params.title || "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
-		anchor.download = audioName + ".webm";
-		anchor.href = url;
-		anchor.click();
+	function saveRecording() {
+
+		function checkMeter() {
+			if (meter.getValue() < -256) {
+				clearInterval(saveInterval);
+				saveFile();
+			}
+		}
+			
+		async function saveFile() {
+			const recording = await recorder.stop();
+			const url = URL.createObjectURL(recording);
+			const anchor = document.createElement("a");
+			const audioName = prompt('Name clip', params.title || "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
+			anchor.download = audioName + ".webm";
+			anchor.href = url;
+			anchor.click();
+		}
+
+		// wait for sound to stop
+		let saveInterval = setInterval(checkMeter, 1000 / 30);
 	}
 
 	function moveTonic(dir) {
