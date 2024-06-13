@@ -239,14 +239,19 @@ export function Doodoo(params, callback) {
 					// still weird w fmSynth idky
 					beat = parseInt(beat) * 2 + 'n';
 					let t = Tone.Time(beat).toSeconds();
-					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 					if (pitch === null) console.log('pitch', loop);
 					if (beat === null) console.log('beat', loop);
 					if (time === null) console.log('time', loop);
 					if (t === null) console.log('t', loop);
 					if (time + t === null) console.log('time + t', loop);
 					if (velocity === null) console.log('velocity', loop);
-					loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+					try {
+						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+					} catch(err) {
+						console.log('that null error!');
+						console.error(err);
+					}
 				} else {
 					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
