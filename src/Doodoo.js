@@ -250,7 +250,13 @@ export function Doodoo(params, callback) {
 						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
 						console.log('that null error!');
-						console.error(err);
+						console.log('pitch', pitch);
+						console.log('beat', beat);
+						console.log('time', time);
+						console.log('t', t);
+						console.log('time + t', time + t);
+						console.log('velocity', velocity);
+						console.warn(err);
 					}
 				} else {
 					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
