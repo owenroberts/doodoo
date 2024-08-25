@@ -30,7 +30,7 @@ export function Meter(app) {
 		requestAnimationFrame(draw);
 		if (!toneMeter) return;
 		const time = performance.now();
-		if (time + interval > timer) {
+		if (time> timer + interval) {
 			timer = time;
 			ctx.fillStyle = 'black';
 			ctx.fillRect(0, 0, w, h);
@@ -61,7 +61,7 @@ export function Meter(app) {
 	}
 
 	function isOpen() {
-		return panel.isOpen;
+		return panel.isOpen();
 	}
 
 	function connect() {

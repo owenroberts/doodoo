@@ -39,6 +39,7 @@ export function Doodoo(params, callback) {
 	
 	let useMeter = params.useMeter ?? false;
 	let setMeter = params.setMeter ?? false;
+	let useFFT = params.useFFT ?? false;
 	let useMetro = params.useMetro ?? false;
 	let withRecording = params.withRecording ?? false;
 	let withCount = params.withCount ?? false;
@@ -193,11 +194,16 @@ export function Doodoo(params, callback) {
 		Tone.Master.chain(compressor, limiter);
 		// Tone.Master.chain(compressor);
 
-
 		if (useMeter) {
-			meter = new Tone.Meter({ channels: 2 });
+			meter = new Tone.Meter({ channelCount: 2 });
 			Tone.Destination.connect(meter);
 			params.setMeter(meter);
+		}
+
+		if (useFFT) {
+			const fft = new Tone.FFT(16); // is bands
+			Tone.Destination.connect(fft);
+			params.getFFT(fft);
 		}
 		
 		if (autoStart || playOnStart) generateLoops();
