@@ -43,14 +43,14 @@ export function Monitor(app) {
 
 		for (let i = 0; i < loops.length; i++) {
 			const row = mRow.add(new UIRow({ class: 'break' }));
-			row.add(new UILabel({ text: `Loop ${i} -> `}));
+			row.add(new UILabel({ text: `Loop ${i}: `}));
 
 			const loop = loops[i];
 			for (const prop in props) {
 				if (!props[prop]) continue;
 
 				row.add(new UILabel({
-					text: `${prop}: ${formatProp(prop, loop[prop])},`,
+					text: ` ${prop}: ${formatProp(prop, loop[prop])},`,
 					class: 'prop-value',
 				}));
 			}
