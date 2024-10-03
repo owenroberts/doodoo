@@ -207,7 +207,6 @@ export function Doodoo(params, callback) {
 		}
 		
 		if (autoStart || playOnStart) generateLoops();
-		
 
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -528,7 +527,11 @@ export function Doodoo(params, callback) {
 			return;
 		}
 		generateLoops();
-		toneLoop.start(Tone.Transport.seconds);
+
+		// toneLoop.start(Tone.Transport.seconds);
+		// seconds causes error with mystery fragments, 2 doodoos
+		toneLoop.start(Tone.now());
+
 		isPlaying = true;
 		if (withRecording) recorder.start();
 	}
