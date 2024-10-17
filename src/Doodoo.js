@@ -182,6 +182,7 @@ export function Doodoo(params, callback) {
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
 		toneLoop.start(Tone.Transport.seconds);
+		// console.log(params.bpm, Tone.Transport.bpm.value)
 
 		// master ing
 		var compressor = new Tone.Compressor({
@@ -521,7 +522,8 @@ export function Doodoo(params, callback) {
 	}
 
 	function play() {
-		if (!autoLoad) return loadTone();
+		console.log('play', this);
+		if (!autoLoad && !samplesLoaded) return loadTone();
 		if (loadInstruments.length > 0 && !samplesLoaded) {
 			playOnStart = true;
 			return;
@@ -549,7 +551,7 @@ export function Doodoo(params, callback) {
 	}
 
 	return {
-		play, stop, isRecording, modulate,
+		play, stop, isRecording, modulate, setBPM, moveBPM, setTonic, moveTonic,
 		getLoops: () => { return loops; },
 		getStatusIsPlaying: () => { return isPlaying; },
 		printLoops: () => { console.log('loops', loops); }, // debug
