@@ -177,7 +177,6 @@ export function Doodoo(params, callback) {
 
 	function start() {
 
-		if (callback) callback();
 		toneLoop = new Tone.Loop(playLoops, defaultBeat);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
@@ -227,6 +226,8 @@ export function Doodoo(params, callback) {
 
 		isPlaying = true;
 		if (withRecording) recorder.start();
+
+		if (callback) callback();
 	}
 
 	function playLoops(time) {
@@ -522,7 +523,6 @@ export function Doodoo(params, callback) {
 	}
 
 	function play() {
-		console.log('play', this);
 		if (!autoLoad && !samplesLoaded) return loadTone();
 		if (loadInstruments.length > 0 && !samplesLoaded) {
 			playOnStart = true;
@@ -530,9 +530,9 @@ export function Doodoo(params, callback) {
 		}
 		generateLoops();
 
-		// toneLoop.start(Tone.Transport.seconds);
+		toneLoop.start(Tone.Transport.seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
-		toneLoop.start(Tone.now());
+		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
 
 		isPlaying = true;
 		if (withRecording) recorder.start();
@@ -553,7 +553,8 @@ export function Doodoo(params, callback) {
 	return {
 		play, stop, isRecording, modulate, setBPM, moveBPM, setTonic, moveTonic,
 		getLoops: () => { return loops; },
-		getStatusIsPlaying: () => { return isPlaying; },
+		isPlaying: () => { return isPlaying; },
+		getStatusIsPlaying: () => { return isPlaying; }, // old
 		printLoops: () => { console.log('loops', loops); }, // debug
 		printParams: () => { console.log(parts.map(p => p.getParams())); }, // debug
 	}
