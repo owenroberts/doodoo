@@ -10,38 +10,26 @@
 */
 
 import { Elements } from '../../../ui/src/UI.js';
+import { Interface } from '../../../ui/src/UI.js';
+import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
+
+const { labelFromKey } = Interface();
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = Elements;
+
+// defaults are the default settings for props and mods
+// mods are new mods that overwrite defaults
 
 export function Modulators(app, defaults) {
 
 	let panel, propsRow;
-	let partModRow, partModTrees = [], partMods = [], partModIndex = 0;
-	let props = {};
+	let partModRow, partModRows = [], partMods = [], partModIndex = 0;
+	let props = {}; // are props mods?? yes .... fuck ... why aren't they mods again? no, they're props, props have mods, part mods should really be part props -- but you dont add a prop unless you want to mod
 	let propsUI = {};
-	let modDefaults = {
-		min: { value: 0, step: 1 },
-		max: { value: 1, step: 1 },
-		step: { value: 1, step: 0.01 },
-		kick: { value: 0, step: 1 },
-		chance: { value: 0.5, step: 0.05 },
-		type: { value: 'value' }, // options: ['value', 'range', 'walk', 'walkUp', 'walkDown']
-		bound: { value: 'stay' }, // options: ['reset', 'reverse', 'stay']
-	};
-
-	let propDefaults = {
-		index: { value: 0, step: 1 },
-	};
-
-	let typeOptions = ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle', 'graph-list'];
-
-	function labelFromKey(key) {
-		let label = key[0].toUpperCase() + key.substring(1);
-		label = label.replace(/(?<=[a-z])(?=[A-Z])/g, ' ');
-		return label;
-	}
+	let openModEdit = "None";
+	let openModPart = -1;
 
 	function getPropType(propString, partIndex=-1) {
-		const params = getParams(propString, partIndex);
+		const params = getPropParams(propString, partIndex);
 		let type = 'number';
 		if (params.hasOwnProperty('type')) type = params.type;
 		else if (params.hasOwnProperty('list')) {
@@ -52,13 +40,9 @@ export function Modulators(app, defaults) {
 		return type;
 	}
 
-	function getPropFromString(propString, partIndex=-1) {
-		// console.log('get', propString);
-		// let prop;
+	function getPropRef(propString, partIndex=-1) {
 		let prop = partIndex < 0 ? props : partMods[partIndex];
-		
 		if (propString.includes('-')) {
-			// prop = props;
 			const children = propString.split('-');
 			for (let i = 0; i < children.length; i++) {
 				prop = prop[children[i]];
@@ -66,11 +50,10 @@ export function Modulators(app, defaults) {
 		} else {
 			prop = prop[propString];
 		}
-		// console.log('return', prop);
 		return prop;
 	}
 
-	function getParams(propString, partIndex=-1) {
+	function getPropParams(propString, partIndex=-1) {
 		let prop = partIndex < 0 ? props : partMods[partIndex];
 		if (propString.includes('-')) {
 			const children = propString.split('-');
@@ -83,7 +66,7 @@ export function Modulators(app, defaults) {
 		return structuredClone(prop);
 	}
 
-	function getDefaults(propString, partIndex=-1) {
+	function getPropDefaults(propString, partIndex=-1) {
 		// let prop, propLast;
 		let prop = partIndex < 0 ? props : partMods[partIndex];
 		let propLast = propString;
@@ -104,8 +87,9 @@ export function Modulators(app, defaults) {
 	function addNewProp(propName, partIndex=-1) {
 
 		if (!propName) return;
-		if (props[propName] && partIndex < 0) return;
+		if (props[propName] && partIndex < 0) return; // only one mod per part
 		if (partIndex >= 0 && partMods[partIndex]) {
+			// only one prop mod per part mod
 			if (partMods[partIndex].hasOwnProperty(propName)) return;
 		}
 
@@ -117,141 +101,64 @@ export function Modulators(app, defaults) {
 		}
 
 		if (partIndex >= 0) {
-			if (!partModTrees[partIndex]) addPartModTree(partIndex, true);
+			if (!partModRows[partIndex]) addPartModUI(partIndex, true);
 		}
 
-		addProp(propName, partIndex, true);
+		// addPropTree(propName, partIndex, true);
+		addPropUI(propName, partIndex);
 	}
 
-	function addPartModTree(partIndex, isOpen=false) {
-		const tree = new UITree({ title: `Part ${ partIndex }` });
-		const removeBtn = partModRow.add(new UIButton({
-			text: 'X',
+	function addPropUI(propName, partIndex=-1) {
+		const row = partIndex < 0 ? propsRow : partModRows[partIndex];
+		const propRow = row.add(new UIRow({ class: 'break' }));
+		propRow.add(new UILabel({ text: labelFromKey(propName) }));
+
+		const editBtn = propRow.add(new UIButton({
+			text: "Edit",
 			callback: () => {
-				// delete partMods[partIndex];
-				// partMods.splice(partIndex, 1);
-				partMods[partIndex] = undefined;
-				partModTrees[partIndex] = undefined;
-				partModRow.remove(tree);
-				partModRow.remove(removeBtn);
+				clearModEditHighlight();
+				openModEdit = propName;
+				openModPart = partIndex;
+				propRow.addClass('prop-edit');
+				app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
 			}
 		}));
-		partModRow.add(tree);
-		partModTrees[partIndex] = tree;
-		if (isOpen) tree.open();
-		partModRow.addBreak();
-	}
 
-	function addProp(propName, partIndex=-1, isOpen=false) {
-
-		const tree = new UITree({ title: labelFromKey(propName) });
-		const row = partIndex < 0 ? propsRow : partModTrees[partIndex];
-		const removeBtn = row.add(new UIButton({
+		const removeBtn = propRow.add(new UIButton({
 			text: 'X',
 			callback: () => {
 				removeProp(propName, partIndex);
-				row.remove(tree);
-				row.remove(removeBtn);
-			}
-		}));
-		
-		row.add(tree);
-		if (isOpen) tree.open();
-		row.addBreak();
-
-		const propRow = new UIRow({ class: 'break' });
-		const propParamsRow = new UIRow({ class: 'break' });
-		
-		propRow.add(new UILabel({ text: "Prop Type" }));
-		const propType = getPropType(propName, partIndex);
-
-		const propTypeSelect = new UISelect({
-			value: propType,
-			options: typeOptions,
-			callback: type => { 
-				propParamsRow.clear();
-				delete props[propName].mod;
-				addPropUI(propParamsRow, type, propName, partIndex);
-			}
-		})
-		propRow.add(propTypeSelect);
-		tree.add(propRow);
-
-		addPropUI(propParamsRow, propType, propName, partIndex);
-		propRow.add(propParamsRow);
-
-		// console.log('tree', tree);
-	}
-
-	function addPropUI(row, propType, propString, partIndex) {
-		const params = getParams(propString, partIndex);
-		const defaults = getDefaults(propString, partIndex);
-
-		switch(propType) {
-			case 'number':
-			case 'chance':
-				
-				updateProp(propString, propType, partIndex, 'type');
-
-				// set default if not existing isn't passed
-				if (!params.hasOwnProperty('value')) {
-					const step = +prompt('Step?', 1);
-					updateProp(propString, 0, partIndex, 'value');
-					updateProp(propString, step, partIndex, 'step');
+				if (openModEdit === propName && openModPart === partIndex) {
+					app.modEditor.clear();
+					openModEdit = "None";
+					openModPart = -1;
+					propRow.removeClass('prop-edit');
 				}
-				addValue(row, propString, partIndex, 'Value');
-			break;
-			case 'number-list':
-			case 'string-list':
-			case 'graph-list':
-			case 'input-list':
-			case 'note-list':
-
-				// set default if prop isn't passed
-				updateProp(propString, propType, partIndex, 'type');
-
-				if (!params.hasOwnProperty('list')) {
-					updateProp(propString, defaults.list ?? [], partIndex, 'list');
-				}
-
-				if (!params.hasOwnProperty('index')) {
-					updateProp(propString, defaults.index ?? 0, partIndex, 'index');
-				}
-
-				if (propType === 'graph-list') {
-					if (!params.hasOwnProperty('graph')) {
-						updateProp(propString, defaults.list ?? [], partIndex, 'graph');
+				row.remove(propRow);
+				if (partIndex >= 0) {
+					if (Object.keys(partMods[partIndex]).length === 0) {
+						partModRow.remove(partModRows[partIndex]);
 					}
 				}
-				
-				addList(row, propType, propString, partIndex);
-			break;
-			case 'stack':
+			}
+		}));
+	}
 
-				updateProp(propString, propType, partIndex, 'type');
+	function addPartModUI(partIndex) {
+		partModRows[partIndex] = partModRow.add(new UIRow({ class: "break-line-up" }));
+		partModRows[partIndex].add(new UILabel({ text: `Part ${partIndex} Mods`}));
+		partModRows[partIndex].addBreak();
+	}
 
-				if (!params.hasOwnProperty('stack')) {
-					updateProp(propString, defaults.stack ?? [[]], partIndex, 'stack');
-				}
+	function clearModEdit() {
+		openModEdit = "None";
+		openModPart = -1;
+		clearModEditHighlight();
+	}
 
-				if (!params.hasOwnProperty('options')) {
-					updateProp(propString, defaults.options ?? [], partIndex, 'options');
-				}
-
-				addStack(row, propString, partIndex);
-			break;
-			case 'bundle':
-				for (const param in params) {
-					if (param === 'type') continue;
-					row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
-					// row.addBreak();
-					const propType = getPropType(`${propString}-${param}`, partIndex);
-					addPropUI(row, propType, `${propString}-${param}`, partIndex);
-					row.addBreak();
-				}
-				// needs ui to add params to bundle ... ?
-			break;
-		}
+	function clearModEditHighlight() {
+		Array.from(document.getElementsByClassName('prop-edit'))
+			.forEach(e => e.classList.remove('prop-edit'));
 	}
 
 	function removeProp(propName, partIndex=-1) {
@@ -259,10 +166,12 @@ export function Modulators(app, defaults) {
 		else delete props[propName];
 	}
 
+	function removePropMod(propName, partIndex=-1) {
+		delete props[propName].mod;
+	}
+
 	function updateProp(propString, value, partIndex=-1, valueType="value") {
-		// let prop;
 		let prop = partIndex < 0 ? props : partMods[partIndex];
-		
 		if (propString.includes('-')) {
 			// prop = props;
 			const children = propString.split('-');
@@ -273,254 +182,6 @@ export function Modulators(app, defaults) {
 		} else {
 			prop[propString][valueType] = value;
 		}
-	}
-
-	function addValue(row, propString, partIndex, label, level=0) {
-		const params = getParams(propString, partIndex);
-		row.add(new UILabel({ text: label }));
-		
-		let uiClass = UINumberStep;
-		if (params?.type === 'chance') uiClass = UIChance;
-		const ui = row.add(new uiClass({
-			...params, // step, options, etc from defaults
-			value: params.value ?? 0,
-			label: 'Chance',
-			callback: value => { updateProp(propString, value, partIndex); }
-		}));
-		propsUI[propString] = { value: ui }
-
-		addMod(row, propString, partIndex, label, level);
-	}
-
-	function addList(row, propType, propString, partIndex, level=0) {
-		const params = getParams(propString, partIndex);
-		const defaults = getDefaults(propString, partIndex);
-
-		let uiClass;
-		if (propType === 'number-list') uiClass = UINumberList;
-		if (propType === 'string-list') uiClass = UIInputList;
-		if (propType === 'graph-list') uiClass = UIGraph;
-
-		const listUI = new uiClass({
-			list: params.list ?? [],
-			app: app,
-			graph: params.graph,
-			callback: (list, graph) => {
-				updateProp(propString, list, partIndex, 'list'); 
-				if (graph) updateProp(propString, graph, partIndex, 'graph'); 
-			}
-		});
-
-		// maybe other things have options ??
-		if (defaults.options) {
-			row.add(new UILabel({ text: 'Options' }));
-			row.add(new UISelectButton({
-				options: defaults.options,
-				callback: value => {
-					listUI.pushItem(value);
-				}
-			}));
-			row.addBreak();
-		}
-
-		row.add(new UILabel({ text: 'List' }));
-		row.add(listUI);
-		row.addBreak();
-
-		row.add(new UILabel({ text: 'Index' }));
-		const indexUI = row.add(new UINumberStep({
-			value: params.index ?? 0,
-			min: 0,
-			step: 1,
-			callback: index => { updateProp(propString, index, partIndex, 'index'); }
-		}));
-
-		propsUI[propString] = { list: listUI, index: indexUI };
-		
-		// index prop doesn't exist .... 
-		addMod(row, propString, partIndex, 'Index', level);
-	}
-
-	function addStack(row, propString, partIndex, level=0) {
-		const params = getParams(propString, partIndex);
-		const stacks = [];
-		const select = row.add(new UISelectButton({
-			selected: "choir",
-			options: params.options ?? [],
-			// callback: addInstrument,
-			callback: value => {
-				if (!stacks[index.value]) return;
-				stacks[index.value].stack.pushItem(value);
-				updateStack(); 
-			}
-		}));
-		row.addBreak();
-
-		row.add(new UILabel({ text: 'Index' }));
-		// console.log('length', params.stack.length)
-		const index = row.add(new UINumberStep({
-			min: 0,
-			max: params.stack.length - 1,
-			value: 0,
-		}));
-
-		// remove stack
-		row.add(new UIButton({
-			text: '–',
-			class: 'left-end',
-			callback: () => {
-				if (stacks.length === 0) return;
-				const removeStack = stacks.pop();
-				row.remove(removeStack);
-				if (stacks.length === 0) return;
-				index.max = stacks.length - 1;
-				index.update(stacks.length - 1);
-				updateStack(); 
-			}
-		}));
-
-		// add stack
-		row.add(new UIButton({
-			text: '+',
-			class: 'right-end',
-			callback: () => {
-				addStack(stacks.length)
-				index.max = stacks.length - 1;
-				index.update(stacks.length - 1);
-				updateStack(); 
-			}
-		}));
-
-		row.addBreak();
-
-		function addStack(i, list) {
-			// console.log('add stack', i, list);
-			const stackRow = row.add(new UIRow());
-			stackRow.add(new UILabel({ text: 'Stack ' + i }));
-			const stack = stackRow.add(new UIInputList({
-				list: list ?? [],
-				callback: () => { updateStack(); }
-			}), 'stack');
-			row.addBreak();
-			stacks.push(stackRow);
-		}
-
-		function updateStack() {
-			const s = [];
-			for (let i = 0; i < stacks.length; i++) {
-				// console.log(i, stacks[i]);
-				s[i] = { list: stacks[i].stack.list };
-			}
-			// console.log('update stacks', s);
-			updateProp(propString, s, partIndex, 'stack');
-		}
-
-		for (let i = 0; i < params.stack.length; i++) {
-			const stack = addStack(i, params.stack[i].list, partIndex);
-		}
-	}
-
-	function addMod(row, propString, partIndex, label, level) {
-
-		let prop = getPropFromString(propString, partIndex);
-
-		// if mod property doesn't exist get default
-		if (!prop) prop = modDefaults[propString.split('-').pop()];
-
-		// make sure mod has all properties
-		if (prop.mod) {
-			for (const def in modDefaults) {
-				if (!prop.mod.hasOwnProperty(def)) {
-					prop.mod[def] = modDefaults[def];
-				}
-			}
-		}
-
-		if (level < 2) {
-			row.add(new UIButton({
-				text: '+Mod',
-				callback: () => {
-					if (prop.mod) return;
-					prop.mod = structuredClone(modDefaults);
-					addModTree(row, propString, partIndex, label, level);
-				}
-			}));
-		}
-
-		if (prop.mod) {
-			row.addBreak();
-			addModTree(row, propString, partIndex, label, level);
-		}
-	}
-
-	function addModTree(row, propString, partIndex, label, level) {
-		const prop = getPropFromString(propString, partIndex);
-		const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", partIndex, level+1);
-		row.add(tree);
-		const removeBtn = row.add(new UIButton({
-			text: 'X',
-			callback: () => {
-				delete prop.mod;
-				row.remove(tree);
-				row.remove(removeBtn);
-			}
-		}));
-	}
-
-	function getModTree(title, propString, partIndex, level) {
-		const prop = getPropFromString(propString, partIndex);
-		const params = getParams(propString, partIndex);
-		// console.log('mod tree', propString, prop);
-
-		const tree = new UITree({ title: title });
-
-		const minRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(minRow, propString + '-min', partIndex, 'Min', level);
-
-		const maxRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(maxRow, propString + '-max', partIndex, 'Max', level);
-
-		const stepRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(stepRow, propString + '-step', partIndex, 'Step', level);
-
-		tree.add(new UILabel({ text: "Update" }));
-		tree.add(new UIChance({
-			value: params.chance?.value ?? 0,
-			label: 'Chance',
-			step: 0.05,
-			// callback: value => { prop.chance.value = value; }
-			callback: value => { updateProp(propString + '-chance', value, partIndex); }
-		}));
-		tree.addBreak();
-
-		tree.add(new UILabel({ text: "Kick In" }));
-		tree.add(new UINumberStep({
-			value: params.kick?.value ?? 0,
-			// callback: value => { prop.kick.value = value; }
-			callback: value => { updateProp(propString + '-kick', value, partIndex); }
-		}));
-		tree.addBreak();
-
-		tree.add(new UILabel({ text: "Type" }));
-		tree.add(new UISelect({
-			value: params.type?.value ?? 'value',
-			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			// callback: value => { prop.type.value = value; }
-			callback: value => { updateProp(propString + '-type', value, partIndex); }
-
-		}));
-		tree.addBreak();
-
-		tree.add(new UILabel({ text: "Bound" }));
-		tree.add(new UISelect({
-			value: params.bound?.value ?? 'stay',
-			options: ['reset', 'reverse', 'stay'],
-			callback: value => { updateProp(propString + '-bound', value, partIndex); }
-
-		}));
-		tree.addBreak();
-		
-		return tree;
 	}
 
 	function get() {
@@ -535,12 +196,6 @@ export function Modulators(app, defaults) {
 		return partMods;
 	}
 
-	function collapse() {
-		propsRow.uiList
-			.filter(c => c.constructor.name === 'UITree')
-			.forEach(c => { c.close(); });
-	}
-
 	function load(data) {
 		if (!data.mods && !data.partMods) return;
 		
@@ -548,10 +203,8 @@ export function Modulators(app, defaults) {
 		props = {};
 		for (const prop in data.mods) {
 			props[prop] = structuredClone(data.mods[prop]);
-			addProp(prop);
+			addPropUI(prop);
 		}
-		collapse();
-
 		if (!data.partMods) return;
 		
 		partModRow.clear();
@@ -560,10 +213,11 @@ export function Modulators(app, defaults) {
 			const mods = data.partMods[i];
 			if (mods) {
 				partMods[i] = {};
-				addPartModTree(i);
+				// addPartModTree(i);
+				addPartModUI(i);
 				for (const prop in mods) {
 					partMods[i][prop] = structuredClone(mods[prop]);
-					addProp(prop, i);
+					addPropUI(prop, i);
 				}
 			}
 		}
@@ -597,20 +251,41 @@ export function Modulators(app, defaults) {
 			},
 		]);
 
+		app.ui.addProp('partModIndex', {
+			type: "UINumberStep",
+			value: 0,
+			callback: value => { partModIndex = value; }
+		});
+
+		app.ui.addCallbacks([
+			{ 
+				text: '+', 
+				callback: () => {
+					if (app.ui.faces.propSelect.value.length === 0) {
+						app.ui.faces.propSelect.focus();
+					} else {
+						addNewProp(app.ui.faces.propSelect.value, partModIndex);
+						app.ui.faces.propSelect.value = '';
+					}
+				},
+			},
+		]);
+
 		panel.addRow();
 
 		app.ui.addCallbacks([
-			{
-				text: 'Collapse',
-				callback: collapse
-			},
 			{ 
 				key: 'shift-p', 
-				text: 'Print Props',
-				callback: () => { console.log('props', props); }
+				text: 'Print Mods',
+				callback: () => { 
+					console.log('mods', props); 
+					partMods.forEach((m, i) => {
+						console.log('part mod', i, m);
+					});
+				}
 			},
 			{
-				text: 'Clear Props',
+				text: 'Clear Mods',
 				callback: () => {
 					props = {};
 					propsRow.clear();
@@ -623,7 +298,6 @@ export function Modulators(app, defaults) {
 					fxList.forEach(f => {
 						if (!props.hasOwnProperty(f)) return;
 						updateProp(f + '-chance', 0);
-						propsUI[f + '-chance'].value.update(0); // crazy?
 					});
 				}
 			}
@@ -631,42 +305,12 @@ export function Modulators(app, defaults) {
 
 		propsRow = panel.add(new UIRow({ class: "break" }));
 
-		panel = app.ui.getPanel('part-mods', { label: 'Part Mods' });
-
-		app.ui.addUIs({
-			partModSelect: {
-				type: "UIInputSearch",
-				listName: "prop-list",
-				label: "Add mod:",
-				options: Object.keys(defaults),
-				// selected: 'instruments',
-			}
-		});
-
-		app.ui.addCallbacks([
-			{ 
-				text: '+', 
-				callback: () => {
-					if (app.ui.faces.partModSelect.value.length === 0) {
-						app.ui.faces.partModSelect.focus();
-					} else {
-						addNewProp(app.ui.faces.partModSelect.value, partModIndex);
-						app.ui.faces.partModSelect.value = '';
-					}
-				},
-			},
-		]);
-
-		app.ui.addProp('partModIndex', {
-			type: "UINumberStep",
-			value: 0,
-			callback: value => { partModIndex = value; }
-		});
+		
 
 		partModRow = panel.add(new UIRow({ class: "break" }));
 	}
 
-	return { connect, get, load, getMods, getPartMods };
+	return { connect, get, load, getMods, getPartMods, removeProp, updateProp, getPropParams, getPropDefaults, getPropRef, clearModEdit, removePropMod };
 
 }
 

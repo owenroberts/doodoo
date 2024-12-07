@@ -9,6 +9,7 @@ import { FilesIO } from './FilesIO.js';
 import { Melody } from './Melody.js';
 import { Meter } from './Meter.js';
 import { Modulators } from './Modulators.js';
+import { ModEditor } from './ModEditor.js';
 import { Monitor } from './Monitor.js';
 import { Playback } from './Playback.js';
 import { Score } from './Score.js';
@@ -35,6 +36,7 @@ app.score = Score(app);
 app.meter = Meter(app);
 app.monitor = Monitor(app);
 app.modulators = Modulators(app, DoodooProps);
+app.modEditor = ModEditor(app);
 app.startLoops = StartLoops(app, DoodooProps);
 
 app.ui = Interface(app, { useMain: true });
@@ -47,6 +49,7 @@ app.score.connect();
 app.meter.connect();
 app.monitor.connect();
 app.modulators.connect();
+app.modEditor.connect();
 app.startLoops.connect();
 
 app.ui.settings = Settings(app, {
