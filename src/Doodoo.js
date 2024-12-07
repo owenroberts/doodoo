@@ -7,9 +7,9 @@
 */
 
 import * as Tone from 'tone';
-import { DoodooProps } from './Properties.js';
+import { PropertyDefaults } from './PropertyDefaults.js';
 import { SamplePaths } from './SamplePaths.js';
-import { MIDI_NOTES, getMelody, getHarmony } from './Midi.js';
+import { MIDI_NOTES, getMelody, getHarmony, getTranspose } from './Midi.js';
 import { Effects } from './Effects.js';
 import { Part } from './Part.js';
 import { random } from '../../cool/cool.js';
@@ -49,14 +49,11 @@ export function Doodoo(params, callback) {
 	
 	let useDefaultProps = params.useDefaultProps ?? true;
 	const props = params.mods ? structuredClone(params.mods) : {};
-	for (const prop in DoodooProps) {
+	for (const prop in PropertyDefaults) {
 		if (props.hasOwnProperty(prop)) continue;
-		props[prop] = useDefaultProps ? structuredClone(DoodooProps[prop]) : {};
+		props[prop] = useDefaultProps ? structuredClone(PropertyDefaults[prop]) : {};
 	}
 
-	// console.log('new doo props', useDefaultProps, props);
-
-	// console.log('doodoo params', params);
 	let samples; // holds the samples
 	let samplesLoaded = false;
 	// look for samples in props.instruments stack
@@ -330,12 +327,14 @@ export function Doodoo(params, callback) {
 		for (let i = 0; i < currentParts.length; i++) {
 			let partLoops = currentParts[i];
 			for (let j = 0; j < partLoops.length; j++) {
-
 				const loopParams = partLoops[j];
+				// console.log('loop params', loopParams);
 				const harmony = loopParams.harmony;
-				const melody = harmony === 0 ? 
-					getMelody(loopParams.melody, tonic, transpose, scale) :
-					getHarmony(loopParams.melody, tonic, transpose, harmony, scale, useOctave);
+				const transposePitch = getTranspose(tonic, loopParams.transpose);
+				// console.log('pitch', transposePitch);
+				const melody = harmony === 0 ?
+					getMelody(loopParams.melody, tonic, transposePitch, scale) :
+					getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);
 				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
 				loops.push({ ...loopParams, melody, instrument, });
 			}

@@ -1,7 +1,6 @@
 import '../css/composer.scss';
 
-import { MIDI_NOTES } from '../../src/Midi.js';
-import { DoodooProps } from '../../src/Properties.js';
+import { PropertyDefaults } from '../../src/PropertyDefaults.js';
 import { Interface, Settings } from '../../../ui/src/UI.js';
 
 import { Composition } from './Composition.js';
@@ -35,9 +34,9 @@ app.fio = FilesIO(app);
 app.score = Score(app);
 app.meter = Meter(app);
 app.monitor = Monitor(app);
-app.modulators = Modulators(app, DoodooProps);
+app.modulators = Modulators(app, PropertyDefaults);
 app.modEditor = ModEditor(app);
-app.startLoops = StartLoops(app, DoodooProps);
+app.startLoops = StartLoops(app, PropertyDefaults);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();

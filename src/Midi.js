@@ -80,6 +80,10 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 	});
 }
 
+function getTranspose(pitch, value) {
+	return constrainNoteRange(MIDI_NOTES[MIDI_NOTES.indexOf(pitch) + value]);
+} 
+
 // window.DoodooMidi = { MIDI_NOTES };
 
-export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony };
+export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose };

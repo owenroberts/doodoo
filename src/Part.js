@@ -6,7 +6,7 @@
 import { Property } from './Property.js';
 import { Bundle } from './Bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
-import { getHarmony } from './Midi.js';
+import { getHarmony, getTranspose } from './Midi.js';
 
 export function Part(part, props, defaultBeat, comp, debug) {
 	// default beat number for math -- also smallest beat in entire composition
@@ -41,7 +41,9 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			// console.log('add', addSlice.map(n => `${n[0]},${n[1]}`));
 			if (chance(slice.harmChance)) {
 				const harm = slice.harmList;
-				addSlice = getHarmony(addSlice, comp.tonic, comp.transpose, harm, comp.scale, comp.useOctave);
+				// const transpose = getTranspose(comp.tonic, mods.tranpose.get());
+				const transpose = getTranspose(comp.tonic, 0); // don't want to transpose the actual melody if transposing playback ... 
+				addSlice = getHarmony(addSlice, comp.tonic, transpose, harm, comp.scale, comp.useOctave);
 				// console.log('harm', harm, addSlice.map(n => `${n[0]},${n[1]}`));
 			}
 			part.push(...addSlice);
@@ -153,6 +155,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 				double: chance(mods.double.get()),
 				fx: fx,
 				playBeat: chance(playBeat.chance) ? playBeat.beat : 'def',
+				transpose: mods.transpose.get(),
 			};
 
 			if (startLoops) {

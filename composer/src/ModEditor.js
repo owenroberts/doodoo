@@ -54,7 +54,7 @@ export function ModEditor(app) {
 				addPropParams(paramsRow, type, propName, partIndex);
 			}
 		}));
-
+		paramsRow.addBreak();
 		addPropParams(paramsRow, propType, propName, partIndex);
 	}
 
@@ -132,14 +132,16 @@ export function ModEditor(app) {
 	function addValue(row, propString, partIndex, label, level=0) {
 		const params = getModParams(propString, partIndex);
 		row.add(new UILabel({ text: label }));
-		
+
 		let uiClass = UINumberStep;
 		if (params?.type === 'chance') uiClass = UIChance;
 		const ui = row.add(new uiClass({
 			...params, // step, options, etc from defaults
 			value: params.value ?? 0,
 			label: 'Chance',
-			callback: value => { updateProp(propString, value, partIndex); }
+			callback: value => {
+				updateMod(propString, value, partIndex);
+			}
 		}));
 		// propsUI[propString] = { value: ui };
 

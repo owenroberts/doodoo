@@ -11,6 +11,7 @@
 
 import { Elements } from '../../../ui/src/UI.js';
 import { Interface } from '../../../ui/src/UI.js';
+import { PropertyDefaults } from '../../src/PropertyDefaults.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
 const { labelFromKey } = Interface();
@@ -19,7 +20,7 @@ const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberLi
 // defaults are the default settings for props and mods
 // mods are new mods that overwrite defaults
 
-export function Modulators(app, defaults) {
+export function Modulators(app) {
 
 	let mods = {}; // mods are modulators of properties
 	let partMods = []; // save current part mods
@@ -66,7 +67,7 @@ export function Modulators(app, defaults) {
 		if (propString.includes('-')) {
 			propLast = propString.split('-').pop();
 		}
-		return { ...defaults[propLast], ...modDefaults[propLast] };
+		return { ...PropertyDefaults[propLast], ...modDefaults[propLast] };
 	}
 
 	function addNewMod(propName, partIndex=-1) {
@@ -78,7 +79,7 @@ export function Modulators(app, defaults) {
 			if (partMods[partIndex].hasOwnProperty(propName)) return;
 		}
 
-		const defaultParams = structuredClone(defaults[propName]);
+		const defaultParams = structuredClone(PropertyDefaults[propName]);
 		if (partIndex < 0 && !mods[propName]) mods[propName] = defaultParams;
 		if (partIndex >= 0) {
 			if (!partMods[partIndex]) partMods[partIndex] = {};
@@ -166,7 +167,7 @@ export function Modulators(app, defaults) {
 	}
 
 	function removePropMod(propName, partIndex=-1) {
-		delete mod[propName].mod;
+		delete mods[propName].mod;
 	}
 
 	function updateMod(propString, value, partIndex=-1, valueType="value") {
@@ -230,7 +231,7 @@ export function Modulators(app, defaults) {
 				type: "UIInputSearch",
 				listName: "prop-list",
 				label: "Add mod:",
-				options: Object.keys(defaults),
+				options: Object.keys(PropertyDefaults),
 				// selected: 'loopNum',
 			}
 		});
@@ -250,6 +251,7 @@ export function Modulators(app, defaults) {
 		]);
 
 		app.ui.addProp('partModIndex', {
+			label: "Part Index",
 			type: "UINumberStep",
 			value: 0,
 			callback: value => { partModIndex = value; }

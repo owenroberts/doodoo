@@ -13,7 +13,13 @@
 
 import { SamplePaths } from './SamplePaths.js';
 
-export const DoodooProps = {
+export const PropertyDefaults = {
+
+	transpose: {
+		value: 0,
+		min: -128,
+		max: 128,
+	},
 	instruments: {
 		stack: [{ list: ['choir'] }],
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
