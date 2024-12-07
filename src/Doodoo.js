@@ -328,10 +328,8 @@ export function Doodoo(params, callback) {
 			let partLoops = currentParts[i];
 			for (let j = 0; j < partLoops.length; j++) {
 				const loopParams = partLoops[j];
-				// console.log('loop params', loopParams);
 				const harmony = loopParams.harmony;
-				const transposePitch = getTranspose(tonic, loopParams.transpose);
-				// console.log('pitch', transposePitch);
+				const transposePitch = getTranspose(transpose, loopParams.transpose);
 				const melody = harmony === 0 ?
 					getMelody(loopParams.melody, tonic, transposePitch, scale) :
 					getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);

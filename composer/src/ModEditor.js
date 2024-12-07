@@ -41,9 +41,10 @@ export function ModEditor(app) {
 		clear();
 
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
-		paramsRow.add(new UILabel({ text: "Prop Type" }));
+		propRow.addBreak();
+		propRow.add(new UILabel({ text: "Prop Type" }));
 
-		const propTypeSelect = paramsRow.add(new UISelect({
+		const propTypeSelect = propRow.add(new UISelect({
 			value: propType,
 			options: typeOptions,
 			callback: type => { 
@@ -51,10 +52,11 @@ export function ModEditor(app) {
 				
 				// delete props[propName].mod; // i guess delete and it will update when it updates?
 				app.modulators.removePropMod(propName, partIndex);
+				// app.modulators.removeMod(propName, partIndex);
 				addPropParams(paramsRow, type, propName, partIndex);
 			}
 		}));
-		paramsRow.addBreak();
+		propRow.addBreak();
 		addPropParams(paramsRow, propType, propName, partIndex);
 	}
 

@@ -41,9 +41,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			// console.log('add', addSlice.map(n => `${n[0]},${n[1]}`));
 			if (chance(slice.harmChance)) {
 				const harm = slice.harmList;
-				// const transpose = getTranspose(comp.tonic, mods.tranpose.get());
-				const transpose = getTranspose(comp.tonic, 0); // don't want to transpose the actual melody if transposing playback ... 
-				addSlice = getHarmony(addSlice, comp.tonic, transpose, harm, comp.scale, comp.useOctave);
+				addSlice = getHarmony(addSlice, comp.tonic, comp.transpose, harm, comp.scale, comp.useOctave);
 				// console.log('harm', harm, addSlice.map(n => `${n[0]},${n[1]}`));
 			}
 			part.push(...addSlice);

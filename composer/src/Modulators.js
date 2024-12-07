@@ -307,7 +307,7 @@ export function Modulators(app) {
 		partModRow = panel.add(new UIRow({ class: "break" }));
 	}
 
-	return { connect, get, load, getMods, getPartMods, updateMod, getModParams, getPropDefaults, getModRef, getPropType, clearModEdit, removePropMod };
+	return { connect, get, load, getMods, getPartMods, updateMod, getModParams, getPropDefaults, getModRef, getPropType, clearModEdit, removePropMod, removeMod };
 
 }
 
