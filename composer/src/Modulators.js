@@ -14,7 +14,7 @@ import { Interface } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
 const { labelFromKey } = Interface();
-const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = Elements;
+const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UIToggle } = Elements;
 
 // defaults are the default settings for props and mods
 // mods are new mods that overwrite defaults
@@ -113,26 +113,19 @@ export function Modulators(app, defaults) {
 		const propRow = row.add(new UIRow({ class: 'break' }));
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
 
-		const editBtn = propRow.add(new UIButton({
-			text: "Edit",
-			callback: () => {
-				clearModEditHighlight();
-				openModEdit = propName;
-				openModPart = partIndex;
-				propRow.addClass('prop-edit');
-				app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
-			}
-		}));
+		function closeEdit() {
+			app.modEditor.clear();
+			openModEdit = "None";
+			openModPart = -1;
+			propRow.removeClass('prop-edit');
+		}
 
 		const removeBtn = propRow.add(new UIButton({
 			text: 'X',
 			callback: () => {
 				removeProp(propName, partIndex);
 				if (openModEdit === propName && openModPart === partIndex) {
-					app.modEditor.clear();
-					openModEdit = "None";
-					openModPart = -1;
-					propRow.removeClass('prop-edit');
+					closeEdit();
 				}
 				row.remove(propRow);
 				if (partIndex >= 0) {
@@ -142,6 +135,25 @@ export function Modulators(app, defaults) {
 				}
 			}
 		}));
+
+		const editBtn = propRow.add(new UIToggle({
+			text: "Edit",
+			callback: () => {
+				// close if open
+				if (openModEdit === propName && openModPart === partIndex) {
+					closeEdit();
+				} else {
+					clearModEditHighlight();
+					openModEdit = propName;
+					openModPart = partIndex;
+					propRow.addClass('prop-edit');
+					app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
+				}
+				
+			}
+		}));
+
+		
 	}
 
 	function addPartModUI(partIndex) {
