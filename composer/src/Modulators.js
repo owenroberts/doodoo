@@ -287,7 +287,7 @@ export function Modulators(app) {
 			{
 				text: 'Clear Mods',
 				callback: () => {
-					props = {};
+					mods = {};
 					modsRow.clear();
 				}
 			},
@@ -296,7 +296,7 @@ export function Modulators(app) {
 				callback: () => {
 					const fxList = ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',];
 					fxList.forEach(f => {
-						if (!props.hasOwnProperty(f)) return;
+						if (!mods.hasOwnProperty(f)) return;
 						updateMod(f + '-chance', 0);
 					});
 				}

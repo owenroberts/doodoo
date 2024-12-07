@@ -182,6 +182,7 @@ export function ModEditor(app) {
 		}
 
 		row.add(new UILabel({ text: 'List' }));
+		row.addBreak();
 		row.add(listUI);
 		row.addBreak();
 

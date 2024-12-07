@@ -75,7 +75,7 @@ export function Composition(app, defaults) {
 			'transpose': {
 				type: 'UIListStep',
 				value: transpose,
-				label: 'Tonic transpose',
+				label: 'Transpose',
 				class: 'note-edit',
 				list: [...MIDI_NOTES, 'null', 'rest'],
 				callback: value => { transpose = value; }
