@@ -21,12 +21,15 @@ const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberLi
 
 export function Modulators(app, defaults) {
 
-	let panel, propsRow;
-	let partModRow, partModRows = [], partMods = [], partModIndex = 0;
 	let props = {}; // are props mods?? yes .... fuck ... why aren't they mods again? no, they're props, props have mods, part mods should really be part props -- but you dont add a prop unless you want to mod
-	let propsUI = {};
+	let partMods = []; // save current part mods
+
+	// ui
+	let panel, propsRow;
+	let partModRow, partModRows = [], partModIndex = 0;
 	let openModEdit = "None";
 	let openModPart = -1;
+	let openToggle;
 
 	function getPropType(propString, partIndex=-1) {
 		const params = getPropParams(propString, partIndex);
@@ -54,32 +57,13 @@ export function Modulators(app, defaults) {
 	}
 
 	function getPropParams(propString, partIndex=-1) {
-		let prop = partIndex < 0 ? props : partMods[partIndex];
-		if (propString.includes('-')) {
-			const children = propString.split('-');
-			for (let i = 0; i < children.length; i++) {
-				prop = prop[children[i]];
-			}
-		} else {
-			prop = prop[propString];
-		}
-		return structuredClone(prop);
+		return structuredClone(getPropRef(propString, partIndex));
 	}
 
-	function getPropDefaults(propString, partIndex=-1) {
-		// let prop, propLast;
-		let prop = partIndex < 0 ? props : partMods[partIndex];
+	function getPropDefaults(propString) {
 		let propLast = propString;
 		if (propString.includes('-')) {
-			// prop = props;
-			const parts = propString.split('-');
-			for (let i = 0; i < parts.length; i++) {
-				prop = prop[parts[i]];
-			}
-			propLast = parts[parts.length - 1];
-		} else {
-			prop = props[propString];
-			propLast = propString;
+			propLast = propString.split('-').pop();
 		}
 		return { ...defaults[propLast], ...modDefaults[propLast] };
 	}
@@ -140,20 +124,22 @@ export function Modulators(app, defaults) {
 			text: "Edit",
 			callback: () => {
 				// close if open
+				if (openToggle) {
+					openToggle.off();
+					openToggle = undefined;
+				}
 				if (openModEdit === propName && openModPart === partIndex) {
 					closeEdit();
 				} else {
+					openToggle = editBtn;
 					clearModEditHighlight();
 					openModEdit = propName;
 					openModPart = partIndex;
 					propRow.addClass('prop-edit');
 					app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
 				}
-				
 			}
 		}));
-
-		
 	}
 
 	function addPartModUI(partIndex) {
@@ -322,7 +308,7 @@ export function Modulators(app, defaults) {
 		partModRow = panel.add(new UIRow({ class: "break" }));
 	}
 
-	return { connect, get, load, getMods, getPartMods, removeProp, updateProp, getPropParams, getPropDefaults, getPropRef, clearModEdit, removePropMod };
+	return { connect, get, load, getMods, getPartMods, removeProp, updateProp, getPropParams, getPropDefaults, getPropRef, getPropType, clearModEdit, removePropMod };
 
 }
 

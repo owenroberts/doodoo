@@ -25,24 +25,24 @@ export function ModEditor(app) {
 	}
 
 	function getPropDefaults(propString, partIndex) {
-		return app.modulators.getPropDefaults(propString, partIndex);
+		return app.modulators.getPropDefaults(propString);
 	}
 
 	function getPropRef(propString, partIndex) {
 		return app.modulators.getPropRef(propString, partIndex);
 	}
 
+	function getPropType(propString, partIndex) {
+		return app.modulators.getPropType(propString, partIndex);
+	}
+
 	// main add the prop ui function ... 
 	function addPropMod(propName, partIndex, propType) {
 		clear();
-		// console.log(propName, partIndex, propType);
-		// propRow.add(new UIRow({ class: 'break' }));
-		// paramsRow.add(new UIRow({ class: 'break' }));
 
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
 		paramsRow.add(new UILabel({ text: "Prop Type" }));
 
-		// const propType = getPropType(propName, partIndex);
 		const propTypeSelect = paramsRow.add(new UISelect({
 			value: propType,
 			options: typeOptions,
@@ -383,7 +383,6 @@ export function ModEditor(app) {
 	}
 
 	function collapse() {
-		console.log(paramsRow.uiList)
 		paramsRow.uiList
 			.filter(c => c.constructor.name === 'UITree')
 			.forEach(c => { c.close(); });

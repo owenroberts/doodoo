@@ -18,6 +18,4 @@ let propDefaults = {
 
 let typeOptions = ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle', 'graph-list'];
 
-
-
 export { modDefaults, propDefaults, typeOptions };
