@@ -16,20 +16,20 @@ export function ModEditor(app) {
 	let panel, propRow, paramsRow;
 
 	// funtion to access app.modulators -- maybe better way to do this
-	function updateProp(propString, propType, partIndex, valueType) {
-		app.modulators.updateProp(propString, propType, partIndex, valueType);
+	function updateMod(propString, propType, partIndex, valueType) {
+		app.modulators.updateMod(propString, propType, partIndex, valueType);
 	}
 
-	function getPropParams(propString, partIndex) {
-		return app.modulators.getPropParams(propString, partIndex);
+	function getModParams(propString, partIndex) {
+		return app.modulators.getModParams(propString, partIndex);
 	}
 
 	function getPropDefaults(propString, partIndex) {
 		return app.modulators.getPropDefaults(propString);
 	}
 
-	function getPropRef(propString, partIndex) {
-		return app.modulators.getPropRef(propString, partIndex);
+	function getModRef(propString, partIndex) {
+		return app.modulators.getModRef(propString, partIndex);
 	}
 
 	function getPropType(propString, partIndex) {
@@ -59,20 +59,20 @@ export function ModEditor(app) {
 	}
 
 	function addPropParams(row, propType, propString, partIndex) {
-		const params = getPropParams(propString, partIndex); // current settings
+		const params = getModParams(propString, partIndex); // current settings
 		const defaults = getPropDefaults(propString, partIndex); // default prop settings
 
 		switch(propType) {
 			case 'number':
 			case 'chance':
 				
-				updateProp(propString, propType, partIndex, 'type');
+				updateMod(propString, propType, partIndex, 'type');
 
 				// set default if not existing isn't passed
 				if (!params.hasOwnProperty('value')) {
 					const step = +prompt('Step?', 1);
-					updateProp(propString, 0, partIndex, 'value');
-					updateProp(propString, step, partIndex, 'step');
+					updateMod(propString, 0, partIndex, 'value');
+					updateMod(propString, step, partIndex, 'step');
 				}
 				addValue(row, propString, partIndex, 'Value');
 			break;
@@ -83,19 +83,19 @@ export function ModEditor(app) {
 			case 'note-list':
 
 				// set default if prop isn't passed
-				updateProp(propString, propType, partIndex, 'type');
+				updateMod(propString, propType, partIndex, 'type');
 
 				if (!params.hasOwnProperty('list')) {
-					updateProp(propString, defaults.list ?? [], partIndex, 'list');
+					updateMod(propString, defaults.list ?? [], partIndex, 'list');
 				}
 
 				if (!params.hasOwnProperty('index')) {
-					updateProp(propString, defaults.index ?? 0, partIndex, 'index');
+					updateMod(propString, defaults.index ?? 0, partIndex, 'index');
 				}
 
 				if (propType === 'graph-list') {
 					if (!params.hasOwnProperty('graph')) {
-						updateProp(propString, defaults.list ?? [], partIndex, 'graph');
+						updateMod(propString, defaults.list ?? [], partIndex, 'graph');
 					}
 				}
 				
@@ -103,14 +103,14 @@ export function ModEditor(app) {
 			break;
 			case 'stack':
 
-				updateProp(propString, propType, partIndex, 'type');
+				updateMod(propString, propType, partIndex, 'type');
 
 				if (!params.hasOwnProperty('stack')) {
-					updateProp(propString, defaults.stack ?? [[]], partIndex, 'stack');
+					updateMod(propString, defaults.stack ?? [[]], partIndex, 'stack');
 				}
 
 				if (!params.hasOwnProperty('options')) {
-					updateProp(propString, defaults.options ?? [], partIndex, 'options');
+					updateMod(propString, defaults.options ?? [], partIndex, 'options');
 				}
 
 				addStack(row, propString, partIndex);
@@ -130,7 +130,7 @@ export function ModEditor(app) {
 	}
 
 	function addValue(row, propString, partIndex, label, level=0) {
-		const params = getPropParams(propString, partIndex);
+		const params = getModParams(propString, partIndex);
 		row.add(new UILabel({ text: label }));
 		
 		let uiClass = UINumberStep;
@@ -147,7 +147,7 @@ export function ModEditor(app) {
 	}
 
 	function addList(row, propType, propString, partIndex, level=0) {
-		const params = getPropParams(propString, partIndex);
+		const params = getModParams(propString, partIndex);
 		const defaults = getPropDefaults(propString, partIndex);
 
 		let uiClass;
@@ -160,8 +160,8 @@ export function ModEditor(app) {
 			app: app,
 			graph: params.graph,
 			callback: (list, graph) => {
-				updateProp(propString, list, partIndex, 'list'); 
-				if (graph) updateProp(propString, graph, partIndex, 'graph'); 
+				updateMod(propString, list, partIndex, 'list'); 
+				if (graph) updateMod(propString, graph, partIndex, 'graph'); 
 			}
 		});
 
@@ -186,7 +186,9 @@ export function ModEditor(app) {
 			value: params.index ?? 0,
 			min: 0,
 			step: 1,
-			callback: index => { updateProp(propString, index, partIndex, 'index'); }
+			callback: index => { 
+				updateMod(propString, index, partIndex, 'index');
+			}
 		}));
 
 		// propsUI[propString] = { list: listUI, index: indexUI };
@@ -196,7 +198,7 @@ export function ModEditor(app) {
 	}
 
 	function addStack(row, propString, partIndex, level=0) {
-		const params = getPropParams(propString, partIndex);
+		const params = getModParams(propString, partIndex);
 		const stacks = [];
 		const select = row.add(new UISelectButton({
 			selected: "choir",
@@ -265,8 +267,7 @@ export function ModEditor(app) {
 				// console.log(i, stacks[i]);
 				s[i] = { list: stacks[i].stack.list };
 			}
-			// console.log('update stacks', s);
-			updateProp(propString, s, partIndex, 'stack');
+			updateMod(propString, s, partIndex, 'stack');
 		}
 
 		for (let i = 0; i < params.stack.length; i++) {
@@ -276,7 +277,7 @@ export function ModEditor(app) {
 
 	function addMod(row, propString, partIndex, label, level) {
 
-		let prop = getPropRef(propString, partIndex);
+		let prop = getModRef(propString, partIndex);
 
 		// if mod property doesn't exist get default
 		if (!prop) prop = modDefaults[propString.split('-').pop()];
@@ -308,7 +309,7 @@ export function ModEditor(app) {
 	}
 
 	function addModTree(row, propString, partIndex, label, level) {
-		const prop = getPropRef(propString, partIndex);
+		const prop = getModRef(propString, partIndex);
 		const tree = getModTree(labelFromKey(label + 'Mod'), propString + "-mod", partIndex, level+1);
 		row.add(tree);
 		const removeBtn = row.add(new UIButton({
@@ -322,8 +323,8 @@ export function ModEditor(app) {
 	}
 
 	function getModTree(title, propString, partIndex, level) {
-		const prop = getPropRef(propString, partIndex);
-		const params = getPropParams(propString, partIndex);
+		const prop = getModRef(propString, partIndex);
+		const params = getModParams(propString, partIndex);
 		// console.log('mod tree', propString, prop);
 
 		const tree = new UITree({ title: title });
@@ -342,16 +343,18 @@ export function ModEditor(app) {
 			value: params.chance?.value ?? 0,
 			label: 'Chance',
 			step: 0.05,
-			// callback: value => { prop.chance.value = value; }
-			callback: value => { updateProp(propString + '-chance', value, partIndex); }
+			callback: value => { 
+				updateMod(propString + '-chance', value, partIndex);
+			}
 		}));
 		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Kick In" }));
 		tree.add(new UINumberStep({
 			value: params.kick?.value ?? 0,
-			// callback: value => { prop.kick.value = value; }
-			callback: value => { updateProp(propString + '-kick', value, partIndex); }
+			callback: value => {
+				updateMod(propString + '-kick', value, partIndex);
+			}
 		}));
 		tree.addBreak();
 
@@ -359,9 +362,9 @@ export function ModEditor(app) {
 		tree.add(new UISelect({
 			value: params.type?.value ?? 'value',
 			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
-			// callback: value => { prop.type.value = value; }
-			callback: value => { updateProp(propString + '-type', value, partIndex); }
-
+			callback: value => { 
+				updateMod(propString + '-type', value, partIndex);
+			}
 		}));
 		tree.addBreak();
 
@@ -369,7 +372,9 @@ export function ModEditor(app) {
 		tree.add(new UISelect({
 			value: params.bound?.value ?? 'stay',
 			options: ['reset', 'reverse', 'stay'],
-			callback: value => { updateProp(propString + '-bound', value, partIndex); }
+			callback: value => { 
+				updateMod(propString + '-bound', value, partIndex);
+			}
 
 		}));
 		tree.addBreak();

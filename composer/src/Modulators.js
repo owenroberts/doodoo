@@ -21,18 +21,18 @@ const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberLi
 
 export function Modulators(app, defaults) {
 
-	let props = {}; // are props mods?? yes .... fuck ... why aren't they mods again? no, they're props, props have mods, part mods should really be part props -- but you dont add a prop unless you want to mod
+	let mods = {}; // mods are modulators of properties
 	let partMods = []; // save current part mods
 
 	// ui
-	let panel, propsRow;
+	let panel, modsRow;
 	let partModRow, partModRows = [], partModIndex = 0;
 	let openModEdit = "None";
 	let openModPart = -1;
 	let openToggle;
 
 	function getPropType(propString, partIndex=-1) {
-		const params = getPropParams(propString, partIndex);
+		const params = getModParams(propString, partIndex);
 		let type = 'number';
 		if (params.hasOwnProperty('type')) type = params.type;
 		else if (params.hasOwnProperty('list')) {
@@ -43,21 +43,22 @@ export function Modulators(app, defaults) {
 		return type;
 	}
 
-	function getPropRef(propString, partIndex=-1) {
-		let prop = partIndex < 0 ? props : partMods[partIndex];
+	function getModRef(propString, partIndex=-1) {
+		let modsRef = partIndex < 0 ? mods : partMods[partIndex];
 		if (propString.includes('-')) {
 			const children = propString.split('-');
+			let mod = modsRef;
 			for (let i = 0; i < children.length; i++) {
-				prop = prop[children[i]];
+				mod = mod[children[i]];
 			}
+			return mod;
 		} else {
-			prop = prop[propString];
+			return modsRef[propString];
 		}
-		return prop;
 	}
 
-	function getPropParams(propString, partIndex=-1) {
-		return structuredClone(getPropRef(propString, partIndex));
+	function getModParams(propString, partIndex=-1) {
+		return structuredClone(getModRef(propString, partIndex));
 	}
 
 	function getPropDefaults(propString) {
@@ -68,20 +69,20 @@ export function Modulators(app, defaults) {
 		return { ...defaults[propLast], ...modDefaults[propLast] };
 	}
 
-	function addNewProp(propName, partIndex=-1) {
+	function addNewMod(propName, partIndex=-1) {
 
 		if (!propName) return;
-		if (props[propName] && partIndex < 0) return; // only one mod per part
+		if (mods[propName] && partIndex < 0) return; // only one mod per part
 		if (partIndex >= 0 && partMods[partIndex]) {
 			// only one prop mod per part mod
 			if (partMods[partIndex].hasOwnProperty(propName)) return;
 		}
 
-		const prop = structuredClone(defaults[propName]);
-		if (partIndex < 0 && !props[propName]) props[propName] = prop;
+		const defaultParams = structuredClone(defaults[propName]);
+		if (partIndex < 0 && !mods[propName]) mods[propName] = defaultParams;
 		if (partIndex >= 0) {
 			if (!partMods[partIndex]) partMods[partIndex] = {};
-			if (!partMods[partIndex][propName]) partMods[partIndex][propName] = prop;
+			if (!partMods[partIndex][propName]) partMods[partIndex][propName] = defaultParams;
 		}
 
 		if (partIndex >= 0) {
@@ -89,11 +90,11 @@ export function Modulators(app, defaults) {
 		}
 
 		// addPropTree(propName, partIndex, true);
-		addPropUI(propName, partIndex);
+		addModUI(propName, partIndex);
 	}
 
-	function addPropUI(propName, partIndex=-1) {
-		const row = partIndex < 0 ? propsRow : partModRows[partIndex];
+	function addModUI(propName, partIndex=-1) {
+		const row = partIndex < 0 ? modsRow : partModRows[partIndex];
 		const propRow = row.add(new UIRow({ class: 'break' }));
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
 
@@ -107,7 +108,7 @@ export function Modulators(app, defaults) {
 		const removeBtn = propRow.add(new UIButton({
 			text: 'X',
 			callback: () => {
-				removeProp(propName, partIndex);
+				removeMod(propName, partIndex);
 				if (openModEdit === propName && openModPart === partIndex) {
 					closeEdit();
 				}
@@ -159,35 +160,35 @@ export function Modulators(app, defaults) {
 			.forEach(e => e.classList.remove('prop-edit'));
 	}
 
-	function removeProp(propName, partIndex=-1) {
+	function removeMod(propName, partIndex=-1) {
 		if (partIndex >= 0) delete partMods[partIndex][propName];
-		else delete props[propName];
+		else delete mods[propName];
 	}
 
 	function removePropMod(propName, partIndex=-1) {
-		delete props[propName].mod;
+		delete mod[propName].mod;
 	}
 
-	function updateProp(propString, value, partIndex=-1, valueType="value") {
-		let prop = partIndex < 0 ? props : partMods[partIndex];
+	function updateMod(propString, value, partIndex=-1, valueType="value") {
+		let modsRef = partIndex < 0 ? mods : partMods[partIndex];
 		if (propString.includes('-')) {
-			// prop = props;
+			let mod = modsRef;
 			const children = propString.split('-');
 			for (let i = 0; i < children.length; i++) {
-				prop = prop[children[i]];
+				mod = mod[children[i]];
 			}
-			prop[valueType] = value;
+			mod[valueType] = value;
 		} else {
-			prop[propString][valueType] = value;
+			modsRef[propString][valueType] = value;
 		}
 	}
 
 	function get() {
-		return { mods: props, partMods };
+		return { mods, partMods };
 	}
 
 	function getMods() {
-		return props;
+		return mods;
 	}
 
 	function getPartMods() {
@@ -197,11 +198,11 @@ export function Modulators(app, defaults) {
 	function load(data) {
 		if (!data.mods && !data.partMods) return;
 		
-		propsRow.clear();
-		props = {};
-		for (const prop in data.mods) {
-			props[prop] = structuredClone(data.mods[prop]);
-			addPropUI(prop);
+		modsRow.clear();
+		mods = {};
+		for (const mod in data.mods) {
+			mods[mod] = structuredClone(data.mods[mod]);
+			addModUI(mod);
 		}
 		if (!data.partMods) return;
 		
@@ -213,9 +214,9 @@ export function Modulators(app, defaults) {
 				partMods[i] = {};
 				// addPartModTree(i);
 				addPartModUI(i);
-				for (const prop in mods) {
-					partMods[i][prop] = structuredClone(mods[prop]);
-					addPropUI(prop, i);
+				for (const mod in mods) {
+					partMods[i][mod] = structuredClone(mods[mod]);
+					addModUI(mod, i);
 				}
 			}
 		}
@@ -236,13 +237,12 @@ export function Modulators(app, defaults) {
 
 		app.ui.addCallbacks([
 			{ 
-				key: 'm', 
 				text: '+', 
 				callback: () => {
 					if (app.ui.faces.propSelect.value.length === 0) {
 						app.ui.faces.propSelect.focus();
 					} else {
-						addNewProp(app.ui.faces.propSelect.value);
+						addNewMod(app.ui.faces.propSelect.value);
 						app.ui.faces.propSelect.value = '';
 					}
 				},
@@ -262,7 +262,7 @@ export function Modulators(app, defaults) {
 					if (app.ui.faces.propSelect.value.length === 0) {
 						app.ui.faces.propSelect.focus();
 					} else {
-						addNewProp(app.ui.faces.propSelect.value, partModIndex);
+						addNewMod(app.ui.faces.propSelect.value, partModIndex);
 						app.ui.faces.propSelect.value = '';
 					}
 				},
@@ -276,7 +276,7 @@ export function Modulators(app, defaults) {
 				key: 'shift-p', 
 				text: 'Print Mods',
 				callback: () => { 
-					console.log('mods', props); 
+					console.log('mods', mods); 
 					partMods.forEach((m, i) => {
 						console.log('part mod', i, m);
 					});
@@ -286,7 +286,7 @@ export function Modulators(app, defaults) {
 				text: 'Clear Mods',
 				callback: () => {
 					props = {};
-					propsRow.clear();
+					modsRow.clear();
 				}
 			},
 			{
@@ -295,20 +295,17 @@ export function Modulators(app, defaults) {
 					const fxList = ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',];
 					fxList.forEach(f => {
 						if (!props.hasOwnProperty(f)) return;
-						updateProp(f + '-chance', 0);
+						updateMod(f + '-chance', 0);
 					});
 				}
 			}
 		]);
 
-		propsRow = panel.add(new UIRow({ class: "break" }));
-
-		
-
+		modsRow = panel.add(new UIRow({ class: "break" }));
 		partModRow = panel.add(new UIRow({ class: "break" }));
 	}
 
-	return { connect, get, load, getMods, getPartMods, removeProp, updateProp, getPropParams, getPropDefaults, getPropRef, getPropType, clearModEdit, removePropMod };
+	return { connect, get, load, getMods, getPartMods, updateMod, getModParams, getPropDefaults, getModRef, getPropType, clearModEdit, removePropMod };
 
 }
 
