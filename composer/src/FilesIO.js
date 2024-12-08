@@ -9,12 +9,11 @@ const { UIModal, UIButton } = Elements;
 
 export function FilesIO(app) {
 
-	let versionSelect, versions = [];
+	let versions = [];
 	let savedOn = getDate();
 
 	function clearVersions() {
 		versions = [];
-		versionSelect.clearOptions();
 	}
 
 	function load(data) {
@@ -28,12 +27,7 @@ export function FilesIO(app) {
 			clearVersions();
 			for (let i = 0; i < data.versions.length; i++) {
 				versions[i] = data.versions[i];
-				const tag = data.versions[i].tag;
-				versionSelect.addOption(i, `v${ i }${ tag !== undefined ? `: ${tag}` : ''}`);
 			}
-			// add "current"
-			versionSelect.addOption('current');
-			versionSelect.value = 'current';
 		}
 
 		if (data.savedOn) savedOn = data.savedOn;
@@ -184,35 +178,39 @@ export function FilesIO(app) {
 			copy[k] = data[k];
 		}
 		versions.push(copy);
-		const index = versions.length - 1;
-		versionSelect.addOption(index, `v${ index }${ tag !== undefined ? `: ${tag}` : ''}`);
-		// versionSelect.value = index;
 		saveLocal(false);
 	}
 
-	function setVersion(value) {
+	function loadVersion(value) {
 		if (value === 'current') return;
 		const saveCurrent = confirm('Save current to new version?');
 		if (saveCurrent) addVersion();
-		const data = saveLocal(false); // need to change this at all??
-		const version = data.versions[value];
-		load(version);
+	
+		const m = new UIModal({
+			app: app,
+			title: 'Versions',
+			position: { x: 200, y: 120 },
+		});
+
+		for (let i = 0; i < versions.length; i++) {
+			const v = versions[i];
+			m.add(new UIButton({
+				text: v.tag,
+				callback: () => {
+					load(v);
+					m.clear();
+				}
+			}));
+		}
 	}
 
 	function connect() {
 
 		const panel = app.ui.getPanel('fio', { label: 'Files IO' });
 
-		versionSelect = app.ui.addUI({
-			type: "UISelect",
-			label: "Version",
-			options: ["current"],
-			callback: setVersion,
-		});
-
-		app.ui.addCallback({ callback: addVersion, key: 'v', text: 'Add Version' });
-
 		app.ui.addCallbacks([
+			{ callback: addVersion, key: 'v', text: 'Add Version' },
+			{ callback: loadVersion, key: 'v', text: 'Load Version' },
 			{ callback: saveLocal, key: 's', text: 'Save Local' },
 			{ callback: saveFile, key: 'alt-s', text: 'Save File' },
 			{ callback: loadLocal, key: 'l', text: 'Load Local' },
