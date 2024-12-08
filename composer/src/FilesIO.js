@@ -114,6 +114,7 @@ export function FilesIO(app) {
 
 		const localSaves = Object.keys(localStorage)
 			.filter(k => k.includes('greg') && !k.includes('title'));
+
 		localSaves.forEach(title => {
 			m.add(new UIButton({
 				text: title.replace('greg-', ''),
@@ -122,6 +123,18 @@ export function FilesIO(app) {
 					m.clear();
 				}
 			}));
+			m.add(new UIButton({
+				text: "X",
+				callback: () => {
+					const confirmDelete = confirm(`Delete local save ${title}?`);
+					if (confirmDelete) {
+						console.log('remove', title);
+						localStorage.removeItem(title);
+						m.clear();
+					}
+				}
+			}));
+			m.addBreak();
 		});
 	}
 
