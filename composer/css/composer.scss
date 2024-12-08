@@ -1,5 +1,12 @@
+@use "../../../ui/css/_global.scss" as *;
+@use "../../../ui/css/_colors.scss" as *;
+@use "../../../ui/css/_layout.scss" as *;
+@use "../../../ui/css/_mixins.scss" as *;
+@use "../../../ui/css/_mobile.scss" as *;
+@use "../../../ui/css/_panel.scss" as *;
+@use "../../../ui/css/_components.scss" as *;
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Music&display=swap');
-@import '../ui/css/style.scss';
 
 .notation {
 	font-family: 'Noto Music';
