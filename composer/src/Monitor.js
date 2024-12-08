@@ -64,7 +64,7 @@ export function Monitor(app) {
 		for (const prop in props) {
 			const ui = app.ui.addProp(`monitor-${prop}`, {
 				type: 'UIToggleCheck',
-				label: `${prop}:`,
+				label: `${prop}`,
 				class: 'monitor-prop',
 				isOn: true,
 				callback: value => { props[prop] = value; },

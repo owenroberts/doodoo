@@ -37,11 +37,10 @@
 	// grid-template-rows: repeat(var(--num-rows), calc(var(--row-height) * 1px));
 	// grid-template-rows: repeat(var(--num-rows), auto);
 
-
 	.note-collection {
 
 		// border: 1px dotted $text-color;
-		background: $border-color;
+		background: $bg-color;
 
 		// padding: 2px;
 		// margin: 2px;
@@ -86,7 +85,7 @@
 		.double-btn {
 			grid-column: 2 / span 1;
 			grid-row: 1 / span 1;
-			background: $bg-color;
+			background: darkgray;
 			// color: white;
 			// margin: 0.25em;
 			right:  0;
@@ -145,13 +144,17 @@ header {
 
 #monitor-panel {
 
+	.row {
+		margin-bottom: 0;
+	}
+
 	#mRow {
 		flex-wrap: wrap;
 	}
 
 	.monitor-prop.ui-collection {
-		margin-right: 0.5em;
-		border-right: 1px dotted;
+		// margin-right: 0.5em;
+		// border-right: 1px dotted;
 		padding-right: 0.5em;
 	}
 
