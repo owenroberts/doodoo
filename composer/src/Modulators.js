@@ -139,6 +139,8 @@ export function Modulators(app) {
 					openModPart = partIndex;
 					propRow.addClass('prop-edit');
 					app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
+
+					app.ui.panels.modEditor.dock();
 				}
 			}
 		}));

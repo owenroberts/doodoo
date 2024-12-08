@@ -174,7 +174,7 @@ export function FilesIO(app) {
 
 	function addVersion() {
 		const data = saveLocal();
-		const tag = prompt("Tag version?");
+		const tag = prompt("Tag current version?");
 		const copy = {};
 		if (tag !== undefined) copy.tag = tag;
 		copy.versionedOn = getDate();
@@ -186,7 +186,7 @@ export function FilesIO(app) {
 		versions.push(copy);
 		const index = versions.length - 1;
 		versionSelect.addOption(index, `v${ index }${ tag !== undefined ? `: ${tag}` : ''}`);
-		versionSelect.value = index;
+		// versionSelect.value = index;
 		saveLocal(false);
 	}
 
