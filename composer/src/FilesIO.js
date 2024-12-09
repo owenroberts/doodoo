@@ -17,6 +17,7 @@ export function FilesIO(app) {
 	}
 
 	function load(data) {
+
 		app.composition.load(data);
 		app.melody.load(data);
 		app.modulators.load(data);
@@ -94,6 +95,7 @@ export function FilesIO(app) {
 		if (!title) prompt('Search title');
 		if (!title) return alert('No title.');
 
+
 		const localData = localStorage.getItem('greg-' + title);
 		if (!localData) {
 			const localSaves = Object.keys(localStorage).filter(k => k.includes('greg'));
@@ -128,7 +130,6 @@ export function FilesIO(app) {
 				callback: () => {
 					const confirmDelete = confirm(`Delete local save ${title}?`);
 					if (confirmDelete) {
-						console.log('remove', title);
 						localStorage.removeItem(title);
 						m.clear();
 					}

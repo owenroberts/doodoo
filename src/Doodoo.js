@@ -46,7 +46,7 @@ export function Doodoo(params, callback) {
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
 	let noMods = params.noMods ?? false;
-	
+
 	let useDefaultProps = params.useDefaultProps ?? true;
 	const props = params.mods ? structuredClone(params.mods) : {};
 	for (const prop in PropertyDefaults) {
@@ -468,9 +468,8 @@ export function Doodoo(params, callback) {
 	}
 
 	function saveRecording() {
-
 		function checkMeter() {
-			if (meter.getValue() < -256) {
+			if (meter.getValue()[0] < -256) {
 				clearInterval(saveInterval);
 				saveFile();
 			}

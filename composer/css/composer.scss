@@ -47,8 +47,8 @@
 	.note-collection {
 
 		// border: 1px dotted $text-color;
-		background: $bg-color;
-
+		background: #cbcbff;
+		
 		// padding: 2px;
 		// margin: 2px;
 		position: relative;
@@ -147,6 +147,10 @@ header {
 	display: grid;
 	grid-template-columns: repeat(var(--cols), 1fr);
 	grid-template-rows: repeat(var(--rows), 20px);
+
+	.toggle-check {
+		height: unset;
+	}
 }
 
 #monitor-panel {
