@@ -67,7 +67,7 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 			if (useOctave) midiHarmony += Math.floor((scaleIndex + interval - 1) / scale.length) * 12;
 
 			if (scaleIndex === -1) {
-				console.log('not in scale');
+				console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octave, diff,midiHarmony);
 				// test -- what do do here? find closest in scale or just interval
 				midiHarmony = 0;
 			}
@@ -82,8 +82,15 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 
 function getTranspose(pitch, value) {
 	return constrainNoteRange(MIDI_NOTES[MIDI_NOTES.indexOf(pitch) + value]);
-} 
+}
+
+// get difference between two pitches
+function getMidiDelta(a, b) {
+	if (a === undefined) return 0;
+	if (b === undefined) return 0;
+	return MIDI_NOTES.indexOf(a) - MIDI_NOTES.indexOf(b);
+}
 
 // window.DoodooMidi = { MIDI_NOTES };
 
-export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose };
+export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose, getMidiDelta };

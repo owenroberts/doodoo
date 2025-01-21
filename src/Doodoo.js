@@ -243,17 +243,12 @@ export function Doodoo(params, callback) {
 					// still weird w fmSynth idky
 					beat = parseInt(beat) * 2 + 'n';
 					let t = Tone.Time(beat).toSeconds();
-					if (pitch === null) console.log('pitch', loop);
-					if (beat === null) console.log('beat', loop);
-					if (time === null) console.log('time', loop);
-					if (t === null) console.log('t', loop);
-					if (time + t === null) console.log('time + t', loop);
-					if (velocity === null) console.log('velocity', loop);
 					try {
 						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 						loop.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
-						console.log('that null error!');
+						console.log('that null error!'); // but its not a null value, its prob Infinity value for t
+						console.log('loop', loop);
 						console.log('pitch', pitch);
 						console.log('beat', beat);
 						console.log('time', time);
@@ -507,6 +502,12 @@ export function Doodoo(params, callback) {
 		Tone.Transport.bpm.value = bpm; // starts 128
 	}
 
+	function moveScale(index, step) {
+		if (index < scale.length) {
+			scale[index] += step;
+		}
+	}
+
 	function modulate() {
 		totalPlays++;
 		parts.forEach(part => { part.update(); });
@@ -547,12 +548,19 @@ export function Doodoo(params, callback) {
 	}
 
 	return {
-		play, stop, isRecording, modulate, setBPM, moveBPM, setTonic, moveTonic,
+		play, stop, isRecording, modulate, 
+		setBPM, moveBPM, setTonic, moveTonic, moveScale,
 		getLoops: () => { return loops; },
 		isPlaying: () => { return isPlaying; },
 		getStatusIsPlaying: () => { return isPlaying; }, // old
 		printLoops: () => { console.log('loops', loops); }, // debug
-		printParams: () => { console.log(parts.map(p => p.getParams())); }, // debug
+		printParams: () => { console.log('params', 	parts.map(p => p.getParams())); }, // debug
+		printComp: () => {
+			console.log('tonic', tonic);
+			console.log('transpose', transpose);
+			console.log('scale', scale);
+			console.log('default beat', defaultBeat);
+		}
 	}
 }
 

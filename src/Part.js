@@ -60,7 +60,10 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			let [pitch, beat] = note; // note, duration
 			
 			// apply mod -- defaults to 4, quarter for now
-			let newBeat = (beatMod / 4) * parseInt(beat);
+			// math.max(1), prevents 0.5n, but maybe that's cool? idk
+			// solves the weird null issue in theory
+			// maybe make it a param?
+			let newBeat = Math.max(1, (beatMod / 4) * parseInt(beat));
 			let beatsInDefault = parseInt(defaultBeat) / newBeat;
 			
 			let firstPitch = chance(mods.rest.get()) ? 'rest' : pitch;
@@ -70,6 +73,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			for (let i = 1; i < beatsInDefault; i++) {
 				newPart.push([null, defaultBeat]);
 			}
+			
 			return newPart;
 		});
 		return beats;
