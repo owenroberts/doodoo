@@ -1,3 +1,5 @@
+import { choice } from '../../cool/cool.js';
+
 const debug = false;
 const MIDI_NOTES = [
 	"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
@@ -61,7 +63,6 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 				scale.indexOf(diff % 12); // above tonic
 
-
 			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length]; // harmony in scale
 			
 			if (useOctave) midiHarmony += Math.floor((scaleIndex + interval - 1) / scale.length) * 12;
@@ -91,6 +92,82 @@ function getMidiDelta(a, b) {
 	return MIDI_NOTES.indexOf(a) - MIDI_NOTES.indexOf(b);
 }
 
+function getScaleDegree(pitch, tonic, scale) {
+	const midiTonic = MIDI_NOTES.indexOf(transpose);
+	const midiPitch = MIDI_NOTES.indexOf(pitch);
+	const octave = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12;
+	const diff = midiPitch - midiTonic; // difference between note and tonic
+	const scaleIndex = diff < 0 ?
+		scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
+		scale.indexOf(diff % 12); // above tonic
+	return scaleIndex;
+}
+
+function getCounterpoint(melody, transpose, scale) {
+	const counterpoint = [];
+	let prevInterval;
+	let prevScaleIndex;
+
+	for (let i = 0; i < melody.length; i++) {
+		const  [pitch, beat] = melody[i];
+		// console.log(pitch, beat);
+		if (pitch === null || pitch === 'rest') {
+			counterpoint[i] = [pitch, beat];
+			continue;
+		}
+		
+		// calc counter point interval relative to scale (already transposed)
+		// apply rules
+		// return new note (pitch, beat)
+
+		// not DRY w getHarmony
+		const midiTonic = MIDI_NOTES.indexOf(transpose);
+		const midiPitch = MIDI_NOTES.indexOf(pitch);
+		const octave = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12;
+		const diff = midiPitch - midiTonic; // difference between note and tonic
+		const scaleIndex = diff < 0 ?
+			scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
+			scale.indexOf(diff % 12); // above tonic
+		
+		let interval; 
+		// interval expressed as midi steps II = 2, III = 4, IV = 5, V = 7 etc
+		// scale degree expressed as index I = 0, II = 1, III = 2,
+		// consts?
+		if (i === 0) {
+			// start with perfect consonance (4 or 5 for whatever the note is, in the scale)
+			interval = choice([5, 7]);
+		} else {
+			// get movement of original melody
+			const melMove = scaleIndex - prevScaleIndex;
+
+			if (melMove === Math.abs(2)) {
+				// parallel at III
+				interval = 4 * Math.sign(melMove);
+			} else if (melMove === Math.abs(5)) {
+				// parallel at VI
+				interval = 9 + Math.sign(melMove);
+			} else if (melMove === 0) {
+				// same note, add perf and imperf cons
+				interval = choice([4, 5, 7, 9]) * choice([-1, 1]);
+			} else {
+				// making this up for now ... 
+				interval = choice([4, 5, 7, 9]) * Math.sign(melMove) * -1;
+			}
+		}
+
+		prevScaleIndex = scaleIndex;
+		prevInterval = interval;
+		console.log('interval', interval);
+
+		let counterPointPitch = scale[(scaleIndex + interval - 1) % scale.length]; // pitch in scale
+		counterPointPitch += Math.floor((scaleIndex + interval - 1) / scale.length) * 12; // add octave
+		let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff);
+		let returnMidi = MIDI_NOTES.indexOf(transpose) + counterPointPitch + offset + octave;
+		counterpoint[i] = [(MIDI_NOTES[constrainNoteRange(returnMidi)]), beat];
+	}
+	return counterpoint;
+}
+
 // window.DoodooMidi = { MIDI_NOTES };
 
-export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose, getMidiDelta };
+export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose, getMidiDelta, getCounterpoint };

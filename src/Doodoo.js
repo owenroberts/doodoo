@@ -9,7 +9,7 @@
 import * as Tone from 'tone';
 import { PropertyDefaults } from './PropertyDefaults.js';
 import { SamplePaths } from './SamplePaths.js';
-import { MIDI_NOTES, getMelody, getHarmony, getTranspose } from './Midi.js';
+import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './Midi.js';
 import { Effects } from './Effects.js';
 import { Part } from './Part.js';
 import { random } from '../../cool/cool.js';
@@ -325,13 +325,23 @@ export function Doodoo(params, callback) {
 				const loopParams = partLoops[j];
 				const harmony = loopParams.harmony;
 				const transposePitch = getTranspose(transpose, loopParams.transpose);
-				const melody = harmony === 0 ?
-					getMelody(loopParams.melody, tonic, transposePitch, scale) :
-					getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);
+
+				let melody;
+				if (loopParams.counterpoint) {
+					const mel = getMelody(loopParams.melody, tonic, transposePitch, scale);
+					melody = getCounterpoint(mel, transposePitch, scale);
+				} else if (harmony === 0) {
+					melody = getMelody(loopParams.melody, tonic, transposePitch, scale);
+				} else {
+					melody = getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);
+				}
+				// console.log('harmony', harmony);
 				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
 				loops.push({ ...loopParams, melody, instrument, });
 			}
 		}
+
+		console.log('loops',  loops);
 	
 		totalBeats = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 

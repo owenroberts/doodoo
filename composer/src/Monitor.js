@@ -9,9 +9,10 @@ export function Monitor(app) {
 
 	const props = {
 		melody: true,
+		harmony: true,
+		counterpoint: true,
 		count: true,
 		countEnd: true,
-		harmony: true,
 		instrument: true,
 		attack: true,
 		curve: true,

@@ -80,6 +80,10 @@ export const PropertyDefaults = {
 			},
 		},
 	},
+	counterpoint: {
+		type: "chance",
+		value: 0
+	},
 	beatList: {
 		list: [4, 2, 1, 8, 16],
 		index: 0,

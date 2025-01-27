@@ -150,6 +150,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 				countEnd: melody.length - 1,
 				harmony: chance(harmony.chance) ?
 					harmony.interval : 0,
+				counterpoint: chance(mods.counterpoint.get()),
 				instrument: mods.instruments.get(i),
 				attack: mods.attack.get(),
 				curve: mods.curve.get(),
