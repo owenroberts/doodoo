@@ -341,7 +341,7 @@ export function Doodoo(params, callback) {
 			}
 		}
 
-		console.log('loops',  loops);
+		// console.log('loops',  loops);
 	
 		totalBeats = Math.max(0, Math.max(...loops.map(l => l.melody.length)));
 
