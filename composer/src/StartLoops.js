@@ -18,6 +18,7 @@ export function StartLoops(app) {
 		attack: 0,
 		release: 1,
 		playBeat: 4, // play beat def means it plays the beat, beat notation means replace
+		counterpoint: false,
 	};
 
 	function addCount(index) {
