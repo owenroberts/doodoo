@@ -215,43 +215,45 @@ function getCounterpoint(melody, tonic, scale) {
 		} else {
 			let options = [-2, -3, -4, -5, -6, -7, -8, 1, 2, 3, 4, 5, 6, 7, 8]; // scale degrees
 
-			// maybe rewrite, use filters to remove options for each rule, then check for optoins left 
+			// maybe rewrite, use filters to remove options for each rule, then check for optoins left
+			const prevCounterScaleDegree = getScaleDegree(prevCounterpointPitch, tonic, scale);
+			
+			const melScaleDegree = getScaleDegree(pitch, tonic, scale);
+			const prevMelScaleDegree = getScaleDegree(prevMelodyPitch, tonic, scale);
+			const melMotion = melScaleDegree - prevMelScaleDegree;
 
 			for (let i = options.length - 1; i >= 0; i--) {
-				let potentialInterval = options[i];
-				let potentialPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, potentialInterval);
-				// console.log({ prevCounterpointPitch, potentialInterval, potentialPitch });
+				if (options.length < 2) continue; // stop removing if only one option left
 
-				let potentialScaleDegree = getScaleDegree(potentialPitch, tonic, scale);
-				let prevCounterScaleDegree = getScaleDegree(prevCounterpointPitch, tonic, scale);
-				let melScaleDegree = getScaleDegree(pitch, tonic, scale);
-				let prevMelScaleDegree = getScaleDegree(prevMelodyPitch, tonic, scale);
-
-				let melMotion = melScaleDegree - prevMelScaleDegree;
-				let counterMotion = potentialScaleDegree - prevCounterScaleDegree;
+				const potentialInterval = options[i];
+				const potentialPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, potentialInterval);
+				const potentialScaleDegree = getScaleDegree(potentialPitch, tonic, scale);
+				const counterMotion = potentialScaleDegree - prevCounterScaleDegree;
+				const melInterval = Math.abs(potentialScaleDegree - melScaleDegree) - 1;
 
 				// don't go below melody (or same)
 				if (MIDI_NOTES.indexOf(potentialPitch) <= MIDI_NOTES.indexOf(pitch)) {
-					console.log('below mel', potentialInterval, potentialPitch, pitch);
+					// console.log('below mel', potentialInterval, potentialPitch, pitch);
 					options.splice(i, 1);
 					continue;
 				}
 
 				// prob don't go above 10 either right? but that's the original 10
 				if (MIDI_NOTES.indexOf(potentialPitch) > MIDI_NOTES.indexOf(highestPitch)) {
-					console.log('above 10', potentialInterval, potentialPitch, highestPitch);
+					// console.log('above 10', potentialInterval, potentialPitch, highestPitch);
 					options.splice(i, 1);
 					continue;
 				}
 
-				// no dissonant interval between counter point and melody
-				let melInterval = Math.abs(potentialScaleDegree - melScaleDegree) - 1;
-				if ([2, 4, 7].includes(melInterval)) {
-					// think this is coming out wrong more debug
-					console.log('dissonant interval', potentialInterval, melInterval, potentialPitch, pitch);
+				// avoid the most: direct parallel
+				// same motion, same interval
+				if (melMotion === counterMotion) {
 					options.splice(i, 1);
 					continue;
 				}
+
+				// no direction motion to perfect consonance 
+				// 
 
 				// no prev note 3x
 				if (potentialPitch === prevCounterpointPitch && prevLeap === 0) {
@@ -259,45 +261,55 @@ function getCounterpoint(melody, tonic, scale) {
 					continue;
 				}
 
-				// leaps recovered by stepwise motion
-				let potentialLeap = MIDI_NOTES.indexOf(potentialPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
-				if (Math.abs(prevLeap) > 2 && Math.abs(potentialLeap) > 2) {
-					console.log('stepwise', potentialInterval, prevLeap, potentialLeap);
-					options.splice(i, 1);
+				// no dissonant interval between counter point and melody
+				// but has to be "unlocked" so i feel like its ok
+				
+				if ([2, 4, 7].includes(melInterval)) {
+					// console.log('dissonant interval', potentialInterval, melInterval, potentialPitch, pitch);
+					if (coinFlip()) options.splice(i, 1);
 					continue;
 				}
 
+				// leaps recovered by stepwise motion
+				// is this more important that contrary motion?
+				let potentialLeap = MIDI_NOTES.indexOf(potentialPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
+				if (Math.abs(prevLeap) > 2 && Math.abs(potentialLeap) > 2) {
+					// console.log('stepwise', potentialInterval, prevLeap, potentialLeap);
+					if (coinFlip()) options.splice(i, 1);
+					continue;
+				}
+
+				// direct similar: same direction different interval
+				// same as contrary motion -- >
 				// contrary motion best ... how to do this?
 				// get melody motion, favor opposite intervals
 				if (Math.sign(melMotion) === Math.sign(counterMotion)) {
-					if (coinFlip()) {
-						console.log('contrary motion', melMotion, counterMotion);
+					if ([5, 8].includes(melInterval) || coinFlip()) {
+						// console.log('contrary motion', melMotion, counterMotion);
 						options.splice(i, 1);
 						continue;
 					}
 				}
-			}
 
-			// avoid 7
-			if (options.length > 1 && options.includes(7)) {
-				console.log('avoid 7');
-				options.splice(options.indexOf(7), 1);
-			}
+				// avoid dissonant leaps (7, dim, aug)
+				if (potentialInterval === Math.abs(7)) {
+					// console.log('avoid 7');
+					options.splice(i, 1);
+					continue;
+				}
 
-			// avoid same note
-			if (options.length > 1 && options.includes(1)) {
-				options.splice(options.indexOf(1), 1);
+				// avoid same note
+				if (potentialInterval === 1) {
+					options.splice(i, 1);
+					continue;
+				}
 			}
 
 			interval = choice(options);
 			counterpointPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, interval);
 			prevLeap = MIDI_NOTES.indexOf(counterpointPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
-			console.log({ options: options.join(','), interval, prev: prevCounterpointPitch, counter: counterpointPitch });
+			// console.log({ options: options.join(','), interval, prev: prevCounterpointPitch, counter: counterpointPitch });
 		}
-		
-		// const counterpointPitch = getPitchFromInterval(prevCounterpointPitch, tonic, scale, interval);
-		// console.log({ prevCounterpointPitch, interval, counterpointPitch });
-		// console.log({ pitch, counterpointPitch, interval });
 		
 		counterpoint[i] = [counterpointPitch, beat];
 		
@@ -306,7 +318,5 @@ function getCounterpoint(melody, tonic, scale) {
 	}
 	return counterpoint;
 }
-
-// window.DoodooMidi = { MIDI_NOTES };
 
 export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose, getMidiDelta, getCounterpoint };
