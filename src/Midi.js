@@ -194,6 +194,7 @@ function getCounterpoint(melody, tonic, scale) {
 	let prevMelodyPitch;
 	let prevLeap;
 	let highestPitch;
+	let pitchIndex = 0;
 
 	for (let i = 0; i < melody.length; i++) {
 		const [pitch, beat] = melody[i];
@@ -206,7 +207,7 @@ function getCounterpoint(melody, tonic, scale) {
 		let interval = 1;
 		let counterpointPitch;
 
-		if (i === 0) {
+		if (pitchIndex === 0) {
 			interval = choice([5, 8, 10]); // V, octave, III
 			counterpointPitch = newPitchFromInteval(pitch, tonic, scale, interval);
 			// console.log({ counterpointPitch, pitch, tonic, scale, interval });
@@ -221,6 +222,9 @@ function getCounterpoint(melody, tonic, scale) {
 			const melScaleDegree = getScaleDegree(pitch, tonic, scale);
 			const prevMelScaleDegree = getScaleDegree(prevMelodyPitch, tonic, scale);
 			const melMotion = melScaleDegree - prevMelScaleDegree;
+
+			console.log({ prevCounterpointPitch, prevMelodyPitch, prevLeap, highestPitch });
+			console.log({ prevCounterScaleDegree, melScaleDegree, prevMelScaleDegree, melMotion });
 
 			for (let i = options.length - 1; i >= 0; i--) {
 				if (options.length < 2) continue; // stop removing if only one option left
@@ -309,13 +313,16 @@ function getCounterpoint(melody, tonic, scale) {
 			counterpointPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, interval);
 			prevLeap = MIDI_NOTES.indexOf(counterpointPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
 			// console.log({ options: options.join(','), interval, prev: prevCounterpointPitch, counter: counterpointPitch });
+
 		}
 		
 		counterpoint[i] = [counterpointPitch, beat];
 		
 		prevMelodyPitch = pitch;
 		prevCounterpointPitch = counterpointPitch;
+		pitchIndex++;
 	}
+	console.log('counterpoint', counterpoint);
 	return counterpoint;
 }
 

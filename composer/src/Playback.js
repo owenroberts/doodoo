@@ -31,7 +31,7 @@ export function Playback(app) {
 			onModulate: count => {
 				modCountUI.text = 'Modulation: ' + count;
 				app.score.update(doodoo.getLoops());
-				if (count < withCount) { // prevent logging next play after stop
+				if (count < withCount || withCount === undefined) { // prevent logging next play after stop
 					app.monitor.update(doodoo.getLoops());
 				}
 			},
