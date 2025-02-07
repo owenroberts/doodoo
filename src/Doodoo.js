@@ -275,9 +275,6 @@ export function Doodoo(params, callback) {
 		disposePrevious();
 		loops = [];
 
-		// let currentParts = parts.filter((p, i) => sequence[i][sequenceIndex]);
-
-
 		let currentParts = [];
 		let longestMelody = 0;
 		for (let i = 0; i < parts.length; i++) {
@@ -327,7 +324,7 @@ export function Doodoo(params, callback) {
 				const transposePitch = getTranspose(transpose, loopParams.transpose);
 
 				let melody;
-				if (loopParams.counterpoint) {
+				if (loopParams.counterpoint && partLoops.length > 1) {
 					const mel = getMelody(loopParams.melody, tonic, transposePitch, scale);
 					melody = getCounterpoint(mel, transposePitch, scale);
 				} else if (harmony === 0) {

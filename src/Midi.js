@@ -100,10 +100,13 @@ function getMidiDelta(a, b) {
 }
 
 // useful? (DRY w getHarmony?)
-function getScaleDegree(pitch, tonic, scale) {
+function getScaleIndex(pitch, tonic, scale) {
 	const midiTonic = MIDI_NOTES.indexOf(tonic);
 	const midiPitch = MIDI_NOTES.indexOf(pitch);
 	const diff = midiPitch - midiTonic; // difference between note and tonic
+	if (Math.abs(diff) % 12 === 0) {
+		return 0;
+	}
 	const scaleIndex = diff < 0 ?
 		scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 		scale.indexOf(diff % 12); // above tonic
@@ -119,16 +122,14 @@ function getOctave(pitch, tonic) {
 	return octaveDiff + octaveOffset;
 }
 
-// console.log(newPitchFromInteval('G4', 'C4', [0, 2, 4, 5, 7, 9, 11], -3));
-// console.log(newPitchFromInteval('G4', 'C4', [0, 2, 4, 5, 7, 9, 11], 4));
-
-function newPitchFromInteval(pitch, tonic, scale, interval) {
+function getPitchFromInterval(pitch, tonic, scale, interval, debug) {
 	if (interval === 0) return pitch;
 	if (interval === 1) return pitch;
 	if (interval === -1) return pitch;
 	
 	let midiNote = MIDI_NOTES.indexOf(pitch);
-	let scaleIndex = getScaleDegree(pitch, tonic, scale);
+	let scaleIndex = getScaleIndex(pitch, tonic, scale);
+	if (debug) console.log(scaleIndex);
 	// get the scale degree and go one over (don't want to add current scale degree)
 	if (interval > 0) {
 		scaleIndex += 1;
@@ -165,27 +166,8 @@ function newPitchFromInteval(pitch, tonic, scale, interval) {
 			}
 		}
 	}
+
 	return MIDI_NOTES[constrainNoteRange(midiNote)];
-}
-
-function getPitchFromInterval(pitch, tonic, scale, interval) {
-	const pitchIndex = getScaleDegree(pitch, tonic, scale);
-	const intervalIndex = pitchIndex + interval - 1;
-
-	// wrap around scale up or down
-	const modIndex = (intervalIndex % scale.length + scale.length) % scale.length;
-
-	// get starting pitch, accounting for interval above octave
-	// console.log(pitchIndex, modIndex, Math.floor(intervalIndex / scale.length) * 12);
-	const intervalPitch = scale[modIndex] + Math.floor(intervalIndex / scale.length) * 12;
-	// console.log(intervalPitch);
-
-	// get starting pitch octave
-	const octave = getOctave(pitch, tonic);
-	// console.log(MIDI_NOTES.indexOf(tonic), intervalPitch, octave);
-	const midiNote = MIDI_NOTES.indexOf(tonic) + intervalPitch + octave;
-	const returnPitch = MIDI_NOTES[constrainNoteRange(midiNote)];
-	return returnPitch;
 }
 
 function getCounterpoint(melody, tonic, scale) {
@@ -209,26 +191,26 @@ function getCounterpoint(melody, tonic, scale) {
 
 		if (pitchIndex === 0) {
 			interval = choice([5, 8, 10]); // V, octave, III
-			counterpointPitch = newPitchFromInteval(pitch, tonic, scale, interval);
+			counterpointPitch = getPitchFromInterval(pitch, tonic, scale, interval);
 			// console.log({ counterpointPitch, pitch, tonic, scale, interval });
-			highestPitch = newPitchFromInteval(pitch, tonic, scale, 10);
+			highestPitch = getPitchFromInterval(pitch, tonic, scale, 10);
 			prevLeap = 0;
 		} else {
 			let options = [-2, -3, -4, -5, -6, -7, -8, 1, 2, 3, 4, 5, 6, 7, 8]; // scale degrees
 
 			// maybe rewrite, use filters to remove options for each rule, then check for optoins left
-			const prevCounterScaleDegree = getScaleDegree(prevCounterpointPitch, tonic, scale);
+			const prevCounterScaleDegree = getScaleIndex(prevCounterpointPitch, tonic, scale);
 			
-			const melScaleDegree = getScaleDegree(pitch, tonic, scale);
-			const prevMelScaleDegree = getScaleDegree(prevMelodyPitch, tonic, scale);
+			const melScaleDegree = getScaleIndex(pitch, tonic, scale);
+			const prevMelScaleDegree = getScaleIndex(prevMelodyPitch, tonic, scale);
 			const melMotion = melScaleDegree - prevMelScaleDegree;
 
 			for (let i = options.length - 1; i >= 0; i--) {
 				if (options.length < 2) continue; // stop removing if only one option left
 
 				const potentialInterval = options[i];
-				const potentialPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, potentialInterval);
-				const potentialScaleDegree = getScaleDegree(potentialPitch, tonic, scale);
+				const potentialPitch = getPitchFromInterval(prevCounterpointPitch, tonic, scale, potentialInterval);
+				const potentialScaleDegree = getScaleIndex(potentialPitch, tonic, scale);
 				const counterMotion = potentialScaleDegree - prevCounterScaleDegree;
 				const melInterval = Math.abs(potentialScaleDegree - melScaleDegree) - 1;
 
@@ -307,9 +289,14 @@ function getCounterpoint(melody, tonic, scale) {
 			}
 
 			interval = choice(options);
-			counterpointPitch = newPitchFromInteval(prevCounterpointPitch, tonic, scale, interval);
+			counterpointPitch = getPitchFromInterval(prevCounterpointPitch, tonic, scale, interval, true);
 			prevLeap = MIDI_NOTES.indexOf(counterpointPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
 			// console.log({ options: options.join(','), interval, prev: prevCounterpointPitch, counter: counterpointPitch });
+
+			if (counterpointPitch === undefined || counterpointPitch.includes('0')) {
+				console.log({ options });
+				console.log({ counterpointPitch, prevCounterpointPitch, tonic, scale, interval });
+			}
 
 		}
 		
