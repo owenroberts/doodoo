@@ -223,9 +223,6 @@ function getCounterpoint(melody, tonic, scale) {
 			const prevMelScaleDegree = getScaleDegree(prevMelodyPitch, tonic, scale);
 			const melMotion = melScaleDegree - prevMelScaleDegree;
 
-			console.log({ prevCounterpointPitch, prevMelodyPitch, prevLeap, highestPitch });
-			console.log({ prevCounterScaleDegree, melScaleDegree, prevMelScaleDegree, melMotion });
-
 			for (let i = options.length - 1; i >= 0; i--) {
 				if (options.length < 2) continue; // stop removing if only one option left
 
@@ -322,7 +319,6 @@ function getCounterpoint(melody, tonic, scale) {
 		prevCounterpointPitch = counterpointPitch;
 		pitchIndex++;
 	}
-	console.log('counterpoint', counterpoint);
 	return counterpoint;
 }
 

@@ -258,13 +258,7 @@ export function Doodoo(params, callback) {
 						console.warn(err);
 					}
 				} else {
-					try {
-						loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
-					} catch(err) {
-						console.log(err);
-						console.log(pitch, beat);
-					}
-					
+					loop.instrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 
 			}
