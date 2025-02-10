@@ -324,10 +324,7 @@ export function Doodoo(params, callback) {
 				const transposePitch = getTranspose(transpose, loopParams.transpose);
 
 				let melody;
-				if (loopParams.counterpoint && partLoops.length > 1) {
-					const mel = getMelody(loopParams.melody, tonic, transposePitch, scale);
-					melody = getCounterpoint(mel, transposePitch, scale);
-				} else if (harmony === 0) {
+				 if (harmony === 0) {
 					melody = getMelody(loopParams.melody, tonic, transposePitch, scale);
 				} else {
 					melody = getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);
@@ -335,6 +332,13 @@ export function Doodoo(params, callback) {
 				// console.log('harmony', harmony);
 				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
 				loops.push({ ...loopParams, melody, instrument, });
+
+				if (loopParams.counterpoint) {
+					const mel = getMelody(loopParams.melody, tonic, transposePitch, scale);
+					const counterpoint = getCounterpoint(mel, transposePitch, scale);
+					const counterInstrument = getInstrument(loopParams.instrument, { ...loopParams, volume });
+					loops.push({ ...loopParams, melody: counterpoint, instrument: counterInstrument });
+				}
 			}
 		}
 
@@ -567,6 +571,7 @@ export function Doodoo(params, callback) {
 			console.log('transpose', transpose);
 			console.log('scale', scale);
 			console.log('default beat', defaultBeat);
+			console.log('total plays', totalPlays);
 		}
 	}
 }

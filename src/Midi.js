@@ -74,7 +74,7 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 			}
 
 			if (scaleIndex === -1) {
-				console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octave, diff,midiHarmony);
+				console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octaveDiff, diff, midiHarmony);
 				// test -- what do do here? find closest in scale or just interval
 				midiHarmony = 0;
 			}
@@ -129,7 +129,6 @@ function getPitchFromInterval(pitch, tonic, scale, interval, debug) {
 	
 	let midiNote = MIDI_NOTES.indexOf(pitch);
 	let scaleIndex = getScaleIndex(pitch, tonic, scale);
-	if (debug) console.log(scaleIndex);
 	// get the scale degree and go one over (don't want to add current scale degree)
 	if (interval > 0) {
 		scaleIndex += 1;
@@ -289,7 +288,7 @@ function getCounterpoint(melody, tonic, scale) {
 			}
 
 			interval = choice(options);
-			counterpointPitch = getPitchFromInterval(prevCounterpointPitch, tonic, scale, interval, true);
+			counterpointPitch = getPitchFromInterval(prevCounterpointPitch, tonic, scale, interval);
 			prevLeap = MIDI_NOTES.indexOf(counterpointPitch) - MIDI_NOTES.indexOf(prevCounterpointPitch);
 			// console.log({ options: options.join(','), interval, prev: prevCounterpointPitch, counter: counterpointPitch });
 
