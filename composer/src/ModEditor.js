@@ -9,7 +9,7 @@ import { Interface } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
 const { labelFromKey } = Interface();
-const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton } = Elements;
+const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList } = Elements;
 
 export function ModEditor(app) {
 
@@ -141,25 +141,12 @@ export function ModEditor(app) {
 					updateMod(propString, defaults.stack ?? [[]], partIndex, 'stack');
 				}
 
+				// why add options here? does stack need options?
 				if (!params.hasOwnProperty('options')) {
-					updateMod(propString, defaults.options ?? [], partIndex, 'options');
+					// updateMod(propString, defaults.options ?? [], partIndex, 'options');
 				}
 
 				addStack(row, propString, partIndex);
-			break;
-			case 'bundle':
-				for (const param in params) {
-					if (param === 'type') continue;
-
-
-					// row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
-					// // row.addBreak();
-					// const propType = getPropType(`${propString}-${param}`, partIndex);
-					// console.log(propType);
-					// addPropParams(row, propType, `${propString}-${param}`, partIndex);
-					// row.addBreak();
-				}
-				// needs ui to add params to bundle ... ?
 			break;
 		}
 	}
@@ -238,17 +225,18 @@ export function ModEditor(app) {
 	function addStack(row, propString, partIndex, level=0) {
 		const params = getModParams(propString, partIndex);
 		const stacks = [];
-		const select = row.add(new UISelectButton({
-			selected: "choir",
-			options: params.options ?? [],
-			// callback: addInstrument,
-			callback: value => {
-				if (!stacks[index.value]) return;
-				stacks[index.value].stack.pushItem(value);
-				updateStack(); 
-			}
-		}));
-		row.addBreak();
+		if (params.options) {
+			const select = row.add(new UISelectButton({
+				selected: params.options[0] ?? 0,
+				options: params.options ?? [0],
+				callback: value => {
+					if (!stacks[index.value]) return;
+					stacks[index.value].stack.pushItem(value);
+					updateStack(); 
+				}
+			}));
+			row.addBreak();
+		}
 
 		row.add(new UILabel({ text: 'Index' }));
 		// console.log('length', params.stack.length)
@@ -291,10 +279,26 @@ export function ModEditor(app) {
 			// console.log('add stack', i, list);
 			const stackRow = row.add(new UIRow());
 			stackRow.add(new UILabel({ text: 'Stack ' + i }));
-			const stack = stackRow.add(new UIInputList({
-				list: list ?? [],
-				callback: () => { updateStack(); }
-			}), 'stack');
+
+			// check for value, or options
+			// input list, number list
+			// or select list??
+
+			if (params.options) {
+				// strings for now ...
+				const stack = stackRow.add(new UISelectList({
+					list: list ?? [],
+					options: params.options,
+					callback: () => { updateStack(); }
+				}), 'stack');
+
+			} else {
+				const stack = stackRow.add(new UIInputList({
+					list: list ?? [],
+					callback: () => { updateStack(); }
+				}), 'stack');
+			}
+			
 			row.addBreak();
 			stacks.push(stackRow);
 		}
