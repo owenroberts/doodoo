@@ -74,7 +74,7 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 			}
 
 			if (scaleIndex === -1) {
-				console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octaveDiff, diff, midiHarmony);
+				// console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octaveDiff, diff, midiHarmony);
 				// test -- what do do here? find closest in scale or just interval
 				midiHarmony = 0;
 			}

@@ -62,8 +62,6 @@ export function Doodoo(params, callback) {
 	const instruments = props.instruments?.stack ?? [];
 	const partMods = params.partMods ?? [];
 
-
-
 	const loadInstruments = [...new Set([
 		...instruments
 			.flatMap(e => e.list)

@@ -37,7 +37,6 @@ export function ModEditor(app) {
 	}
 
 	function addBundle(propName, partIndex) {
-		console.log('bundle', propName, partIndex);
 
 		propRow.add(new UILabel({ text: labelFromKey(propName) + " bundle" }));
 		propRow.addBreak();
