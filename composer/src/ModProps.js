@@ -16,6 +16,6 @@ let propDefaults = {
 	index: { value: 0, step: 1 },
 };
 
-let typeOptions = ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'bundle', 'graph-list'];
+let typeOptions = ['number', 'number-list', 'string-list', 'note-list', 'stack', 'chance', 'graph-list'];
 
 export { modDefaults, propDefaults, typeOptions };

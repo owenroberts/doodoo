@@ -133,12 +133,15 @@ export function Modulators(app) {
 				if (openModEdit === propName && openModPart === partIndex) {
 					closeEdit();
 				} else {
+					app.modEditor.clear();
 					openToggle = editBtn;
 					clearModEditHighlight();
 					openModEdit = propName;
 					openModPart = partIndex;
 					propRow.addClass('prop-edit');
-					app.modEditor.addPropMod(propName, partIndex, getPropType(propName, partIndex));
+					const type = getPropType(propName, partIndex);
+					if (type === 'bundle') app.modEditor.addBundle(propName, partIndex);
+					else app.modEditor.addProp(propName, partIndex, type);
 
 					app.ui.panels.modEditor.dock();
 				}

@@ -52,7 +52,7 @@ export const PropertyDefaults = {
 	}, // number of loops per part
 	harmony: {
 		type: 'bundle',
-		chance: { 
+		chance: {
 			value: 0, 
 			step: 0.01,
 			mod: { 

@@ -36,15 +36,40 @@ export function ModEditor(app) {
 		return app.modulators.getPropType(propString, partIndex);
 	}
 
-	// main add the prop ui function ... 
-	function addPropMod(propName, partIndex, propType) {
-		clear();
+	function addBundle(propName, partIndex) {
+		console.log('bundle', propName, partIndex);
 
+		propRow.add(new UILabel({ text: labelFromKey(propName) + " bundle" }));
+		propRow.addBreak();
+
+		const params = getModParams(propName, partIndex); // current settings
+		for (const param in params) {
+			if (param === 'type') continue;
+			const propString = `${propName}-${param}`;
+			const propType = getPropType(propString, partIndex);
+
+			paramsRow.add(new UILabel({ text: labelFromKey(propName) }));
+			addPropMod(propString, partIndex, propType, true);
+			paramsRow.addBreak();
+		}
+
+		// row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
+		// addPropParams(row, propType, `${propString}-${param}`, partIndex);
+
+	}
+
+	function addProp(propName, partIndex, propType) {
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
 		propRow.addBreak();
 		propRow.add(new UILabel({ text: "Prop Type" }));
+		addPropMod(propName, partIndex, propType)
+	}
 
-		const propTypeSelect = propRow.add(new UISelect({
+	// main add the prop ui function ... 
+	function addPropMod(propName, partIndex, propType, fromBundle=false) {
+		// clear();
+
+		const propTypeSelect = new UISelect({
 			value: propType,
 			options: typeOptions,
 			callback: type => { 
@@ -55,7 +80,9 @@ export function ModEditor(app) {
 				// app.modulators.removeMod(propName, partIndex);
 				addPropParams(paramsRow, type, propName, partIndex);
 			}
-		}));
+		})
+		if (fromBundle) paramsRow.add(propTypeSelect);
+		else propRow.add(propTypeSelect);
 		propRow.addBreak();
 		addPropParams(paramsRow, propType, propName, partIndex);
 	}
@@ -120,11 +147,14 @@ export function ModEditor(app) {
 			case 'bundle':
 				for (const param in params) {
 					if (param === 'type') continue;
-					row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
+
+
+					// row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
+					// // row.addBreak();
+					// const propType = getPropType(`${propString}-${param}`, partIndex);
+					// console.log(propType);
+					// addPropParams(row, propType, `${propString}-${param}`, partIndex);
 					// row.addBreak();
-					const propType = getPropType(`${propString}-${param}`, partIndex);
-					addPropParams(row, propType, `${propString}-${param}`, partIndex);
-					row.addBreak();
 				}
 				// needs ui to add params to bundle ... ?
 			break;
@@ -427,5 +457,5 @@ export function ModEditor(app) {
 		paramsRow = panel.add(new UIRow({ class: "break" }));
 	}
 
-	return { connect, addPropMod, clear };
+	return { connect, addProp, addBundle, clear };
 }
