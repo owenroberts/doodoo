@@ -284,6 +284,7 @@ export function ModEditor(app) {
 			// input list, number list
 			// or select list??
 
+
 			if (params.options) {
 				// strings for now ...
 				const stack = stackRow.add(new UISelectList({
@@ -293,7 +294,13 @@ export function ModEditor(app) {
 				}), 'stack');
 
 			} else {
-				const stack = stackRow.add(new UIInputList({
+				let UIListType = UIInputList;
+				console.log(params.value);
+				if (typeof params.value === 'number') {
+					UIListType = UINumberList;
+				}
+
+				const stack = stackRow.add(new UIListType({
 					list: list ?? [],
 					callback: () => { updateStack(); }
 				}), 'stack');

@@ -46,7 +46,7 @@ function getMelody(melody, tonic, transpose, scale) {
 	});
 }
 
-function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) {
+function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, harmonyScaleOnly=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
@@ -55,28 +55,43 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false) 
 			const midiTonic = MIDI_NOTES.indexOf(tonic);
 			const midiTranspose = MIDI_NOTES.indexOf(transpose);
 			const tonicDelta = midiTonic - midiTranspose; // change in key
+			const diff = midiPitch - midiTonic;
 			
 			// differences in octaves (C4 comes before B4)
 			const octaveDiff = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12; 
 			// should this be just C4 not midiTonic? (seems to work fine)
 
-			const diff = midiPitch - midiTonic; // difference between note and tonic
-			const scaleIndex = diff < 0 ?
-				scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
-				scale.indexOf(diff % 12); // above tonic
+			let scaleIndex = getScaleIndex(pitch, tonic, scale);
 
 			// add harmony interval to index, accounting for scale length
 			let midiHarmony = scale[(scaleIndex + interval - 1) % scale.length]; // harmony in scale
+
+			// if note is not in scale
+			if (scaleIndex === -1) {
+				// console.log({harmonyScaleOnly})
+				// test -- what do do here? find closest in scale or just interval
+				// up or down?
+				
+				let closest = 12;
+				let newIndex = 0;
+				for (let i = 0; i < scale.length; i++) {
+					let int = Math.abs(midiPitch - (midiTonic + scale[i]));
+					if (int < closest) {
+						closest = int;
+						newIndex = i;
+					}
+				}
+				midiHarmony = scale[(newIndex + interval - 1) % scale.length];
+					
+				if (!harmonyScaleOnly) {
+					// this is actually goofy as fuck but whatever
+					midiHarmony += midiPitch - (midiTonic + scale[newIndex]);
+				}
+			}
 			
 			if (useOctave) {
 				// add 12 * index n above the scale 
 				midiHarmony += Math.floor((scaleIndex + interval - 1) / scale.length) * 12;
-			}
-
-			if (scaleIndex === -1) {
-				// console.log('not in scale', midiPitch, midiTonic, midiTranspose, tonicDelta, octaveDiff, diff, midiHarmony);
-				// test -- what do do here? find closest in scale or just interval
-				midiHarmony = 0;
 			}
 
 			// over 1 octave above or below

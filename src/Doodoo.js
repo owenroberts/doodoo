@@ -24,6 +24,7 @@ export function Doodoo(params, callback) {
 		MIDI_NOTES[params.tonic];
 	let transpose = params.transpose ?? tonic; // tranpose key -- because melody is relative to tonic
 	let useOctave = params.useOctave ?? false; // in transposition, continue through to octave vs looping around to begging of octave
+	let harmonyScaleOnly = params.harmonyScaleOnly ?? true; // harmony can only have notes from scale
 	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major default
 	let sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
 	let volume = params.volume ?? 0;
@@ -330,7 +331,7 @@ export function Doodoo(params, callback) {
 				 if (harmony === 0) {
 					melody = getMelody(loopParams.melody, tonic, transposePitch, scale);
 				} else {
-					melody = getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave);
+					melody = getHarmony(loopParams.melody, tonic, transposePitch, harmony, scale, useOctave, harmonyScaleOnly);
 				}
 				// console.log('harmony', harmony);
 				const instrument = getInstrument(loopParams.instrument, { ...loopParams, volume });

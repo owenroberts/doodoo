@@ -19,6 +19,7 @@ export function Composition(app, defaults) {
 	let transpose = defaults.transpose ?? defaults.tonic;
 	let scale = defaults.scale;
 	let useOctave = defaults.useOctave ?? false;
+	let harmonyScaleOnly = defaults.harmonyScaleOnly ?? true;
 	
 	/* ui settings */	
 	let scaleRow, scaleUI;
@@ -32,7 +33,7 @@ export function Composition(app, defaults) {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
-		return { tonic, transpose, bpm, title, scale, useOctave, sequence, parts };
+		return { tonic, transpose, bpm, title, scale, useOctave, harmonyScaleOnly, sequence, parts };
 	}
 
 	function load(data) {
@@ -93,6 +94,12 @@ export function Composition(app, defaults) {
 				value: useOctave,
 				callback: value => { useOctave = value; }
 			},
+			'harmonyScaleOnly': {
+				type: 'UIToggleCheck',
+				label: 'Harmony Scale Only',
+				value: harmonyScaleOnly,
+				callback: value => { harmonyScaleOnly = value; }
+			}
 		}, compositionPanel);
 
 		compositionPanel.addRow(undefined, 'break');
