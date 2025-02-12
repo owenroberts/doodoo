@@ -38,7 +38,6 @@ export function Property(params={}, propName) {
 
 	function get(loopIndex) {
 
-
 		if (type === 'stack') {
 			let value;
 			if (loopIndex < stack.length) {

@@ -340,8 +340,17 @@ export function ModEditor(app) {
 		const maxRow = tree.add(new UIRow({ class: 'break' }));
 		addValue(maxRow, propString + '-max', partIndex, 'Max', level);
 
-		const stepRow = tree.add(new UIRow({ class: 'break' }));
-		addValue(stepRow, propString + '-step', partIndex, 'Step', level);
+		// const stepRow = tree.add(new UIRow({ class: 'break' }));
+		// addValue(stepRow, propString + '-step', partIndex, 'Step', level);
+
+		tree.add(new UILabel({ text: "Step" }));
+		tree.add(new UINumberStep({
+			value: params.step.value ?? 0,
+			callback: value => {
+				updateMod(propString + '-step', value, partIndex);
+			}
+		}));
+		tree.addBreak();
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({
