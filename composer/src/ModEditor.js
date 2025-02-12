@@ -48,7 +48,7 @@ export function ModEditor(app) {
 			const propString = `${propName}-${param}`;
 			const propType = getPropType(propString, partIndex);
 
-			paramsRow.add(new UILabel({ text: labelFromKey(propName) }));
+			paramsRow.add(new UILabel({ text: labelFromKey(propString) }));
 			addPropMod(propString, partIndex, propType, true);
 			paramsRow.addBreak();
 		}
@@ -81,9 +81,13 @@ export function ModEditor(app) {
 				addPropParams(paramsRow, type, propName, partIndex);
 			}
 		})
-		if (fromBundle) paramsRow.add(propTypeSelect);
-		else propRow.add(propTypeSelect);
-		propRow.addBreak();
+		if (fromBundle) {
+			paramsRow.add(propTypeSelect);
+			paramsRow.addBreak();
+		} else { 
+			propRow.add(propTypeSelect);
+			propRow.addBreak();
+		}
 		addPropParams(paramsRow, propType, propName, partIndex);
 	}
 

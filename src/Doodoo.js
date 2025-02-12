@@ -12,7 +12,8 @@ import { SamplePaths } from './SamplePaths.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './Midi.js';
 import { Effects } from './Effects.js';
 import { Part } from './Part.js';
-import { random } from '../../cool/cool.js';
+import { random, chance } from '../../cool/cool.js';
+import { Bundle } from './Bundle.js';
 
 export function Doodoo(params, callback) {
 
@@ -48,6 +49,7 @@ export function Doodoo(params, callback) {
 	let noMods = params.noMods ?? false;
 
 	let useDefaultProps = params.useDefaultProps ?? true;
+	// wtf what is props = mods
 	const props = params.mods ? structuredClone(params.mods) : {};
 	for (const prop in PropertyDefaults) {
 		if (props.hasOwnProperty(prop)) continue;
@@ -59,6 +61,8 @@ export function Doodoo(params, callback) {
 	// look for samples in props.instruments stack
 	const instruments = props.instruments?.stack ?? [];
 	const partMods = params.partMods ?? [];
+
+
 
 	const loadInstruments = [...new Set([
 		...instruments
@@ -116,6 +120,8 @@ export function Doodoo(params, callback) {
 		}
 		parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
 	}
+
+	const scaleMod = new Bundle(props.scale, 'scale');
 
 	if (withRecording) {
 		recorder = new Tone.Recorder();
@@ -298,7 +304,6 @@ export function Doodoo(params, callback) {
 			}
 		}
 
-
 		// make parts match length ... 
 		for (let i = 0; i < currentParts.length; i++) {
 			const loops = currentParts[i];
@@ -353,7 +358,16 @@ export function Doodoo(params, callback) {
 			for (let i = 0; i < parts.length; i++) {
 				if (sequence[i][sequenceIndex]) parts[i].update();
 			}
-			if (params.onModulate) params.onModulate(totalPlays, totalPlays / sequence[0].length);
+
+			scaleMod.update();
+			let scaleModVals = scaleMod.get();
+			if (chance(scaleModVals.chance)) {
+				moveScale(Math.round(scaleModVals.index), scaleModVals.step);
+			}
+
+			if (params.onModulate) {
+				params.onModulate(totalPlays, totalPlays / sequence[0].length);
+			}
 		}
 		
 		// move to next index in sequence (if more than one)

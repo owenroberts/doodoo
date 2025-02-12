@@ -20,6 +20,12 @@ export const PropertyDefaults = {
 		min: -128,
 		max: 128,
 	},
+	scale: {
+		type: 'bundle',
+		chance: { value: 0 },
+		index: { value: 0 },
+		step: { list: [1, -1, 2, -3] },
+	},
 	instruments: {
 		stack: [{ list: ['choir'] }],
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
