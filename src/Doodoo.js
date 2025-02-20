@@ -77,6 +77,8 @@ export function Doodoo(params, callback) {
 			.filter(loop => !loop.instrument.includes('Synth'))
 			.map(loop => loop.instrument)
 	])];
+
+	console.log({loadInstruments})
 	
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp -- differnt than part play count (could be)

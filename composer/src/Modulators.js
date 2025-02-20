@@ -122,6 +122,13 @@ export function Modulators(app) {
 			}
 		}));
 
+		const printBtn = propRow.add(new UIButton({
+			text: "P",
+			callback: () => {
+				console.log(propName, mods[propName]);
+			}
+		}))
+
 		const editBtn = propRow.add(new UIToggle({
 			text: "Edit",
 			callback: () => {

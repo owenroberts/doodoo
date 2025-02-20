@@ -14,7 +14,6 @@
 import { SamplePaths } from './SamplePaths.js';
 
 export const PropertyDefaults = {
-
 	transpose: {
 		value: 0,
 		min: -128,

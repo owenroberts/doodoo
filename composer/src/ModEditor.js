@@ -174,20 +174,26 @@ export function ModEditor(app) {
 		const params = getModParams(propString, partIndex);
 		const defaults = getPropDefaults(propString, partIndex);
 
-		let uiClass;
-		if (propType === 'number-list') uiClass = UINumberList;
-		if (propType === 'string-list') uiClass = UIInputList;
-		if (propType === 'graph-list') uiClass = UIGraph;
-
-		const listUI = new uiClass({
+		let UIListType = UINumberList;
+		let uiListParams = {
 			list: params.list ?? [],
 			app: app,
-			graph: params.graph,
 			callback: (list, graph) => {
 				updateMod(propString, list, partIndex, 'list'); 
 				if (graph) updateMod(propString, graph, partIndex, 'graph'); 
 			}
-		});
+		};
+		if (params.options) {
+			UIListType = UISelectList;
+			uiListParams.options = params.options;
+		} else if (propType === 'string-list') {
+			UIListType = UIInputList;
+		} else if (propType === 'graph-list') {
+			UIListType = UIGraph;
+			uiListParams.graph = params.graph;
+		} 
+
+		const listUI = new UIListType(uiListParams);
 
 		// maybe other things have options ??
 		if (defaults.options) {
@@ -266,7 +272,7 @@ export function ModEditor(app) {
 			text: '+',
 			class: 'right-end',
 			callback: () => {
-				addStack(stacks.length)
+				addStack(stacks.length);
 				index.max = stacks.length - 1;
 				index.update(stacks.length - 1);
 				updateStack(); 
@@ -280,11 +286,6 @@ export function ModEditor(app) {
 			const stackRow = row.add(new UIRow());
 			stackRow.add(new UILabel({ text: 'Stack ' + i }));
 
-			// check for value, or options
-			// input list, number list
-			// or select list??
-
-
 			if (params.options) {
 				// strings for now ...
 				const stack = stackRow.add(new UISelectList({
@@ -295,7 +296,6 @@ export function ModEditor(app) {
 
 			} else {
 				let UIListType = UIInputList;
-				console.log(params.value);
 				if (typeof params.value === 'number') {
 					UIListType = UINumberList;
 				}
@@ -313,7 +313,7 @@ export function ModEditor(app) {
 		function updateStack() {
 			const s = [];
 			for (let i = 0; i < stacks.length; i++) {
-				// console.log(i, stacks[i]);
+				// console.log(i, stacks[i].stack.list);
 				s[i] = { list: stacks[i].stack.list };
 			}
 			updateMod(propString, s, partIndex, 'stack');

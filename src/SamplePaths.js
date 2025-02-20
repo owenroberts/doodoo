@@ -21,7 +21,7 @@ export const SamplePaths = {
 		"E6": "E6.ogg",
 		"G4": "G4.ogg",
 	},
-	"toms": { "A#3": "Tom606_EQ_FADE.ogg" },
+	"toms": { "A#3": "Tom606_2.wav" },
 	"crow_bass": { "C4": "C4.wav" },
 	"kr55": {
 		"C4": "Bassdrum.wav",
