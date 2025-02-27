@@ -45,6 +45,7 @@ export function Doodoo(params, callback) {
 	let useMetro = params.useMetro ?? false;
 	let withRecording = params.withRecording ?? false;
 	let withCount = params.withCount ?? false;
+	let waitForModTrigger = params.waitForModTrigger ?? false;
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
 	let noMods = params.noMods ?? false;
@@ -78,8 +79,6 @@ export function Doodoo(params, callback) {
 			.map(loop => loop.instrument)
 	])];
 
-	console.log({loadInstruments})
-	
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp -- differnt than part play count (could be)
 	let modCount = 0; // num mods --> different from total plays? -- idts
@@ -274,7 +273,9 @@ export function Doodoo(params, callback) {
 		}
 
 		beatCount++;
-		if (beatCount === totalBeats) generateLoops();
+		if (beatCount === totalBeats && !waitForModTrigger) {
+			generateLoops();
+		}
 	}
 
 	function generateLoops() {
@@ -573,8 +574,13 @@ export function Doodoo(params, callback) {
 		if (withRecording && recorder.state === 'started') saveRecording();
 	}
 
+	function playNext() {
+		// with waitForModTrigger
+		generateLoops();
+	}
+
 	return {
-		play, stop, isRecording, modulate, 
+		play, stop, playNext, isRecording, modulate, 
 		setBPM, moveBPM, setTonic, moveTonic, moveScale,
 		getLoops: () => { return loops; },
 		isPlaying: () => { return isPlaying; },
