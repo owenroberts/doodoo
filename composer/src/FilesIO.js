@@ -52,8 +52,7 @@ export function FilesIO(app) {
 
 		let title = app.ui.faces.title.value;
 		if (!title || needsTitleConfirm) {
-			// console.trace();
-			// console.log(title, needsTitleConfirm);
+			
 			let confirmTitle = confirm(`Confirm title: ${title}`);
 			if (!confirmTitle) title = prompt('New title', title);
 		}
@@ -62,7 +61,7 @@ export function FilesIO(app) {
 			title = prompt('New title');
 		}
 		
-		app.ui.faces.title.value = title;
+		app.ui.faces.title.update(title);
 		
 		const localSave = { 
 			...composition,
@@ -147,14 +146,16 @@ export function FilesIO(app) {
 
 	function saveFile() {
 		if (app.playback.isRecording()) return;
+		// should save local first??
 		// app.composition.update(); // updates local storage
-		const json = localStorage.getItem('greg-' + app.ui.faces.title.value);
+		// const json = localStorage.getItem('greg-' + app.ui.faces.title.value);
+		const json = saveLocal();
 		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
-		const name = prompt("Name composition", app.composition.get().title);
+		const name = prompt("Name file", json.title);
 		if (!name) return;
 		saveAs(blob, name + '.json');
 		app.ui.faces.title.update(name);
-		saveLocal();
+		// saveLocal();
 	}
 
 	function loadMidi(data, fileName, filePath) {
