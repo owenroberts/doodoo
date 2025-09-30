@@ -150,7 +150,7 @@ export function FilesIO(app) {
 		// app.composition.update(); // updates local storage
 		// const json = localStorage.getItem('greg-' + app.ui.faces.title.value);
 		const json = saveLocal();
-		const blob = new Blob([json], { type: 'application/x-download;charset=utf-8' });
+		const blob = new Blob([JSON.stringify(json)], { type: 'application/x-download;charset=utf-8' });
 		const name = prompt("Name file", json.title);
 		if (!name) return;
 		saveAs(blob, name + '.json');

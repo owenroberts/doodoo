@@ -16,7 +16,7 @@
 	},
 	"dependencies": {
 		"file-saver": "^2.0.5",
-		"tone": "^15.0.4"
+		"tone": "^15.1.22"
 	},
 	"devDependencies": {
 		"@tonejs/midi": "^2.0.28",
