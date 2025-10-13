@@ -115,7 +115,7 @@ export function Modulators(app) {
 				}
 				row.remove(propRow);
 				if (partIndex >= 0) {
-					if (Object.keys(partMods[partIndex]).length === 0) {
+					if (!partMods[partIndex]) {
 						partModRow.remove(partModRows[partIndex]);
 					}
 				}
@@ -174,7 +174,12 @@ export function Modulators(app) {
 	}
 
 	function removeMod(propName, partIndex=-1) {
-		if (partIndex >= 0) delete partMods[partIndex][propName];
+		if (partIndex >= 0) {
+			delete partMods[partIndex][propName];
+			if (Object.keys(partMods[partIndex]).length === 0) {
+				partMods.splice(partIndex, 1);
+			}
+		}
 		else delete mods[propName];
 	}
 
@@ -210,7 +215,7 @@ export function Modulators(app) {
 
 	function load(data) {
 		if (!data.mods && !data.partMods) return;
-		
+
 		modsRow.clear();
 		mods = {};
 		for (const mod in data.mods) {
@@ -252,6 +257,7 @@ export function Modulators(app) {
 			{ 
 				text: '+', 
 				callback: () => {
+
 					if (app.ui.faces.propSelect.value.length === 0) {
 						app.ui.faces.propSelect.focus();
 					} else {
@@ -288,18 +294,19 @@ export function Modulators(app) {
 		app.ui.addCallbacks([
 			{ 
 				key: 'shift-p', 
-				text: 'Print Mods',
+				text: 'Print',
 				callback: () => { 
-					console.log('mods', mods); 
+					console.log('mods', mods);
 					partMods.forEach((m, i) => {
 						console.log('part mod', i, m);
 					});
 				}
 			},
 			{
-				text: 'Clear Mods',
+				text: 'Clear',
 				callback: () => {
 					mods = {};
+					partMods = []; // ?
 					modsRow.clear();
 				}
 			},

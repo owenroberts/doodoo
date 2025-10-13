@@ -10,7 +10,7 @@ import { Modulator } from './Modulator.js';
 import { random } from '../../cool/cool.js';
 
 export function Property(params={}, propName) {
-	// console.log('property params', params);
+	// console.log('prop', propName)
 
 	// default to value if no list and no value
 	let type = params.hasOwnProperty('list') ? 'list' : 'value';
@@ -70,5 +70,3 @@ export function Property(params={}, propName) {
 	return { update, get, set, getInt };
 
 }
-
-// window.Property = Property;

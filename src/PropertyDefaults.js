@@ -21,9 +21,9 @@ export const PropertyDefaults = {
 	},
 	scale: {
 		type: 'bundle',
-		chance: { value: 0 },
+		chance: { value: 0, type: 'chance' },
 		index: { value: 0 },
-		step: { list: [1, -1, 2, -3] },
+		step: { list: [1, -1, 2, -2] },
 	},
 	instruments: {
 		stack: [{ list: ['choir'] }],

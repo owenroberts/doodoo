@@ -85,7 +85,7 @@ export function Composition(app, defaults) {
 				value: bpm,
 				label: 'BPM',
 				type: 'UINumberStep',
-				range: [60, 250],
+				range: [10, 300],
 				callback: value => { bpm = value;}
 			},
 			'useOctave': {

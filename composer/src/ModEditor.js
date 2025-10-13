@@ -54,7 +54,6 @@ export function ModEditor(app) {
 
 		// row.add(new UILabel({ text: app.ui.labelFromKey(param), class: 'break-line' }));
 		// addPropParams(row, propType, `${propString}-${param}`, partIndex);
-
 	}
 
 	function addProp(propName, partIndex, propType) {
@@ -231,18 +230,6 @@ export function ModEditor(app) {
 	function addStack(row, propString, partIndex, level=0) {
 		const params = getModParams(propString, partIndex);
 		const stacks = [];
-		if (params.options) {
-			const select = row.add(new UISelectButton({
-				selected: params.options[0] ?? 0,
-				options: params.options ?? [0],
-				callback: value => {
-					if (!stacks[index.value]) return;
-					stacks[index.value].stack.pushItem(value);
-					updateStack(); 
-				}
-			}));
-			row.addBreak();
-		}
 
 		row.add(new UILabel({ text: 'Index' }));
 		// console.log('length', params.stack.length)

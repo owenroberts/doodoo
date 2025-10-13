@@ -107,6 +107,8 @@ export function Doodoo(params, callback) {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
 	});
 
+
+
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
@@ -179,7 +181,7 @@ export function Doodoo(params, callback) {
 	}
 
 	function start() {
-
+		
 		toneLoop = new Tone.Loop(playLoops, defaultBeat);
 		Tone.Transport.start();
 		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
@@ -194,8 +196,9 @@ export function Doodoo(params, callback) {
 			"release": 0.1
 		});
 		const limiter = new Tone.Limiter(-20);
-		Tone.Master.chain(compressor, limiter);
+		// Tone.Master.chain(compressor, limiter);
 		// Tone.Master.chain(compressor);
+		// Tone.Master.chain(limiter);
 
 		if (useMeter) {
 			meter = new Tone.Meter({ channelCount: 2 });
@@ -410,9 +413,8 @@ export function Doodoo(params, callback) {
 	}
 
 	function getSynth(loopParams) {
-		// console.log('synth params', loopParams);
 		const fmSynth = new Tone.FMSynth({ 
-			volume: loopParams.volume ?? -6,
+			volume: loopParams.volume - 6 ?? -6,
 			envelope: {
 				attack: Math.max(0.1, loopParams.attack),
 				attackCurve: loopParams.curve,

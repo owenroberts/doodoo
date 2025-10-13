@@ -352,7 +352,7 @@ export function Melody(app, defaults) {
 		app.ui.addUI({ 
 			type: 'UIButton', 
 			callback: doubleIt, 
-			text: 'Double It', 
+			text: 'Double', 
 		}, melodyPanel);
 
 		melodyPanel.addRow(undefined, 'break');

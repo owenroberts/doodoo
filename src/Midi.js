@@ -310,6 +310,7 @@ function getCounterpoint(melody, tonic, scale) {
 			if (counterpointPitch === undefined || counterpointPitch.includes('0')) {
 				console.log({ options });
 				console.log({ counterpointPitch, prevCounterpointPitch, tonic, scale, interval });
+				counterpointPitch = 'rest';
 			}
 
 		}
@@ -317,7 +318,7 @@ function getCounterpoint(melody, tonic, scale) {
 		counterpoint[i] = [counterpointPitch, beat];
 		
 		prevMelodyPitch = pitch;
-		prevCounterpointPitch = counterpointPitch;
+		if (counterpointPitch !== 'rest') prevCounterpointPitch = counterpointPitch;
 		pitchIndex++;
 	}
 	return counterpoint;

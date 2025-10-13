@@ -11,6 +11,7 @@ export function Playback(app) {
 	let doodoo;
 	let useMetro = false;
 	let modCountUI;
+	let saveOnPlay = true;
 
 	function play(withRecording, withCount, noMods) {
 		const comp = app.composition.get() ?? {};
@@ -44,7 +45,7 @@ export function Playback(app) {
 			useDefaultProps: true,
 		});
 		// setting?
-		app.fio.saveLocal(false);
+		if (saveOnPlay) app.fio.saveLocal(false);
 		app.score.update(doodoo.getLoops());
 	}
 
@@ -77,7 +78,7 @@ export function Playback(app) {
 				key: 'd', 
 				text: 'Mutate',
 				callback: () => { if (doodoo) doodoo.modulate(); },
-			},
+			}
 		], playBackPanel);
 
 		modCountUI = playBackPanel.add(new UILabel({
@@ -92,6 +93,12 @@ export function Playback(app) {
 				label: 'Metro',
 				key: 'm',
 				callback: value => { useMetro = value; },
+			},
+			"saveOnPlay": {
+				type: "UIToggleCheck",
+				value: saveOnPlay,
+				label: "Save on play",
+				callback: value => { saveOnPlay = value; },
 			}
 		}, playBackPanel);
 
@@ -116,5 +123,4 @@ export function Playback(app) {
 	}
 
 	return { connect, isRecording };
-
 }

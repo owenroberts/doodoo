@@ -7,21 +7,28 @@
 */
 
 import { Property } from './Property.js';
-import { random, chance } from '../../cool/cool.js';
+import { random, chance, getNumberPrecision } from '../../cool/cool.js';
 
 export function Modulator(value, params, propName) {
 
 	// console.log('mod params', params);
 
-	let min = new Property(params.min ?? { value: 0 });
-	let max = new Property(params.max ?? { value: 1 });
-	let step = new Property(params.step ?? { value: 1 });
+	let min = new Property(params.min ?? { value: 0 }, `${propName} min`);
+	let max = new Property(params.max ?? { value: 1 }, `${propName} max`);
+
+	// only min and max have and should need mods??? so no reason for props ... 
+	// maybe for consistency or future proofing?
+
+	let step = new Property(params.step ?? { value: 1 }, `${propName} step`);
 	// "kick in" index, wait plays before starting
-	let kick = new Property(params.kick ?? { value: 0 });
-	let chup = new Property(params.chance ?? { value: 0.5 }); // chance of update
+	let kick = new Property(params.kick ?? { value: 0 }, `${propName} kick`);
+	let chup = new Property(params.chance ?? { value: 0.5 }, `${propName} chup`); // chance of update
 	// let type = params.type ?? 'value'; // range, walk, value is no mod, walkUp, walkDown
-	let type = new Property(params.type ?? { value: 'value' });
-	let bound = new Property(params.bound ?? { value: 'stay' });
+	let type = new Property(params.type ?? { value: 'value' }, `${propName} type`);
+	let bound = new Property(params.bound ?? { value: 'stay' }, `${propName} bound`);
+
+	
+	let precision = params.step ? getNumberPrecision(params.step.value) : 0;
 
 	/*
 		have to keep track if mod is "kicked off"
@@ -39,16 +46,20 @@ export function Modulator(value, params, propName) {
 		min.update(playCount);
 		max.update(playCount);
 
+		let s = step.get();
+
 		switch(type.get()) {
 			case 'walk': 
-				value += (chance(0.5) ? step.get() : -step.get());
-				
+				value += s * (chance(0.5) ? 1 : -1);
+				value = +value.toFixed(precision);
 			break;
 			case 'walkUp': 
-				value += step.get();
+				value += s;
+				value = +value.toFixed(precision);
 			break;
 			case 'walkDown': 
-				value -= step.get();
+				value -= s;
+				value = +value.toFixed(precision);
 			break;
 		}
 
