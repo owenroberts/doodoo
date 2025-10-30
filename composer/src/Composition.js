@@ -7,7 +7,7 @@ import { MIDI_NOTES } from '../../src/Midi.js';
 // import '../../build/ui.min.js'; // skip UI for now ... 
 // const { UILabel, UINumberList } = UI.Elements;
 import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UINumberList } = Elements;
+const { UILabel, UINumberList, UISelect } = Elements;
 
 export function Composition(app, defaults) {
 
@@ -21,6 +21,10 @@ export function Composition(app, defaults) {
 	let useOctave = defaults.useOctave ?? false;
 	let harmonyScaleOnly = defaults.harmonyScaleOnly ?? true;
 	
+	let isRegularTime = defaults.isRegularTime ?? false;
+	let timeBeat = '4n';
+	let timeBar = 4;
+	
 	/* ui settings */	
 	let scaleRow, scaleUI;
 	let stackRows;
@@ -33,7 +37,7 @@ export function Composition(app, defaults) {
 		app.melody.update();
 		const parts = app.melody.getParts();
 		const sequence = app.melody.getSequence();
-		return { tonic, transpose, bpm, title, scale, useOctave, harmonyScaleOnly, sequence, parts };
+		return { tonic, transpose, bpm, title, scale, useOctave, harmonyScaleOnly, sequence, parts, isRegularTime, timeBeat, timeBar };
 	}
 
 	function load(data) {
@@ -41,6 +45,9 @@ export function Composition(app, defaults) {
 		if (data.transpose) app.ui.faces.transpose.update(data.transpose);
 		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
 		if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
+		if (data.isRegularTime) app.ui.faces.isRegularTime.update(data.isRegularTime);
+		if (data.timeBeat) app.ui.faces.timeBeat.update(data.timeBeat);
+		if (data.timeBar) app.ui.faces.timeBar.update(data.timeBar);
 		
 		if (data.tonic) {
 			app.ui.faces.tonic.update(typeof data.tonic === 'string' ? 
@@ -87,6 +94,25 @@ export function Composition(app, defaults) {
 				type: 'UINumberStep',
 				range: [10, 300],
 				callback: value => { bpm = value;}
+			},
+			'isRegularTime': {
+				value: isRegularTime,
+				label: 'Regular Time',
+				type: 'UIToggleCheck',
+				callback: value => { isRegularTime = value; },
+			},
+			'timeBar': {
+				value: timeBar,
+				label: 'Bar',
+				type: 'UINumberStep',
+				callback: value => { timeBeat = value; },								
+			},
+			'timeBeat': {
+				value: timeBeat,
+				label: 'Beat',
+				type: 'UISelect',
+				options: ['1n', '2n', '4n', '8n', '16n'],
+				callback: value => { timeBeat = value; },								
 			},
 			'useOctave': {
 				type: 'UIToggleCheck',

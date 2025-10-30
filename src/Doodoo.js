@@ -107,8 +107,6 @@ export function Doodoo(params, callback) {
 		if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
 	});
 
-
-
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
@@ -240,7 +238,7 @@ export function Doodoo(params, callback) {
 		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);
 		for (let i = 0; i < loops.length; i++) {
 			const loop = loops[i];
-			if (loop.count > loop.countEnd) continue;
+			if (loop.count >= loop.countEnd) continue;
 			if (loop.count % 1 !== 0) continue;
 			const noteIndex = Math.floor(loop.count) % loop.melody.length;
 			const note = loop.melody[noteIndex];
@@ -284,7 +282,7 @@ export function Doodoo(params, callback) {
 	function generateLoops() {
 		beatCount = 0;
 		disposePrevious();
-		loops = [];
+		loops = []; // loops collects all the loops from each part together ... 
 
 		let currentParts = [];
 		let longestMelody = 0;
@@ -309,6 +307,37 @@ export function Doodoo(params, callback) {
 			}
 		}
 
+		if (params.isRegularTime) {
+			
+			// get loop with longest beat count
+			let partIndex = -1;
+			let loopIndex = -1;
+			let beatCount = -1;
+
+			for (let i = 0; i < currentParts.length; i++) {
+				const loops = currentParts[i];
+				for (let j = 0; j < loops.length; j++) {
+					const loop = loops[j];
+					if (loop.countEnd > beatCount) {
+						partIndex = i;
+						loopIndex = j;
+						beatCount = loop.countEnd;
+					}
+				}
+			}
+
+			// get remainer beats if exist
+			let defaultBeatsInBar = params.timeBar * (parseInt(defaultBeat) / parseInt(params.timeBeat));
+			let beatsLeftOver = beatCount % defaultBeatsInBar;
+			if (beatsLeftOver > 0) {
+				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;
+				for (let i = 0; i < makeUpBeats; i++) {
+					currentParts[partIndex][loopIndex].melody.push([null, defaultBeat]);
+				}
+				currentParts[partIndex][loopIndex].countEnd += makeUpBeats;
+			}
+		}
+
 		// make parts match length ... 
 		for (let i = 0; i < currentParts.length; i++) {
 			const loops = currentParts[i];
@@ -321,10 +350,12 @@ export function Doodoo(params, callback) {
 					const copy = structuredClone(clone);
 					loop.melody = loop.melody.concat(copy);
 				}
-				loop.countEnd = loop.melody.length - 1;
+				loop.countEnd = loop.melody.length;
 				// console.log(i, j, 'loop 2', loop.countEnd);
 			}
 		}
+
+
 
 		for (let i = 0; i < currentParts.length; i++) {
 			let partLoops = currentParts[i];

@@ -147,7 +147,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			const loop = {
 				melody: melody,
 				count: 0, // count through loop
-				countEnd: melody.length - 1,
+				countEnd: melody.length,
 				harmony: chance(harmony.chance) ?
 					harmony.interval : 0,
 				counterpoint: chance(mods.counterpoint.get()),
