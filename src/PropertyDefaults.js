@@ -30,7 +30,7 @@ export const PropertyDefaults = {
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
 		// options: ['fmSynth', 'choir', 'toms', 'flute', 'strings', 'guitar', 'piano', 'bamboo', 'crow_bass']
 	},
-	loopNum: { 
+	voiceNum: { 
 		value: 1, 
 		step: 1,
 		mod: {
@@ -54,7 +54,7 @@ export const PropertyDefaults = {
 				}
 			},
 		}
-	}, // number of loops per part
+	}, // number of voices per part
 	harmony: {
 		type: 'bundle',
 		chance: {

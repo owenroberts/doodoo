@@ -19,11 +19,11 @@ export function Bundle(params={}, propName) {
 		}
 	}
 
-	function get(loopIndex) {
+	function get(voiceIndex) {
 		let values = {};
 		for (const prop in props) {
 			if (prop === 'type') continue;
-			values[prop] = props[prop].get(loopIndex);
+			values[prop] = props[prop].get(voiceIndex);
 		}
 		return values;
 	}

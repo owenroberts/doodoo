@@ -15,7 +15,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 	// think on this more ... 
 	
 	let mods = {};
-	let playCount = 0;
+	let playCount = 0; // better name -- clear that this counting the number of play of this part
 
 	/* set up modulators */
 	for (const prop in props) {
@@ -81,17 +81,17 @@ export function Part(part, props, defaultBeat, comp, debug) {
 
 	function get(startLoops) {
 
-		const loops = []; // need a better word, voices? instruments?
-		const loopNum = startLoops.length > 0 ? startLoops.length : mods.loopNum.getInt();
+		const voices = []; // need a better word, voices? instruments?
+		const voiceNum = startLoops.length > 0 ? startLoops.length : mods.voiceNum.getInt();
 		
 		// new beat mod can't be smaller than default -- for now
 		// maybe needs to be defaultBeatNum / 2, not sure after working on repeat
-		const beatMods = [...Array(loopNum)].map(() => mods.beatList.get());
+		const beatMods = [...Array(voiceNum)].map(() => mods.beatList.get());
 		const maxBeat = Math.min(...beatMods);
 		
-		for (let i = 0; i < loopNum; i++) {
+		for (let i = 0; i < voiceNum; i++) {
 			
-			// set beginning velocity before generating loop
+			// set beginning velocity before generating voice
 			const velocity = mods.velocity.get();
 			mods.velocity.set('step', velocity.start);
 
@@ -144,7 +144,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			const harmony = mods.harmony.get(); // this actually looks chill
 			const playBeat = mods.playBeat.get();
 
-			const loop = {
+			const voice = {
 				melody: melody,
 				count: 0, // count through loop
 				countEnd: melody.length,
@@ -164,25 +164,25 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			if (startLoops) {
 				if (startLoops[i]) {
 					for (const prop in startLoops[i]) {
-						loop[prop] = startLoops[i][prop];
+						voice[prop] = startLoops[i][prop];
 					}
 				}
 			}
 
-			loops.push(loop);
+			voices.push(voice);
 		}
 
-		// console.log('loop num', loopNum);
-		// console.log('loop length', loops.map(l => l.melody.length));
-		// console.log('harmonies', loops.map(l => l.harmony));
-		// console.log('start indexes', loops.map(l => l.startIndex));
-		// console.log('curve', loops.map(l => l.curve));
-		// console.log('play beats', loops.map(l => l.playBeat));
+		// console.log('voice num', voiceNum);
+		// console.log('voice length', voices.map(l => l.melody.length));
+		// console.log('harmonies', voices.map(l => l.harmony));
+		// console.log('start indexes', voices.map(l => l.startIndex));
+		// console.log('curve', voices.map(l => l.curve));
+		// console.log('play beats', voices.map(l => l.playBeat));
 
-		// console.log('fx', loops.map(l => Object.keys(l.fx).toString()));
-		// console.log('loops', loops);
+		// console.log('fx', voices.map(l => Object.keys(l.fx).toString()));
+		// console.log('voices', voices);
 		
-		return loops;
+		return voices;
 	}
 
 	// prop need to work on this more ...

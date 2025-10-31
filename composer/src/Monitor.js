@@ -39,19 +39,19 @@ export function Monitor(app) {
 		return value;
 	}
 
-	function update(loops) {
+	function update(voices) {
 		mRow.clear();
 
-		for (let i = 0; i < loops.length; i++) {
+		for (let i = 0; i < voices.length; i++) {
 			const row = mRow.add(new UIRow({ class: 'break' }));
 			row.add(new UILabel({ text: `Loop ${i}: `}));
 
-			const loop = loops[i];
+			const voice = voices[i];
 			for (const prop in props) {
 				if (!props[prop]) continue;
 
 				row.add(new UILabel({
-					text: ` ${prop}: ${formatProp(prop, loop[prop])},`,
+					text: ` ${prop}: ${formatProp(prop, voice[prop])},`,
 					class: 'prop-value',
 				}));
 			}

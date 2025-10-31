@@ -36,12 +36,12 @@ export function Property(params={}, propName) {
 		if (isMod) mod.update(playCount);
 	}
 
-	function get(loopIndex) {
+	function get(voiceIndex) {
 
 		if (type === 'stack') {
 			let value;
-			if (loopIndex < stack.length) {
-				value = random(stack[loopIndex].list);
+			if (voiceIndex < stack.length) {
+				value = random(stack[voiceIndex].list);
 			} else {
 				// get all the options in stack
 				// maybe change later

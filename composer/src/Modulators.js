@@ -249,7 +249,6 @@ export function Modulators(app) {
 				listName: "prop-list",
 				label: "Add mod:",
 				options: Object.keys(PropertyDefaults),
-				// selected: 'loopNum',
 			}
 		});
 

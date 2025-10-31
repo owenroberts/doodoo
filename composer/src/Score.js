@@ -100,7 +100,7 @@ export function Score(app) {
 		return noteDiff + octaveDiff * 7;
 	}
 
-	function draw(loops) {
+	function draw(voices) {
 		let { width, height } = panel.el.getBoundingClientRect();
 		const { tonic, scale } = app.composition.get();
 
@@ -129,14 +129,14 @@ export function Score(app) {
 		let staffWidth = width - padding - startX - margin * 2;
 		let staffHeight = 11 * h + h;
 
-		let noteDuration = loops.length === 0 ? 4 :
-			Math.max(...loops.flatMap(loop => loop.melody.map(n => +n[1][0])));
+		let noteDuration = voices.length === 0 ? 4 :
+			Math.max(...voices.flatMap(voice => voice.melody.map(n => +n[1][0])));
 		let noteDiff = noteDuration / 4;
-		let compDuration = Math.max(...loops.map(loop => loop.melody.length));
+		let compDuration = Math.max(...voices.map(voice => voice.melody.length));
 		let numMeasures = Math.ceil(compDuration / noteDuration);
 
-		let incidentals = loops
-			.flatMap(loop => loop.melody)
+		let incidentals = voices
+			.flatMap(voice => voice.melody)
 			.map((note, index) => { return [
 				note[0] ? note[0].substring(0, note[0].length - 1) : null,  
 				Math.floor((index % compDuration) / noteDuration)
@@ -214,7 +214,7 @@ export function Score(app) {
 			});
 		}
 
-		if (loops.length === 0) return;
+		if (voices.length === 0) return;
 
 		let tempX = staffX + noteWidth;
 		let noteCount = 0;
@@ -262,12 +262,12 @@ export function Score(app) {
 
 			let notes = [];
 			let measures = [];
-			for (let j = 0; j < loops.length; j++) {
-				let { startDelay, startIndex, doubler, repeat, melody } = loops[j];
-				let loopIndex = (i - startDelay + startIndex) % melody.length;
-				if (!melody[loopIndex]) continue;
-				notes.push(melody[loopIndex]);
-				measures.push(melody.slice(loopIndex - noteCount, loopIndex + (noteDuration - noteCount)));
+			for (let j = 0; j < voices.length; j++) {
+				let { startDelay, startIndex, doubler, repeat, melody } = voices[j];
+				let voiceIndex = (i - startDelay + startIndex) % melody.length;
+				if (!melody[voiceIndex]) continue;
+				notes.push(melody[voiceIndex]);
+				measures.push(melody.slice(voiceIndex - noteCount, voiceIndex + (noteDuration - noteCount)));
 			}
 			
 			// console.log('notes', notes);
@@ -284,8 +284,8 @@ export function Score(app) {
 					// }
 				}
 
-				measures.forEach(loop => { 
-					loop.forEach((n, index) => {
+				measures.forEach(voice => { 
+					voice.forEach((n, index) => {
 						if (index < noteCount && index + (noteDuration / parseInt(n[1])) > noteCount) {
 							continueNote = true;
 						}
@@ -297,7 +297,7 @@ export function Score(app) {
 					let sliceLength = noteDuration / 4 * 2; // 1 half note worth 
 					let tempCount = noteCount % sliceLength; // deal with one half
 					let whichHalf = noteCount >= sliceLength ? 1 : 0;
-					let slice = measures.map(loop => loop.slice(sliceLength * whichHalf, sliceLength + sliceLength * whichHalf));
+					let slice = measures.map(voice => voice.slice(sliceLength * whichHalf, sliceLength + sliceLength * whichHalf));
 					if (slice.flatMap(l => l).every(n => n[0] === null)) {
 						if (tempCount === 0) {
 							ctx.fillText('𝄼', tempX + colWidth, staffY + 11 * h); // 2n rest
@@ -305,8 +305,8 @@ export function Score(app) {
 					}
 
 					else if (tempCount % 2 === 0) {
-						if (slice.filter(loop => loop[tempCount+1])
-								.every(loop => loop[tempCount+1][0] === null)) {
+						if (slice.filter(voice => voice[tempCount+1])
+								.every(voice => voice[tempCount+1][0] === null)) {
 							ctx.fillText('𝄽', tempX + colWidth / 2, staffY + 11.5 * h); // 4n rest
 						} else {
 							ctx.fillText('𝄾', tempX, staffY + 11.5 * h); // 8n rest
@@ -314,8 +314,8 @@ export function Score(app) {
 					}
 
 
-					else if (slice.filter(loop => loop[tempCount-1])
-							.every(loop => loop[tempCount-1][0] !== null)) { 
+					else if (slice.filter(voice => voice[tempCount-1])
+							.every(voice => voice[tempCount-1][0] !== null)) { 
 						ctx.fillText('𝄾', tempX, staffY + 11.5 * h); // 8n rest
 					}
 				}
@@ -370,7 +370,7 @@ export function Score(app) {
 						let sliceLength = noteDuration / 4 * 2; // 1 half note worth 
 						let tempCount = noteCount % sliceLength; // deal with one half
 						let whichHalf = noteCount >= sliceLength ? 1 : 0;
-						let slice = measures.map(loop => loop.slice(sliceLength * whichHalf, sliceLength + sliceLength * whichHalf));
+						let slice = measures.map(voice => voice.slice(sliceLength * whichHalf, sliceLength + sliceLength * whichHalf));
 
 						// console.log('slice', slice);
 						
@@ -378,7 +378,7 @@ export function Score(app) {
 						let len = 0;
 
 						for (let k = 0; k < sliceLength; k++) {
-							let n = slice.filter(loop => loop[k]).map(loop => loop[k]);
+							let n = slice.filter(voice => voice[k]).map(voice => voice[k]);
 							// console.log('n', n);
 							if (k > tempCount) {
 								if (n.every(e => e[0] === null) || 
@@ -401,8 +401,8 @@ export function Score(app) {
 						} 
 						else {
 							tail = slice
-								.filter(loop => loop[tempCount - 1])
-								.every(loop => loop[tempCount - 1][0] === null);
+								.filter(voice => voice[tempCount - 1])
+								.every(voice => voice[tempCount - 1][0] === null);
 						}
 
 						// stem for this note
@@ -440,8 +440,8 @@ export function Score(app) {
 		}
 	}
 
-	function update(loops) {
-		draw(loops);
+	function update(voices) {
+		draw(voices);
 	}
 
 	function connect() {

@@ -31,9 +31,9 @@ export function Playback(app) {
 			noMods: noMods,
 			onModulate: count => {
 				modCountUI.text = 'Modulation: ' + count;
-				app.score.update(doodoo.getLoops());
+				app.score.update(doodoo.getVoices());
 				if (count < withCount || withCount === undefined) { // prevent logging next play after stop
-					app.monitor.update(doodoo.getLoops());
+					app.monitor.update(doodoo.getVoices());
 				}
 			},
 			useMetro: useMetro,
@@ -46,7 +46,7 @@ export function Playback(app) {
 		});
 		// setting?
 		if (saveOnPlay) app.fio.saveLocal(false);
-		app.score.update(doodoo.getLoops());
+		app.score.update(doodoo.getVoices());
 	}
 
 	function isRecording() {
@@ -106,9 +106,9 @@ export function Playback(app) {
 			row: true,
 			callback() {
 				if (!doodoo) return;
-				doodoo.printLoops();
+				doodoo.printVoices();
 			},
-			text: 'Print Loops',
+			text: 'Print Voices',
 			key: 'p',
 		});
 

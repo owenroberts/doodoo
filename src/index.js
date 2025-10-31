@@ -10,7 +10,7 @@ window.addEventListener("load", function() {
 		if (ev.key === 'a') doodoo.play();
 		if (ev.key === 's') doodoo.stop();
 		if (ev.key === 'd') doodoo.mutate();
-		if (ev.key === 'f') doodoo.printLoops(); // debug
+		if (ev.key === 'f') doodoo.printVoices(); // debug
 		if (ev.key === 'r') doodoo.record();
 		if (ev.key === 'c') console.log(composition);
 	});
