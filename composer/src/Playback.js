@@ -12,6 +12,7 @@ export function Playback(app) {
 	let useMetro = false;
 	let modCountUI;
 	let saveOnPlay = true;
+	let isSavePerformance = false;
 
 	function play(withRecording, withCount, noMods) {
 		const comp = app.composition.get() ?? {};
@@ -26,23 +27,24 @@ export function Playback(app) {
 
 		doodoo = new Doodoo({
 			...comp,
-			withRecording: withRecording,
-			withCount: withCount,
-			noMods: noMods,
+			withRecording,
+			withCount,
+			noMods,
 			onModulate: count => {
-				modCountUI.text = 'Modulation: ' + count;
+				modCountUI.text = count;
 				app.score.update(doodoo.getVoices());
 				if (count < withCount || withCount === undefined) { // prevent logging next play after stop
 					app.monitor.update(doodoo.getVoices());
 				}
 			},
-			useMetro: useMetro,
+			useMetro,
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
 			mods: app.modulators.getMods(),
 			partMods: app.modulators.getPartMods(),
 			startLoops: app.startLoops.get(),
 			useDefaultProps: true,
+			isSavePerformance,
 		});
 		// setting?
 		if (saveOnPlay) app.fio.saveLocal(false);
@@ -69,11 +71,20 @@ export function Playback(app) {
 				text: 'Stop',
 				callback: () => { if (doodoo) doodoo.stop(); }, 
 			},
-			{ callback: play, key: 'r', text: 'Record', args: [true] },
-			{
-				key: 'shift-/', text: 'Play wo Mods',
-				callback: () => { play(false, false, true); }, 
+			{ 
+				key: 'r', 
+				text: 'Record', 
+				callback: () => { play(true) },
 			},
+			{ 
+				key: 'c',
+				text: 'Play count', 
+				callback: () => { play(false, +prompt('Loop count?', 10)) },
+			},
+			// {
+			// 	key: 'shift-/', text: 'Play wo Mods',
+			// 	callback: () => { play(false, false, true); }, 
+			// },
 			{ 
 				key: 'd', 
 				text: 'Mutate',
@@ -81,9 +92,10 @@ export function Playback(app) {
 			}
 		], playBackPanel);
 
+		playBackPanel.add(new UILabel({ text: 'Loop' }));
 		modCountUI = playBackPanel.add(new UILabel({
-			id: 'modulation-count',
-			text: 'Modulation 0',
+			id: 'loop-count',
+			text: '0',
 		}));
 
 		app.ui.addProps({
@@ -99,6 +111,12 @@ export function Playback(app) {
 				value: saveOnPlay,
 				label: "Save on play",
 				callback: value => { saveOnPlay = value; },
+			},
+			"isSavePerformance": {
+				type: "UIToggleCheck",
+				value: isSavePerformance,
+				label: "Save performance",
+				callback: value => { isSavePerformance = value; },
 			}
 		}, playBackPanel);
 

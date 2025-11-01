@@ -12,7 +12,7 @@ import { SamplePaths } from './SamplePaths.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './Midi.js';
 import { Effects } from './Effects.js';
 import { Part } from './Part.js';
-import { random, chance } from '../../cool/cool.js';
+import { random, chance, getDate } from '../../cool/cool.js';
 import { Bundle } from './Bundle.js';
 
 export function Doodoo(params, callback) {
@@ -49,6 +49,9 @@ export function Doodoo(params, callback) {
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
 	let noMods = params.noMods ?? false;
+
+	let isSavePerformance = params.isSavePerformance ?? false;
+	let performance = { date: getDate(), loops: [] };
 
 	let useDefaultProps = params.useDefaultProps ?? true;
 	// wtf what is props = mods
@@ -125,7 +128,7 @@ export function Doodoo(params, callback) {
 
 	if (withRecording) {
 		recorder = new Tone.Recorder();
-		if (!withCount) withCount = +prompt('Record number of modulations?', 10);
+		if (!withCount) withCount = +prompt('Record number of loops?', 10);
 	}
 
 	if (autoLoad) loadTone();
@@ -251,8 +254,8 @@ export function Doodoo(params, callback) {
 					beat = parseInt(beat) * 2 + 'n';
 					let t = Tone.Time(beat).toSeconds();
 					try {
-						voice.instrument.triggerAttackRelease(pitch, beat, time, velocity);
-						voice.instrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+						voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
+						voice.toneInstrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
 						console.log('that null error!'); // but its not a null value, its prob Infinity value for t
 						console.log('voice', voice);
@@ -265,7 +268,7 @@ export function Doodoo(params, callback) {
 						console.warn(err);
 					}
 				} else {
-					voice.instrument.triggerAttackRelease(pitch, beat, time, velocity);
+					voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 
 			}
@@ -280,6 +283,17 @@ export function Doodoo(params, callback) {
 	}
 
 	function generateLoop() {
+		// console.log(withCount, totalPlays, withCount * sequence[0].length);
+		if (withCount) {
+			if (totalPlays > withCount * sequence[0].length) {
+				Tone.Transport.stop();
+				isPlaying = false;
+				if (recorder) saveRecording();
+				if (isSavePerformance) savePerformance();
+				return;
+			}
+		}
+
 		beatCount = 0;
 		disposePrevious();
 		voices = []; // play all voices from parts together
@@ -364,20 +378,20 @@ export function Doodoo(params, callback) {
 				const transposePitch = getTranspose(transpose, voiceParams.transpose);
 
 				let melody;
-				 if (harmony === 0) {
+				if (harmony === 0) {
 					melody = getMelody(voiceParams.melody, tonic, transposePitch, scale);
 				} else {
 					melody = getHarmony(voiceParams.melody, tonic, transposePitch, harmony, scale, useOctave, harmonyScaleOnly);
 				}
 
-				const instrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
-				voices.push({ ...voiceParams, melody, instrument, });
+				const toneInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+				voices.push({ ...voiceParams, melody, toneInstrument, });
 
 				if (voiceParams.counterpoint) {
 					const mel = getMelody(voiceParams.melody, tonic, transposePitch, scale);
 					const counterpoint = getCounterpoint(mel, transposePitch, scale);
 					const counterInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
-					voices.push({ ...voiceParams, melody: counterpoint, instrument: counterInstrument });
+					voices.push({ ...voiceParams, melody: counterpoint, toneInstrument: counterInstrument });
 				}
 			}
 		}
@@ -410,13 +424,13 @@ export function Doodoo(params, callback) {
 		totalPlays++;
 		
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
-
-		if (withCount) {
-			if (totalPlays > withCount * sequence[0].length) {
-				Tone.Transport.stop();
-				isPlaying = false;
-				if (recorder) saveRecording();
-			}
+		
+		if (isSavePerformance) {
+			performance.loops.push({
+				voices,
+				totalBeats,
+				interval: smallestBeat + 'n',
+			});
 		}
 
 		if (onLoop) onLoop(totalPlays);
@@ -492,7 +506,7 @@ export function Doodoo(params, callback) {
 		const disposeMe = [];
 		
 		for (let i = 0; i < voices.length; i++) {
-			disposeMe.push(voices[i].instrument);
+			disposeMe.push(voices[i].toneInstrument);
 		}
 
 		for (let i = 0; i < fxToDispose.length; i++) {
@@ -576,6 +590,21 @@ export function Doodoo(params, callback) {
 		return recorder.state === 'started' || recorder.state === 'paused';
 	}
 
+	function savePerformance() {
+		
+		performance.loops.forEach(loop => {
+			loop.voices.forEach(voice => {
+				voice.count = 0;
+				delete voice.toneInstrument;
+			})
+		});
+		let perf = JSON.stringify(performance);
+		let title = prompt("Name performance", "Name");
+		localStorage.setItem('greg-perf-' + title, perf);
+		const blob = new Blob([perf], { type: 'application/x-download;charset=utf-8' });
+		saveAs(blob, title + '.json');
+	}
+
 	function play() {
 		if (!autoLoad && !samplesLoaded) return loadTone();
 		if (loadInstruments.length > 0 && !samplesLoaded) {
@@ -593,15 +622,17 @@ export function Doodoo(params, callback) {
 	}
 
 	function stop() {
+		console.log('stop');
 		Tone.Transport.stop();
 		toneLoop.stop();
 		for (let i = 0; i < voices.length; i++) {
-			// voices[i].instrument.volume.rampTo(-128, 0.1, '+0');
-			voices[i].instrument.triggerRelease();
+			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
+			voices[i].toneInstrument.triggerRelease();
 		}
 		disposePrevious();
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
+		if (isSavePerformance) savePerformance();
 	}
 
 	function playNext() {
