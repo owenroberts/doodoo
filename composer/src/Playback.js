@@ -5,7 +5,7 @@
 import * as Tone from 'tone';
 import { Doodoo } from '../../src/Doodoo.js';
 import { Elements } from '../../../ui/src/UI.js';
-const { UILabel } = Elements;
+const { UILabel, UIModal, UIButton } = Elements;
 
 export function Playback(app) {
 	let doodoo;
@@ -14,41 +14,72 @@ export function Playback(app) {
 	let saveOnPlay = true;
 	let isSavePerformance = false;
 
-	function play(withRecording, withCount, noMods) {
-		const comp = app.composition.get() ?? {};
-		if (comp.parts.every(p => p.length === 0)) {
-			return alert('Add notes to the melody.');
-		}
+	function play(withRecording, withCount, noMods, localPerformance) {
 
 		if (doodoo) {
 			doodoo.stop();
 			Tone.Transport.cancel();
 		}
 
-		doodoo = new Doodoo({
-			...comp,
+		const doodooParams = {
 			withRecording,
 			withCount,
 			noMods,
 			onModulate: count => {
 				modCountUI.text = count;
 				app.score.update(doodoo.getVoices());
-				if (count < withCount || withCount === undefined) { // prevent logging next play after stop
-					app.monitor.update(doodoo.getVoices());
-				}
+				app.monitor.update(doodoo.getVoices());
 			},
 			useMetro,
 			useMeter: app.meter.isOpen(),
 			setMeter: app.meter.setMeter,
-			mods: app.modulators.getMods(),
-			partMods: app.modulators.getPartMods(),
-			startLoops: app.startLoops.get(),
-			useDefaultProps: true,
-			isSavePerformance,
-		});
+		};
+
+		if (localPerformance) {
+			doodooParams.performance = localPerformance;
+			doodooParams.isPerformance = true;
+		} else {
+			const comp = app.composition.get() ?? {};
+			if (comp.parts.every(p => p.length === 0)) {
+				return alert('Add notes to the melody.');
+			}
+
+			Object.assign(doodooParams, { ...comp });
+			doodooParams.mods = app.modulators.getMods();
+			doodooParams.partMods = app.modulators.getPartMods();
+			doodooParams.startLoops = app.startLoops.get();
+			doodooParams.useDefaultProps = true;
+			doodooParams.isSavePerformance = isSavePerformance;
+			doodooParams.isPerformance = false;
+		}
+
+		doodoo = new Doodoo(doodooParams);
 		// setting?
 		if (saveOnPlay) app.fio.saveLocal(false);
 		app.score.update(doodoo.getVoices());
+	}
+
+	function playPerformance(withRecording) {
+		const m = new UIModal({
+			app: app,
+			title: "Saved performances",
+			position: [200, 120],
+		});
+
+		const savedPerformances = Object.keys(localStorage)
+			.filter(k => k.includes('greg-perf'));
+
+		savedPerformances.forEach(title => {
+			m.add(new UIButton({
+				text: title.replace('greg-', ''),
+				callback: () => {
+					const perf = JSON.parse(localStorage.getItem(title));
+					play(withRecording, false, false, perf); 
+					m.clear();
+				}
+			}));
+			m.addBreak();
+		});
 	}
 
 	function isRecording() {
@@ -89,7 +120,12 @@ export function Playback(app) {
 				key: 'd', 
 				text: 'Mutate',
 				callback: () => { if (doodoo) doodoo.modulate(); },
-			}
+			},
+			{
+				key: 'x',
+				text: "Play performance",
+				callback: playPerformance,
+			},
 		], playBackPanel);
 
 		playBackPanel.add(new UILabel({ text: 'Loop' }));

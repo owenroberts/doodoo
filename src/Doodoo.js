@@ -49,9 +49,7 @@ export function Doodoo(params, callback) {
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
 	let noMods = params.noMods ?? false;
-
-	let isSavePerformance = params.isSavePerformance ?? false;
-	let performance = { date: getDate(), loops: [] };
+	
 
 	let useDefaultProps = params.useDefaultProps ?? true;
 	// wtf what is props = mods
@@ -98,33 +96,25 @@ export function Doodoo(params, callback) {
 	let meter;
 	let recorder;
 	let metro;
-
-	// have to get default beat before going through the parts ...
-	params.parts.forEach(part => {
-		part.forEach(note => {
-			if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = note[1];
-		});
-	});
-
-	props.beatList?.list.forEach(beat => {
-		if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
-	});
-
+	
 	// for now, treat parts as having the same format, determined by composer app
 	// later, module to convert old versions if necessary
 	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
-	for (let i = 0; i < params.parts.length; i++) {
-		let partProps = {};
-		if (partMods[i]) {
-			partProps = { ...props, ...partMods[i] };
-		} else {
-			partProps = { ...props };
-		}
-		parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
+	const scaleMod = new Bundle(props.scale, 'scale');
+
+	let isSavePerformance = params.isSavePerformance ?? false;
+	let performance = { 
+		loops: [],
+		date: getDate(), 
+	};
+	let performanceLoopIndex = 0;
+	if (params.isPerformance) {
+		performance = structuredClone(params.performance);
+	} else {
+		init();
 	}
 
-	const scaleMod = new Bundle(props.scale, 'scale');
 
 	if (withRecording) {
 		recorder = new Tone.Recorder();
@@ -132,6 +122,29 @@ export function Doodoo(params, callback) {
 	}
 
 	if (autoLoad) loadTone();
+
+	function init() {
+		// have to get default beat before going through the parts ...
+		params.parts.forEach(part => {
+			part.forEach(note => {
+				if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = note[1];
+			});
+		});
+
+		props.beatList?.list.forEach(beat => {
+			if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
+		});
+
+		for (let i = 0; i < params.parts.length; i++) {
+			let partProps = {};
+			if (partMods[i]) {
+				partProps = { ...props, ...partMods[i] };
+			} else {
+				partProps = { ...props };
+			}
+			parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
+		}
+	}
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
@@ -213,7 +226,13 @@ export function Doodoo(params, callback) {
 			params.getFFT(fft);
 		}
 		
-		if (autoStart || playOnStart) generateLoop();
+		if (autoStart || playOnStart) {
+			if (params.isPerformance) {
+				getPerformanceLoop();
+			} else {
+				generateLoop();
+			}
+		}
 
 		if (useMetro) {
 			metro = new Tone.MetalSynth({
@@ -278,7 +297,11 @@ export function Doodoo(params, callback) {
 
 		beatCount++;
 		if (beatCount === totalBeats && !waitForModTrigger) {
-			generateLoop();
+			if (params.isPerformance) {
+				getPerformanceLoop();
+			} else {
+				generateLoop();
+			}
 		}
 	}
 
@@ -433,6 +456,35 @@ export function Doodoo(params, callback) {
 		}
 
 		if (onLoop) onLoop(totalPlays);
+	}
+
+	function getPerformanceLoop() {
+		if (performanceLoopIndex >= performance.loops.length) {
+			Tone.Transport.stop();
+			isPlaying = false;
+			if (recorder) saveRecording();
+			return;
+		}
+		beatCount = 0;
+		disposePrevious();
+		const loop = structuredClone(performance.loops[performanceLoopIndex]); 
+		voices = loop.voices;
+		totalBeats = loop.totalBeats;
+		toneLoop.interval = loop.interval;
+		totalPlays++;
+
+		for (let i = 0; i < voices.length; i++) {
+			const voiceParams = voices[i];
+			voices[i].toneInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+		}
+
+		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
+		if (onLoop) onLoop(totalPlays);
+		if (params.onModulate) {
+			params.onModulate(totalPlays, totalPlays / performance.loops.length);
+		}
+		performanceLoopIndex++;
+
 	}
 
 	function getInstrument(instrument, voiceParams) {
@@ -610,7 +662,11 @@ export function Doodoo(params, callback) {
 			playOnStart = true;
 			return;
 		}
-		generateLoop();
+		if (params.isPerformance) {
+			getPerformanceLoop();
+		} else {
+			generateLoop();
+		}
 
 		toneLoop.start(Tone.Transport.seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
@@ -621,7 +677,6 @@ export function Doodoo(params, callback) {
 	}
 
 	function stop() {
-		console.log('stop');
 		Tone.Transport.stop();
 		toneLoop.stop();
 		for (let i = 0; i < voices.length; i++) {
@@ -636,7 +691,11 @@ export function Doodoo(params, callback) {
 
 	function playNext() {
 		// with waitForModTrigger
-		generateLoop();
+		if (params.isPerformance) {
+			getPerformanceLoop();
+		} else {
+			generateLoop();
+		}
 	}
 
 	return {
