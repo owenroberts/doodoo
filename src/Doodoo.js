@@ -283,9 +283,8 @@ export function Doodoo(params, callback) {
 	}
 
 	function generateLoop() {
-		// console.log(withCount, totalPlays, withCount * sequence[0].length);
 		if (withCount) {
-			if (totalPlays > withCount * sequence[0].length) {
+			if (totalPlays >= withCount * sequence[0].length) {
 				Tone.Transport.stop();
 				isPlaying = false;
 				if (recorder) saveRecording();
