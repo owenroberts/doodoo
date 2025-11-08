@@ -5,10 +5,9 @@
 */
 
 import { Elements } from '../../../ui/src/UI.js';
-import { Interface } from '../../../ui/src/UI.js';
+import { Interface, labelFromKey } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
-const { labelFromKey } = Interface();
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList } = Elements;
 
 export function ModEditor(app) {

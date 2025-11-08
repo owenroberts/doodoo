@@ -79,17 +79,22 @@ export function Part(part, props, defaultBeat, comp, debug) {
 		return beats;
 	}
 
-	function get(startLoops) {
+	function get(startLoops, voiceCountOverride) {
+
+		// console.log({startLoops})
 
 		const voices = []; // need a better word, voices? instruments?
-		const voiceNum = startLoops.length > 0 ? startLoops.length : mods.voiceNum.getInt();
+		let voiceCount = startLoops.length > 0 ? startLoops.length : mods.voiceNum.getInt();
+		if (voiceCountOverride > 0) {
+			voiceCount = voiceCountOverride;
+		}
 		
 		// new beat mod can't be smaller than default -- for now
 		// maybe needs to be defaultBeatNum / 2, not sure after working on repeat
-		const beatMods = [...Array(voiceNum)].map(() => mods.beatList.get());
+		const beatMods = [...Array(voiceCount)].map(() => mods.beatList.get());
 		const maxBeat = Math.min(...beatMods);
 		
-		for (let i = 0; i < voiceNum; i++) {
+		for (let i = 0; i < voiceCount; i++) {
 			
 			// set beginning velocity before generating voice
 			const velocity = mods.velocity.get();
@@ -164,6 +169,7 @@ export function Part(part, props, defaultBeat, comp, debug) {
 			if (startLoops) {
 				if (startLoops[i]) {
 					for (const prop in startLoops[i]) {
+						// console.log(i, prop, startLoops[i])
 						voice[prop] = startLoops[i][prop];
 					}
 				}

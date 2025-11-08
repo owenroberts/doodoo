@@ -10,11 +10,10 @@
 */
 
 import { Elements } from '../../../ui/src/UI.js';
-import { Interface } from '../../../ui/src/UI.js';
+import { Interface, labelFromKey } from '../../../ui/src/UI.js';
 import { PropertyDefaults } from '../../src/PropertyDefaults.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
-const { labelFromKey } = Interface();
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UIToggle } = Elements;
 
 // defaults are the default settings for props and mods

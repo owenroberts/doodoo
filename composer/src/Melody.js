@@ -311,7 +311,7 @@ export function Melody(app, defaults) {
 		app.ui.addCallbacks([
 			{ callback: removePart, text: '–', class: 'left-end' },
 			{ callback: addPart, text: '+', class: 'right-end' },
-			{ callback: clearPart, text: 'Clear', key: '0' },
+			{ callback: clearPart, text: 'Clear', key: 'ctrl-x' },
 		], melodyPanel);
 
 		sequenceGrid = app.ui.addUI({

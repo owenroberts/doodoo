@@ -5,16 +5,22 @@
 import * as Tone from 'tone';
 import { Doodoo } from '../../src/Doodoo.js';
 import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UIModal, UIButton } = Elements;
+const { UILabel, UIModal, UIButton, UIElement } = Elements;
 
 export function Playback(app) {
+
 	let doodoo;
 	let useMetro = false;
 	let modCountUI;
 	let saveOnPlay = true;
 	let isSavePerformance = false;
 
-	function play(withRecording, withCount, noMods, localPerformance) {
+	function updateLive(loopControls) {
+		if (!doodoo) return;
+		doodoo.updateLive(loopControls);
+	}
+
+	function play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false, loopControls }) {
 
 		if (doodoo) {
 			doodoo.stop();
@@ -24,11 +30,16 @@ export function Playback(app) {
 		const doodooParams = {
 			withRecording,
 			withCount,
-			noMods,
+			// noMods,
+			isLiveMode,
+			loopControls,
 			onModulate: count => {
 				modCountUI.text = count;
 				app.score.update(doodoo.getVoices());
 				app.monitor.update(doodoo.getVoices());
+			},
+			onStop: () => {
+				app.live.off();
 			},
 			useMetro,
 			useMeter: app.meter.isOpen(),
@@ -53,7 +64,7 @@ export function Playback(app) {
 			doodooParams.isPerformance = false;
 		}
 
-		doodoo = new Doodoo(doodooParams);
+		doodoo = Doodoo(doodooParams);
 		// setting?
 		if (saveOnPlay) app.fio.saveLocal(false);
 		app.score.update(doodoo.getVoices());
@@ -74,7 +85,7 @@ export function Playback(app) {
 				text: title.replace('greg-', ''),
 				callback: () => {
 					const perf = JSON.parse(localStorage.getItem(title));
-					play(withRecording, false, false, perf); 
+					play({ withRecording, localPerformance: perf }); 
 					m.clear();
 				}
 			}));
@@ -95,7 +106,7 @@ export function Playback(app) {
 			{ 
 				key: '.', 
 				text: 'Play Once',
-				callback: () => { play(false, 1); }, 
+				callback: () => { play({ withRecording: false, withCount: 1 }); }, 
 			},
 			{ 
 				key: ',', 
@@ -105,22 +116,27 @@ export function Playback(app) {
 			{ 
 				key: 'r', 
 				text: 'Record', 
-				callback: () => { play(true) },
+				callback: () => { play({ withRecording: true }) },
 			},
 			{ 
 				key: 'c',
 				text: 'Play count', 
-				callback: () => { play(false, +prompt('Loop count?', 10)) },
+				callback: () => { 
+					play({ 
+						withRecording: false, 
+						withCount: +prompt('Loop count?', 10) 
+					}); 
+				},
 			},
 			// {
 			// 	key: 'shift-/', text: 'Play wo Mods',
 			// 	callback: () => { play(false, false, true); }, 
 			// },
-			{ 
-				key: 'd', 
-				text: 'Mutate',
-				callback: () => { if (doodoo) doodoo.modulate(); },
-			},
+			// { 
+			// 	key: 'd', 
+			// 	text: 'Mutate',
+			// 	callback: () => { if (doodoo) doodoo.modulate(); },
+			// },
 			{
 				key: 'x',
 				text: "Play performance",
@@ -142,6 +158,11 @@ export function Playback(app) {
 				key: 'm',
 				callback: value => { useMetro = value; },
 			},
+		}, playBackPanel);
+
+		playBackPanel.addBreak();
+
+		app.ui.addProps({
 			"saveOnPlay": {
 				type: "UIToggleCheck",
 				value: saveOnPlay,
@@ -176,5 +197,5 @@ export function Playback(app) {
 		});
 	}
 
-	return { connect, isRecording };
+	return { connect, play, updateLive, isRecording };
 }

@@ -26,10 +26,10 @@ export function Monitor(app) {
 
 	function formatProp(prop, value) {
 
-		if (prop === 'instrument') {
-			if (value.instrument) return value.instrument;
-			return value.name;
-		}
+		// if (prop === 'instrument') {
+		// 	if (value.instrument) return value.instrument;
+		// 	return value.name;
+		// }
 		if (prop === 'melody') {
 			return value.filter(n => n[0] !== null).map(n => ` ${n[0]}:${n[1]}`);
 		}

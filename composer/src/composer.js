@@ -1,5 +1,7 @@
 import '../css/composer.scss';
 
+import { getDate } from '../../../cool/cool.js';
+
 import { PropertyDefaults } from '../../src/PropertyDefaults.js';
 import { Interface, Settings } from '../../../ui/src/UI.js';
 
@@ -13,13 +15,13 @@ import { Monitor } from './Monitor.js';
 import { Playback } from './Playback.js';
 import { Score } from './Score.js';
 import { StartLoops } from './StartLoops.js';
-import { getDate } from '../../../cool/cool.js';
+import { Live } from './Live.js';
 
 import DefaultWorkspace from '../workspaces/Default.json';
 
 const app = {};
 const comp = {
-	title: 'Doodoo_' + getDate(),
+	title: 'doodoo_' + getDate(),
 	tonic: 'C4', // def to transform ...
 	scale: [0, 2, 4, 5, 7, 9, 11],
 	beat:  '4n',
@@ -37,6 +39,7 @@ app.monitor = Monitor(app);
 app.modulators = Modulators(app, PropertyDefaults);
 app.modEditor = ModEditor(app);
 app.startLoops = StartLoops(app, PropertyDefaults);
+app.live = Live(app);
 
 app.ui = Interface(app, { useMain: true });
 app.ui.setup();
@@ -50,6 +53,7 @@ app.monitor.connect();
 app.modulators.connect();
 app.modEditor.connect();
 app.startLoops.connect();
+app.live.connect();
 
 app.ui.settings = Settings(app, {
 	name: 'doodoo',

@@ -49,7 +49,13 @@ export function Doodoo(params, callback) {
 	let onLoop = params.onLoop ?? false;
 	let onNote = params.onNote ?? false;
 	let noMods = params.noMods ?? false;
-	
+
+	let isLiveMode = params.isLiveMode ?? false;
+	let voiceCountOverride = 0; // for live mode
+	let loopControls = params.loopControls;
+	if (isLiveMode) {
+		startLoops = [];
+	}
 
 	let useDefaultProps = params.useDefaultProps ?? true;
 	// wtf what is props = mods
@@ -148,6 +154,7 @@ export function Doodoo(params, callback) {
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
+		console.log('load');
 		try {
 			await Tone.start();
 			// only load if using samples
@@ -327,17 +334,22 @@ export function Doodoo(params, callback) {
 		for (let i = 0; i < parts.length; i++) {
 			if (sequence[i][sequenceIndex]) {
 				const partCount = parts[i].getCount(); // rewrite as class -- this is "loop count" maybe
-				let startIndex = 0;
-				for (let j = 0; j < startLoops.length; j++) {
-					if (partCount < startIndex + startLoops[j].counts) {
-						startIndex = j;
-						break;
-					} else {
-						startIndex += startLoops[j].counts;
+				let starts;
+				if (isLiveMode) {
+					starts = startLoops;
+				} else {
+					let startIndex = 0;
+					for (let j = 0; j < startLoops.length; j++) {
+						if (partCount < startIndex + startLoops[j].counts) {
+							startIndex = j;
+							break;
+						} else {
+							startIndex += startLoops[j].counts;
+						}
 					}
+				 	starts = startIndex < startLoops.length ? startLoops[startIndex].loops : [];
 				}
-				const starts = startIndex < startLoops.length ? startLoops[startIndex].loops : [];
-				const partVoices = parts[i].get(starts);
+				const partVoices = parts[i].get(starts, voiceCountOverride);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});
@@ -400,19 +412,26 @@ export function Doodoo(params, callback) {
 				const transposePitch = getTranspose(transpose, voiceParams.transpose);
 
 				let melody;
-				if (harmony === 0) {
+				if (voiceParams.hasOwnProperty("liveLoopIndex")) {
+					melody = voiceParams.melody;
+				} else if (harmony === 0) {
 					melody = getMelody(voiceParams.melody, tonic, transposePitch, scale);
 				} else {
+					// if live loop, melody is already transposed
 					melody = getHarmony(voiceParams.melody, tonic, transposePitch, harmony, scale, useOctave, harmonyScaleOnly);
 				}
 
 				const toneInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
 				voices.push({ ...voiceParams, melody, toneInstrument, });
 
+				// fuck for live this doesn't work ... ignore counterpoint for now ... 
 				if (voiceParams.counterpoint) {
 					const mel = getMelody(voiceParams.melody, tonic, transposePitch, scale);
 					const counterpoint = getCounterpoint(mel, transposePitch, scale);
 					const counterInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
+						delete voiceParams.liveLoopIndex;
+					}
 					voices.push({ ...voiceParams, melody: counterpoint, toneInstrument: counterInstrument });
 				}
 			}
@@ -455,6 +474,10 @@ export function Doodoo(params, callback) {
 			});
 		}
 
+		if (isLiveMode) {
+			updateLive();
+		}
+
 		if (onLoop) onLoop(totalPlays);
 	}
 
@@ -484,7 +507,63 @@ export function Doodoo(params, callback) {
 			params.onModulate(totalPlays, totalPlays / performance.loops.length);
 		}
 		performanceLoopIndex++;
+	}
 
+
+	function cloneVoice(voice) {
+		let clone = {};
+		for (let k in voice) {
+			if (k === 'toneInstrument') continue;
+			clone[k] = structuredClone(voice[k]);
+		}
+		clone.count = 0;
+		return clone;
+	}
+
+	function updateLive(newLoopControls) {
+
+		if (newLoopControls) loopControls = newLoopControls;
+
+		// reset start loops
+		startLoops = [];
+
+		// assign voices to loops
+		for (let i = 0; i < loopControls.length; i++) {
+			if (loopControls[i] === 1) {
+				let isLoopFound = false;
+				for (let j = 0; j < voices.length; j++) {
+					if (voices[j].liveLoopIndex === i) {
+						startLoops.push(cloneVoice(voices[j]));
+						isLoopFound = true;
+					}
+				}
+				if (!isLoopFound) {
+					for (let j = 0; j < voices.length; j++) {
+						if (isLoopFound) continue;
+						if (voices[j].hasOwnProperty('liveLoopIndex')) continue;
+						let v = cloneVoice(voices[j]);
+						v.liveLoopIndex = i;
+						startLoops.push(v);
+						isLoopFound = true;
+					}
+				}
+			}
+		}
+
+		// add new loops if needed
+		// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
+		let voiceCount = loopControls.filter(c => c > 0).length;
+		if (voiceCount > startLoops.length) {
+			voiceCountOverride = voiceCount;
+		} else {
+			voiceCountOverride = 0;
+		}
+
+		if (voiceCount === 0) {
+			stop();
+		} else if (!isPlaying) {
+			play();
+		}
 	}
 
 	function getInstrument(instrument, voiceParams) {
@@ -662,6 +741,8 @@ export function Doodoo(params, callback) {
 			playOnStart = true;
 			return;
 		}
+		isPlaying = true;
+		
 		if (params.isPerformance) {
 			getPerformanceLoop();
 		} else {
@@ -672,7 +753,6 @@ export function Doodoo(params, callback) {
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
 
-		isPlaying = true;
 		if (withRecording) recorder.start();
 	}
 
@@ -687,6 +767,7 @@ export function Doodoo(params, callback) {
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
 		if (isSavePerformance) savePerformance();
+		if (params.onStop) params.onStop();
 	}
 
 	function playNext() {
@@ -701,6 +782,7 @@ export function Doodoo(params, callback) {
 	return {
 		play, stop, playNext, isRecording, modulate, 
 		setBPM, moveBPM, setTonic, moveTonic, moveScale,
+		updateLive,
 		getVoices: () => { return voices; },
 		isPlaying: () => { return isPlaying; },
 		getStatusIsPlaying: () => { return isPlaying; }, // old
@@ -713,7 +795,7 @@ export function Doodoo(params, callback) {
 			console.log('default beat', defaultBeat);
 			console.log('total plays', totalPlays);
 		}
-	}
+	};
 }
 
 // window.Doodoo = Doodoo;
