@@ -1,72 +1,95 @@
-/*
-	Property container for new part
-	returns, modulates values
-	{ value, mod } or { list, index, mod }
-	list with mod mods index
-*/
-
-
 import { Modulator } from './Modulator.js';
 import { random } from '../../cool/cool.js';
 
-export function Property(params={}, propName) {
-	// console.log('prop', propName)
+/**
+ * Property container
+ * tracks and modulates values
+ * single value { value , mod } 
+ * list { list, index, mod }
+ * stack (of lists)
+ */
+export class Property {
 
-	// default to value if no list and no value
-	let type = params.hasOwnProperty('list') ? 'list' : 'value';
-	if (params.hasOwnProperty('stack')) type = 'stack';
-	// console.log(propName, params);
+	/**
+	 * constructs a Property
+	 * @param  {object} [params]
+	 * @param  {string} [params.type] - type, value, list, stack
+	 * @param  {number|string|boolean} [params.value] - start value
+	 * @param  {number} [params.index] - start index in list
+	 * @param  {array} [params.list]
+	 * @param  {array[]} [params.stack]
+	 * @param  {string} propName name of the prop, debugging mostly
+	 */
+	constructor(params={}, name) {
 
-	let value = params.value ?? 0;
-	let index = params.index ?? 0;
-	let list = params.list ?? [];
-	let stack = params.stack ?? [];
+		this.name = name;
+		// default type to value
+		this.type = "value";
+		if (params.hasOwnProperty('list')) this.type = 'list';
+		if (params.hasOwnProperty('stack')) this.type = 'stack';
 
-	let isMod = false;
-	let mod;
+		// its a little nuts to have all of them in class version .. 
+		this.value = params.value ?? 0;
+		this.index = params.index ?? 0;
+		this.list = params.list ?? [];
+		this.stack = params.stack ?? [];
 
-	if (params.mod) {
-		isMod = true;
-		mod = type === 'value' ? 
-			new Modulator(value, params.mod, propName) :
-			new Modulator(index, params.mod, propName) ;
+		this.isMod = false;
+		if (params.mod) {
+			this.isMod = true;
+			this.mod = this.type === 'value' ? 
+				new Modulator(this.value, params.mod, name) :
+				new Modulator(this.index, params.mod, name) ;
+		}
 	}
 
-	function update(playCount) {
-		if (isMod) mod.update(playCount);
+	/**
+	 * update mod
+	 * @param  {number} loopCount - number of loops
+	 */
+	update(loopCount) {
+		if (this.isMod) this.mod.update(loopCount);
 	}
 
-	function get(voiceIndex) {
+	/**
+	 * get current value of property
+	 * @param  {number} voiceIndex - voice index in part
+	 * @return {number|string|boolean} value - current value 
+	 */
+	get(voiceIndex) {
 
-		if (type === 'stack') {
-			let value;
-			if (voiceIndex < stack.length) {
-				value = random(stack[voiceIndex].list);
+		if (this.type === 'stack') {
+			if (voiceIndex < this.stack.length) {
+				return random(this.stack[voiceIndex].list);
 			} else {
-				// get all the options in stack
-				// maybe change later
-				value = random(stack.flatMap(v => v.list));
+				return random(this.stack.flatMap(v => v.list));
 			}
-			return value;
 		}
 
-		if (type === 'list') {
-			let i = isMod ? Math.round(mod.get()) : index;
-			return list[Math.min(list.length - 1, i)];
+		if (this.type === 'list') {
+			let i = this.isMod ? Math.round(this.mod.get()) : this.index;
+			return this.list[Math.min(this.list.length - 1, i)];
+			// why do i need Math.min here?
 		} 
 
-		return isMod ? mod.get() : value;
+		return this.isMod ? this.mod.get() : this.value;
 	}
 
-	function set(_value) {
-		value = _value;
-		if (mod) mod.set(value);
+	/**
+	 * set current value
+	 * @param {number|string|boolean}
+	 */
+	set(value) {
+		// this only works for single value??
+		this.value = value;
+		if (this.mod) this.mod.set(value);
 	}
 
-	function getInt() {
-		return Math.round(get());
+	/**
+	 * get rounded int of current value
+	 * @return {number} - rounded value
+	 */
+	getInt() {
+		return Math.round(this.get());
 	}
-
-	return { update, get, set, getInt };
-
 }
