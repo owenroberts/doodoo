@@ -1,19 +1,12 @@
-/*
-	NewDoo
-	All properties used anywhere in Doodoo lol
-	kick, when to start modding
-	value (just the value), range (random), walk, walkUp, walkDown
-	anything that has a value (or list+index) can have a mod
-
-	should there be kind of generic default set up that does something interesting?
-	or should it be only if something is composed?
-	also means defaults need to be undone
-
-*/
-
 import { SamplePaths } from './SamplePaths.js';
 
-export const PropertyDefaults = {
+/**
+ * default settings for properties modulated by doodoo
+ * basically tries to do something interesting
+ * overwritten by composition mods
+ * @type {object}
+ */
+export const defaults = {
 	transpose: {
 		value: 0,
 		min: -128,
@@ -295,7 +288,7 @@ export const PropertyDefaults = {
 		}
 	},
 	// add decay and sustain?? and curves?? - only fm synth uses all those in envelope
-	// chance of rest ... 
+	// chance of rest ... restChange ???
 	rest: {
 		value: 0,
 		step: 0.05,

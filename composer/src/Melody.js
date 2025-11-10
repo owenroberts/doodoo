@@ -2,7 +2,7 @@
 	editing the melody!
 */
 
-import { MIDI_NOTES } from '../../src/Midi.js';
+import { MIDI_NOTES } from '../../src/midi.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = Elements;
 

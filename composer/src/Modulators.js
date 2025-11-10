@@ -11,7 +11,7 @@
 
 import { Elements } from '../../../ui/src/UI.js';
 import { Interface, labelFromKey } from '../../../ui/src/UI.js';
-import { PropertyDefaults } from '../../src/PropertyDefaults.js';
+import { defaults } from '../../src/defaults.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UIToggle } = Elements;
@@ -66,7 +66,7 @@ export function Modulators(app) {
 		if (propString.includes('-')) {
 			propLast = propString.split('-').pop();
 		}
-		return { ...PropertyDefaults[propLast], ...modDefaults[propLast] };
+		return { ...defaults[propLast], ...modDefaults[propLast] };
 	}
 
 	function addNewMod(propName, partIndex=-1) {
@@ -78,7 +78,7 @@ export function Modulators(app) {
 			if (partMods[partIndex].hasOwnProperty(propName)) return;
 		}
 
-		const defaultParams = structuredClone(PropertyDefaults[propName]);
+		const defaultParams = structuredClone(defaults[propName]);
 		if (partIndex < 0 && !mods[propName]) mods[propName] = defaultParams;
 		if (partIndex >= 0) {
 			if (!partMods[partIndex]) partMods[partIndex] = {};
@@ -247,7 +247,7 @@ export function Modulators(app) {
 				type: "UIInputSearch",
 				listName: "prop-list",
 				label: "Add mod:",
-				options: Object.keys(PropertyDefaults),
+				options: Object.keys(defaults),
 			}
 		});
 

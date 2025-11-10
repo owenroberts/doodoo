@@ -1,92 +1,110 @@
-/*
-	handles change over time
-	each property can be mod
-	{ value, mod }, or { list, index, mod }
-
-	needs defaults bc property defaults are 0
-*/
-
 import { Property } from './Property.js';
+import { ModulatorTypes, Bounds } from './Constants.js';
 import { random, chance, getNumberPrecision } from '../../cool/cool.js';
 
-export function Modulator(value, params, propName) {
-
-	// console.log('mod params', params);
-
-	let min = new Property(params.min ?? { value: 0 }, `${propName} min`);
-	let max = new Property(params.max ?? { value: 1 }, `${propName} max`);
-
-	// only min and max have and should need mods??? so no reason for props ... 
-	// maybe for consistency or future proofing?
-
-	let step = new Property(params.step ?? { value: 1 }, `${propName} step`);
-	// "kick in" index, wait plays before starting
-	let kick = new Property(params.kick ?? { value: 0 }, `${propName} kick`);
-	let chup = new Property(params.chance ?? { value: 0.5 }, `${propName} chup`); // chance of update
-	// let type = params.type ?? 'value'; // range, walk, value is no mod, walkUp, walkDown
-	let type = new Property(params.type ?? { value: 'value' }, `${propName} type`);
-	let bound = new Property(params.bound ?? { value: 'stay' }, `${propName} bound`);
-
+/**
+ * modulators change property values over time
+ * mod.get() replaces value of prop
+ * only mods numbers, for list and stack modulates index
+ */
+export class Modulator {
 	
-	let precision = params.step ? getNumberPrecision(params.step.value) : 0;
+	/**
+	 * create modulator
+	 * @param  {number} value  - starting value of property
+	 * @param  {object} params 
+	 * @param  {string} name   - name of property being modded
+	 */
+	constructor(value, params, name) {
 
-	/*
-		have to keep track if mod is "kicked off"
-		so can return value, not range
-	*/
-	let isKicked = kick.get() > 0 ? false : true;
+		this.value = value;
 
-	function update(playCount) {
-		if (!isKicked) {
-			if (playCount < kick.get()) return;
-			if (playCount >= kick.get()) isKicked = true;
+		/*
+			currently, only min and max have mods, therefore need properties
+			but for consistency and future proof all props are Properties
+		*/
+
+		this.min = new Property(params.min ?? { value: 0 }, `${name} min`);
+		this.max = new Property(params.max ?? { value: 1 }, `${name} max`);
+
+		this.step = new Property(params.step ?? { value: 1 }, `${name} step`);
+	
+		// "kick in" count, wait plays before starting
+		this.kick = new Property(params.kick ?? { value: 0 }, `${name} kick`);
+		this.isKicked = this.kick.get() > 0 ? false : true;
+
+		this.chup = new Property(params.chance ?? { value: 0.5 }, `${name} chup`); // chance of update
+		this.type = new Property(params.type ?? { value: ModulatorTypes.VALUE }, `${name} type`);
+		this.bound = new Property(params.bound ?? { value: Bounds.STAY }, `${name} bound`);
+		
+		// float precision to help with maths
+		this.precision = params.step ? getNumberPrecision(params.step.value) : 0;
+	}
+
+	/**
+	 * update the mod
+	 * @param  {number} playCount - play count from doodoo
+	 */
+	update(playCount) {
+		if (!this.isKicked) {
+			if (playCount < this.kick.get()) return;
+			if (playCount >= this.kick.get()) this.isKicked = true;
 		}
-		if (!chance(chup.get())) return;
+		if (!chance(this.chup.get())) return;
 
-		min.update(playCount);
-		max.update(playCount);
+		this.min.update(playCount);
+		this.max.update(playCount);
 
-		let s = step.get();
+		let s = this.step.get();
 
-		switch(type.get()) {
-			case 'walk': 
-				value += s * (chance(0.5) ? 1 : -1);
-				value = +value.toFixed(precision);
+		switch(this.type.get()) {
+			case ModulatorTypes.WALK: 
+				this.value += s * (chance(0.5) ? 1 : -1);
+				this.value = +this.value.toFixed(this.precision);
 			break;
-			case 'walkUp': 
-				value += s;
-				value = +value.toFixed(precision);
+			case ModulatorTypes.WALK_UP: 
+				this.value += s;
+				this.value = +this.value.toFixed(this.precision);
 			break;
-			case 'walkDown': 
-				value -= s;
-				value = +value.toFixed(precision);
+			case ModulatorTypes.WALK_DOWN: 
+				this.value -= s;
+				this.value = +this.value.toFixed(this.precision);
 			break;
 		}
 
 		// worry about min and reverse later .... 
-		if (value > max.get() && bound.get() === 'reset') value = min.get();
+		if (this.value > this.max.get() && this.bound.get() === 'reset') this.value = this.min.get();
 
-		clamp();
+		this.clamp();
 	}
 
-	function clamp() {
-		if (value < min.get()) value = min.get();
-		if (value > max.get()) value = max.get();
+	/**
+	 * clamp value between min and max
+	 */
+	clamp() {
+		if (this.value < this.min.get()) this.value = this.min.get();
+		if (this.value > this.max.get()) this.value = this.max.get();
 	}
 
-	function set(_value) {
-		value = _value;
-		if (isKicked) clamp();
+	/**
+	 * set value
+	 * @param {number} value
+	 */									
+	set(value) {
+		this.value = value;
+		if (this.isKicked) this.clamp();
 	}
 
-	function get() {
-		if (type.get() === 'range' && isKicked) {
-			return random(min.get(), max.get());
+	/**
+	 * get value
+	 * @return {number}
+	 */
+	get() {
+		if (this.type.get() === ModulatorTypes.RANGE && this.isKicked) {
+			return random(this.min.get(), this.max.get());
 		} else {
-			if (isKicked) clamp();
-			return value;
+			if (this.isKicked) this.clamp();
+			return this.value;
 		}
 	}
-
-	return { update, get, set };
 }

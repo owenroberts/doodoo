@@ -2,7 +2,7 @@ import '../css/composer.scss';
 
 import { getDate } from '../../../cool/cool.js';
 
-import { PropertyDefaults } from '../../src/PropertyDefaults.js';
+import { defaults } from '../../src/defaults.js';
 import { Interface, Settings } from '../../../ui/src/UI.js';
 
 import { Composition } from './Composition.js';
@@ -36,9 +36,9 @@ app.fio = FilesIO(app);
 app.score = Score(app);
 app.meter = Meter(app);
 app.monitor = Monitor(app);
-app.modulators = Modulators(app, PropertyDefaults);
+app.modulators = Modulators(app, defaults);
 app.modEditor = ModEditor(app);
-app.startLoops = StartLoops(app, PropertyDefaults);
+app.startLoops = StartLoops(app, defaults);
 app.live = Live(app);
 
 app.ui = Interface(app, { useMain: true });

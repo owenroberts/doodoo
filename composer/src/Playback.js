@@ -20,7 +20,7 @@ export function Playback(app) {
 		doodoo.updateLive(loopControls);
 	}
 
-	function play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false, loopControls }) {
+	function play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false, loopControls }={}) {
 
 		if (doodoo) {
 			doodoo.stop();

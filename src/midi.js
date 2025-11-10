@@ -1,7 +1,12 @@
-import { choice, coinFlip } from '../../cool/cool.js';
+import { choice, coinFlip, assert } from '../../cool/cool.js';
 
-const debug = false;
-const MIDI_NOTES = [
+const debug = false && import.meta.env.DEV;
+
+/**
+ * midi notes mapped to array index
+ * @type {array}
+ */
+export const MIDI_NOTES = [
 	"C_1", "C#_1", "D_1", "D#_1", "E_1", "F_1", "F#_1", "G_1", "G#_1", "A_1", "A#_1", "B_1",
 	"C0", "C#0", "D0", "D#0", "E0", "F0", "F#0", "G0", "G#0", "A0", "A#0", "B0",
 	"C1", "C#1", "D1", "D#1", "E1", "F1", "F#1", "G1", "G#1", "A1", "A#1", "B1",
@@ -15,9 +20,20 @@ const MIDI_NOTES = [
 	"C9", "C#9", "D9", "D#9", "E9", "F9", "F#9", "G9"
 ];
 
-const MIDI_RANGE = [12, 83]; // 83 is B5 -- should set locally ??
+/**
+ * restrict notes to this range, avoid too high or too low
+ * @type {array}
+ */
+export const MIDI_RANGE = [12, 83]; // 83 is B5 -- should set locally ??
 
-function constrainNoteRange(midiNoteNum) {
+/**
+ * constraints transforms melody notes to MIDI_RANGE
+ * @param  {number} midiNoteNum - midi number
+ * @return {number}
+ */
+export function constrainNoteRange(midiNoteNum) {
+	assert(Number.isFinite(midiNoteNum), `should be midi note number, got ${midiNoteNum}`);
+
 	if (debug && (midiNoteNum < MIDI_RANGE[0] || midiNoteNum > MIDI_RANGE[1])) {
 		console.log('** constrain **', midiNoteNum, MIDI_RANGE[0], MIDI_RANGE[1]);
 	}
@@ -31,22 +47,37 @@ function constrainNoteRange(midiNoteNum) {
 	return midiNoteNum;
 }
 
-function getMelody(melody, tonic, transpose, scale) {
+/**
+ * transposes melody according to transpose key and scale
+ * @param  {array} melody
+ * @param  {string} tonic     tonic as midi
+ * @param  {string} transpose transpose key as midi
+ * @param  {array} scale     key scale intervals
+ * @return {array}           
+ */
+export function getMelody(melody, tonic, transpose, scale) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
-			const pitch = note[0];
-			const midiTonic = MIDI_NOTES.indexOf(tonic);
-			const midiTranspose = MIDI_NOTES.indexOf(transpose);
-			const tonicDelta = midiTonic - midiTranspose;
-			const midiPitch = MIDI_NOTES.indexOf(pitch) - tonicDelta;
+			const midiPitch = MIDI_NOTES.indexOf(note[0]) - getMidiInverval(tonic, transpose);
 			note[0] = MIDI_NOTES[constrainNoteRange(midiPitch)];
 			return note;
 		}
 	});
 }
 
-function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, harmonyScaleOnly=true) {
+/**
+ * get haromy sequence from melody
+ * @param  {array}  melody           
+ * @param  {string}  tonic            tonic as midi
+ * @param  {string}  transpose        transpose key as midi
+ * @param  {number}  interval         harmony as numericinterval
+ * @param  {array}  scale             scale of key expressed as numeric intervals
+ * @param  {boolean} useOctave        
+ * @param  {boolean} harmonyScaleOnly 
+ * @return {array}                   [
+ */
+export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, harmonyScaleOnly=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
@@ -103,41 +134,56 @@ function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, 
 	});
 }
 
-function getTranspose(pitch, value) {
-	return constrainNoteRange(MIDI_NOTES[MIDI_NOTES.indexOf(pitch) + value]);
+/**
+ * get transposition note
+ * @param  {string} pitch - composition transpose midi note
+ * @param  {string} value - voice tranpose midi note
+ * @return {string}	      - midi note
+ */
+export function getTranspose(pitch, value) {
+	return MIDI_NOTES[constrainNoteRange(MIDI_NOTES.indexOf(pitch) + value)];
 }
 
-// get difference between two pitches
-function getMidiDelta(a, b) {
-	if (a === undefined) return 0;
-	if (b === undefined) return 0;
+/**
+ * get interval between to midi notes
+ * @param  {string} a - first midi note name
+ * @param  {string} b - first midi note name
+ * @return {number}   - interval between a and b
+ */
+export function getMidiInverval(a, b) {
+	assert(typeof a === 'string', `note a should be expressed as a midi note name, got ${a}`);
+	assert(typeof b === 'string', `note a should be expressed as a midi note name, got ${b}`);
 	return MIDI_NOTES.indexOf(a) - MIDI_NOTES.indexOf(b);
 }
 
-// useful? (DRY w getHarmony?)
-function getScaleIndex(pitch, tonic, scale) {
-	const midiTonic = MIDI_NOTES.indexOf(tonic);
-	const midiPitch = MIDI_NOTES.indexOf(pitch);
-	const diff = midiPitch - midiTonic; // difference between note and tonic
+/**
+ * get index in scale (scale degree) based on interval
+ * index is -1 of musical degree (the I is 0, the V is 4)
+ * @param  {string} pitch 
+ * @param  {string} tonic 
+ * @param  {array}  scale
+ * @return {number}
+ */
+export function getScaleIndex(pitch, tonic, scale) {
+	const diff = getMidiInverval(pitch, tonic);
 	if (Math.abs(diff) % 12 === 0) {
 		return 0;
 	}
-	const scaleIndex = diff < 0 ?
+	return diff < 0 ?
 		scale.indexOf(12 - (Math.abs(diff) % 12)) : // below tonic
 		scale.indexOf(diff % 12); // above tonic
-	return scaleIndex;
 }
 
-function getOctave(pitch, tonic) {
-	const midiTonic = MIDI_NOTES.indexOf(tonic);
-	const midiPitch = MIDI_NOTES.indexOf(pitch);
-	const pitchDiff = midiTonic - midiPitch;
-	const octaveDiff = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12;
-	const octaveOffset = Math.floor(Math.abs(pitchDiff) / 12) * 12 * Math.sign(pitchDiff);
-	return octaveDiff + octaveOffset;
-}
-
-function getPitchFromInterval(pitch, tonic, scale, interval, debug) {
+/**
+ * used by counterpoint
+ * prob can use in other places, harmony, transpose
+ * @param  {string} pitch    - pitch as midi note name
+ * @param  {string} tonic    - pitch of key as midi note name
+ * @param  {array}  scale    - key scale as intervals
+ * @param  {number} interval - numberic interval
+ * @return {string} note as midi note name
+ */
+function getPitchFromInterval(pitch, tonic, scale, interval) {
 	if (interval === 0) return pitch;
 	if (interval === 1) return pitch;
 	if (interval === -1) return pitch;
@@ -163,13 +209,11 @@ function getPitchFromInterval(pitch, tonic, scale, interval, debug) {
 	if (interval > 0) {
 		// interval include the staring pitch, so -1
 		for (let i = 0; i < interval - 1; i++) {
-			// console.log(i, midiNote, MIDI_NOTES[midiNote]);
 			midiNote += intervals[scaleIndex]; // add relative step of next interval
 			scaleIndex++;
 			if (scaleIndex > intervals.length - 1) {
 				scaleIndex = 0;
 			}
-			// console.log(i, midiNote, MIDI_NOTES[midiNote]);
 		}
 	} else {
 		for (let i = 0; i < Math.abs(interval) - 1; i++) {
@@ -180,11 +224,18 @@ function getPitchFromInterval(pitch, tonic, scale, interval, debug) {
 			}
 		}
 	}
-
+	
 	return MIDI_NOTES[constrainNoteRange(midiNote)];
 }
 
-function getCounterpoint(melody, tonic, scale) {
+/**
+ * get counterpoint sequence based on melody, key sig
+ * @param  {array}  melody 
+ * @param  {string} tonic  - key as midi note name
+ * @param  {array}  scale  - key intervals
+ * @return {array}
+ */
+export function getCounterpoint(melody, tonic, scale) {
 	const counterpoint = [];
 	let prevCounterpointPitch;
 	let prevMelodyPitch;
@@ -194,7 +245,6 @@ function getCounterpoint(melody, tonic, scale) {
 
 	for (let i = 0; i < melody.length; i++) {
 		const [pitch, beat] = melody[i];
-		// console.log(pitch, beat);
 		if (pitch === null || pitch === 'rest') {
 			counterpoint[i] = [pitch, beat];
 			continue;
@@ -206,7 +256,6 @@ function getCounterpoint(melody, tonic, scale) {
 		if (pitchIndex === 0) {
 			interval = choice([5, 8, 10]); // V, octave, III
 			counterpointPitch = getPitchFromInterval(pitch, tonic, scale, interval);
-			// console.log({ counterpointPitch, pitch, tonic, scale, interval });
 			highestPitch = getPitchFromInterval(pitch, tonic, scale, 10);
 			prevLeap = 0;
 		} else {
@@ -323,5 +372,3 @@ function getCounterpoint(melody, tonic, scale) {
 	}
 	return counterpoint;
 }
-
-export { MIDI_NOTES, MIDI_RANGE, constrainNoteRange, getMelody, getHarmony, getTranspose, getMidiDelta, getCounterpoint };

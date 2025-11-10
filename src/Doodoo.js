@@ -7,10 +7,10 @@
 */
 
 import * as Tone from 'tone';
-import { PropertyDefaults } from './PropertyDefaults.js';
+import { defaults } from './defaults.js';
 import { SamplePaths } from './SamplePaths.js';
-import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './Midi.js';
-import { Effects } from './Effects.js';
+import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
+import { getFX } from './fx.js';
 import { Part } from './Part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
 import { Bundle } from './Bundle.js';
@@ -60,9 +60,9 @@ export function Doodoo(params, callback) {
 	let useDefaultProps = params.useDefaultProps ?? true;
 	// wtf what is props = mods
 	const props = params.mods ? structuredClone(params.mods) : {};
-	for (const prop in PropertyDefaults) {
+	for (const prop in defaults) {
 		if (props.hasOwnProperty(prop)) continue;
-		props[prop] = useDefaultProps ? structuredClone(PropertyDefaults[prop]) : {};
+		props[prop] = useDefaultProps ? structuredClone(defaults[prop]) : {};
 	}
 
 	let samples; // holds the samples
@@ -97,7 +97,6 @@ export function Doodoo(params, callback) {
 	let voices = [];
 	let totalBeats = 0;
 	let beatCount = 0;
-	let effects = new Effects();
 	let fxToDispose = [];
 	let meter;
 	let recorder;
@@ -333,7 +332,7 @@ export function Doodoo(params, callback) {
 		// get parts in sequence
 		for (let i = 0; i < parts.length; i++) {
 			if (sequence[i][sequenceIndex]) {
-				const partCount = parts[i].getCount(); // rewrite as class -- this is "loop count" maybe
+				const partCount = parts[i].loopCount;
 				let starts;
 				if (isLiveMode) {
 					starts = startLoops;
@@ -575,7 +574,7 @@ export function Doodoo(params, callback) {
 		else i.toDestination();
 
 		for (const fxName in voiceParams.fx) {
-			const f = effects.get(fxName, voiceParams.fx[fxName]);
+			const f = getFX(fxName, voiceParams.fx[fxName]);
 			if (withRecording) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			i.connect(f);

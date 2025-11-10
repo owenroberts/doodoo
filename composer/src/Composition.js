@@ -3,7 +3,7 @@
 	these are constant values that can't be modded
 */
 
-import { MIDI_NOTES } from '../../src/Midi.js';
+import { MIDI_NOTES } from '../../src/midi.js';
 // import '../../build/ui.min.js'; // skip UI for now ... 
 // const { UILabel, UINumberList } = UI.Elements;
 import { Elements } from '../../../ui/src/UI.js';
@@ -97,7 +97,7 @@ export function Composition(app, defaults) {
 			},
 			'isRegularTime': {
 				value: isRegularTime,
-				label: 'Regular Time',
+				label: 'Regular time',
 				type: 'UIToggleCheck',
 				callback: value => { isRegularTime = value; },
 			},
@@ -116,20 +116,20 @@ export function Composition(app, defaults) {
 			},
 			'useOctave': {
 				type: 'UIToggleCheck',
-				label: 'Use Octave',
+				label: 'Multiple octaves',
 				value: useOctave,
 				callback: value => { useOctave = value; }
 			},
 			'harmonyScaleOnly': {
 				type: 'UIToggleCheck',
-				label: 'Harmony Scale Only',
+				label: 'Notes in key',
 				value: harmonyScaleOnly,
 				callback: value => { harmonyScaleOnly = value; }
 			}
 		}, compositionPanel);
 
 		compositionPanel.addRow(undefined, 'break');
-		compositionPanel.add(new UILabel({ text: 'Scale Intervals' }));
+		compositionPanel.add(new UILabel({ text: 'Scale intervals' }));
 		scaleRow = compositionPanel.addRow(undefined, 'break');
 		scaleUI = new UINumberList({
 			list: scale,
