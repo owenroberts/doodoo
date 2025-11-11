@@ -150,7 +150,7 @@ export class Part {
 			while (Object.keys(fx).length < this.mods.fxLimit.get() && 
 				whileCount < this.fxListCount) {
 				const f = this.mods.fxList.get();
-				if (mods[f]) {
+				if (this.mods[f]) {
 					if (chance(this.mods[f].get().chance)) {
 						fx[f] = this.mods[f].get();
 					}
