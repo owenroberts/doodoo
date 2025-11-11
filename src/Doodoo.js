@@ -14,8 +14,11 @@ import { getFX } from './fx.js';
 import { Part } from './Part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
 import { Bundle } from './Bundle.js';
+import { Instruments } from './instruments.js';
 
 export function Doodoo(params, callback) {
+
+	// break up into composition and config
 
 	let debug = false;
 	let defaultBeat = '4n'; // smallest unit of time
@@ -32,6 +35,7 @@ export function Doodoo(params, callback) {
 	let autoStart = params.autoStart ?? true;
 	let playOnStart = false; // if trying to play before loaded
 	let startLoops = params.startLoops ?? [];
+	const partMods = params.partMods ?? [];
 
 	if (startLoops.length > 0) {
 		if (!startLoops[0].hasOwnProperty('counts')) {
@@ -65,26 +69,7 @@ export function Doodoo(params, callback) {
 		props[prop] = useDefaultProps ? structuredClone(defaults[prop]) : {};
 	}
 
-	let samples; // holds the samples
-	let samplesLoaded = false;
-	// look for samples in props.instruments stack
-	const instruments = props.instruments?.stack ?? [];
-	const partMods = params.partMods ?? [];
-
-	const loadInstruments = [...new Set([
-		...instruments
-			.flatMap(e => e.list)
-			.filter(i => !i.includes('Synth')),
-		...partMods.flatMap(m => m.instruments.stack)
-			.flatMap(e => e.list)
-			.filter(i => !i.includes('Synth')),
-		...startLoops
-			.flatMap(count => count.loops)
-			.flatMap(loop => loop)
-			.filter(loop => loop.instrument)
-			.filter(loop => !loop.instrument.includes('Synth'))
-			.map(loop => loop.instrument)
-	])];
+	let instruments = new Instruments(params, props, startLoops);
 
 	let sequenceIndex = 0; // previously currentPart
 	let totalPlays = 0; // track total plays of comp -- differnt than part play count (could be)
@@ -120,7 +105,6 @@ export function Doodoo(params, callback) {
 		init();
 	}
 
-
 	if (withRecording) {
 		recorder = new Tone.Recorder();
 		if (!withCount) withCount = +prompt('Record number of loops?', 10);
@@ -153,51 +137,14 @@ export function Doodoo(params, callback) {
 
 	// start tone using async func to wait for tone
 	async function loadTone() {
-		console.log('load');
 		try {
 			await Tone.start();
 			// only load if using samples
-			if (loadInstruments.length > 0) load(start); 
+			if (instruments.loadList.length > 0) instruments.load(start); 
 			else start();
 		} catch(err) {
 			console.error('load tone error', err);
 		}
-	}
-
-	function load(callback) {
-		const urls = {};
-		for (let i = 0; i < loadInstruments.length; i++) {
-			const instrument = loadInstruments[i];
-			if (instrument === 'choir') {
-				'AEIOU'.split('').forEach(letter => {
-					const sampleURLs = SamplePaths['choir'+letter];
-					for (const note in sampleURLs) {
-						urls[`${instrument}-${letter}-${note}`] = `${instrument}/${letter}/${sampleURLs[note]}`;
-					}
-				});
-			} else if (instrument.includes('choir')) {
-				const letter = instrument.charAt(5);
-				const sampleURLs = SamplePaths['choir'+letter];
-				for (const note in sampleURLs) {
-					urls[`choir-${letter}-${note}`] = `choir/${letter}/${sampleURLs[note]}`;
-				}
-			} else {
-				for (const note in SamplePaths[instrument]) {
-					urls[`${instrument}-${note}`] = `${instrument}/${SamplePaths[instrument][note]}`;
-				}
-			}
-		}
-		console.time(`load ${loadInstruments.join(', ')}`);
-		samples = new Tone.ToneAudioBuffers({
-			urls: urls,
-			baseUrl: params.samplesURL || '../samples/',
-			onload: () => {
-				console.timeEnd(`load ${loadInstruments.join(', ')}`);
-				if (callback) callback();
-				samplesLoaded = true;
-			},
-			onerror: error => { console.error(error); },
-		});
 	}
 
 	function start() {
@@ -420,14 +367,14 @@ export function Doodoo(params, callback) {
 					melody = getHarmony(voiceParams.melody, tonic, transposePitch, harmony, scale, useOctave, harmonyScaleOnly);
 				}
 
-				const toneInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+				const toneInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
 				voices.push({ ...voiceParams, melody, toneInstrument, });
 
 				// fuck for live this doesn't work ... ignore counterpoint for now ... 
 				if (voiceParams.counterpoint) {
 					const mel = getMelody(voiceParams.melody, tonic, transposePitch, scale);
 					const counterpoint = getCounterpoint(mel, transposePitch, scale);
-					const counterInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+					const counterInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
 					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 						delete voiceParams.liveLoopIndex;
 					}
@@ -497,7 +444,7 @@ export function Doodoo(params, callback) {
 
 		for (let i = 0; i < voices.length; i++) {
 			const voiceParams = voices[i];
-			voices[i].toneInstrument = getInstrument(voiceParams.instrument, { ...voiceParams, volume });
+			voices[i].toneInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
 		}
 
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
@@ -507,7 +454,6 @@ export function Doodoo(params, callback) {
 		}
 		performanceLoopIndex++;
 	}
-
 
 	function cloneVoice(voice) {
 		let clone = {};
@@ -565,70 +511,6 @@ export function Doodoo(params, callback) {
 		}
 	}
 
-	function getInstrument(instrument, voiceParams) {
-		const i = instrument.includes('Synth') ?
-			getSynth(voiceParams) :
-			getSampler(instrument, voiceParams);
-
-		if (withRecording) i.chain(Tone.Destination, recorder);
-		else i.toDestination();
-
-		for (const fxName in voiceParams.fx) {
-			const f = getFX(fxName, voiceParams.fx[fxName]);
-			if (withRecording) f.chain(Tone.Destination, recorder);
-			else f.toDestination();
-			i.connect(f);
-			fxToDispose.push(f);
-		}
-		return i;
-	}
-
-	function getSynth(voiceParams) {
-		const fmSynth = new Tone.FMSynth({ 
-			volume: voiceParams.volume - 6 ?? -6,
-			envelope: {
-				attack: Math.max(0.1, voiceParams.attack),
-				attackCurve: voiceParams.curve,
-				release: voiceParams.release,
-				// releaseCurve: voiceParams.curve, // leave on default exponential ...
-				// sustain: 0,
-			}
-		});
-		// console.log(fmSynth.envelope);
-		return fmSynth;
-	}
-
-	function getSampler(instrument, voiceParams) {
-		const sampleFiles = getSampleFiles(instrument);
-		const sampler = new Tone.Sampler({
-			urls: sampleFiles,
-			volume: voiceParams.volume ?? 0,
-			attack: voiceParams.attack,
-			release: voiceParams.release,
-			curve: voiceParams.curve,
-		});
-		sampler.instrument = instrument;
-		return sampler;
-	}
-
-	function getSampleFiles(instrument) {
-		const sampleFiles = {};
-		// just make choir aeiou choices, randomize with stacking ... ?? 
-		if (instrument.includes('choir')) {
-			const letter = instrument.charAt(5) ?
-				instrument.charAt(5) :
-				random('AEIOU'.split(''));
-			for (const note in SamplePaths['choir' + letter]) {
-				sampleFiles[note] = samples.get(`choir-${letter}-${note}`);
-			}
-		} else {
-			for (const note in SamplePaths[instrument]) {
-				sampleFiles[note] = samples.get(`${instrument}-${note}`);
-			}
-		}
-		return sampleFiles;
-	}
-
 	// dispose synths/samplers/fx from prevous playthrough
 	function disposePrevious() {
 		
@@ -638,28 +520,16 @@ export function Doodoo(params, callback) {
 			disposeMe.push(voices[i].toneInstrument);
 		}
 
-		for (let i = 0; i < fxToDispose.length; i++) {
-			disposeMe.push(fxToDispose[i]);
-		}
-		
+		instruments.dispose();
+
 		for (let i = 0; i < disposeMe.length; i++) {
 			const d = disposeMe[i];
-			// console.log('wet', disposeMe[i].wet)
-			// console.log('volume', disposeMe[i].volume)
-
-			// this seems to cause clipping
-			// if (d.wet) d.wet.linearRampToValueAtTime(0, 1);
-			// if (d.volume) d.volume.linearRampToValueAtTime(0, 1);
-
-			// if (disposeMe[i].releaseAll) disposeMe[i].releaseAll();
 			setTimeout(() => {
-				// console.log('dispose me', disposeMe[i].volume.value);
 				disposeMe[i].dispose(); // way to calculate this??
 			}, 2000);
 		}
 
 		voices = [];
-		fxToDispose = [];
 	}
 
 	function saveRecording() {
@@ -735,8 +605,8 @@ export function Doodoo(params, callback) {
 	}
 
 	function play() {
-		if (!autoLoad && !samplesLoaded) return loadTone();
-		if (loadInstruments.length > 0 && !samplesLoaded) {
+		if (!autoLoad && !instruments.loaded) return loadTone();
+		if (instruments.loaded) {
 			playOnStart = true;
 			return;
 		}
