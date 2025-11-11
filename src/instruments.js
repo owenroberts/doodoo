@@ -1,49 +1,37 @@
 import * as Tone from 'tone';
 import { SamplePaths } from './SamplePaths.js';
 import { getFX } from './fx.js';
-import { random } from '../../cool/cool.js';
-
+import { random, assert } from '../../cool/cool.js';
 
 /**
  * loads samples and provides instruments
  */
 export class Instruments {
+
 	constructor(params, props, startLoops) {
 
 		this.samples = {};
 		this.loaded = false;
 		this.samplesURL = params.samplesURL;
 		this.withRecording = params.withRecording ?? false;
-		this.fxToDispose = [];
+		this.toDispose = [];
 
-		// get unique list of instruments used by compositions using samples
-		// this.loadList = [];
-		// if (props.instruments) {
-		// 	if (props.instruments.stack) {
-		// 		this.loadList = this.loadList.concat();
-		// 	}
-		// }
-		
+		assert(!props.instruments.list, 'instruments prop is list!')		
+		assert(!props.instruments.value, 'instruments prop is value!')		
 
-		// look for samples in props.instruments stack
-		// instrucments not necesarily a stack ... 
-		const instruments = props.instruments?.stack ?? [];
-		const partMods = params.partMods ?? [];
-
-		this.loadList = [...new Set([
-			...instruments
-				.flatMap(e => e.list)
-				.filter(i => !i.includes('Synth')),
-			...partMods.flatMap(m => m.instruments.stack)
-				.flatMap(e => e.list)
-				.filter(i => !i.includes('Synth')),
+		this.loadList = [
+			...props.instruments?.stack?.flatMap(e => e.list),
+			...params.partMods?.flatMap(m => m.instruments.stack)
+				.flatMap(e => e.list),
 			...startLoops
 				.flatMap(count => count.loops)
 				.flatMap(loop => loop)
 				.filter(loop => loop.instrument)
-				.filter(loop => !loop.instrument.includes('Synth'))
 				.map(loop => loop.instrument)
-		])];
+		];
+
+		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
+		this.loadList = [...new Set(this.loadList)];
 
 		if (this.loadList.length === 0) this.loaded = true;
 	}
@@ -97,8 +85,9 @@ export class Instruments {
 			if (this.withRecording) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			i.connect(f);
-			this.fxToDispose.push(f);
+			this.toDispose.push(f);
 		}
+		this.toDispose.push(i);
 		return i;
 	}
 
@@ -148,12 +137,21 @@ export class Instruments {
 	}
 
 	dispose() {
-		for (let i = 0; i < this.fxToDispose.length; i++) {
-			// disposeMe.push(fxToDispose[i]);
+		
+		const disposeMe = [];
+
+		// don't remember why this works but it does error otherwise		
+		for (let i = 0; i < this.toDispose.length; i++) {
+			disposeMe.push(this.toDispose[i]);
+		}
+
+		for (let i = 0; i < disposeMe.length; i++) {
+			const d = disposeMe[i];
 			setTimeout(() => {
-				this.fxToDispose[i].dispose();
+				disposeMe[i].dispose(); // way to calculate this??
 			}, 2000);
 		}
-		this.fxToDispose = [];
+
+		this.toDispose = [];
 	}
 }

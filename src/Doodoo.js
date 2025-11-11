@@ -270,7 +270,8 @@ export function Doodoo(params, callback) {
 		}
 
 		beatCount = 0;
-		disposePrevious();
+		// disposePrevious();
+		instruments.dispose();
 		voices = []; // play all voices from parts together
 
 		let partsInSequence = [];
@@ -435,7 +436,8 @@ export function Doodoo(params, callback) {
 			return;
 		}
 		beatCount = 0;
-		disposePrevious();
+		// disposePrevious();
+		instruments.dispose();
 		const loop = structuredClone(performance.loops[performanceLoopIndex]); 
 		voices = loop.voices;
 		totalBeats = loop.totalBeats;
@@ -509,27 +511,6 @@ export function Doodoo(params, callback) {
 		} else if (!isPlaying) {
 			play();
 		}
-	}
-
-	// dispose synths/samplers/fx from prevous playthrough
-	function disposePrevious() {
-		
-		const disposeMe = [];
-		
-		for (let i = 0; i < voices.length; i++) {
-			disposeMe.push(voices[i].toneInstrument);
-		}
-
-		instruments.dispose();
-
-		for (let i = 0; i < disposeMe.length; i++) {
-			const d = disposeMe[i];
-			setTimeout(() => {
-				disposeMe[i].dispose(); // way to calculate this??
-			}, 2000);
-		}
-
-		voices = [];
 	}
 
 	function saveRecording() {
@@ -632,7 +613,8 @@ export function Doodoo(params, callback) {
 			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
 			voices[i].toneInstrument.triggerRelease();
 		}
-		disposePrevious();
+		// disposePrevious()
+		instruments.dispose();
 		isPlaying = false;
 		if (withRecording && recorder.state === 'started') saveRecording();
 		if (isSavePerformance) savePerformance();
