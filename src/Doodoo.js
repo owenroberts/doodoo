@@ -8,9 +8,7 @@
 
 import * as Tone from 'tone';
 import { defaults } from './defaults.js';
-import { SamplePaths } from './SamplePaths.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
-import { getFX } from './fx.js';
 import { Part } from './Part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
 import { Bundle } from './Bundle.js';
@@ -649,35 +647,3 @@ export function Doodoo(params, callback) {
 	};
 }
 
-// window.Doodoo = Doodoo;
-
-/*
-	
-	melodies can be written just as notes
-	parts: [
-		'C4', null, 'E3', 'F3', 'G3', null, 'D3', 'E3', 
-		'D3', 'F3', 'E3', 'D3', 'F3', 'E3', 'D3', 'F3', 
-	], // from garden
-
-	or including durations
-	const part1 = [
-		['C#6', '2n'], ['D#6', '2n'], [null, '2n'], [null, '8n'], ['A#5', '8n'], ['G#5', '8n'], [null, '8n'],
-		['C#6', '2n'], ['D#6', '2n'], ['E6', '2n'], [null, '4n'], ['B5', '8n'], ['A5', '8n'],
-		['E6', '2n'], ['F#6', '2n'], ['G#6', '2n'], [null, '4n'], ['C#7', '8n'], ['D#7', '8n'], 
-		['C#7', '8n'], [null, '8n'], ['A#6', '4n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '4n'], ['A#6', '8n'], ['G#6', '8n'], ['A#6', '8n'], ['G#6', '4n'], [null, '8n']
-	]; // from
-
-	use midi notes or letter notes
-	// const melody = [60, 57, 55, 62, 64, 67, 69, 72, 60, 74, 72, 74];
-	// const melody = ['C4', 'A3', 'G3', 'D4', 'E4', 'G4', 'A4', 'C5', 'C4', 'D5', 'C5', 'D5'];
-*/
-
-// https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html
-// http://www.myriad-online.com/resources/docs/manual/english/gregorien.htm
-
-// https://en.wikibooks.org/wiki/IB_Music/Music_History/Medieval_Period#:~:text=The%20Gregorian%20chant%20began%20to,independently%20of%20the%20original%20chant.
-/*
-	The Gregorian chant began to evolve around 700. From 700 - 900, composers would write a line in parallel motion to the chant at a fixed interval of a fifth or a fourth above the original line. This technique evolved further from 900 - 1200. During this period, the upper line moved independently of the original chant. After 1100, upper lines even began gaining rhythmic independence.
-*/
-
-// https://github.com/saebekassebil/teoria
