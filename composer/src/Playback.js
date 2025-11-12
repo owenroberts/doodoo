@@ -33,17 +33,17 @@ export function Playback(app) {
 			// noMods,
 			isLiveMode,
 			loopControls,
-			onModulate: count => {
+			onMod: count => {
 				modCountUI.text = count;
-				app.score.update(doodoo.getVoices());
-				app.monitor.update(doodoo.getVoices());
+				app.score.update(doodoo.voices);
+				app.monitor.update(doodoo.voices);
 			},
 			onStop: () => {
 				app.live.off();
 			},
 			useMetro,
 			useMeter: app.meter.isOpen(),
-			setMeter: app.meter.setMeter,
+			updateMeter: app.meter.updateMeter,
 		};
 
 		if (localPerformance) {
@@ -64,10 +64,10 @@ export function Playback(app) {
 			doodooParams.isPerformance = false;
 		}
 
-		doodoo = Doodoo(doodooParams);
+		doodoo = new Doodoo(doodooParams);
 		// setting?
 		if (saveOnPlay) app.fio.saveLocal(false);
-		app.score.update(doodoo.getVoices());
+		app.score.update(doodoo.voices);
 	}
 
 	function playPerformance(withRecording) {

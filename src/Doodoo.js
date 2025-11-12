@@ -14,143 +14,165 @@ import { random, chance, getDate } from '../../cool/cool.js';
 import { Bundle } from './Bundle.js';
 import { Instruments } from './instruments.js';
 
-export function Doodoo(params, callback) {
+export class Doodoo {
 
-	// break up into composition and config
+	constructor(params, callback) {
 
-	let debug = false;
-	let defaultBeat = '4n'; // smallest unit of time
-	let tonic = typeof params.tonic === 'string' ?
-		params.tonic :
-		MIDI_NOTES[params.tonic];
-	let transpose = params.transpose ?? tonic; // tranpose key -- because melody is relative to tonic
-	let useOctave = params.useOctave ?? false; // in transposition, continue through to octave vs looping around to begging of octave
-	let harmonyScaleOnly = params.harmonyScaleOnly ?? true; // harmony can only have notes from scale
-	let scale = params.scale ?? [0, 2, 4, 5, 7, 9, 11]; // major default
-	let sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
-	let volume = params.volume ?? 0;
-	let autoLoad = params.autoLoad ?? true;
-	let autoStart = params.autoStart ?? true;
-	let playOnStart = false; // if trying to play before loaded
-	let startLoops = params.startLoops ?? [];
-	const partMods = params.partMods ?? [];
+		/**
+		 * configuration of doodoo instance
+		 * @type {object}
+		 */
+		this.config = {
+			debug: false,
+			defaultBeat: '4n', // smallest unit of time
+			autoLoad: params.autoLoad ?? true,
+			autoStart: params.autoStart ?? true,
+			playOnStart: false, // if trying to play before loaded
+			volume: params.volume ?? 0,
+			useMeter: params.useMeter ?? false,
+			updateMeter: params.updateMeter ?? false,
+			useFFT: params.useFFT ?? false, // this is used for four compositions
+			getFFT: params.getFFT ?? false, // this is used for four compositions
+			useMetro: params.useMetro ?? false,
+			withRecording: params.withRecording ?? false,
+			withCount: params.withCount ?? false,
+			waitForModTrigger: params.waitForModTrigger ?? false,
+			onLoop: params.onLoop ?? false,
+			onNote: params.onNote ?? false,
+			onMod: params.onMod ?? false,
+			isLiveMode: params.isLiveMode ?? false,
+			useDefaultProps: params.useDefaultProps ?? true,
+			isSavePerformance: params.isSavePerformance ?? false, // save data of play
+			isPerformance: params.isPerformance ?? false, // playback of a performance
+		};
 
-	if (startLoops.length > 0) {
-		if (!startLoops[0].hasOwnProperty('counts')) {
-			return alert('Old start loops!');
-		} // need an alert for now because this will throw errors
-	}
+		/**
+		 * composition properties
+		 * @type {object}
+		 */
+		this.comp = {
+			bpm: params.bpm,
+			tonic: params.tonic, // assert tonic is midi note name?
+			transpose: params.transpose ?? tonic, // tranpose key -- because melody is relative to tonic
+			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
+			harmonyScaleOnly: params.harmonyScaleOnly ?? true, // harmony can only have notes from scale
+			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
+			timeBar: params.timeBar,
+			timeBeat: params.timeBeat,
+		};
+
+		this.sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
+		this.sequenceIndex = 0; // previously currentPart
+		
+		this.loopCount = 0; // track total plays of comp -- differnt than part play count (could be)
+		this.modCount = 0; // num mods --> different from total plays? -- idts
+		this.isPlaying = false;
+		
+		this.partMods = params.partMods ?? [];
+		this.startLoops = params.startLoops ?? [];
 	
-	let useMeter = params.useMeter ?? false;
-	let setMeter = params.setMeter ?? false;
-	let useFFT = params.useFFT ?? false;
-	let useMetro = params.useMetro ?? false;
-	let withRecording = params.withRecording ?? false;
-	let withCount = params.withCount ?? false;
-	let waitForModTrigger = params.waitForModTrigger ?? false;
-	let onLoop = params.onLoop ?? false;
-	let onNote = params.onNote ?? false;
-	let noMods = params.noMods ?? false;
+		this.loopControls = params.loopControls;
+		this.voiceCountOverride = 0; // for live mod
+		if (this.config.isLiveMode) {
+			this.startLoops = [];
+		}
 
-	let isLiveMode = params.isLiveMode ?? false;
-	let voiceCountOverride = 0; // for live mode
-	let loopControls = params.loopControls;
-	if (isLiveMode) {
-		startLoops = [];
+		this.props = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
+		for (const prop in defaults) {
+			if (this.props.hasOwnProperty(prop)) continue;
+			this.props[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
+		}
+
+		/**
+		 * mods that effect entire composition
+		 * @type {object}
+		 */
+		this.mods = {
+			scale: new Bundle(this.props.scale, 'scale'),
+			// transpose
+			// bpm
+		};
+
+		this.instruments = new Instruments(params, this.props, this.startLoops);
+
+		// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
+		this.toneLoop; // main loop, created in start and keeps time
+		this.parts = [];
+		this.voices = [];
+		this.beatCount = 0;
+		this.beatCounter = 0;
+		
+
+		this.performance = { 
+			loops: [],
+			date: getDate(), 
+		};
+		this.performanceLoopIndex = 0;
+		if (this.config.isPerformance) {
+			this.performance = structuredClone(params.performance);
+		} else {
+			this.initParts(params.parts);
+		}
+
+		if (this.config.withRecording) {
+			this.recorder = new Tone.Recorder();
+			if (!this.config.withCount) {
+				withCount = +prompt('Record number of loops?', 10);
+			}
+		}
+
+		if (this.config.autoLoad) {
+			this.loadTone();
+		}
 	}
 
-	let useDefaultProps = params.useDefaultProps ?? true;
-	// wtf what is props = mods
-	const props = params.mods ? structuredClone(params.mods) : {};
-	for (const prop in defaults) {
-		if (props.hasOwnProperty(prop)) continue;
-		props[prop] = useDefaultProps ? structuredClone(defaults[prop]) : {};
-	}
-
-	let instruments = new Instruments(params, props, startLoops);
-
-	let sequenceIndex = 0; // previously currentPart
-	let totalPlays = 0; // track total plays of comp -- differnt than part play count (could be)
-	let modCount = 0; // num mods --> different from total plays? -- idts
-
-	let isPlaying = false;
-	let toneLoop; // main loop, created in start and keeps time
-
-	let parts = [];
-	let voices = [];
-	let totalBeats = 0;
-	let beatCount = 0;
-	let fxToDispose = [];
-	let meter;
-	let recorder;
-	let metro;
-	
-	// for now, treat parts as having the same format, determined by composer app
-	// later, module to convert old versions if necessary
-	// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
-	const comp = { tonic, transpose, scale, useOctave }; // need comp values for mods
-	const scaleMod = new Bundle(props.scale, 'scale');
-
-	let isSavePerformance = params.isSavePerformance ?? false;
-	let performance = { 
-		loops: [],
-		date: getDate(), 
-	};
-	let performanceLoopIndex = 0;
-	if (params.isPerformance) {
-		performance = structuredClone(params.performance);
-	} else {
-		init();
-	}
-
-	if (withRecording) {
-		recorder = new Tone.Recorder();
-		if (!withCount) withCount = +prompt('Record number of loops?', 10);
-	}
-
-	if (autoLoad) loadTone();
-
-	function init() {
+	initParts(parts) {
 		// have to get default beat before going through the parts ...
-		params.parts.forEach(part => {
+		parts.forEach(part => {
 			part.forEach(note => {
-				if (parseInt(note[1]) > parseInt(defaultBeat)) defaultBeat = note[1];
+				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) this.config.defaultBeat = note[1];
 			});
 		});
 
-		props.beatList?.list.forEach(beat => {
-			if (beat > parseInt(defaultBeat)) defaultBeat = beat + 'n';
+		this.props.beatList?.list.forEach(beat => {
+			if (beat > parseInt(this.config.defaultBeat)) this.config.defaultBeat = beat + 'n';
 		});
 
-		for (let i = 0; i < params.parts.length; i++) {
+		for (let i = 0; i < parts.length; i++) {
 			let partProps = {};
-			if (partMods[i]) {
-				partProps = { ...props, ...partMods[i] };
+			if (this.partMods[i]) {
+				partProps = { ...this.props, ...this.partMods[i] };
 			} else {
-				partProps = { ...props };
+				partProps = { ...this.props };
 			}
-			parts.push(new Part(params.parts[i], partProps, defaultBeat, comp, debug));
+			this.parts.push(new Part(parts[i], partProps, this.config.defaultBeat, this.comp));
 		}
 	}
 
 	// start tone using async func to wait for tone
-	async function loadTone() {
+	async loadTone() {
 		try {
 			await Tone.start();
 			// only load if using samples
-			if (instruments.loadList.length > 0) instruments.load(start); 
-			else start();
+			if (this.instruments.loadList.length > 0) {
+				this.instruments.load(() => {
+					this.start();
+				}); 
+			} else {
+				this.start();
+			}
 		} catch(err) {
 			console.error('load tone error', err);
 		}
 	}
 
-	function start() {
-		
-		toneLoop = new Tone.Loop(playLoop, defaultBeat);
+	start() {
+		this.toneLoop = new Tone.Loop(time => {
+			this.playLoop(time);
+		}, this.config.defaultBeat);
 		Tone.Transport.start();
-		if (params.bpm) Tone.Transport.bpm.value = params.bpm;
-		toneLoop.start(Tone.Transport.seconds);
+		if (this.comp.bpm) Tone.Transport.bpm.value = this.comp.bpm;
+		this.toneLoop.start(Tone.Transport.seconds);
 		// console.log(params.bpm, Tone.Transport.bpm.value)
 
 		// master ing
@@ -165,28 +187,24 @@ export function Doodoo(params, callback) {
 		// Tone.Master.chain(compressor);
 		// Tone.Master.chain(limiter);
 
-		if (useMeter) {
-			meter = new Tone.Meter({ channelCount: 2 });
-			Tone.Destination.connect(meter);
-			params.setMeter(meter);
+		if (this.config.useMeter) {
+			this.meter = new Tone.Meter({ channelCount: 2 });
+			Tone.Destination.connect(this.meter);
+			this.config.updateMeter(this.meter);
 		}
 
-		if (useFFT) {
+		if (this.config.useFFT) {
 			const fft = new Tone.FFT(16); // is bands
 			Tone.Destination.connect(fft);
-			params.getFFT(fft);
+			this.config.getFFT(fft);
 		}
 		
-		if (autoStart || playOnStart) {
-			if (params.isPerformance) {
-				getPerformanceLoop();
-			} else {
-				generateLoop();
-			}
+		if (this.config.autoStart || this.config.playOnStart) {
+			this.playNext();
 		}
 
-		if (useMetro) {
-			metro = new Tone.MetalSynth({
+		if (this.config.useMetro) {
+			this.metro = new Tone.MetalSynth({
 				volume: -12,
 				frequency: 250,
 				envelope: {
@@ -201,16 +219,17 @@ export function Doodoo(params, callback) {
 			}).toDestination(); 
 		}
 
-		isPlaying = true;
-		if (withRecording) recorder.start();
-
-		if (callback) callback();
+		this.isPlaying = true;
+		if (this.config.withRecording) this.recorder.start();
 	}
 
-	function playLoop(time) {
-		if (useMetro) metro.triggerAttackRelease('C4', '4n', time, 0.1);
-		for (let i = 0; i < voices.length; i++) {
-			const voice = voices[i];
+	playLoop(time) {
+		if (this.config.useMetro) {
+			this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
+		}
+
+		for (let i = 0; i < this.voices.length; i++) {
+			const voice = this.voices[i];
 			if (voice.count >= voice.countEnd) continue;
 			if (voice.count % 1 !== 0) continue;
 			const noteIndex = Math.floor(voice.count) % voice.melody.length;
@@ -242,59 +261,54 @@ export function Doodoo(params, callback) {
 				}
 
 			}
-			if (onNote) onNote({ voiceIndex: i, note });
+			if (this.config.onNote) this.config.onNote({ voiceIndex: i, note });
 			voice.count += 1; // voice.counter;
 		}
 
-		beatCount++;
-		if (beatCount === totalBeats && !waitForModTrigger) {
-			if (params.isPerformance) {
-				getPerformanceLoop();
-			} else {
-				generateLoop();
-			}
+		this.beatCounter++;
+		if (this.beatCounter === this.beatCount && !this.config.waitForModTrigger) {
+			this.playNext();
 		}
 	}
 
-	function generateLoop() {
-		if (withCount) {
-			if (totalPlays >= withCount * sequence[0].length) {
+	generateLoop() {
+		if (this.config.withCount) {
+			if (this.loopCount >= this.config.withCount * this.sequence[0].length) {
 				Tone.Transport.stop();
-				isPlaying = false;
-				if (recorder) saveRecording();
-				if (isSavePerformance) savePerformance();
+				this.isPlaying = false;
+				this.saveRecording();
+				this.savePerformance();
 				return;
 			}
 		}
 
-		beatCount = 0;
-		// disposePrevious();
-		instruments.dispose();
-		voices = []; // play all voices from parts together
+		this.beatCounter = 0;
+		this.instruments.dispose();
+		this.voices = []; // play all voices from parts together
 
 		let partsInSequence = [];
 		let longestMelody = 0;
 
 		// get parts in sequence
-		for (let i = 0; i < parts.length; i++) {
-			if (sequence[i][sequenceIndex]) {
-				const partCount = parts[i].loopCount;
+		for (let i = 0; i < this.parts.length; i++) {
+			if (this.sequence[i][this.sequenceIndex]) {
+				const partCount = this.parts[i].loopCount;
 				let starts;
-				if (isLiveMode) {
-					starts = startLoops;
+				if (this.config.isLiveMode) {
+					starts = this.startLoops;
 				} else {
 					let startIndex = 0;
-					for (let j = 0; j < startLoops.length; j++) {
-						if (partCount < startIndex + startLoops[j].counts) {
+					for (let j = 0; j < this.startLoops.length; j++) {
+						if (partCount < startIndex + this.startLoops[j].counts) {
 							startIndex = j;
 							break;
 						} else {
-							startIndex += startLoops[j].counts;
+							startIndex += this.startLoops[j].counts;
 						}
 					}
-				 	starts = startIndex < startLoops.length ? startLoops[startIndex].loops : [];
+				 	starts = startIndex < this.startLoops.length ? this.startLoops[startIndex].loops : [];
 				}
-				const partVoices = parts[i].get(starts, voiceCountOverride);
+				const partVoices = this.parts[i].get(starts, this.config.voiceCountOverride);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});
@@ -302,32 +316,33 @@ export function Doodoo(params, callback) {
 			}
 		}
 
-		if (params.isRegularTime) {
+		// make playback have regular bar lengths
+		if (this.config.isRegularTime) {
 			
 			// get voice with longest beat count
 			let partIndex = -1;
 			let voiceIndex = -1;
-			let beatCount = -1;
+			let beatCounter = -1;
 
 			for (let i = 0; i < partsInSequence.length; i++) {
 				const voices = partsInSequence[i];
 				for (let j = 0; j < voices.length; j++) {
 					const voice = voices[j];
-					if (voice.countEnd > beatCount) {
+					if (voice.countEnd > this.beatCounter) {
 						partIndex = i;
 						voiceIndex = j;
-						beatCount = voice.countEnd;
+						this.beatCounter = voice.countEnd;
 					}
 				}
 			}
 
 			// get remainer beats if exist
-			let defaultBeatsInBar = params.timeBar * (parseInt(defaultBeat) / parseInt(params.timeBeat));
-			let beatsLeftOver = beatCount % defaultBeatsInBar;
+			let defaultBeatsInBar = this.comp.timeBar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.timeBeat));
+			let beatsLeftOver = this.beatCounter % defaultBeatsInBar;
 			if (beatsLeftOver > 0) {
 				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;
 				for (let i = 0; i < makeUpBeats; i++) {
-					partsInSequence[partIndex][voiceIndex].melody.push([null, defaultBeat]);
+					partsInSequence[partIndex][voiceIndex].melody.push([null, this.defaultBeat]);
 				}
 				partsInSequence[partIndex][voiceIndex].countEnd += makeUpBeats;
 			}
@@ -354,108 +369,117 @@ export function Doodoo(params, callback) {
 			for (let j = 0; j < partVoices.length; j++) {
 				const voiceParams = partVoices[j];
 				const harmony = voiceParams.harmony;
-				const transposePitch = getTranspose(transpose, voiceParams.transpose);
+				const transposePitch = getTranspose(this.comp.transpose, voiceParams.transpose);
 
 				let melody;
 				if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 					melody = voiceParams.melody;
 				} else if (harmony === 0) {
-					melody = getMelody(voiceParams.melody, tonic, transposePitch, scale);
+					melody = getMelody(voiceParams.melody, this.comp.tonic, transposePitch, this.comp.scale);
 				} else {
 					// if live loop, melody is already transposed
-					melody = getHarmony(voiceParams.melody, tonic, transposePitch, harmony, scale, useOctave, harmonyScaleOnly);
+					melody = getHarmony(voiceParams.melody, this.comp.tonic, transposePitch, harmony, this.comp.scale, this.comp.useOctave, this.comp.harmonyScaleOnly);
 				}
 
-				const toneInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
-				voices.push({ ...voiceParams, melody, toneInstrument, });
+				const toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
+				this.voices.push({ ...voiceParams, melody, toneInstrument, });
 
 				// fuck for live this doesn't work ... ignore counterpoint for now ... 
 				if (voiceParams.counterpoint) {
-					const mel = getMelody(voiceParams.melody, tonic, transposePitch, scale);
-					const counterpoint = getCounterpoint(mel, transposePitch, scale);
-					const counterInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
+					const mel = getMelody(voiceParams.melody, this.comp.tonic, transposePitch, this.comp.scale);
+					const counterpoint = getCounterpoint(mel, transposePitch, this.comp.scale);
+					const counterInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, this.recorder);
 					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 						delete voiceParams.liveLoopIndex;
 					}
-					voices.push({ ...voiceParams, melody: counterpoint, toneInstrument: counterInstrument });
+					this.voices.push({ ...voiceParams, melody: counterpoint, toneInstrument: counterInstrument });
 				}
 			}
 		}
 
-		totalBeats = Math.max(0, Math.max(...voices.map(l => l.melody.length)));
+		this.beatCount = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
 
-		const smallestBeat = Math.max(...voices.flatMap(voice => voice.melody.map(b => parseInt(b[1]))));
-		toneLoop.interval = smallestBeat + 'n';
+		const smallestBeat = Math.max(...this.voices.flatMap(v => v.melody.map(b => parseInt(b[1]))));
+		this.toneLoop.interval = smallestBeat + 'n';
 		
-		if (!noMods) {
-			for (let i = 0; i < parts.length; i++) {
-				if (sequence[i][sequenceIndex]) parts[i].update();
+		for (let i = 0; i < this.parts.length; i++) {
+			if (this.sequence[i][this.sequenceIndex]) {
+				this.parts[i].update();
 			}
+		}
 
-			scaleMod.update();
-			let scaleModVals = scaleMod.get();
-			if (chance(scaleModVals.chance)) {
-				moveScale(Math.round(scaleModVals.index), scaleModVals.step);
-			}
+		this.mods.scale.update();
+		let scaleMod = this.mods.scale.get();
+		if (chance(scaleMod.chance)) {
+			this.shiftScale(Math.round(scaleMod.index), scaleMod.step);
+		}
 
-			if (params.onModulate) {
-				params.onModulate(totalPlays, totalPlays / sequence[0].length);
-			}
+		if (this.config.onMod) {
+			this.config.onMod(this.loopCount, this.loopCount / this.sequence[0].length);
 		}
 		
 		// move to next index in sequence (if more than one)
-		sequenceIndex++;
-		if (sequenceIndex >= sequence[0].length) sequenceIndex = 0;
+		this.sequenceIndex++;
+		if (this.sequenceIndex >= this.sequence[0].length) {
+			this.sequenceIndex = 0;
+		}
 		
-		totalPlays++;
+		this.loopCount++;
 		
-		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
+		if (Tone.Transport.state === 'stopped') {
+			Tone.Transport.start();
+		}
 		
-		if (isSavePerformance) {
-			performance.loops.push({
-				voices,
-				totalBeats,
-				interval: smallestBeat + 'n',
+		if (this.config.isSavePerformance) {
+			this.performance.loops.push({
+				voices: this.voices,
+				beatCount: this.beatCount,
+				interval: smallestBeat + 'n', // toneLoop.interval
 			});
 		}
 
-		if (isLiveMode) {
-			updateLive();
+		if (this.config.isLiveMode) {
+			this.updateLive();
 		}
 
-		if (onLoop) onLoop(totalPlays);
+		if (this.config.onLoop) {
+			this.config.onLoop(this.loopCount);
+		}
 	}
 
-	function getPerformanceLoop() {
-		if (performanceLoopIndex >= performance.loops.length) {
+	getPerformanceLoop() {
+		if (this.performanceLoopIndex >= this.performance.loops.length) {
 			Tone.Transport.stop();
-			isPlaying = false;
-			if (recorder) saveRecording();
+			this.isPlaying = false;
+			saveRecording();
 			return;
 		}
-		beatCount = 0;
-		// disposePrevious();
-		instruments.dispose();
-		const loop = structuredClone(performance.loops[performanceLoopIndex]); 
-		voices = loop.voices;
-		totalBeats = loop.totalBeats;
-		toneLoop.interval = loop.interval;
-		totalPlays++;
+		
+		this.beatCounter = 0;
+		this.instruments.dispose();
+		
+		const loop = structuredClone(this.performance.loops[this.performanceLoopIndex]); 
+		this.voices = loop.voices;
+		this.beatCount = loop.beatCount;
+		this.toneLoop.interval = loop.interval;
+		this.loopCount++;
 
-		for (let i = 0; i < voices.length; i++) {
-			const voiceParams = voices[i];
-			voices[i].toneInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, recorder);
+		for (let i = 0; i < this.voices.length; i++) {
+			const voiceParams = this.voices[i];
+			this.voices[i].toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
 		}
 
 		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
-		if (onLoop) onLoop(totalPlays);
-		if (params.onModulate) {
-			params.onModulate(totalPlays, totalPlays / performance.loops.length);
+		if (this.config.onLoop) {
+			this.config.onLoop(this.loopCount);
 		}
-		performanceLoopIndex++;
+		if (params.config.onMod) {
+			params.config.onMod(this.loopCount, this.loopCount / this.performance.loops.length);
+		}
+		this.performanceLoopIndex++;
 	}
 
-	function cloneVoice(voice) {
+	cloneVoice(voice) {
 		let clone = {};
 		for (let k in voice) {
 			if (k === 'toneInstrument') continue;
@@ -465,30 +489,30 @@ export function Doodoo(params, callback) {
 		return clone;
 	}
 
-	function updateLive(newLoopControls) {
+	updateLive(newLoopControls) {
 
-		if (newLoopControls) loopControls = newLoopControls;
+		if (newLoopControls) this.loopControls = newLoopControls;
 
 		// reset start loops
-		startLoops = [];
+		this.startLoops = [];
 
 		// assign voices to loops
-		for (let i = 0; i < loopControls.length; i++) {
-			if (loopControls[i] === 1) {
+		for (let i = 0; i < this.loopControls.length; i++) {
+			if (this.loopControls[i] === 1) {
 				let isLoopFound = false;
-				for (let j = 0; j < voices.length; j++) {
-					if (voices[j].liveLoopIndex === i) {
-						startLoops.push(cloneVoice(voices[j]));
+				for (let j = 0; j < this.voices.length; j++) {
+					if (this.voices[j].liveLoopIndex === i) {
+						this.startLoops.push(cloneVoice(this.voices[j]));
 						isLoopFound = true;
 					}
 				}
 				if (!isLoopFound) {
-					for (let j = 0; j < voices.length; j++) {
+					for (let j = 0; j < this.voices.length; j++) {
 						if (isLoopFound) continue;
-						if (voices[j].hasOwnProperty('liveLoopIndex')) continue;
-						let v = cloneVoice(voices[j]);
+						if (this.voices[j].hasOwnProperty('liveLoopIndex')) continue;
+						let v = cloneVoice(this.voices[j]);
 						v.liveLoopIndex = i;
-						startLoops.push(v);
+						this.startLoops.push(v);
 						isLoopFound = true;
 					}
 				}
@@ -497,30 +521,34 @@ export function Doodoo(params, callback) {
 
 		// add new loops if needed
 		// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
-		let voiceCount = loopControls.filter(c => c > 0).length;
-		if (voiceCount > startLoops.length) {
-			voiceCountOverride = voiceCount;
+		let voiceCount = this.loopControls.filter(c => c > 0).length;
+		if (voiceCount > this.startLoops.length) {
+			this.voiceCountOverride = voiceCount;
 		} else {
-			voiceCountOverride = 0;
+			this.voiceCountOverride = 0;
 		}
 
 		if (voiceCount === 0) {
-			stop();
-		} else if (!isPlaying) {
-			play();
+			this.stop();
+		} else if (!this.isPlaying) {
+			this.play();
 		}
 	}
 
-	function saveRecording() {
+	saveRecording() {
+		if (!this.config.withRecording) return;
+		if (!this.recorder.state === 'started') return;
+		if (!this.recorder) return;
+	
 		function checkMeter() {
-			if (meter.getValue()[0] < -256) {
+			if (this.meter.getValue()[0] < -256) {
 				clearInterval(saveInterval);
 				saveFile();
 			}
 		}
 			
 		async function saveFile() {
-			const recording = await recorder.stop();
+			const recording = await this.recorder.stop();
 			const url = URL.createObjectURL(recording);
 			const anchor = document.createElement("a");
 			const audioName = prompt('Name clip', params.title || "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
@@ -533,117 +561,110 @@ export function Doodoo(params, callback) {
 		let saveInterval = setInterval(checkMeter, 1000 / 30);
 	}
 
-	function moveTonic(dir) {
-		let n = MIDI_NOTES.indexOf(transpose) + dir;
-		transpose = MIDI_NOTES[n];
+	shiftTranspose(dir) {
+		let n = MIDI_NOTES.indexOf(this.comp.transpose) + dir;
+		this.comp.transpose = MIDI_NOTES[n];
 	}
 
-	function setTonic(note) {
-		transpose = note;
+	shiftBPM(n) {
+		this.comp.bpm += n;
+		Tone.Transport.bpm.value = this.comp.bpm;
 	}
 
-	function moveBPM(n) {
-		let b = Tone.Transport.bpm.value;
-		Tone.Transport.bpm.value = b + n;
+	setBPM(bpm) {
+		this.comp.bpm += bmp
+		Tone.Transport.bpm.value = this.comp.bpm;
 	}
 
-	function setBPM(bpm) {
-		Tone.Transport.bpm.value = bpm; // starts 128
+	shiftScale(index, step) {
+		if (index >= this.comp.scale.length) return; // assert?
+		this.comp.scale[index] += step;
 	}
 
-	function moveScale(index, step) {
-		if (index < scale.length) {
-			scale[index] += step;
-		}
+	modulate() {
+		this.modCount++;
+		this.parts.forEach(part => { part.update(); });
 	}
 
-	function modulate() {
-		totalPlays++;
-		parts.forEach(part => { part.update(); });
+	isRecording() {
+		if (!this.recorder) return false;
+		return this.recorder.state === 'started' || this.recorder.state === 'paused';
 	}
 
-	// better name
-	function isRecording() {
-		if (!recorder) return false;
-		return recorder.state === 'started' || recorder.state === 'paused';
-	}
-
-	function savePerformance() {
+	savePerformance() {
+		if (!this.config.isPerformance) return;
 		
-		performance.loops.forEach(loop => {
+		this.performance.loops.forEach(loop => {
 			loop.voices.forEach(voice => {
 				voice.count = 0;
 				delete voice.toneInstrument;
 			})
 		});
-		let perf = JSON.stringify(performance);
+		let perf = JSON.stringify(this.performance);
 		let title = prompt("Name performance", "Name");
 		localStorage.setItem('greg-perf-' + title, perf);
 		const blob = new Blob([perf], { type: 'application/x-download;charset=utf-8' });
 		saveAs(blob, title + '.json');
 	}
 
-	function play() {
-		if (!autoLoad && !instruments.loaded) return loadTone();
+	play() {
+		if (!this.config.autoLoad && !this.instruments.loaded) return loadTone();
 		if (instruments.loaded) {
-			playOnStart = true;
+			this.config.playOnStart = true;
 			return;
 		}
-		isPlaying = true;
+		this.isPlaying = true;
 		
-		if (params.isPerformance) {
-			getPerformanceLoop();
-		} else {
-			generateLoop();
-		}
+		this.playNext();
 
-		toneLoop.start(Tone.Transport.seconds);
+		this.toneLoop.start(Tone.Transport.seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
 
-		if (withRecording) recorder.start();
+		if (this.config.withRecording) this.recorder.start();
 	}
 
-	function stop() {
+	stop() {
 		Tone.Transport.stop();
-		toneLoop.stop();
-		for (let i = 0; i < voices.length; i++) {
+		this.toneLoop.stop();
+		for (let i = 0; i < this.voices.length; i++) {
 			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
-			voices[i].toneInstrument.triggerRelease();
+			this.voices[i].toneInstrument.triggerRelease();
 		}
-		// disposePrevious()
-		instruments.dispose();
-		isPlaying = false;
-		if (withRecording && recorder.state === 'started') saveRecording();
-		if (isSavePerformance) savePerformance();
-		if (params.onStop) params.onStop();
+		this.instruments.dispose();
+		this.isPlaying = false;
+		
+		this.saveRecording();
+		this.savePerformance();
+		if (this.config.onStop) {
+			this.config.onStop();
+		}
 	}
 
-	function playNext() {
+	playNext() {
 		// with waitForModTrigger
-		if (params.isPerformance) {
-			getPerformanceLoop();
+		if (this.config.isPerformance) {
+			this.getPerformanceLoop();
 		} else {
-			generateLoop();
+			this.generateLoop();
 		}
 	}
 
-	return {
-		play, stop, playNext, isRecording, modulate, 
-		setBPM, moveBPM, setTonic, moveTonic, moveScale,
-		updateLive,
-		getVoices: () => { return voices; },
-		isPlaying: () => { return isPlaying; },
-		getStatusIsPlaying: () => { return isPlaying; }, // old
-		printVoices: () => { console.log('loops', voices); }, // debug
-		printParams: () => { console.log('params', 	parts.map(p => p.getParams())); }, // debug
-		printComp: () => {
-			console.log('tonic', tonic);
-			console.log('transpose', transpose);
-			console.log('scale', scale);
-			console.log('default beat', defaultBeat);
-			console.log('total plays', totalPlays);
-		}
-	};
+	getVoices() {
+		return this.voices; 
+	}
+
+	// debug
+	printVoices() {
+		console.log('loops', this.voices); 
+	}
+
+	printParams() {
+		console.log('params', this.parts.map(p => p.getParams())); 
+	}
+
+	printComp() {
+		console.log(this.comp);
+	}
 }
 

@@ -56,7 +56,7 @@ export function Meter(app) {
 	timer = performance.now();
 	requestAnimationFrame(draw);
 
-	function setMeter(meter) {
+	function updateMeter(meter) {
 		toneMeter = meter;
 	}
 
@@ -70,5 +70,5 @@ export function Meter(app) {
 		panel.el.style.textAlign = 'left'; // prob ui way to do this
 	}
 
-	return { connect, setMeter, isOpen };
+	return { connect, updateMeter, isOpen };
 }
