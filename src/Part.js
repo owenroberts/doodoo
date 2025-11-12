@@ -1,7 +1,7 @@
 import { Property } from './Property.js';
 import { Bundle } from './Bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
-import { getHarmony, getTranspose } from './Midi.js';
+import { getHarmony, getTranspose } from './midi.js';
 import { PropertyTypes } from './constants.js';
 
 /**

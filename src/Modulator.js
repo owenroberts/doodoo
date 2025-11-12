@@ -1,5 +1,5 @@
 import { Property } from './Property.js';
-import { ModulatorTypes, Bounds } from './Constants.js';
+import { ModulatorTypes, Bounds } from './constants.js';
 import { random, chance, getNumberPrecision } from '../../cool/cool.js';
 
 /**
