@@ -650,13 +650,9 @@ export class Doodoo {
 		}
 	}
 
-	getVoices() {
-		return this.voices; 
-	}
-
 	// debug
 	printVoices() {
-		console.log('loops', this.voices); 
+		console.log('voices', this.voices); 
 	}
 
 	printParams() {
@@ -664,7 +660,6 @@ export class Doodoo {
 	}
 
 	printComp() {
-		console.log(this.comp);
+		console.log('composition', this.comp);
 	}
 }
-

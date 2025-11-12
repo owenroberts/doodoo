@@ -3,7 +3,7 @@
 */
 
 import * as Tone from 'tone';
-import { Doodoo } from '../../src/Doodoo.js';
+import { Doodoo } from '../../src/doodoo.js';
 import { Elements } from '../../../ui/src/UI.js';
 const { UILabel, UIModal, UIButton, UIElement } = Elements;
 
