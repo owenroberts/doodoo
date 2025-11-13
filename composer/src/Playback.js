@@ -33,8 +33,8 @@ export function Playback(app) {
 			// noMods,
 			isLiveMode,
 			loopControls,
-			onMod: count => {
-				modCountUI.text = count;
+			onMod: loopCount => {
+				modCountUI.text = loopCount;
 				app.score.update(doodoo.voices);
 				app.monitor.update(doodoo.voices);
 			},

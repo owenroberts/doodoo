@@ -232,9 +232,9 @@ export class Doodoo {
 
 		for (let i = 0; i < this.voices.length; i++) {
 			const voice = this.voices[i];
-			if (voice.count >= voice.countEnd) continue;
-			if (voice.count % 1 !== 0) continue;
-			const noteIndex = Math.floor(voice.count) % voice.melody.length;
+			if (voice.counter >= voice.count) continue;
+			if (voice.counter % 1 !== 0) continue;
+			const noteIndex = Math.floor(voice.counter) % voice.melody.length;
 			const note = voice.melody[noteIndex];
 			if (note[0] !== null && note[0] !== 'rest') {
 				let [pitch, beat, velocity] = note;
@@ -264,7 +264,7 @@ export class Doodoo {
 
 			}
 			if (this.config.onNote) this.config.onNote({ voiceIndex: i, note });
-			voice.count += 1; // voice.counter;
+			voice.counter += 1; // voice.counter;
 		}
 
 		this.beatCounter++;
@@ -330,10 +330,10 @@ export class Doodoo {
 				const voices = partsInSequence[i];
 				for (let j = 0; j < voices.length; j++) {
 					const voice = voices[j];
-					if (voice.countEnd > this.beatCounter) {
+					if (voice.count > this.beatCounter) {
 						partIndex = i;
 						voiceIndex = j;
-						this.beatCounter = voice.countEnd;
+						this.beatCounter = voice.count;
 					}
 				}
 			}
@@ -346,7 +346,7 @@ export class Doodoo {
 				for (let i = 0; i < makeUpBeats; i++) {
 					partsInSequence[partIndex][voiceIndex].melody.push([null, this.defaultBeat]);
 				}
-				partsInSequence[partIndex][voiceIndex].countEnd += makeUpBeats;
+				partsInSequence[partIndex][voiceIndex].count += makeUpBeats;
 			}
 		}
 
@@ -361,7 +361,7 @@ export class Doodoo {
 					const copy = structuredClone(clone);
 					voice.melody = voice.melody.concat(copy);
 				}
-				voice.countEnd = voice.melody.length;
+				voice.count = voice.melody.length;
 			}
 		}
 
@@ -487,7 +487,7 @@ export class Doodoo {
 			if (k === 'toneInstrument') continue;
 			clone[k] = structuredClone(voice[k]);
 		}
-		clone.count = 0;
+		clone.counter = 0;
 		return clone;
 	}
 
@@ -598,7 +598,7 @@ export class Doodoo {
 		
 		this.performance.loops.forEach(loop => {
 			loop.voices.forEach(voice => {
-				voice.count = 0;
+				voice.counter = 0;
 				delete voice.toneInstrument;
 			})
 		});

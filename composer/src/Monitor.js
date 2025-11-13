@@ -12,7 +12,7 @@ export function Monitor(app) {
 		harmony: true,
 		counterpoint: true,
 		count: true,
-		countEnd: true,
+		counter: true,
 		instrument: true,
 		attack: true,
 		curve: true,

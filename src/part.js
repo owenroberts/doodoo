@@ -165,8 +165,8 @@ export class Part {
 
 			const voice = {
 				melody,
-				count: 0, // count through loop
-				countEnd: melody.length,
+				counter: 0, // count through loop
+				count: melody.length,
 				harmony: chance(harmony.chance) ?
 					harmony.interval : 0,
 				counterpoint: chance(this.mods.counterpoint.get()),
