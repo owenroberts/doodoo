@@ -114,6 +114,11 @@ export function Playback(app) {
 				callback: () => { if (doodoo) doodoo.stop(); }, 
 			},
 			{ 
+				key: 'shift-,', 
+				text: 'Stop next',
+				callback: () => { if (doodoo) doodoo.stopNext(); }, 
+			},
+			{ 
 				key: 'r', 
 				text: 'Record', 
 				callback: () => { play({ withRecording: true }) },

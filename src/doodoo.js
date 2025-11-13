@@ -652,6 +652,10 @@ export class Doodoo {
 		}
 	}
 
+	stopNext() {
+		this.config.withCount = this.loopCount;
+	}
+
 	// debug
 	printVoices() {
 		console.log('voices', this.voices); 
