@@ -1,4 +1,4 @@
-import { Bundle } from './Bundle.js';
+import { Bundle } from './bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
 import { getHarmony, getTranspose } from './midi.js';
 import { createProperty } from './create-property.js';

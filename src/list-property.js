@@ -1,4 +1,4 @@
-import { Modulator } from './Modulator.js';
+import { Modulator } from './modulator.js';
 import { Property } from './property.js';
 
 /**

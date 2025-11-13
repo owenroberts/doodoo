@@ -1,4 +1,4 @@
-import { SamplePaths } from './SamplePaths.js';
+import { SamplePaths } from './sample-paths.js';
 
 /**
  * default settings for properties modulated by doodoo

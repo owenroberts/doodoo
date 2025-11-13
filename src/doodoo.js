@@ -9,7 +9,7 @@
 import * as Tone from 'tone';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
-import { Part } from './Part.js';
+import { Part } from './part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';

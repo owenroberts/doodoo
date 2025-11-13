@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { SamplePaths } from './SamplePaths.js';
+import { SamplePaths } from './sample-paths.js';
 import { getFX } from './fx.js';
 import { random, assert } from '../../cool/cool.js';
 

@@ -1,7 +1,7 @@
 import { ValueProperty } from './value-property.js';
 import { ListProperty } from './list-property.js';
 import { StackProperty } from './stack-property.js';
-import { Bundle } from './Bundle.js';
+import { Bundle } from './bundle.js';
 
 /**
  * get the correct property type based on params
