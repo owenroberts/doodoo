@@ -9,14 +9,14 @@ const { UILabel, UIButton, UIElement } = Elements;
 
 const LoopStates = {
 	KILL: 0,
-	KEEP: 1,
-	MOD: 2,
+	MOD: 1,
+	KEEP: 2,
 };
 
 function getLoopState(n) {
 	if (n === 0) return 'X';
-	if (n === 1) return '0';
-	if (n === 2) return 'M';
+	if (n === 1) return 'M';
+	if (n === 2) return 'K';
 }
 
 export function Live(app) {

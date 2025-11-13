@@ -15,7 +15,7 @@ export const defaults = {
 	},
 	scale: {
 		type: 'bundle',
-		chance: { value: 0, type: 'chance' },
+		chance: { value: 0, min: 0, max: 1, step: 0.1 },
 		index: { value: 0 },
 		step: { list: [1, -1, 2, -2] },
 	},
@@ -78,9 +78,12 @@ export const defaults = {
 			},
 		},
 	},
+	// chance ?
 	counterpoint: {
-		type: "chance",
-		value: 0
+		value: 0,
+		min: 0,
+		max: 1,
+		step: 0.1,
 	},
 	beatList: {
 		list: [4, 2, 1, 8, 16],
@@ -291,11 +294,12 @@ export const defaults = {
 	// chance of rest ... restChange ???
 	rest: {
 		value: 0,
-		step: 0.05,
-		type: 'chance',
+		min: 0,
+		max: 1,
+		step: 0.1,
 		mod: {
-			min: { value: 0, type: 'chance', step: 0.05, },
-			max: { value: 0.25, type: 'chance', step: 0.05, },
+			min: { value: 0 },
+			max: { value: 0.25 },
 			mode: { value: Modes.RANGE },
 			kick: { value: 2 },
 		}

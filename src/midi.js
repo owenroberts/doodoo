@@ -49,17 +49,17 @@ export function constrainNoteRange(midiNoteNum) {
 
 /**
  * transposes melody according to transpose key and scale
- * @param  {array} melody
+ * @param  {array}  melody
  * @param  {string} tonic     tonic as midi
  * @param  {string} transpose transpose key as midi
- * @param  {array} scale     key scale intervals
+ * @param  {array}  scale     key scale intervals
  * @return {array}           
  */
 export function getMelody(melody, tonic, transpose, scale) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
-			const midiPitch = MIDI_NOTES.indexOf(note[0]) - getMidiInverval(tonic, transpose);
+			const midiPitch = MIDI_NOTES.indexOf(note[0]) - getMidiInterval(tonic, transpose);
 			note[0] = MIDI_NOTES[constrainNoteRange(midiPitch)];
 			return note;
 		}
@@ -68,11 +68,11 @@ export function getMelody(melody, tonic, transpose, scale) {
 
 /**
  * get haromy sequence from melody
- * @param  {array}  melody           
+ * @param  {array}   melody           
  * @param  {string}  tonic            tonic as midi
  * @param  {string}  transpose        transpose key as midi
  * @param  {number}  interval         harmony as numericinterval
- * @param  {array}  scale             scale of key expressed as numeric intervals
+ * @param  {array}   scale             scale of key expressed as numeric intervals
  * @param  {boolean} useOctave        
  * @param  {boolean} harmonyScaleOnly 
  * @return {array}                   [
@@ -150,7 +150,7 @@ export function getTranspose(pitch, value) {
  * @param  {string} b - first midi note name
  * @return {number}   - interval between a and b
  */
-export function getMidiInverval(a, b) {
+export function getMidiInterval(a, b) {
 	assert(typeof a === 'string', `note a should be expressed as a midi note name, got ${a}`);
 	assert(typeof b === 'string', `note a should be expressed as a midi note name, got ${b}`);
 	return MIDI_NOTES.indexOf(a) - MIDI_NOTES.indexOf(b);
@@ -165,7 +165,7 @@ export function getMidiInverval(a, b) {
  * @return {number}
  */
 export function getScaleIndex(pitch, tonic, scale) {
-	const diff = getMidiInverval(pitch, tonic);
+	const diff = getMidiInterval(pitch, tonic);
 	if (Math.abs(diff) % 12 === 0) {
 		return 0;
 	}
