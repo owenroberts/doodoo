@@ -1,4 +1,4 @@
-import { Doodoo } from './Doodoo.js';
+import { Doodoo } from './doodoo.js';
 
 window.addEventListener("load", function() {
 	const doodooDiv = document.getElementById('doodoos');

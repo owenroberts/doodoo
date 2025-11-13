@@ -7,6 +7,7 @@
 import { Elements } from '../../../ui/src/UI.js';
 import { Interface, labelFromKey } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
+import { Modes, Bounds } from '../../src/constants.js';
 
 const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList } = Elements;
 
@@ -402,12 +403,13 @@ export function ModEditor(app) {
 		}));
 		tree.addBreak();
 
-		tree.add(new UILabel({ text: "Type" }));
+		tree.add(new UILabel({ text: "Mode" }));
 		tree.add(new UISelect({
-			value: params.type?.value ?? 'value',
-			options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
+			value: params.mode?.value ?? 'value',
+			// options: ['value', 'range', 'walk', 'walkUp', 'walkDown'],
+			options: Object.values(Modes),
 			callback: value => { 
-				updateMod(propString + '-type', value, partIndex);
+				updateMod(propString + '-mode', value, partIndex);
 			}
 		}));
 		tree.addBreak();
@@ -415,7 +417,8 @@ export function ModEditor(app) {
 		tree.add(new UILabel({ text: "Bound" }));
 		tree.add(new UISelect({
 			value: params.bound?.value ?? 'stay',
-			options: ['reset', 'reverse', 'stay'],
+			// options: ['reset', 'reverse', 'stay'],
+			options: Object.values(Bounds),
 			callback: value => { 
 				updateMod(propString + '-bound', value, partIndex);
 			}

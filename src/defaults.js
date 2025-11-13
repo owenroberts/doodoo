@@ -27,13 +27,13 @@ export const defaults = {
 		value: 1, 
 		step: 1,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			min: { 
 				value: 1,
 				mod: {
 					min: { value: 1 },
 					max: { value: 3 },
-					type: { value: 'walkUp' },
+					mode: { value: 'walkUp' },
 					chance: { value: 0.5 },
 				}
 			},
@@ -42,7 +42,7 @@ export const defaults = {
 				mod: {
 					min: { value: 1 },
 					max: { value: 5 },
-					type: { value: 'walkUp' },
+					mode: { value: 'walkUp' },
 					chance: { value: 0.5 },
 				}
 			},
@@ -64,7 +64,7 @@ export const defaults = {
 			list: [4, 5, 3, 7, 2, 6],
 			index: 0,
 			mod: { 
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				min: { value: 0 }, 
 				max: { 
 					value: 0,
@@ -72,7 +72,7 @@ export const defaults = {
 						min: { value: 0 },
 						max: { value: 5 },
 						step: { value: 1 },
-						type: { value: 'walkUp' },
+						mode: { value: 'walkUp' },
 					}
 				},
 			},
@@ -86,7 +86,7 @@ export const defaults = {
 		list: [4, 2, 1, 8, 16],
 		index: 0,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			chance: { value: 1 },
 			min: { value: 0 },
 			max: { 
@@ -94,7 +94,7 @@ export const defaults = {
 				mod: {
 					max: { value: 6 },
 					chance: { value: 0.3 },
-					type: { value: 'walkUp' }
+					mode: { value: 'walkUp' }
 				}
 			},
 		}
@@ -109,7 +109,7 @@ export const defaults = {
 			list: [4, 16, 8, 4, 2, 1],
 			index: 0,
 			mod: {
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 },
 				min: { value: 0 },
 				max: { 
@@ -117,7 +117,7 @@ export const defaults = {
 					mod: {
 						max: { value: 6 },
 						chance: { value: 0.3 },
-						type: { value: 'walkUp' }
+						mode: { value: 'walkUp' }
 					}
 				},
 			}
@@ -133,11 +133,11 @@ export const defaults = {
 					min: { value: 0 },
 					max: { value: 8 },
 					chance: { value: 0.2 },
-					type: { value: 'walkUp' },
+					mode: { value: 'walkUp' },
 					kick: { value: 2 },
 				},
 			},
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			chance: { value: 1 }, // to update the max mod -- think more on this
 		}
 	},
@@ -145,7 +145,7 @@ export const defaults = {
 		list: [0, 1, 2, 4, 8, 3, 5, 7],
 		index: 0,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			chance: { value: 1 },
 			kick: { value: 2 },
 			min: { value: 0 },
@@ -155,7 +155,7 @@ export const defaults = {
 					min: { value: 0 },
 					max: { value: 12 },
 					chance: { value: 0.2 },
-					type: { value: 'walkUp' },
+					mode: { value: 'walkUp' },
 				}
 			},
 			
@@ -168,13 +168,13 @@ export const defaults = {
 		length: {
 			value: 1,
 			mod: {
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				min: { value: 1 },
 				max: { 
 					value: 3,
 					mod: {
 						max: { value: 8 },
-						type: { type: 'walkUp' },
+						mode: { value: 'walkUp' },
 					}
 				},
 			}
@@ -184,7 +184,7 @@ export const defaults = {
 			list: [3, 4, 5],
 			index: 0,
 			mod: {
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 },
 				min: { value: 0 },
 				max: { value: 2 },
@@ -203,11 +203,11 @@ export const defaults = {
 					mod: {
 						min: { value: 8 },
 						max: { value: 16 },
-						type: { value: 'walkDown' },
+						mode: { value: 'walkDown' },
 					}
 				},
 				max: { value: 32, },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 			}
 		},
 	},
@@ -225,7 +225,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0.25 },
 				max: { value: 0.85 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 			}
 		},
 		// step between values
@@ -236,13 +236,13 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 1 },
 				chance: { value: 0.66 },
-				type: { value: 'walk' },
+				mode: { value: 'walk' },
 				step: { 
 					value: 0.01,
 					mod: {
 						min: { value: 0.01 },
 						max: { value: 0.1 },
-						type: { value: 'range' },
+						mode: { value: 'range' },
 						chance: { value: 0.2 },
 					}
 				},
@@ -255,7 +255,7 @@ export const defaults = {
 		value: 0.1,
 		step: 0.05,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			min: { value: 0.1 },
 			max: { value: 0.5 },
 		}
@@ -271,18 +271,18 @@ export const defaults = {
 				mod: {
 					min: { value: 0 },
 					max: { value: 6 },
-					type: { value: 'walkUp' },
+					mode: { value: 'walkUp' },
 					chance: { value: 0.25 },
 				}
 			},
-			type: { value: 'range' },
+			mode: { value: 'range' },
 		}
 	},
 	release: {
 		value: 0.5,
 		step: 0.05,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			min: { value: 0.1 },
 			max: { value: 0.5},
 		}
@@ -296,7 +296,7 @@ export const defaults = {
 		mod: {
 			min: { value: 0, type: 'chance', step: 0.05, },
 			max: { value: 0.25, type: 'chance', step: 0.05, },
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			kick: { value: 2 },
 		}
 	},
@@ -320,7 +320,7 @@ export const defaults = {
 		list: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
 		index: 0,
 		mod: {
-			type: { value: 'range' },
+			mode: { value: 'range' },
 			min: { value: 0 },
 			max: { value: 10 },
 		}
@@ -339,7 +339,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0.05 },
 				max: { value: 0.2 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 			}
 		}
 	},
@@ -351,7 +351,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 5 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		}
@@ -364,7 +364,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 4 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		}
@@ -377,7 +377,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 4 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		}
@@ -390,7 +390,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 40 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		}
@@ -403,7 +403,7 @@ export const defaults = {
 			mod: {
 				min: { value: 1 },
 				max: { value: 12 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -413,7 +413,7 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 12 },
 				step: { value: 0.1 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -436,7 +436,7 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 0.5 },
 				step: { value: 0.01 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -445,7 +445,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 3 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -458,7 +458,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 32 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -467,7 +467,7 @@ export const defaults = {
 			mod: {
 				min: { value: 1 },
 				max: { value: 16 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -476,7 +476,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 10_000 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -490,7 +490,7 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 1 },
 				step: { value: 0.01 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -499,7 +499,7 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 10 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -512,7 +512,7 @@ export const defaults = {
 			mod: {
 				min: { value: 1 },
 				max: { value: 18 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -522,7 +522,7 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 1 },
 				step: { value: 0.05 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -535,7 +535,7 @@ export const defaults = {
 			mod: {
 				min: { value: 1 },
 				max: { value: 18 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},
@@ -545,7 +545,7 @@ export const defaults = {
 				min: { value: 0.1 },
 				max: { value: 1 },
 				step: { value: 0.05 },
-				type: { value: 'range' },
+				mode: { value: 'range' },
 				chance: { value: 1 }
 			}
 		},

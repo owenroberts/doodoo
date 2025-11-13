@@ -1,10 +1,5 @@
-/*
-	bundle of props
-	for fx, maybe other stuff later
-*/
+import { createProperty } from './create-property.js';
 
-import { Property } from './Property.js';
-import { PropertyTypes } from './constants.js';
 
 /**
  * bundles two properties that rely on one another for mods
@@ -19,10 +14,10 @@ export class Bundle {
 	 */
 	constructor(params={}, name) {
 		this.name = name;
-		this.type = PropertyTypes.BUNDLE;
 		this.props = {};
 		for (const param in params) {
-			this.props[param] = new Property(params[param], param);
+			if (param === 'type') continue;
+			this.props[param] = createProperty(params[param], param);
 		}
 	}
 
@@ -30,9 +25,9 @@ export class Bundle {
 	 * updates props in bundle
 	 * @param  {number} playCount - plays in doodoo
 	 */
-	update(playCount) {
+	update(loopCount) {
 		for (const prop in this.props) {
-			this.props[prop].update(playCount);
+			this.props[prop].update(loopCount);
 		}
 	}
 
@@ -44,7 +39,7 @@ export class Bundle {
 	get(voiceIndex) {
 		let values = {};
 		for (const prop in this.props) {
-			if (prop === 'type') continue;
+			if (prop === 'type') continue; // this is the error right?
 			values[prop] = this.props[prop].get(voiceIndex);
 		}
 		return values;

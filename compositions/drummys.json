@@ -97,7 +97,7 @@
             "step": 1,
             "mod":
             {
-                "type":
+                "mode":
                 {
                     "value": "range"
                 },
@@ -114,7 +114,7 @@
                         {
                             "value": 3
                         },
-                        "type":
+                        "mode":
                         {
                             "value": "walkUp"
                         },
@@ -147,7 +147,7 @@
                         {
                             "value": 3
                         },
-                        "type":
+                        "mode":
                         {
                             "value": "walkUp"
                         },
@@ -183,7 +183,7 @@
                     "step": 0.05
                 }
             },
-            "type": "number"
+            "mode": "number"
         }
     },
     "partMods": [
@@ -254,10 +254,9 @@
                         "value": 0.5,
                         "step": 0.05
                     },
-                    "type":
+                    "mode":
                     {
                         "value": "walk",
-                        "options": ["value", "range", "walk", "walkUp", "walkDown"]
                     }
                 }
             }
@@ -295,8 +294,7 @@
                 },
                 "type":
                 {
-                    "value": "value",
-                    "options": ["value", "range", "walk", "walkUp", "walkDown"]
+                    "mode": "value",
                 }
             }
         },
@@ -396,7 +394,7 @@
             "index": 0,
             "mod":
             {
-                "type":
+                "mode":
                 {
                     "value": "range"
                 },
@@ -431,7 +429,7 @@
             "step": 0.05,
             "mod":
             {
-                "type":
+                "mode":
                 {
                     "value": "range"
                 },
@@ -614,8 +612,7 @@
                         },
                         "type":
                         {
-                            "value": "walk",
-                            "options": ["value", "range", "walk", "walkUp", "walkDown"]
+                            "mode": "walk"
                         }
                     }
                 }
@@ -651,10 +648,9 @@
                         "value": 0.5,
                         "step": 0.05
                     },
-                    "type":
+                    "mode":
                     {
-                        "value": "value",
-                        "options": ["value", "range", "walk", "walkUp", "walkDown"]
+                        "value": "value"
                     }
                 }
             },
@@ -754,7 +750,7 @@
                 "index": 0,
                 "mod":
                 {
-                    "type":
+                    "mode":
                     {
                         "value": "range"
                     },
@@ -790,7 +786,7 @@
                 "step": 0.05,
                 "mod":
                 {
-                    "type":
+                    "mode":
                     {
                         "value": "range"
                     },

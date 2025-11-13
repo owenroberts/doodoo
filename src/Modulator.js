@@ -1,5 +1,5 @@
-import { Property } from './Property.js';
-import { ModulatorTypes, Bounds } from './constants.js';
+import { createProperty } from './create-property.js';
+import { Modes, Bounds } from './constants.js';
 import { random, chance, getNumberPrecision } from '../../cool/cool.js';
 
 /**
@@ -16,26 +16,27 @@ export class Modulator {
 	 * @param  {string} name   - name of property being modded
 	 */
 	constructor(value, params, name) {
-
+		// if (!params.type) console.log(name, params.type);
 		this.value = value;
+		this.name = `${name} mod`;
 
 		/*
 			currently, only min and max have mods, therefore need properties
 			but for consistency and future proof all props are Properties
 		*/
 
-		this.min = new Property(params.min ?? { value: 0 }, `${name} min`);
-		this.max = new Property(params.max ?? { value: 1 }, `${name} max`);
+		this.min = createProperty(params.min ?? { value: 0 }, `${name} min`);
+		this.max = createProperty(params.max ?? { value: 1 }, `${name} max`);
 
-		this.step = new Property(params.step ?? { value: 1 }, `${name} step`);
+		this.step = createProperty(params.step ?? { value: 1 }, `${name} step`);
 	
 		// "kick in" count, wait plays before starting
-		this.kick = new Property(params.kick ?? { value: 0 }, `${name} kick`);
+		this.kick = createProperty(params.kick ?? { value: 0 }, `${name} kick`);
 		this.isKicked = this.kick.get() > 0 ? false : true;
 
-		this.chup = new Property(params.chance ?? { value: 0.5 }, `${name} chup`); // chance of update
-		this.type = new Property(params.type ?? { value: ModulatorTypes.VALUE }, `${name} type`);
-		this.bound = new Property(params.bound ?? { value: Bounds.STAY }, `${name} bound`);
+		this.chup = createProperty(params.chance ?? { value: 0.5 }, `${name} chup`); // chance of update
+		this.mode = createProperty(params.mode ?? { value: Modes.VALUE }, `${name} mode`);
+		this.bound = createProperty(params.bound ?? { value: Bounds.STAY }, `${name} bound`);
 		
 		// float precision to help with maths
 		this.precision = params.step ? getNumberPrecision(params.step.value) : 0;
@@ -57,16 +58,16 @@ export class Modulator {
 
 		let s = this.step.get();
 
-		switch(this.type.get()) {
-			case ModulatorTypes.WALK: 
+		switch(this.mode.get()) {
+			case Modes.WALK: 
 				this.value += s * (chance(0.5) ? 1 : -1);
 				this.value = +this.value.toFixed(this.precision);
 			break;
-			case ModulatorTypes.WALK_UP: 
+			case Modes.WALK_UP: 
 				this.value += s;
 				this.value = +this.value.toFixed(this.precision);
 			break;
-			case ModulatorTypes.WALK_DOWN: 
+			case Modes.WALK_DOWN: 
 				this.value -= s;
 				this.value = +this.value.toFixed(this.precision);
 			break;
@@ -100,7 +101,8 @@ export class Modulator {
 	 * @return {number}
 	 */
 	get() {
-		if (this.type.get() === ModulatorTypes.RANGE && this.isKicked) {
+		// console.log(this.name, this.type);
+		if (this.mode.get() === Modes.RANGE && this.isKicked) {
 			return random(this.min.get(), this.max.get());
 		} else {
 			if (this.isKicked) this.clamp();

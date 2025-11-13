@@ -11,8 +11,8 @@ import { defaults } from './defaults.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
 import { Part } from './Part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
-import { Bundle } from './Bundle.js';
 import { Instruments } from './instruments.js';
+import { createProperty } from './create-property.js';
 
 export class Doodoo {
 
@@ -89,7 +89,7 @@ export class Doodoo {
 		 * @type {object}
 		 */
 		this.mods = {
-			scale: new Bundle(this.props.scale, 'scale'),
+			scale: createProperty(this.props.scale, 'scale'),
 			// transpose
 			// bpm
 		};

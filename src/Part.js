@@ -1,8 +1,8 @@
-import { Property } from './Property.js';
 import { Bundle } from './Bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
 import { getHarmony, getTranspose } from './midi.js';
-import { PropertyTypes } from './constants.js';
+import { createProperty } from './create-property.js';
+
 
 /**
  * handles update modulations on part melody
@@ -28,11 +28,7 @@ export class Part {
 
 		// set up prop modulators
 		for (const prop in props) {
-			if (props[prop]?.type === PropertyTypes.BUNDLE) {
-				this.mods[prop] = new Bundle(props[prop], prop);
-			} else {
-				this.mods[prop] = new Property(props[prop], prop); // modulator replaces default props
-			}
+			this.mods[prop] = createProperty(props[prop], prop); // modulator replaces default props
 		}
 	}
 
@@ -164,6 +160,7 @@ export class Part {
 			}
 
 			const harmony = this.mods.harmony.get(); // this actually looks chill
+			// could be this.mods.harmony.chance.get(), this.mods.harmony.interval.get() ... 
 			const playBeat = this.mods.playBeat.get();
 
 			const voice = {
