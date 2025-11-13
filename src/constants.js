@@ -8,6 +8,10 @@ export const Bounds = {
 	REVERSE: "reverse",
 };
 
+/**
+ * mode of modulator update
+ * @type {enum}
+ */
 export const Modes = {
 	VALUE: "value",
 	RANGE: "range",

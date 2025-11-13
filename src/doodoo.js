@@ -1,11 +1,3 @@
-/*
-	new doodoo greg paradigm
-	expose properties, add mutators to them
-	start with simple playback and add to it
-
-	note is beat + pitch
-*/
-
 import * as Tone from 'tone';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
@@ -14,6 +6,9 @@ import { random, chance, getDate } from '../../cool/cool.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
 
+/**
+ * main greg class for music generation and playback
+ */
 export class Doodoo {
 
 	constructor(params, callback) {
