@@ -57,13 +57,14 @@ export class Doodoo {
 			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
 			harmonyScaleOnly: params.harmonyScaleOnly ?? true, // harmony can only have notes from scale
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
+			isRegularTime: params.isRegularTime ?? false,
 			timeBar: params.timeBar,
 			timeBeat: params.timeBeat,
+			sequence: params.sequence ?? [[true]],
 		};
 
-		this.sequence = params.sequence ?? [[true]]; // part matrix, [play count [part count]]
 		this.sequenceIndex = 0; // previously currentPart
-		
+		this.sequenceLength = this.comp.sequence[0].length;
 		this.loopCount = 0; // track total plays of comp -- differnt than part play count (could be)
 		this.modCount = 0; // num mods --> different from total plays? -- idts
 		this.isPlaying = false;
@@ -101,7 +102,6 @@ export class Doodoo {
 		this.voices = [];
 		this.beatCount = 0;
 		this.beatCounter = 0;
-		
 
 		this.performance = { 
 			loops: [],
@@ -280,7 +280,7 @@ export class Doodoo {
 
 	generateLoop() {
 		if (this.config.withCount) {
-			if (this.loopCount >= this.config.withCount * this.sequence[0].length) {
+			if (this.loopCount >= this.config.withCount * this.sequenceLength) {
 				Tone.Transport.stop();
 				this.isPlaying = false;
 				this.saveRecording();
@@ -298,7 +298,7 @@ export class Doodoo {
 
 		// get parts in sequence
 		for (let i = 0; i < this.parts.length; i++) {
-			if (this.sequence[i][this.sequenceIndex]) {
+			if (this.comp.sequence[i][this.sequenceIndex]) {
 				const partCount = this.parts[i].loopCount;
 				let starts;
 				if (this.config.isLiveMode) {
@@ -324,7 +324,7 @@ export class Doodoo {
 		}
 
 		// make playback have regular bar lengths
-		if (this.config.isRegularTime) {
+		if (this.comp.isRegularTime) {
 			
 			// get voice with longest beat count
 			let partIndex = -1;
@@ -410,7 +410,7 @@ export class Doodoo {
 		this.toneLoop.interval = smallestBeat + 'n';
 		
 		for (let i = 0; i < this.parts.length; i++) {
-			if (this.sequence[i][this.sequenceIndex]) {
+			if (this.comp.sequence[i][this.sequenceIndex]) {
 				this.parts[i].update();
 			}
 		}
@@ -422,12 +422,12 @@ export class Doodoo {
 		}
 
 		if (this.config.onMod) {
-			this.config.onMod(this.loopCount, this.loopCount / this.sequence[0].length);
+			this.config.onMod(this.loopCount, this.loopCount / this.sequenceLength);
 		}
 		
 		// move to next index in sequence (if more than one)
 		this.sequenceIndex++;
-		if (this.sequenceIndex >= this.sequence[0].length) {
+		if (this.sequenceIndex >= this.sequenceLength) {
 			this.sequenceIndex = 0;
 		}
 		
