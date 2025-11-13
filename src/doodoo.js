@@ -216,7 +216,9 @@ export class Doodoo {
 				modulationIndex: 32,
 				resonance: 4000,
 				octaves: 1.5,
-			}).toDestination(); 
+			}).toDestination();
+			this.metroCount = this.comp.timeBar;
+			this.metroCounter = this.metroCount - 1;
 		}
 
 		this.isPlaying = true;
@@ -225,7 +227,12 @@ export class Doodoo {
 
 	playLoop(time) {
 		if (this.config.useMetro) {
-			this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
+			if (this.metroCounter === this.metroCount - 1) {
+				this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
+				this.metroCounter = 0;
+			} else {
+				this.metroCounter++;
+			}
 		}
 
 		for (let i = 0; i < this.voices.length; i++) {
@@ -388,7 +395,7 @@ export class Doodoo {
 				if (voiceParams.counterpoint) {
 					const mel = getMelody(voiceParams.melody, this.comp.tonic, transposePitch, this.comp.scale);
 					const counterpoint = getCounterpoint(mel, transposePitch, this.comp.scale);
-					const counterInstrument = instruments.get(voiceParams.instrument, { ...voiceParams, volume }, this.recorder);
+					const counterInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
 					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 						delete voiceParams.liveLoopIndex;
 					}
@@ -609,7 +616,7 @@ export class Doodoo {
 
 	play() {
 		if (!this.config.autoLoad && !this.instruments.loaded) return loadTone();
-		if (instruments.loaded) {
+		if (this.instruments.loaded) {
 			this.config.playOnStart = true;
 			return;
 		}
