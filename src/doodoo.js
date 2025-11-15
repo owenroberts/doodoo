@@ -330,23 +330,23 @@ export class Doodoo {
 			// get voice with longest beat count
 			let partIndex = -1;
 			let voiceIndex = -1;
-			let beatCounter = -1;
+			let beatCount = -1;
 
 			for (let i = 0; i < partsInSequence.length; i++) {
 				const voices = partsInSequence[i];
 				for (let j = 0; j < voices.length; j++) {
 					const voice = voices[j];
-					if (voice.count > this.beatCounter) {
+					if (voice.count > this.beatCount) {
 						partIndex = i;
 						voiceIndex = j;
-						this.beatCounter = voice.count;
+						this.beatCount = voice.count;
 					}
 				}
 			}
 
 			// get remainer beats if exist
 			let defaultBeatsInBar = this.comp.timeBar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.timeBeat));
-			let beatsLeftOver = this.beatCounter % defaultBeatsInBar;
+			let beatsLeftOver = this.beatCount % defaultBeatsInBar;
 			if (beatsLeftOver > 0) {
 				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;
 				for (let i = 0; i < makeUpBeats; i++) {
@@ -438,7 +438,7 @@ export class Doodoo {
 		if (this.sequenceIndex >= this.sequenceLength) {
 			this.sequenceIndex = 0;
 		}
-		
+
 		this.loopCount++;
 		
 		if (Tone.Transport.state === 'stopped') {
@@ -640,6 +640,7 @@ export class Doodoo {
 	}
 
 	stop() {
+		console.log('stop');
 		Tone.Transport.stop();
 		this.toneLoop.stop();
 		for (let i = 0; i < this.voices.length; i++) {
