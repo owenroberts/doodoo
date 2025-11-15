@@ -1,5 +1,6 @@
 import { SamplePaths } from './sample-paths.js';
 import { Bounds, Modes } from './constants.js';
+import { MIDI_NOTES } from './midi.js';
 
 /**
  * default settings for properties modulated by doodoo
@@ -9,9 +10,9 @@ import { Bounds, Modes } from './constants.js';
  */
 export const defaults = {
 	transpose: {
-		value: 0,
-		min: -128,
-		max: 128,
+		index: 60,
+		list: [...MIDI_NOTES],
+		type: 'note-list',
 	},
 	scale: {
 		type: 'bundle',

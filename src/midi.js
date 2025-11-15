@@ -135,16 +135,6 @@ export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=
 }
 
 /**
- * get transposition note
- * @param  {string} pitch - composition transpose midi note
- * @param  {string} value - voice tranpose midi note
- * @return {string}	      - midi note
- */
-export function getTranspose(pitch, value) {
-	return MIDI_NOTES[constrainNoteRange(MIDI_NOTES.indexOf(pitch) + value)];
-}
-
-/**
  * get interval between to midi notes
  * @param  {string} a - first midi note name
  * @param  {string} b - first midi note name

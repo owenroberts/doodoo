@@ -1,6 +1,6 @@
 import { Bundle } from './bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
-import { getHarmony, getTranspose } from './midi.js';
+import { getHarmony } from './midi.js';
 import { createProperty } from './create-property.js';
 
 
@@ -28,7 +28,12 @@ export class Part {
 
 		// set up prop modulators
 		for (const prop in props) {
-			this.mods[prop] = createProperty(props[prop], prop); // modulator replaces default props
+			// ignore comp level mods
+			if (props === "transpose") continue;
+			if (props === "scale") continue;
+
+			// modulator replaces default props
+			this.mods[prop] = createProperty(props[prop], prop); 
 		}
 	}
 
@@ -176,10 +181,7 @@ export class Part {
 				release: this.mods.release.get(),
 				double: chance(this.mods.double.get()),
 				fx,
-				playBeat: chance(playBeat.chance) ? playBeat.beat : 'def',
-
-				// what is this ... shouldn't be able to transpose part independtly ... 
-				transpose: this.mods.transpose.get(), 
+				playBeat: chance(playBeat.chance) ? playBeat.beat : 'def'
 			};
 
 			if (startLoops) {

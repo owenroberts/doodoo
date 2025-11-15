@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 import { defaults } from './defaults.js';
-import { MIDI_NOTES, getMelody, getHarmony, getTranspose, getCounterpoint } from './midi.js';
+import { MIDI_NOTES, getMelody, getHarmony, getCounterpoint } from './midi.js';
 import { Part } from './part.js';
 import { random, chance, getDate } from '../../cool/cool.js';
 import { Instruments } from './instruments.js';
@@ -73,26 +73,8 @@ export class Doodoo {
 			this.startLoops = [];
 		}
 
-		this.props = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
-		for (const prop in defaults) {
-			if (this.props.hasOwnProperty(prop)) continue;
-			this.props[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
-		}
-
-		/**
-		 * mods that effect entire composition
-		 * @type {object}
-		 */
-		this.mods = {
-			scale: createProperty(this.props.scale, 'scale'),
-			// transpose
-			// bpm
-		};
-
-		this.instruments = new Instruments(params, this.props, this.startLoops);
-
-		// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 		this.toneLoop; // main loop, created in start and keeps time
+		// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
 		this.parts = [];
 		this.voices = [];
 		this.beatCount = 0;
@@ -103,11 +85,14 @@ export class Doodoo {
 			date: getDate(), 
 		};
 		this.performanceLoopIndex = 0;
+		
 		if (this.config.isPerformance) {
 			this.performance = structuredClone(params.performance);
 		} else {
-			this.initParts(params.parts);
+			this.setup(params);
 		}
+
+		this.instruments = new Instruments(params, this.props, this.startLoops);
 
 		if (this.config.withRecording) {
 			this.recorder = new Tone.Recorder();
@@ -121,9 +106,30 @@ export class Doodoo {
 		}
 	}
 
-	initParts(parts) {
+	setup(params) {
+
+		this.props = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
+		for (const prop in defaults) {
+			if (this.props.hasOwnProperty(prop)) continue;
+			this.props[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
+		}
+
+		/**
+		 * mods that effect entire composition
+		 * @type {object}
+		 */
+		this.mods = {};		
+		if (this.props.scale.mod) {
+			this.mods.scale = createProperty(this.props.scale, 'scale');
+		}
+
+		if (this.props.transpose.mod) {
+			this.mods.transpose = createProperty(this.props.transpose, 'transpose');
+		}
+		// bpm
+
 		// have to get default beat before going through the parts ...
-		parts.forEach(part => {
+		params.parts.forEach(part => {
 			part.forEach(note => {
 				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) this.config.defaultBeat = note[1];
 			});
@@ -133,14 +139,14 @@ export class Doodoo {
 			if (beat > parseInt(this.config.defaultBeat)) this.config.defaultBeat = beat + 'n';
 		});
 
-		for (let i = 0; i < parts.length; i++) {
+		for (let i = 0; i < params.parts.length; i++) {
 			let partProps = {};
 			if (this.partMods[i]) {
 				partProps = { ...this.props, ...this.partMods[i] };
 			} else {
 				partProps = { ...this.props };
 			}
-			this.parts.push(new Part(parts[i], partProps, this.config.defaultBeat, this.comp));
+			this.parts.push(new Part(params.parts[i], partProps, this.config.defaultBeat, this.comp));
 		}
 	}
 
@@ -371,16 +377,15 @@ export class Doodoo {
 			for (let j = 0; j < partVoices.length; j++) {
 				const voiceParams = partVoices[j];
 				const harmony = voiceParams.harmony;
-				const transposePitch = getTranspose(this.comp.transpose, voiceParams.transpose);
 
 				let melody;
 				if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 					melody = voiceParams.melody;
 				} else if (harmony === 0) {
-					melody = getMelody(voiceParams.melody, this.comp.tonic, transposePitch, this.comp.scale);
+					melody = getMelody(voiceParams.melody, this.comp.tonic, this.comp.transpose, this.comp.scale);
 				} else {
 					// if live loop, melody is already transposed
-					melody = getHarmony(voiceParams.melody, this.comp.tonic, transposePitch, harmony, this.comp.scale, this.comp.useOctave, this.comp.harmonyScaleOnly);
+					melody = getHarmony(voiceParams.melody, this.comp.tonic, this.comp.transpose, harmony, this.comp.scale, this.comp.useOctave, this.comp.harmonyScaleOnly);
 				}
 
 				const toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
@@ -388,8 +393,8 @@ export class Doodoo {
 
 				// fuck for live this doesn't work ... ignore counterpoint for now ... 
 				if (voiceParams.counterpoint) {
-					const mel = getMelody(voiceParams.melody, this.comp.tonic, transposePitch, this.comp.scale);
-					const counterpoint = getCounterpoint(mel, transposePitch, this.comp.scale);
+					const mel = getMelody(voiceParams.melody, this.comp.tonic, this.comp.transpose, this.comp.scale);
+					const counterpoint = getCounterpoint(mel, this.comp.transpose, this.comp.scale);
 					const counterInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
 					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
 						delete voiceParams.liveLoopIndex;
@@ -410,10 +415,18 @@ export class Doodoo {
 			}
 		}
 
-		this.mods.scale.update();
-		let scaleMod = this.mods.scale.get();
-		if (chance(scaleMod.chance)) {
-			this.shiftScale(Math.round(scaleMod.index), scaleMod.step);
+		// comp level mods
+		if (this.mods.scale) {
+			this.mods.scale.update();
+			let scaleMod = this.mods.scale.get();
+			if (chance(scaleMod.chance)) {
+				this.shiftScale(Math.round(scaleMod.index), scaleMod.step);
+			}
+		}
+
+		if (this.mods.transpose) {
+			this.mods.transpose.update();
+			this.comp.transpose = this.mods.transpose.get();
 		}
 
 		if (this.config.onMod) {
@@ -504,7 +517,7 @@ export class Doodoo {
 				let isLoopFound = false;
 				for (let j = 0; j < this.voices.length; j++) {
 					if (this.voices[j].liveLoopIndex === i) {
-						this.startLoops.push(cloneVoice(this.voices[j]));
+						this.startLoops.push(this.cloneVoice(this.voices[j]));
 						isLoopFound = true;
 					}
 				}
@@ -512,7 +525,7 @@ export class Doodoo {
 					for (let j = 0; j < this.voices.length; j++) {
 						if (isLoopFound) continue;
 						if (this.voices[j].hasOwnProperty('liveLoopIndex')) continue;
-						let v = cloneVoice(this.voices[j]);
+						let v = this.cloneVoice(this.voices[j]);
 						v.liveLoopIndex = i;
 						this.startLoops.push(v);
 						isLoopFound = true;
