@@ -20,6 +20,9 @@ export function Monitor(app) {
 		double: true,
 		fx: true,
 		playBeat: true,
+		transpose: true,
+		scale: true,
+		bmp: true,
 	};
 
 	let mRow;
@@ -39,8 +42,18 @@ export function Monitor(app) {
 		return value;
 	}
 
-	function update(voices) {
+	function update(voices, comp) {
 		mRow.clear();
+
+		const row = mRow.add(new UIRow({ class: 'break' }));
+		for (const k in comp) {
+			if (props[k]) {
+				row.add(new UILabel({
+					text: ` ${k}: ${formatProp(k, comp[k])},`,
+					class: 'prop-value',
+				}));
+			}
+		}
 
 		for (let i = 0; i < voices.length; i++) {
 			const row = mRow.add(new UIRow({ class: 'break' }));
@@ -49,6 +62,7 @@ export function Monitor(app) {
 			const voice = voices[i];
 			for (const prop in props) {
 				if (!props[prop]) continue;
+				if (!voice.hasOwnProperty(prop)) continue;
 
 				row.add(new UILabel({
 					text: ` ${prop}: ${formatProp(prop, voice[prop])},`,

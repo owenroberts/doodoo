@@ -244,7 +244,6 @@ export class Doodoo {
 			const note = voice.melody[noteIndex];
 			if (note[0] !== null && note[0] !== 'rest') {
 				let [pitch, beat, velocity] = note;
-				if (voice.playBeat !== 'def') beat = voice.playBeat + 'n';
 				if (!velocity) velocity = 1;
 				if (voice.double) {
 					// still weird w fmSynth idky
@@ -640,7 +639,6 @@ export class Doodoo {
 	}
 
 	stop() {
-		console.log('stop');
 		Tone.Transport.stop();
 		this.toneLoop.stop();
 		for (let i = 0; i < this.voices.length; i++) {

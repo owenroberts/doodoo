@@ -19,3 +19,17 @@ export const Modes = {
 	WALK_UP: "walkUp",
 	WALK_DOWN: "walkDown",
 };
+
+export const ToneFX = [
+	'distortion', 
+	'bitCrush', 
+	'cheby', 
+	'chorus', 
+	'autoFilter', 
+	'autoPanner', 
+	'feedback', 
+	'phaser', 
+	'pingPong', 
+	'tremolo', 
+	'vibrato',
+];

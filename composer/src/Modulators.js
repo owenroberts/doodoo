@@ -311,8 +311,7 @@ export function Modulators(app) {
 			{
 				text: 'Zero Effects',
 				callback: () => {
-					const fxList = ['distortion', 'bitCrush', 'autoFilter', 'autoPanner', 'cheby', 'chorus', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',];
-					fxList.forEach(f => {
+					ToneFX.forEach(f => {
 						if (!mods.hasOwnProperty(f)) return;
 						updateMod(f + '-chance', 0);
 					});

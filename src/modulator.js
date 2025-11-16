@@ -16,7 +16,7 @@ export class Modulator {
 	 * @param  {string} name   - name of property being modded
 	 */
 	constructor(value, params, name) {
-		// if (!params.type) console.log(name, params.type);
+
 		this.value = value;
 		this.name = `${name} mod`;
 
@@ -47,6 +47,8 @@ export class Modulator {
 	 * @param  {number} playCount - play count from doodoo
 	 */
 	update(playCount) {
+		// worry about min and reverse later .... 
+		
 		if (!this.isKicked) {
 			if (playCount < this.kick.get()) return;
 			if (playCount >= this.kick.get()) this.isKicked = true;
@@ -55,6 +57,7 @@ export class Modulator {
 
 		this.min.update(playCount);
 		this.max.update(playCount);
+		this.step.update(playCount);
 
 		let s = this.step.get();
 
@@ -73,8 +76,26 @@ export class Modulator {
 			break;
 		}
 
-		// worry about min and reverse later .... 
-		if (this.value > this.max.get() && this.bound.get() === 'reset') this.value = this.min.get();
+		if (this.value > this.max.get()) {
+			switch(this.bound.get()) {
+				case Bounds.RESET:
+					this.value = this.min.get();
+				break;
+				case Bounds.REVERSE:
+					// needs testing ... 
+					switch(this.mode.get()) {
+						case Modes.WALK_UP:
+							this.mode.set(Modes.WALK_DOWN);
+						break;
+						case Modes.WALK_DOWN:
+							this.mode.set(Modes.WALK_UP);
+						break;
+					}
+				break;
+			}
+		}
+
+
 
 		this.clamp();
 	}

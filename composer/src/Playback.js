@@ -36,7 +36,7 @@ export function Playback(app) {
 			onMod: loopCount => {
 				modCountUI.text = loopCount;
 				app.score.update(doodoo.voices);
-				app.monitor.update(doodoo.voices);
+				app.monitor.update(doodoo.voices, doodoo.comp);
 			},
 			onStop: () => {
 				app.live.off();

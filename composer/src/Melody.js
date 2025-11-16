@@ -4,7 +4,7 @@
 
 import { MIDI_NOTES } from '../../src/midi.js';
 import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UINumberList, UICollection, UIListStep, UIButton, UIToggleGrid, UISelect } = Elements;
+const { UILabel, UINumberList, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } = Elements;
 
 export function Melody(app, defaults) {
 
@@ -44,13 +44,13 @@ export function Melody(app, defaults) {
 		let note = new UICollection({ class: "note-collection" });
 		note.addClass('b' + beat.replace(/\./g, 'dot'));
 		
-		let pitchEdit = new UIListStep({ 
+		let pitchEdit = new UIInputStep({ 
 			value: pitch, 
 			class: 'pitch-edit', 
-			list: [...MIDI_NOTES, 'null', 'rest']
+			options: [...MIDI_NOTES, 'null', 'rest']
 		});
 		
-		let beatEdit = new UIListStep({ 
+		let beatEdit = new UIInputStep({ 
 			value: beat,
 			class: 'beat-edit',
 			callback: value => {
@@ -66,7 +66,7 @@ export function Melody(app, defaults) {
 				update();
 				updateDisplay();
 			},
-			list: [...beatList],
+			options: [...beatList],
 		});
 
 		let doubleBtn = new UIButton({
@@ -326,16 +326,16 @@ export function Melody(app, defaults) {
 		melodyPanel.addRow('melody', 'break');
 
 		pitchInput = app.ui.addProp('pitchInput', {
-			type: 'UIListStep',
+			type: 'UIInputStep',
 			value: 'C4',
 			class: 'pitch-edit',
-			list: [...MIDI_NOTES, 'null', 'rest']
+			options: [...MIDI_NOTES, 'null', 'rest']
 		});
 
 		beatInput = app.ui.addProp('beatInput', {
-			type: 'UIListStep',
+			type: 'UIInputStep',
 			value: '4n',
-			list: [...beatList],
+			options: [...beatList],
 			callback: value => { 
 				if (!value.includes('n')) return;
 				defaultBeat = value;

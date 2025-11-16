@@ -73,19 +73,19 @@ export function Composition(app, defaults) {
 				callback: value => { title = value; }
 			},
 			'tonic': {
-				type: 'UIListStep',
+				type: 'UIInputStep',
 				value: tonic,
 				label: 'Tonic',
 				class: 'note-edit',
-				list: [...MIDI_NOTES, 'null', 'rest'],
+				options: [...MIDI_NOTES, 'null', 'rest'],
 				callback: value => { tonic = value; }
 			},
 			'transpose': {
-				type: 'UIListStep',
+				type: 'UIInputStep',
 				value: transpose,
 				label: 'Transpose',
 				class: 'note-edit',
-				list: [...MIDI_NOTES, 'null', 'rest'],
+				options: [...MIDI_NOTES, 'null', 'rest'],
 				callback: value => { transpose = value; }
 			},
 			'bpm': {

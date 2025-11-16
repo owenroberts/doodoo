@@ -181,13 +181,12 @@ export class Part {
 				release: this.mods.release.get(),
 				double: chance(this.mods.double.get()),
 				fx,
-				playBeat: chance(playBeat.chance) ? playBeat.beat : 'def'
+				playBeat: chance(playBeat.chance) ? playBeat.beat : this.defaultBeat,
 			};
 
 			if (startLoops) {
 				if (startLoops[i]) {
 					for (const prop in startLoops[i]) {
-						// console.log(i, prop, startLoops[i])
 						voice[prop] = startLoops[i][prop];
 					}
 				}

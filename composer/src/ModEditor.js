@@ -9,7 +9,7 @@ import { Interface, labelFromKey } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 import { Modes, Bounds } from '../../src/constants.js';
 
-const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList } = Elements;
+const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList, UIInputStep } = Elements;
 
 export function ModEditor(app) {
 
@@ -59,7 +59,7 @@ export function ModEditor(app) {
 	function addProp(propName, partIndex, propType) {
 		propRow.add(new UILabel({ text: labelFromKey(propName) }));
 		propRow.addBreak();
-		propRow.add(new UILabel({ text: "Prop Type" }));
+		propRow.add(new UILabel({ text: "Prop type" }));
 		addPropMod(propName, partIndex, propType)
 	}
 
@@ -173,7 +173,7 @@ export function ModEditor(app) {
 		const params = getModParams(propString, partIndex);
 		const defaults = getPropDefaults(propString, partIndex);
 
-		let UIListType = UINumberList;
+		let uiListClass = UINumberList;
 		let uiListParams = {
 			list: params.list ?? [],
 			app: app,
@@ -182,29 +182,38 @@ export function ModEditor(app) {
 				if (graph) updateMod(propString, graph, partIndex, 'graph'); 
 			}
 		};
-		if (params.options) {
-			UIListType = UISelectList;
+
+		// this needs to be more explicit, relies on order
+
+		if (propType === 'note-list') {
+			uiListClass = UIInputList;
+			uiListParams.list = params.list;
+			uiListParams.inputClass = UIInputStep;
+			uiListParams.options = defaults.options;
+		} else if (params.options) {
+			uiListClass = UISelectList;
 			uiListParams.options = params.options;
 		} else if (propType === 'string-list') {
-			UIListType = UIInputList;
+			uiListClass = UIInputList;
 		} else if (propType === 'graph-list') {
-			UIListType = UIGraph;
+			uiListClass = UIGraph;
 			uiListParams.graph = params.graph;
 		} 
 
-		const listUI = new UIListType(uiListParams);
+		const listUI = new uiListClass(uiListParams);
 
 		// maybe other things have options ??
-		if (defaults.options) {
-			row.add(new UILabel({ text: 'Options' }));
-			row.add(new UISelectButton({
-				options: defaults.options,
-				callback: value => {
-					listUI.pushItem(value);
-				}
-			}));
-			row.addBreak();
-		}
+		// if (defaults.options && propType !== 'note-list') {
+		// 	row.add(new UILabel({ text: 'Options' }));
+		// 	row.add(new UISelectButton({
+		// 		options: defaults.options,
+		// 		callback: value => {
+		// 			listUI.pushItem(value);
+		// 		}
+		// 	}));
+
+		// 	row.addBreak();
+		// }
 
 		row.add(new UILabel({ text: 'List' }));
 		row.addBreak();
@@ -371,17 +380,17 @@ export function ModEditor(app) {
 		const maxRow = tree.add(new UIRow({ class: 'break' }));
 		addValue(maxRow, propString + '-max', partIndex, 'Max', level);
 
-		// const stepRow = tree.add(new UIRow({ class: 'break' }));
-		// addValue(stepRow, propString + '-step', partIndex, 'Step', level);
+		const stepRow = tree.add(new UIRow({ class: 'break' }));
+		addValue(stepRow, propString + '-step', partIndex, 'Step', level);
 
-		tree.add(new UILabel({ text: "Step" }));
-		tree.add(new UINumberStep({
-			value: params.step.value ?? 0,
-			callback: value => {
-				updateMod(propString + '-step', value, partIndex);
-			}
-		}));
-		tree.addBreak();
+		// tree.add(new UILabel({ text: "Step" }));
+		// tree.add(new UINumberStep({
+		// 	value: params.step.value ?? 0,
+		// 	callback: value => {
+		// 		updateMod(propString + '-step', value, partIndex);
+		// 	}
+		// }));
+		// tree.addBreak();
 
 		tree.add(new UILabel({ text: "Update" }));
 		tree.add(new UIChance({

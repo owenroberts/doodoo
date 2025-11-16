@@ -1,5 +1,5 @@
 import { SamplePaths } from './sample-paths.js';
-import { Bounds, Modes } from './constants.js';
+import { Bounds, Modes, ToneFX } from './constants.js';
 import { MIDI_NOTES } from './midi.js';
 
 /**
@@ -11,7 +11,8 @@ import { MIDI_NOTES } from './midi.js';
 export const defaults = {
 	transpose: {
 		index: 60,
-		list: [...MIDI_NOTES],
+		list: ['C4'],
+		options: [...MIDI_NOTES],
 		type: 'note-list',
 	},
 	scale: {
@@ -321,8 +322,8 @@ export const defaults = {
 	},
 	fxList: {
 		// reverb is separate
-		options: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
-		list: ['distortion', 'bitCrush', 'cheby', 'chorus', 'autoFilter', 'autoPanner', 'feedback', 'phaser', 'pingPong', 'tremolo', 'vibrato',],
+		list: [...ToneFX],
+		options: [...ToneFX],  // need options to get select list ... make this explicit ... 
 		index: 0,
 		mod: {
 			mode: { value: Modes.RANGE },
