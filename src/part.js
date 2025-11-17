@@ -1,6 +1,6 @@
 import { Bundle } from './bundle.js';
 import { random, randInt, chance } from '../../cool/cool.js';
-import { getHarmony } from './midi.js';
+import { getMelody, getHarmony, getCounterpoint } from './midi.js';
 import { createProperty } from './create-property.js';
 
 
@@ -102,7 +102,7 @@ export class Part {
 	 * @param  {number} voiceCountOverride - set total voice count, for live mode
 	 * @return {array}
 	 */
-	get(startLoops, voiceCountOverride) {
+	get(startLoops, voiceCountOverride, comp) {
 
 		const voices = []; // need a better word, voices? instruments?
 		let voiceCount = startLoops.length > 0 ? startLoops.length : this.mods.voiceNum.getInt();
@@ -164,17 +164,26 @@ export class Part {
 				fx.reverb = this.mods.reverb.get();
 			}
 
+			const isCounterpoint = chance(this.mods.counterpoint.get());
+			
 			const harmony = this.mods.harmony.get(); // this actually looks chill
+			let isHarmony = false;
 			// could be this.mods.harmony.chance.get(), this.mods.harmony.interval.get() ... 
 			const playBeat = this.mods.playBeat.get();
+
+			if (chance(harmony.chance) && !isCounterpoint) {
+				isHarmony = true;
+				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.harmonyScaleOnly);
+			} else {
+				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale);
+			}
 
 			const voice = {
 				melody,
 				counter: 0, // count through loop
 				count: melody.length,
-				harmony: chance(harmony.chance) ?
-					harmony.interval : 0,
-				counterpoint: chance(this.mods.counterpoint.get()),
+				harmony: isHarmony ? harmony.interval : 0,
+				counterpoint: false, // is counter point or has counter point??
 				instrument: this.mods.instruments.get(i),
 				attack: this.mods.attack.get(),
 				curve: this.mods.curve.get(),
@@ -193,6 +202,11 @@ export class Part {
 			}
 
 			voices.push(voice);
+
+			if (isCounterpoint) {
+				const counterpoint = getCounterpoint(melody, comp.transpose, comp.scale);
+				voices.push({ ...voice, counterpoint: true, melody: counterpoint });
+			}
 		}
 		
 		return voices;

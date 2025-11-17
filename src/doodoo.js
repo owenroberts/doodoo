@@ -332,7 +332,7 @@ export class Doodoo {
 					}
 				 	starts = startIndex < this.startLoops.length ? this.startLoops[startIndex].loops : [];
 				}
-				const partVoices = this.parts[i].get(starts, this.config.voiceCountOverride);
+				const partVoices = this.parts[i].get(starts, this.config.voiceCountOverride, this.comp);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});
@@ -394,29 +394,9 @@ export class Doodoo {
 				const voiceParams = partVoices[j];
 				const harmony = voiceParams.harmony;
 
-				let melody;
-				if (voiceParams.hasOwnProperty("liveLoopIndex")) {
-					melody = voiceParams.melody;
-				} else if (harmony === 0) {
-					melody = getMelody(voiceParams.melody, this.comp.tonic, this.comp.transpose, this.comp.scale);
-				} else {
-					// if live loop, melody is already transposed
-					melody = getHarmony(voiceParams.melody, this.comp.tonic, this.comp.transpose, harmony, this.comp.scale, this.comp.useOctave, this.comp.harmonyScaleOnly);
-				}
-
 				const toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-				this.voices.push({ ...voiceParams, melody, toneInstrument, });
-
-				// fuck for live this doesn't work ... ignore counterpoint for now ... 
-				if (voiceParams.counterpoint) {
-					const mel = getMelody(voiceParams.melody, this.comp.tonic, this.comp.transpose, this.comp.scale);
-					const counterpoint = getCounterpoint(mel, this.comp.transpose, this.comp.scale);
-					const counterInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-					if (voiceParams.hasOwnProperty("liveLoopIndex")) {
-						delete voiceParams.liveLoopIndex;
-					}
-					this.voices.push({ ...voiceParams, melody: counterpoint, toneInstrument: counterInstrument });
-				}
+				this.voices.push({ ...voiceParams, toneInstrument });
+				
 			}
 		}
 
@@ -450,7 +430,6 @@ export class Doodoo {
 		if (this.mods.bpm) {
 			this.comp.bpm = this.mods.bpm.get();
 			Tone.Transport.bpm.value = this.comp.bpm;
-			console.log(Tone.Transport.bpm);
 		}
 
 		if (this.config.onMod) {
