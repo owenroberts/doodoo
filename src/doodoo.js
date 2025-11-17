@@ -1,8 +1,8 @@
 import * as Tone from 'tone';
+import { random, chance, getDate, assert } from '../../cool/cool.js';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES, getMelody, getHarmony, getCounterpoint } from './midi.js';
 import { Part } from './part.js';
-import { random, chance, getDate } from '../../cool/cool.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
 
@@ -64,17 +64,16 @@ export class Doodoo {
 		this.modCount = 0; // num mods --> different from total plays? -- idts
 		this.isPlaying = false;
 		
-		this.partMods = params.partMods ?? [];
 		this.startLoops = params.startLoops ?? [];
 	
 		this.loopControls = params.loopControls;
 		this.voiceCountOverride = 0; // for live mod
 		if (this.config.isLiveMode) {
-			this.startLoops = [];
+			this.startLoops = []; // use liveLoops or something instead?
 		}
 
 		this.toneLoop; // main loop, created in start and keeps time
-		// [ comp [ part [ beat 'C4', '4n'], ['A4', '4n']]]
+		// [ comp [ part [ note 'C4', '4n'], ['A4', '4n']]]
 		this.parts = [];
 		this.voices = [];
 		this.beatCount = 0;
@@ -86,13 +85,14 @@ export class Doodoo {
 		};
 		this.performanceLoopIndex = 0;
 		
+		this.instruments = new Instruments(params);
+
 		if (this.config.isPerformance) {
 			this.performance = structuredClone(params.performance);
+			// need to get instruments to load here ... 
 		} else {
 			this.setup(params);
 		}
-
-		this.instruments = new Instruments(params, this.props, this.startLoops);
 
 		if (this.config.withRecording) {
 			this.recorder = new Tone.Recorder();
@@ -108,60 +108,77 @@ export class Doodoo {
 
 	setup(params) {
 
-		this.props = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
+		const mods = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
 		for (const prop in defaults) {
-			if (this.props.hasOwnProperty(prop)) continue;
-			this.props[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
+			if (mods.hasOwnProperty(prop)) continue;
+			mods[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
 		}
 
-		/**
-		 * mods that effect entire composition
-		 * @type {object}
-		 */
+		// mods that effect entire composition
 		this.mods = {};		
-		if (this.props.scale.mod) {
-			this.mods.scale = createProperty(this.props.scale, 'scale');
+		if (mods.scale.mod) {
+			this.mods.scale = createProperty(mods.scale, 'scale');
 		}
 
-		if (this.props.transpose.mod) {
-			this.mods.transpose = createProperty(this.props.transpose, 'transpose');
+		if (mods.transpose.mod) {
+			this.mods.transpose = createProperty(mods.transpose, 'transpose');
 		}
-		// bpm
+		
+		if (mods.bpm.mod) {
+
+		}
 
 		// have to get default beat before going through the parts ...
 		params.parts.forEach(part => {
 			part.forEach(note => {
-				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) this.config.defaultBeat = note[1];
+				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) {
+					this.config.defaultBeat = note[1];
+				}
 			});
 		});
 
-		this.props.beatList?.list.forEach(beat => {
-			if (beat > parseInt(this.config.defaultBeat)) this.config.defaultBeat = beat + 'n';
+		// check beat list for possible smaller beats 
+		mods.beatList?.list.forEach(beat => {
+			if (beat > parseInt(this.config.defaultBeat)) {
+				this.config.defaultBeat = beat + 'n';
+			}
 		});
 
+		// create parts with mods
 		for (let i = 0; i < params.parts.length; i++) {
-			let partProps = {};
-			if (this.partMods[i]) {
-				partProps = { ...this.props, ...this.partMods[i] };
-			} else {
-				partProps = { ...this.props };
-			}
-			this.parts.push(new Part(params.parts[i], partProps, this.config.defaultBeat, this.comp));
+			const partMods = params.partMods[i] ?
+				{ ...mods, ...params.partMods[i] } :
+				{ ...mods };
+			this.parts.push(new Part(params.parts[i], partMods, this.config.defaultBeat, this.comp));
 		}
+
+		// load instruments
+		assert(!mods.instruments.list, 'instruments prop is list!');
+		assert(!mods.instruments.value, 'instruments prop is value!');
+
+		let loadList = [
+			...mods.instruments?.stack?.flatMap(e => e.list),
+			...params.partMods?.flatMap(m => m.instruments.stack)
+				.flatMap(e => e.list),
+			...this.startLoops
+				.flatMap(count => count.loops)
+				.flatMap(loop => loop)
+				.filter(loop => loop.instrument)
+				.map(loop => loop.instrument)
+		];
+
+		loadList = loadList.filter(i => !i.includes("Synth"));
+		loadList = [...new Set(loadList)];
+		this.instruments.loadList = loadList;
 	}
 
 	// start tone using async func to wait for tone
 	async loadTone() {
 		try {
 			await Tone.start();
-			// only load if using samples
-			if (this.instruments.loadList.length > 0) {
-				this.instruments.load(() => {
-					this.start();
-				}); 
-			} else {
+			this.instruments.load(() => {
 				this.start();
-			}
+			}); 
 		} catch(err) {
 			console.error('load tone error', err);
 		}
@@ -622,8 +639,8 @@ export class Doodoo {
 	}
 
 	play() {
-		if (!this.config.autoLoad && !this.instruments.loaded) return loadTone();
-		if (this.instruments.loaded) {
+		if (!this.config.autoLoad && !this.instruments.isLoaded) return loadTone();
+		if (this.instruments.isLoaded) {
 			this.config.playOnStart = true;
 			return;
 		}

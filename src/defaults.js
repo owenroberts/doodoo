@@ -9,6 +9,8 @@ import { MIDI_NOTES } from './midi.js';
  * @type {object}
  */
 export const defaults = {
+
+	// comp level mods
 	transpose: {
 		index: 60,
 		list: ['C4'],
@@ -21,6 +23,12 @@ export const defaults = {
 		index: { value: 0 },
 		step: { list: [1, -1, 2, -2] },
 	},
+	bpm: {
+		value: 120,
+	},
+
+	// part level mods
+	
 	instruments: {
 		stack: [{ list: ['choir'] }],
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],

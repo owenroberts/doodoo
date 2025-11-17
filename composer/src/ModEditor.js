@@ -89,8 +89,6 @@ export function ModEditor(app) {
 		const params = getModParams(propString, partIndex); // current settings
 		const defaults = getPropDefaults(propString, partIndex); // default prop settings
 
-		console.log(propString, params, defaults);
-
 		switch(propType) {
 			case 'number':
 			case 'chance':

@@ -8,35 +8,22 @@ import { random, assert } from '../../cool/cool.js';
  */
 export class Instruments {
 
-	constructor(params, props, startLoops) {
-
+	constructor(params) {
 		this.samples = {};
-		this.loaded = false;
+		this.isLoaded = false;
 		this.samplesURL = params.samplesURL;
 		this.withRecording = params.withRecording ?? false;
 		this.toDispose = [];
-
-		assert(!props.instruments.list, 'instruments prop is list!')		
-		assert(!props.instruments.value, 'instruments prop is value!')		
-
-		this.loadList = [
-			...props.instruments?.stack?.flatMap(e => e.list),
-			...params.partMods?.flatMap(m => m.instruments.stack)
-				.flatMap(e => e.list),
-			...startLoops
-				.flatMap(count => count.loops)
-				.flatMap(loop => loop)
-				.filter(loop => loop.instrument)
-				.map(loop => loop.instrument)
-		];
-
-		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
-		this.loadList = [...new Set(this.loadList)];
-
-		if (this.loadList.length === 0) this.loaded = true;
+		this.loadList = [];
 	}
 
 	load(callback) {
+
+		if (this.loadList.length === 0) {
+			this.isLoaded = true;
+			return callback();
+		}
+
 		const urls = {};
 		for (let i = 0; i < this.loadList.length; i++) {
 			const instrument = this.loadList[i];
@@ -66,7 +53,7 @@ export class Instruments {
 			onload: () => {
 				console.timeEnd(`load ${this.loadList.join(', ')}`);
 				if (callback) callback();
-				this.loaded = true;
+				this.isLoaded = true;
 			},
 			onerror: error => { console.error(error); },
 		});
