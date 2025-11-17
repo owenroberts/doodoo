@@ -4,10 +4,7 @@
 */
 
 import { MIDI_NOTES } from '../../src/midi.js';
-// import '../../build/ui.min.js'; // skip UI for now ... 
-// const { UILabel, UINumberList } = UI.Elements;
-import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UINumberList, UISelect } = Elements;
+import { UILabel, UIList, UINumberStep, UISelect } from '../../../ui/src/UI.js';
 
 export function Composition(app, defaults) {
 
@@ -131,8 +128,9 @@ export function Composition(app, defaults) {
 		compositionPanel.addRow(undefined, 'break');
 		compositionPanel.add(new UILabel({ text: 'Scale intervals' }));
 		scaleRow = compositionPanel.addRow(undefined, 'break');
-		scaleUI = new UINumberList({
+		scaleUI = new UIList({
 			list: scale,
+			itemClass: UINumberStep,
 			callback: value => { scale = value; }
 		});
 		compositionPanel.add(scaleUI);

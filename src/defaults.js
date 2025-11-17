@@ -88,7 +88,7 @@ export const defaults = {
 		step: 0.1,
 	},
 	beatList: {
-		list: [4, 2, 1, 8, 16],
+		list: [4, 2, 1, 8, 16], // prob should be string??
 		index: 0,
 		mod: {
 			mode: { value: Modes.RANGE },

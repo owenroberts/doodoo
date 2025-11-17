@@ -4,8 +4,7 @@
 
 import * as Tone from 'tone';
 import { Doodoo } from '../../src/doodoo.js';
-import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UIModal, UIButton, UIElement } = Elements;
+import { UILabel, UIModal, UIButton, UIElement } from '../../../ui/src/UI.js';
 
 export function Playback(app) {
 

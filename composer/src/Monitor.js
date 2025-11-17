@@ -1,9 +1,7 @@
 /*
 	monitor params
 */
-
-import { Elements } from '../../../ui/src/UI.js';
-const { UIRow, UILabel } = Elements;
+import { UIRow, UILabel } from '../../../ui/src/UI.js';
 
 export function Monitor(app) {
 

@@ -3,8 +3,7 @@
 */
 
 import { MIDI_NOTES } from '../../src/midi.js';
-import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UINumberList, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } = Elements;
+import { UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '../../../ui/src/UI.js';
 
 export function Melody(app, defaults) {
 

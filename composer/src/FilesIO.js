@@ -4,8 +4,7 @@
 
 import { saveAs } from 'file-saver';
 import { getDate } from '../../../cool/cool.js';
-import { Elements } from '../../../ui/src/UI.js';
-const { UIModal, UIButton } = Elements;
+import { UIModal, UIButton } from '../../../ui/src/UI.js';
 
 export function FilesIO(app) {
 

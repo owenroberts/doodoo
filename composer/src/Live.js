@@ -4,8 +4,7 @@
  */
 
 import { whichKeyMap } from '../../../cool/cool.js';
-import { Elements } from '../../../ui/src/UI.js';
-const { UILabel, UIButton, UIElement } = Elements;
+import { UILabel, UIButton, UIElement } from '../../../ui/src/UI.js';
 
 const LoopStates = {
 	KILL: 0,

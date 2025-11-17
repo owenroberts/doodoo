@@ -4,12 +4,9 @@
 	should there be more than one?
 */
 
-import { Elements } from '../../../ui/src/UI.js';
-import { Interface, labelFromKey } from '../../../ui/src/UI.js';
+import { UIRow, UITree, UIButton, UIChance, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey } from '../../../ui/src/UI.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 import { Modes, Bounds } from '../../src/constants.js';
-
-const { UIRow, UITree, UIButton, UIChance, UINumberStep, UIInputList, UINumberList, UIGraph, UILabel, UISelect, UISelectButton, UISelectList, UIInputStep } = Elements;
 
 export function ModEditor(app) {
 
@@ -66,7 +63,6 @@ export function ModEditor(app) {
 	// main add the prop ui function ... 
 	function addPropMod(propName, partIndex, propType, fromBundle=false) {
 		// clear();
-
 		const propTypeSelect = new UISelect({
 			value: propType,
 			options: typeOptions,
@@ -92,6 +88,8 @@ export function ModEditor(app) {
 	function addPropParams(row, propType, propString, partIndex) {
 		const params = getModParams(propString, partIndex); // current settings
 		const defaults = getPropDefaults(propString, partIndex); // default prop settings
+
+		console.log(propString, params, defaults);
 
 		switch(propType) {
 			case 'number':
@@ -173,7 +171,7 @@ export function ModEditor(app) {
 		const params = getModParams(propString, partIndex);
 		const defaults = getPropDefaults(propString, partIndex);
 
-		let uiListClass = UINumberList;
+		let uiListClass = UIList;
 		let uiListParams = {
 			list: params.list ?? [],
 			app: app,
@@ -186,15 +184,15 @@ export function ModEditor(app) {
 		// this needs to be more explicit, relies on order
 
 		if (propType === 'note-list') {
-			uiListClass = UIInputList;
+			// uiListClass = UIInputList;
 			uiListParams.list = params.list;
-			uiListParams.inputClass = UIInputStep;
+			uiListParams.itemClass = UIInputStep;
 			uiListParams.options = defaults.options;
+		} else if (propType === 'number-list') {
+			uiListParams.itemClass = UINumberStep;
 		} else if (params.options) {
-			uiListClass = UISelectList;
+			uiListParams.itemClass = UISelect;
 			uiListParams.options = params.options;
-		} else if (propType === 'string-list') {
-			uiListClass = UIInputList;
 		} else if (propType === 'graph-list') {
 			uiListClass = UIGraph;
 			uiListParams.graph = params.graph;
@@ -240,15 +238,16 @@ export function ModEditor(app) {
 		const params = getModParams(propString, partIndex);
 		const stacks = [];
 
-		row.add(new UILabel({ text: 'Index' }));
+		// row.add(new UILabel({ text: 'Index' }));
 		// console.log('length', params.stack.length)
-		const index = row.add(new UINumberStep({
-			min: 0,
-			max: params.stack.length - 1,
-			value: 0,
-		}));
+		// const index = row.add(new UINumberStep({
+		// 	min: 0,
+		// 	max: params.stack.length - 1,
+		// 	value: 0,
+		// }));
 
 		// remove stack
+		// row.add(new UILabel({ text: 'Stack' }));
 		row.add(new UIButton({
 			text: '–',
 			class: 'left-end',
@@ -269,8 +268,8 @@ export function ModEditor(app) {
 			class: 'right-end',
 			callback: () => {
 				addStack(stacks.length);
-				index.max = stacks.length - 1;
-				index.update(stacks.length - 1);
+				// index.max = stacks.length - 1;
+				// index.update(stacks.length - 1);
 				updateStack(); 
 			}
 		}));
@@ -284,19 +283,17 @@ export function ModEditor(app) {
 
 			if (params.options) {
 				// strings for now ...
-				const stack = stackRow.add(new UISelectList({
+				const stack = stackRow.add(new UIList({
+					itemClass: UISelect,
 					list: list ?? [],
 					options: params.options,
 					callback: () => { updateStack(); }
 				}), 'stack');
 
 			} else {
-				let UIListType = UIInputList;
-				if (typeof params.value === 'number') {
-					UIListType = UINumberList;
-				}
-
-				const stack = stackRow.add(new UIListType({
+				
+				const stack = stackRow.add(new UIList({
+					itemClass: typeof params.value === 'number' ? UINumberStep : UIInput,
 					list: list ?? [],
 					callback: () => { updateStack(); }
 				}), 'stack');
