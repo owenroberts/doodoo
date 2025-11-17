@@ -46,7 +46,7 @@ export class Doodoo {
 		 * @type {object}
 		 */
 		this.comp = {
-			bpm: params.bpm,
+			bpm: params.bpm ?? 120,
 			tonic: params.tonic, // assert tonic is midi note name?
 			transpose: params.transpose ?? tonic, // tranpose key -- because melody is relative to tonic
 			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
@@ -125,7 +125,7 @@ export class Doodoo {
 		}
 		
 		if (mods.bpm.mod) {
-
+			this.mods.bpm = createProperty(mods.bpm, 'bpm');
 		}
 
 		// have to get default beat before going through the parts ...
@@ -189,7 +189,7 @@ export class Doodoo {
 			this.playLoop(time);
 		}, this.config.defaultBeat);
 		Tone.Transport.start();
-		if (this.comp.bpm) Tone.Transport.bpm.value = this.comp.bpm;
+		Tone.Transport.bpm.value = this.comp.bpm;
 		this.toneLoop.start(Tone.Transport.seconds);
 		// console.log(params.bpm, Tone.Transport.bpm.value)
 
@@ -432,8 +432,11 @@ export class Doodoo {
 		}
 
 		// comp level mods
+		for (const k in this.mods) {
+			this.mods[k].update();
+		}
+
 		if (this.mods.scale) {
-			this.mods.scale.update();
 			let scaleMod = this.mods.scale.get();
 			if (chance(scaleMod.chance)) {
 				this.shiftScale(Math.round(scaleMod.index), scaleMod.step);
@@ -441,8 +444,13 @@ export class Doodoo {
 		}
 
 		if (this.mods.transpose) {
-			this.mods.transpose.update();
 			this.comp.transpose = this.mods.transpose.get();
+		}
+
+		if (this.mods.bpm) {
+			this.comp.bpm = this.mods.bpm.get();
+			Tone.Transport.bpm.value = this.comp.bpm;
+			console.log(Tone.Transport.bpm);
 		}
 
 		if (this.config.onMod) {
@@ -603,7 +611,7 @@ export class Doodoo {
 	}
 
 	setBPM(bpm) {
-		this.comp.bpm += bmp
+		this.comp.bpm += bmp;
 		Tone.Transport.bpm.value = this.comp.bpm;
 	}
 

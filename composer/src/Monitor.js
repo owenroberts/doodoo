@@ -20,7 +20,7 @@ export function Monitor(app) {
 		playBeat: true,
 		transpose: true,
 		scale: true,
-		bmp: true,
+		bpm: true,
 	};
 
 	let mRow;
