@@ -130,7 +130,7 @@ export function Melody(app, defaults) {
 	}
 
 	function addPart() {
-		let row = melodyPanel.addRow('part-' + partRows.length, 'break-line-up');
+		let row = melodyPanel.addRow({ id: 'part-' + partRows.length, class: 'break-line-up' });
 		row.addClass('part');
 		partRows.push(row);
 		currentPart = partRows.length - 1;
@@ -273,7 +273,7 @@ export function Melody(app, defaults) {
 	function connect() {
 		melodyPanel = app.ui.getPanel('melody');
 
-		melodyPanel.addRow(undefined, 'break');
+		melodyPanel.addBreak();
 
 		app.ui.addProps({
 			'melodyScale': {
@@ -299,7 +299,7 @@ export function Melody(app, defaults) {
 			}, 
 		}, melodyPanel);
 
-		melodyPanel.addRow(undefined, 'break');
+		melodyPanel.addBreak();
 
 		app.ui.addProp('currentPart', {
 			type: 'UISelect',
@@ -322,7 +322,7 @@ export function Melody(app, defaults) {
 			}
 		}, melodyPanel);
 
-		melodyPanel.addRow('melody', 'break');
+		melodyPanel.addRow({ id: 'melody', class: 'break' });
 
 		pitchInput = app.ui.addProp('pitchInput', {
 			type: 'UIInputStep',
@@ -354,9 +354,9 @@ export function Melody(app, defaults) {
 			text: 'Double', 
 		}, melodyPanel);
 
-		melodyPanel.addRow(undefined, 'break');
+		melodyPanel.addBreak();
 
-		partRows[0] = melodyPanel.addRow('part-0', 'break-line-up');
+		partRows[0] = melodyPanel.addRow({ id: 'part-0', class: 'break-line-up' });
 		partRows[0].addClass('part');
 	}
 

@@ -1,7 +1,7 @@
 import * as Tone from 'tone';
 import { random, chance, getDate, assert } from '../../cool/cool.js';
 import { defaults } from './defaults.js';
-import { MIDI_NOTES, getMelody, getHarmony, getCounterpoint } from './midi.js';
+import { MIDI_NOTES } from './midi.js';
 import { Part } from './part.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
@@ -22,6 +22,7 @@ export class Doodoo {
 			defaultBeat: '4n', // smallest unit of time
 			autoLoad: params.autoLoad ?? true,
 			autoStart: params.autoStart ?? true,
+			// >> really necessary? 
 			playOnStart: false, // if trying to play before loaded
 			volume: params.volume ?? 0,
 			useMeter: params.useMeter ?? false,
@@ -39,6 +40,7 @@ export class Doodoo {
 			useDefaultProps: params.useDefaultProps ?? true,
 			isSavePerformance: params.isSavePerformance ?? false, // save data of play
 			isPerformance: params.isPerformance ?? false, // playback of a performance
+			isEditor: params.isEditor ?? false,
 		};
 
 		/**
@@ -47,14 +49,14 @@ export class Doodoo {
 		 */
 		this.comp = {
 			bpm: params.bpm ?? 120,
-			tonic: params.tonic, // assert tonic is midi note name?
-			transpose: params.transpose ?? tonic, // tranpose key -- because melody is relative to tonic
+			tonic: params.tonic ?? 'C4', // assert tonic is midi note name?
+			transpose: params.transpose ?? params.tonic ?? 'C4', // tranpose key -- because melody is relative to tonic
 			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
 			harmonyScaleOnly: params.harmonyScaleOnly ?? true, // harmony can only have notes from scale
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
 			isRegularTime: params.isRegularTime ?? false,
-			timeBar: params.timeBar,
-			timeBeat: params.timeBeat,
+			timeBar: params.timeBar ?? 4,
+			timeBeat: params.timeBeat ?? 4,
 			sequence: params.sequence ?? [[true]],
 		};
 
@@ -87,7 +89,9 @@ export class Doodoo {
 		
 		this.instruments = new Instruments(params);
 
-		if (this.config.isPerformance) {
+		if (this.config.isEditor) {
+			console.log('is editor, delay setup')
+		} else if (this.config.isPerformance) {
 			this.performance = structuredClone(params.performance);
 			// need to get instruments to load here ... 
 		} else {

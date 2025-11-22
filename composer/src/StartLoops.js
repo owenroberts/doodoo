@@ -150,7 +150,7 @@ export function StartLoops(app) {
 			},
 		]);
 
-		const uiRow = loopsPanel.addRow('ui-row');
+		const uiRow = loopsPanel.addRow({ id: 'ui-row' });
 
 		uiRow.add(new UILabel({ text: "Counts" }));
 		uiRow.add(new UIButton({
@@ -172,7 +172,7 @@ export function StartLoops(app) {
 			}
 		}));
 
-		startLoopsRow = loopsPanel.addRow('start-loops-row');
+		startLoopsRow = loopsPanel.addRow({ id: 'start-loops-row' });
 	}
 
 	return { get, load, connect };

@@ -3,138 +3,112 @@
 	these are constant values that can't be modded
 */
 
-import { MIDI_NOTES } from '../../src/midi.js';
-import { UILabel, UIList, UINumberStep, UISelect } from '../../../ui/src/UI.js';
+import { getDate } from '../../../cool/cool.js';
+import { MIDI_NOTES, getMIDINote } from '../../src/midi.js';
+import { defaults } from '../../src/defaults.js';
+import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '../../../ui/src/UI.js';
 
-export function Composition(app, defaults) {
+export class CompositionPanel extends UIPanel {
 
-	/* comp props */
-	let title = defaults.title;
-	let tonic = defaults.tonic;
-	// only really matters if melody has no beats or default is lower than beats in mel
-	let bpm = defaults.bpm;
-	let transpose = defaults.transpose ?? defaults.tonic;
-	let scale = defaults.scale;
-	let useOctave = defaults.useOctave ?? false;
-	let harmonyScaleOnly = defaults.harmonyScaleOnly ?? true;
+		constructor(app) {
+			super({ id: 'composition', ui: app.ui });
+			this.ui = app.ui;
+			this.doodoo = app.doodoo;
+			this.title = 'doodoo-' + getDate();
 	
-	let isRegularTime = defaults.isRegularTime ?? false;
-	let timeBeat = '4n';
-	let timeBar = 4;
-	
-	/* ui settings */	
-	let scaleRow, scaleUI;
-	let stackRows;
+			/* ui settings */	
+			let scaleRow, scaleUI;
+			let stackRows;
 
-	function getMIDINote(noteIndex) {
-		return MIDI_NOTES[noteIndex];
-	}
-
-	function get() {
-		app.melody.update();
-		const parts = app.melody.getParts();
-		const sequence = app.melody.getSequence();
-		return { tonic, transpose, bpm, title, scale, useOctave, harmonyScaleOnly, sequence, parts, isRegularTime, timeBeat, timeBar };
-	}
-
-	function load(data) {
-		if (data.title) app.ui.faces.title.update(data.title);
-		if (data.transpose) app.ui.faces.transpose.update(data.transpose);
-		if (data.bpm) app.ui.faces.bpm.update(data.bpm);
-		if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
-		if (data.isRegularTime) app.ui.faces.isRegularTime.update(data.isRegularTime);
-		if (data.timeBeat) app.ui.faces.timeBeat.update(data.timeBeat);
-		if (data.timeBar) app.ui.faces.timeBar.update(data.timeBar);
-		
-		if (data.tonic) {
-			app.ui.faces.tonic.update(typeof data.tonic === 'string' ? 
-				data.tonic :
-				getMIDINote(data.tonic)
-			);
-		}
-
-		if (data.scale) {
-			scale = data.scale.map(i => +i);
-			scaleUI.set(scale);
-		}
-	}
-
-	function connect() {
-
-		const compositionPanel = app.ui.getPanel('composition');
-
-		app.ui.addUIs({
-			'title': {
-				id: 'title',
-				value: title,
-				callback: value => { title = value; }
-			},
-			'tonic': {
-				type: 'UIInputStep',
-				value: tonic,
-				label: 'Tonic',
+			this.addRef({ obj: this, ref: "title", });
+			this.addRef({
+				obj: this.doodoo.comp, 
+				ref: 'tonic', 
+				options: [...MIDI_NOTES],
 				class: 'note-edit',
-				options: [...MIDI_NOTES, 'null', 'rest'],
-				callback: value => { tonic = value; }
-			},
-			'transpose': {
-				type: 'UIInputStep',
-				value: transpose,
-				label: 'Transpose',
+				type: 'UIInputStep', // guess later
+			});
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'transpose',
+				options: [...MIDI_NOTES],
 				class: 'note-edit',
-				options: [...MIDI_NOTES, 'null', 'rest'],
-				callback: value => { transpose = value; }
-			},
-			'bpm': {
-				value: bpm,
-				label: 'BPM',
-				type: 'UINumberStep',
+				type: 'UIInputStep', 
+			});
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'bpm',
 				range: [10, 300],
-				callback: value => { bpm = value;}
-			},
-			'isRegularTime': {
-				value: isRegularTime,
-				label: 'Regular time',
-				type: 'UIToggleCheck',
-				callback: value => { isRegularTime = value; },
-			},
-			'timeBar': {
-				value: timeBar,
-				label: 'Bar',
 				type: 'UINumberStep',
-				callback: value => { timeBeat = value; },								
-			},
-			'timeBeat': {
-				value: timeBeat,
-				label: 'Beat',
+			});
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'useOctave', 
+				// label: 'Multiple octaves',
+			});
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'harmonyScaleOnly', 
+				label: 'Notes in key',
+			});
+			
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'isRegularTime', 
+				// label: 'Regular time',
+			});
+			
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'timeBar', 
+				// label: 'Bar',
+			});
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'timeBeat', 
+				// label: 'Beat',
 				type: 'UISelect',
 				options: ['1n', '2n', '4n', '8n', '16n'],
-				callback: value => { timeBeat = value; },								
-			},
-			'useOctave': {
-				type: 'UIToggleCheck',
-				label: 'Multiple octaves',
-				value: useOctave,
-				callback: value => { useOctave = value; }
-			},
-			'harmonyScaleOnly': {
-				type: 'UIToggleCheck',
-				label: 'Notes in key',
-				value: harmonyScaleOnly,
-				callback: value => { harmonyScaleOnly = value; }
+			});
+
+			this.addRef({
+				obj: this.doodoo.comp,
+				ref: 'scale',
+				itemClass: UINumberStep,
+			})
+		}
+
+		load(data) {
+			console.log({ data });
+
+			return;
+
+			if (data.title) app.ui.faces.title.update(data.title);
+			if (data.transpose) app.ui.faces.transpose.update(data.transpose);
+			if (data.bpm) app.ui.faces.bpm.update(data.bpm);
+			if (data.useOctave) app.ui.faces.useOctave.update(data.useOctave);
+			if (data.isRegularTime) app.ui.faces.isRegularTime.update(data.isRegularTime);
+			if (data.timeBeat) app.ui.faces.timeBeat.update(data.timeBeat);
+			if (data.timeBar) app.ui.faces.timeBar.update(data.timeBar);
+		
+			if (data.tonic) {
+				app.ui.faces.tonic.update(typeof data.tonic === 'string' ? 
+					data.tonic :
+					getMIDINote(data.tonic)
+				);
 			}
-		}, compositionPanel);
 
-		compositionPanel.addRow(undefined, 'break');
-		compositionPanel.add(new UILabel({ text: 'Scale intervals' }));
-		scaleRow = compositionPanel.addRow(undefined, 'break');
-		scaleUI = new UIList({
-			list: scale,
-			itemClass: UINumberStep,
-			callback: value => { scale = value; }
-		});
-		compositionPanel.add(scaleUI);
-	}
+			if (data.scale) {
+				scale = data.scale.map(i => +i);
+				scaleUI.set(scale);
+			}
+		}
 
-	return { connect, load, get };
+	
+
 }

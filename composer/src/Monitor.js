@@ -84,7 +84,7 @@ export function Monitor(app) {
 			});
 		}
 
-		mRow = monitorPanel.addRow('mRow', 'break');
+		mRow = monitorPanel.addRow({ id: 'mRow', class: 'break' });
 	}
 
 	return { connect, update };

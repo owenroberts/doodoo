@@ -26,6 +26,16 @@ export const MIDI_NOTES = [
  */
 export const MIDI_RANGE = [12, 83]; // 83 is B5 -- should set locally ??
 
+
+/**
+ * get note name/string from midi num/ index
+ * @param  {number} noteIndex 
+ * @return {string}
+ */
+export function getMIDINote(noteIndex) {
+	return MIDI_NOTES[noteIndex];
+}
+
 /**
  * constraints transforms melody notes to MIDI_RANGE
  * @param  {number} midiNoteNum - midi number
