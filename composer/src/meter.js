@@ -1,74 +1,77 @@
-/*
-	visualize overall loudness of the output
-*/
-
 import { map } from '../../../cool/cool.js';
+import { UIPanel } from '../../../ui/src/oi.js';
 
-export function Meter(app) {
+/**
+ * visualize overall loudness of the output
+ */
+export class MeterPanel extends UIPanel {
+	constructor(app) {
+		super({ id: 'meter', ui: app.ui });
 
-	let panel;
-	const interval = 1000 / 30;
-	let timer = 0;
-	let toneMeter;
+		this.toneMeter;
 
+		this.interval = 1000 / 30;
+		this.timer = 0;
 
-	const canvas = document.createElement('canvas');
-	let ctx;
-	if (canvas.getContext('2d')) {
-		ctx = canvas.getContext('2d');
-	} else {
-		return;
+		const canvas = document.createElement('canvas');
+		// this.ctx;
+		if (canvas.getContext('2d')) {
+			this.ctx = canvas.getContext('2d');
+		} else {
+			return;
+		}	
+
+		this.w = 320;
+		this.h = 28;
+		this.m = 4;
+		canvas.width = this.w;
+		canvas.height = this.h;
+		this.ctx.fillStyle = 'black';
+		this.ctx.fillRect(0, 0, this.w, this.h);
+
+		this.el.appendChild(canvas);
+		this.setStyle('textAlign', 'left');
+
+		this.timer = performance.now();
+		requestAnimationFrame(() => {
+			this.draw() 
+		});
+
+		app.doodoo.config.useMeter = true;
+		app.doodoo.config.updateMeter = meter => {
+			this.toneMeter = meter;
+		}
 	}
 
-	const w = 320, h = 28, m = 4;
-	canvas.width = w;
-	canvas.height = h;
-	ctx.fillStyle = 'black';
-	ctx.fillRect(0, 0, w, h);
+	draw() {
 
-	function draw() {
-		requestAnimationFrame(draw);
-		if (!toneMeter) return;
+		requestAnimationFrame(() => {
+			this.draw() 
+		});
+		if (!this.toneMeter) return;
+		if (!this.isOpen()) return;
+		
 		const time = performance.now();
-		if (time> timer + interval) {
-			timer = time;
-			ctx.fillStyle = 'black';
-			ctx.fillRect(0, 0, w, h);
+		if (time > this.timer + this.interval) {
+			this.timer = time;
+			this.ctx.fillStyle = 'black';
+			this.ctx.fillRect(0, 0, this.w, this.h);
 			
-			const v = toneMeter.getValue();
-			const left = map(v[0], -266, 0, 1, w - m * 8, true);
-			const right = map(v[1], -266, 0, 1, w - m * 8, true);
+			const v = this.toneMeter.getValue();
+			const left = map(v[0], -266, 0, 1, this.w - this.m * 8, true);
+			const right = map(v[1], -266, 0, 1, this.w - this.m * 8, true);
 
-			ctx.fillStyle = 'LawnGreen';
-			
-			ctx.fillRect(m, m, left, m * 2);
-			ctx.fillRect(m, m * 4, right, m * 2);
+			this.ctx.fillStyle = 'LawnGreen';
+			this.ctx.fillRect(this.m, this.m, left, this.m * 2);
+			this.ctx.fillRect(this.m, this.m * 4, right, this.m * 2);
 
 			if (left > 2) {
-				ctx.fillText(Math.round(v[0]), w - 32, m * 3);
+				this.ctx.fillText(Math.round(v[0]), this.w - 32, this.m * 3);
 			}
+
 			if (right > 2) {
-				ctx.fillText(Math.round(v[1]), w - 32, m * 6);
+				this.ctx.fillText(Math.round(v[1]), this.w - 32, this.m * 6);
 			}
 		}
 	}
-	
-	timer = performance.now();
-	requestAnimationFrame(draw);
-
-	function updateMeter(meter) {
-		toneMeter = meter;
-	}
-
-	function isOpen() {
-		return panel.isOpen();
-	}
-
-	function connect() {
-		panel = app.ui.getPanel('meter');
-		panel.el.appendChild(canvas);
-		panel.el.style.textAlign = 'left'; // prob ui way to do this
-	}
-
-	return { connect, updateMeter, isOpen };
 }
