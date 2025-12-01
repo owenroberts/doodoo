@@ -58,6 +58,10 @@ export class Doodoo {
 			timeBar: params.timeBar ?? 4,
 			timeBeat: params.timeBeat ?? 4,
 			sequence: params.sequence ?? [[true]],
+			mods: params.mods ?? {}, // props vs mods ... 
+			parts: params.parts ?? [],
+			partMods: params.partMods ?? [],
+			startLoops: params.startLoops ?? [],
 		};
 
 		this.sequenceIndex = 0; // previously currentPart
@@ -89,13 +93,11 @@ export class Doodoo {
 		
 		this.instruments = new Instruments(params);
 
-		if (this.config.isEditor) {
-			console.log('is editor, delay setup')
+		if (!this.config.isEditor) {
+			this.setup();
 		} else if (this.config.isPerformance) {
 			this.performance = structuredClone(params.performance);
 			// need to get instruments to load here ... 
-		} else {
-			this.setup(params);
 		}
 
 		if (this.config.withRecording) {
@@ -110,9 +112,11 @@ export class Doodoo {
 		}
 	}
 
-	setup(params) {
+	setup() {
 
-		const mods = params.mods ? structuredClone(params.mods) : {}; // props vs mods ... 
+		this.parts = []; // reset parts
+
+		const mods = structuredClone(this.comp.mods); // props vs mods ... 
 		for (const prop in defaults) {
 			if (mods.hasOwnProperty(prop)) continue;
 			mods[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
@@ -133,7 +137,7 @@ export class Doodoo {
 		}
 
 		// have to get default beat before going through the parts ...
-		params.parts.forEach(part => {
+		this.comp.parts.forEach(part => {
 			part.forEach(note => {
 				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) {
 					this.config.defaultBeat = note[1];
@@ -149,22 +153,24 @@ export class Doodoo {
 		});
 
 		// create parts with mods
-		for (let i = 0; i < params.parts.length; i++) {
-			const partMods = params.partMods[i] ?
-				{ ...mods, ...params.partMods[i] } :
+		for (let i = 0; i < this.comp.parts.length; i++) {
+			const partMods = this.comp.partMods[i] ?
+				{ ...mods, ...structuredClone(this.comp.partMods[i]) } :
 				{ ...mods };
-			this.parts.push(new Part(params.parts[i], partMods, this.config.defaultBeat, this.comp));
+			this.parts.push(new Part(this.comp.parts[i], partMods, this.config.defaultBeat, this.comp));
 		}
 
 		// load instruments
 		assert(!mods.instruments.list, 'instruments prop is list!');
 		assert(!mods.instruments.value, 'instruments prop is value!');
 
+		// reset instruments loaded ... or use a loaded dict to get loaded
+
 		let loadList = [
 			...mods.instruments?.stack?.flatMap(e => e.list),
-			...params.partMods?.flatMap(m => m.instruments.stack)
+			...this.comp.partMods?.flatMap(m => m.instruments.stack)
 				.flatMap(e => e.list),
-			...this.startLoops
+			...this.comp.startLoops
 				.flatMap(count => count.loops)
 				.flatMap(loop => loop)
 				.filter(loop => loop.instrument)
@@ -295,14 +301,14 @@ export class Doodoo {
 
 		this.beatCounter++;
 		if (this.beatCounter === this.beatCount && !this.config.waitForModTrigger) {
-			this.playNext();
+			this.playNext(time);
 		}
 	}
 
-	generateLoop() {
+	generateLoop(time) {
 		if (this.config.withCount) {
 			if (this.loopCount >= this.config.withCount * this.sequenceLength) {
-				Tone.Transport.stop();
+				Tone.Transport.stop(time);
 				this.isPlaying = false;
 				this.saveRecording();
 				this.savePerformance();
@@ -630,11 +636,15 @@ export class Doodoo {
 	}
 
 	play() {
-		if (!this.config.autoLoad && !this.instruments.isLoaded) return loadTone();
-		if (this.instruments.isLoaded) {
-			this.config.playOnStart = true;
-			return;
+		if (!this.config.autoLoad && !this.instruments.isLoaded) {
+			return this.loadTone();
 		}
+
+		// what does this do?
+		// if (this.instruments.isLoaded) {
+		// 	this.config.playOnStart = true;
+		// 	return;
+		// }
 		this.isPlaying = true;
 		
 		this.playNext();
@@ -663,17 +673,28 @@ export class Doodoo {
 		}
 	}
 
-	playNext() {
+	playNext(time) {
 		// with waitForModTrigger
 		if (this.config.isPerformance) {
 			this.getPerformanceLoop();
 		} else {
-			this.generateLoop();
+			this.generateLoop(time);
 		}
 	}
 
 	stopNext() {
 		this.config.withCount = this.loopCount;
+	}
+
+	reset() {
+		this.sequenceIndex = 0;
+		this.sequenceLength = this.comp.sequence[0].length;
+		this.loopCount = 0; 
+		this.modCount = 0;
+		this.isPlaying = false;
+		this.beatCount = 0;
+		this.beatCounter = 0;
+		this.performanceLoopIndex = 0;
 	}
 
 	// debug

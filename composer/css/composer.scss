@@ -157,9 +157,10 @@ header {
 
 	.row {
 		margin-bottom: 0;
+		flex-wrap: wrap;
 	}
 
-	#mRow {
+	#monitor-row {
 		flex-wrap: wrap;
 	}
 
@@ -167,6 +168,15 @@ header {
 		// margin-right: 0.5em;
 		// border-right: 1px dotted;
 		padding-right: 0.5em;
+	}
+
+	table {
+		// text-align: left;
+		th { font-weight: normal; }
+	}
+
+	.collapsed {
+		visibility: collapse;
 	}
 
 	label.prop-value {
