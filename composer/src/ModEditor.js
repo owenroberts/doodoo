@@ -4,7 +4,7 @@
 	should there be more than one?
 */
 
-import { UIRow, UITree, UIButton, UIChance, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey } from '../../../ui/src/UI.js';
+import { UIRow, UITree, UIButton, UIChance, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey } from '../../../ui/src/oi.js';
 import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 import { Modes, Bounds } from '../../src/constants.js';
 

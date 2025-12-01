@@ -4,7 +4,7 @@
  */
 
 import { whichKeyMap } from '../../../cool/cool.js';
-import { UILabel, UIButton, UIElement } from '../../../ui/src/UI.js';
+import { UILabel, UIButton, UIElement } from '../../../ui/src/oi.js';
 
 const LoopStates = {
 	KILL: 0,
@@ -41,7 +41,7 @@ export function Live(app) {
 
 	function updateLoopUI() {
 		for (let i = 0; i < loopControls.length; i++) {
-			loopUI[i].text = getLoopState(loopControls[i]);
+			loopUI[i].setText(getLoopState(loopControls[i]));
 		}
 	}
 

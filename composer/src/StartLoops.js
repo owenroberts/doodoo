@@ -3,7 +3,7 @@
 	set params for the beginning of the composition
 */
 
-import { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } from '../../../ui/src/UI.js';
+import { UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText } from '../../../ui/src/oi.js';
 
 export function StartLoops(app) {
 
