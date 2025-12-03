@@ -19,7 +19,7 @@ export const defaults = {
 	},
 	scale: {
 		isBundle: true,
-		chance: { value: 0, min: 0, max: 1, step: 0.1 },
+		chance: { value: 0 },
 		index: { value: 0 },
 		step: { list: [1, -1, 2, -2] },
 	},
@@ -230,7 +230,7 @@ export const defaults = {
 	},
 	// velocity, note velocity translates to loudness
 	velocity: {
-		type: "bundle",
+		isBundle: true,
 		start: {
 			value: 0.75,
 			step: 0.05,
@@ -357,7 +357,7 @@ export const defaults = {
 		}
 	},
 	bitCrush: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		bits: {
 			list: [3, 4, 6, 8, 12, 16],
@@ -370,7 +370,7 @@ export const defaults = {
 		}
 	},
 	autoFilter: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
@@ -383,7 +383,7 @@ export const defaults = {
 		}
 	},
 	autoPanner: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
@@ -396,7 +396,7 @@ export const defaults = {
 		}
 	},
 	cheby: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		order: {
 			value: 16,
@@ -409,7 +409,7 @@ export const defaults = {
 		}
 	},
 	chorus: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 4,
@@ -441,7 +441,7 @@ export const defaults = {
 		},
 	},
 	feedback: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		feedback: {
 			value: 0.25,
@@ -464,7 +464,7 @@ export const defaults = {
 		},
 	},
 	phaser: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 15,
@@ -495,7 +495,7 @@ export const defaults = {
 		},
 	},
 	pingPong: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		feedback: {
 			value: 0.25,
@@ -518,7 +518,7 @@ export const defaults = {
 		},
 	},
 	tremolo: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 9,
@@ -541,7 +541,7 @@ export const defaults = {
 		},
 	},
 	vibrato: {
-		type: "bundle",
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		frequency: {
 			value: 9,

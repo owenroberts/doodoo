@@ -1,6 +1,5 @@
 import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch } from '../../../ui/src/oi.js';
 import { defaults } from '../../src/defaults.js';
-import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 
 /**
  * add new mods
@@ -94,25 +93,24 @@ export class ModulatorsPanel extends UIPanel {
 			callback: isOpen => {
 				if (isOpen) {
 					this.closeEditor();
-					row.addClass('prop-edit');
 					this.modInEditor = propName;
-					// const type = this.getType(propName, this.mods[propName]);
-					// this.ui.panels.modEditor.set(propName, this.mods[propName]);
+					row.addClass('prop-edit');
 					this.ui.panels.modEditor.set(propName);
-					// check if open
 					this.ui.sections[this.section].addPanel('modEditor');
 				} else {
-					row.removeClass('prop-edit');
+					this.closeEditor();
 				}
 			}
-		}));
+		}), "toggle");
 	}
 
 	closeEditor() {
-		// this.ui.panels.modEditor.clear();
-		this.modInEditor = "none";
-		Array.from(document.getElementsByClassName('prop-edit'))
-			.forEach(e => e.classList.remove('prop-edit'));
+		if (this.modInEditor !== "none") {
+			this.modsRow.children[this.modInEditor].children.toggle.off();
+			this.modsRow.children[this.modInEditor].removeClass('prop-edit');
+			this.modInEditor = "none";
+		}
+		this.ui.panels.modEditor.clear();
 	}
 	
 	load() {

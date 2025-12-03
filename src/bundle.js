@@ -16,7 +16,7 @@ export class Bundle {
 		this.name = name;
 		this.props = {};
 		for (const param in params) {
-			if (param === 'type') continue;
+			if (param === 'isBundle') continue;
 			this.props[param] = createProperty(params[param], param);
 		}
 	}
@@ -39,7 +39,7 @@ export class Bundle {
 	get(voiceIndex) {
 		let values = {};
 		for (const prop in this.props) {
-			if (prop === 'type') continue; // this is the error right?
+			if (prop === 'isBundle') continue; // this is the error right?
 			values[prop] = this.props[prop].get(voiceIndex);
 		}
 		return values;

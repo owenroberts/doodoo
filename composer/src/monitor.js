@@ -7,6 +7,7 @@ export class MonitorPanel extends UIPanel {
 	constructor(app) {
 		super({ id: 'monitor', ui: app.ui });
 
+
 		this.props = {
 			melody: true,
 			harmony: true,
@@ -46,8 +47,8 @@ export class MonitorPanel extends UIPanel {
 		thr.add(new UIElement({ tag: "th", text: "loop" }));
 
 		this.tcols = [colGroup.add(new UIElement({ tag: "col" }))];
-		for (let i = 1; i < this.propList.length + 1; i++) {
-			this.tcols[i] = colGroup.add(new UIElement({ tag: "col" }));
+		for (let i = 0; i < this.propList.length; i++) {
+			this.tcols[i + 1] = colGroup.add(new UIElement({ tag: "col" }));
 			const k = this.propList[i];
 			thr.add(new UIElement({ tag: "th", text: k }));
 		}
@@ -55,15 +56,11 @@ export class MonitorPanel extends UIPanel {
 		this.tbody = table.add(new UIElement({ tag: "tbody" }));
 	}
 
-
 	formatProp(prop, value) {
 
-		// if (prop === 'instrument') {
-		// 	if (value.instrument) return value.instrument;
-		// 	return value.name;
-		// }
 		if (prop === 'melody') {
-			return value.filter(n => n[0] !== null).map(n => ` ${n[0]}:${n[1]}`);
+			// return value.filter(n => n[0] !== null).map(n => ` ${n[0]}:${n[1]}`);
+			return value.filter(n => n[0] !== null).map(n => ` ${n[0]}`);
 		}
 		if (prop === 'fx') {
 			return JSON.stringify(value);
@@ -75,12 +72,12 @@ export class MonitorPanel extends UIPanel {
 
 		this.tbody.clear();
 
-		for (let i = 1; i < this.propList.length + 1; i++) {
+		for (let i = 0; i < this.propList.length; i++) {
 			const k = this.propList[i];
 			if (this.props[k]) {
-				this.tcols[i].removeClass('collapsed');
+				this.tcols[i + 1].removeClass('collapsed');
 			} else {
-				this.tcols[i].addClass('collapsed');
+				this.tcols[i + 1].addClass('collapsed');
 			}
 		}
 
@@ -91,11 +88,15 @@ export class MonitorPanel extends UIPanel {
 			tr.add(new UIElement({ tag: "td", text: i }));
 
 			const voice = voices[i];
-			for (let j = 1; j < this.propList.length + 1; j++) {
+			for (let j = 0; j < this.propList.length; j++) {
 				const k = this.propList[j];
 				let value = ".";
 				if (this.props[k] && voice.hasOwnProperty(k)) {
 					value = this.formatProp(k, voice[k]);
+				} else if (this.props[k] && i === 0) {
+					if (k === "bpm") value = comp.bpm;
+					if (k === "transpose") value = comp.transpose;
+					if (k === "scale") value = JSON.stringify(comp.scale);
 				}
 				tr.add(new UIElement({ tag: "td", text: value }));
 			}

@@ -129,7 +129,7 @@ export class PlaybackPanel extends UIPanel {
 	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false, loopControls }={}) {
 
 		if (this.doodoo.isPlaying) {
-			doodoo.stop();
+			this.doodoo.stop();
 			Tone.Transport.cancel();
 		}
 

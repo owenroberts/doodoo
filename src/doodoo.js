@@ -125,15 +125,15 @@ export class Doodoo {
 
 		// mods that effect entire composition
 		this.mods = {};		
-		if (mods.scale.mod) {
+		if (mods.scale) {
 			this.mods.scale = createProperty(mods.scale, 'scale');
 		}
 
-		if (mods.transpose.mod) {
+		if (mods.transpose) {
 			this.mods.transpose = createProperty(mods.transpose, 'transpose');
 		}
 		
-		if (mods.bpm.mod) {
+		if (mods.bpm) {
 			this.mods.bpm = createProperty(mods.bpm, 'bpm');
 		}
 

@@ -11,7 +11,7 @@ import { Bundle } from './bundle.js';
  */
 export function createProperty(params={}, name) {
 
-	if (params.type === 'bundle') {
+	if (params.isBundle) {
 		return new Bundle(params, name);	
 	}
 

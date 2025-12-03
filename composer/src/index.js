@@ -14,7 +14,6 @@ import { MeterPanel } from './meter.js';
 import { ModulatorsPanel } from './modulators.js';
 import { ModEditorPanel } from './mod-editor.js';
 
-// import { ModEditor } from './ModEditor.js';
 // import { StartLoops } from './StartLoops.js';
 // import { Live } from './Live.js';
 // import { Score } from './Score.js';

@@ -28,9 +28,11 @@ export class Part {
 
 		// set up prop modulators
 		for (const prop in props) {
+			
 			// ignore comp level mods
-			if (props === "transpose") continue;
-			if (props === "scale") continue;
+			if (prop === "transpose") continue;
+			if (prop === "scale") continue;
+			if (prop === "prop") continue;
 
 			// modulator replaces default props
 			this.mods[prop] = createProperty(props[prop], prop); 

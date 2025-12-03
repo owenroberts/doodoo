@@ -1,9 +1,31 @@
 import { UIRow, UITree, UIButton, UIRange, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey, UIPanel, UIText } from '../../../ui/src/oi.js';
-import { modDefaults, propDefaults, typeOptions } from './ModProps.js';
 import { Modes, Bounds } from '../../src/constants.js';
 import { defaults } from '../../src/defaults.js';
 import { MIDI_NOTES } from '../../src/midi.js';
 
+const modDefaults = {
+	min: { value: 0, step: 1 },
+	max: { value: 1, step: 1 },
+	step: { value: 1, step: 0.1 },
+	kick: { value: 0, step: 1 },
+	chance: { value: 0.5, step: 0.1 },
+	mode: { value: Modes.VALUE },
+	bound: { value: Bounds.STAY },
+};
+
+let typeOptions = [
+	'number', 
+	'chance', 
+	'number-list', 
+	'string-list', 
+	'note-list', 
+	'stack', 
+	'graph-list',
+];
+
+/**
+ * edit params of specific mods
+ */
 export class ModEditorPanel extends UIPanel {
 	constructor(app) {
 		super({ id: "modEditor", ui: app.ui });
@@ -37,21 +59,31 @@ export class ModEditorPanel extends UIPanel {
 	}
 
 	clear() {
-		this.propRow.clear();
+		this.propsRow.clear();
 		this.paramsRow.clear();
 	}
 
 	collapse() {
 		this.paramsRow.childList
-			.filter(c => c.constructor.name === 'UITree')
-			.forEach(c => { c.close(); });
+			.forEach(c => {
+				if (c.constructor.name === 'UITree') {
+					c.close();
+				}
+				c.childList
+					.forEach(c2 =>  { 
+						if (c2.constructor.name === 'UITree') {
+							c2.close();
+						}
+					});
+			});
 	}
 
 	getType(propRef) {
 		// const mod = this.mods[propName];
 		let type = 'number';
-		if (propRef.hasOwnProperty('type')) type = params.type;
-		else if (propRef.hasOwnProperty('list')) {
+		if (propRef.hasOwnProperty('type')) {
+			type = propRef.type;
+		} else if (propRef.hasOwnProperty('list')) {
 			if (typeof propRef.list[0] === 'string') type = 'string-list';
 			if (typeof propRef.list[0] === 'number') type = 'number-list';
 		}
@@ -66,69 +98,63 @@ export class ModEditorPanel extends UIPanel {
 		}
 
 		if (this.mods[propName].isBundle) {
-			this.propRow.add(new UILabel({ text: labelFromKey(propName) + " bundle" }));
-			this.propRow.addBreak();
-			for (const param in params) {
-				if (param === 'type') continue; // get rid of type!
+			
+			this.propsRow.add(new UILabel({ text: `${propName} bundle` }));
+			this.propsRow.addBreak();
 
-				// this is where it gets tricky!
-				const propString = `${propName}-${param}`;
-				const propType = getPropType(propString, partIndex);
+			for (const k in this.mods[propName]) {
+				if (k === 'isBundle') continue; // still have to do this??
 
-				paramsRow.add(new UILabel({ text: labelFromKey(propString) }));
-				addPropMod(propString, partIndex, propType, true);
-				paramsRow.addBreak();
+				const propRow = this.paramsRow.add(new UIRow());
+				propRow.add(new UILabel({ text: k }));
+				propRow.addBreak();
+				propRow.add(new UILabel({ text: "type" })); // need better term than type
+				this.addModEdit(propRow, k, this.mods[propName][k]);
 			}
 		} else {
 			this.propsRow.add(new UILabel({ text: propName }));
 			this.propsRow.addBreak();
-			this.propsRow.add(new UILabel({ text: "type" })); // need better term than type
-			this.addModEdit(propName, this.mods[propName]);
+			this.paramsRow.add(new UILabel({ text: "type" })); // need better term than type
+			this.addModEdit(this.paramsRow, propName, this.mods[propName]);
 		}
 	}
 
-	addModEdit(propName, propRef) {
-		this.addTypeSelector(propName, propRef);
-		this.addParams(propName, propRef);
+	addModEdit(row, propName, propRef) {
+		if (propName.includes("chance") || propRef.isChance) {
+			propRef.type = "chance";
+		}
+		this.addTypeSelector(row, propName, propRef);
+		this.addParams(row, propName, propRef);
 	}
 
-	addTypeSelector(propName, propRef, isBundle=false) {
-		const type = this.getType(propRef);
-		const propTypeSelect = new UISelect({
-			value: type,
+	addTypeSelector(row, propName, propRef, isBundle=false) {
+		
+		const propTypeSelect = row.append(new UISelect({
+			value: this.getType(propRef),
 			options: typeOptions,
-			callback: type => { 
+			callback: value => { 
 				this.paramsRow.clear();
 				
 				// reset propRef -- don't set directly! breaks ref!
 				for (const k in propRef) {
 					delete propRef[k];
 				}
-				propRef.type = type;
+				propRef.type = value;
 
-				this.addParams(propName, propRef); // renew params
+				this.addParams(row, propName, propRef); // renew params
 			}
-		});
+		}));
 
-		if (isBundle) {
-			this.paramsRow.add(propTypeSelect);
-			this.paramsRow.addBreak();
-		} else { 
-			this.propsRow.add(propTypeSelect);
-			this.propsRow.addBreak();
-		}
+		row.addBreak();
 	}
 
-	addParams(propName, propRef) {
-		const type = propRef.type ?? this.getType(propRef);
-
-		console.log(propName, propRef, type);
+	addParams(row, propName, propRef) {
+		const type = this.getType(propRef);
 
 		switch(type) {
-			// chance and number same thing?
 			case "number":
 			case "chance":
-				this.addValue(this.paramsRow, "value", propRef);
+				this.addValue(row, "value", propRef);
 			break;
 
 			case 'number-list':
@@ -137,13 +163,13 @@ export class ModEditorPanel extends UIPanel {
 			case 'input-list':
 			case 'note-list':
 				propRef.index = 0;
-				this.addList(this.paramsRow, propName, propRef);
+				this.addList(row, propName, propRef);
 			break;
 
 			case "stack":
 				propRef.stack = [[]];
 				propRef.options = defaults[propName].options ?? [];
-				this.addStack(this.paramsRow, propName, propRef);
+				this.addStack(row, propName, propRef);
 			break;
 		}
 	}
@@ -151,7 +177,7 @@ export class ModEditorPanel extends UIPanel {
 	addValue(row, propName, propRef, level=0, label) {
 
 		row.add(new UILabel({ text: label ?? propName }));
-		
+		// console.log(propName)
 		const uiClass = propRef.type === "chance" ? UIRange : UINumberStep;
 		row.add(new uiClass({
 			obj: propRef,
