@@ -1,5 +1,6 @@
-import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch } from '../../../ui/src/oi.js';
+import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch, UIList, UIToggleCheck } from '../../../ui/src/oi.js';
 import { defaults } from '../../src/defaults.js';
+import { defaultModSet, compModList } from '../../src/constants.js';
 
 /**
  * add new mods
@@ -9,8 +10,32 @@ export class ModulatorsPanel extends UIPanel {
 		super({ id: "modulators", ui: app.ui });
 
 		this.doodoo = app.doodoo;
-		this.mods = app.doodoo.comp.mods;
+		// this.mods = app.doodoo.comp.mods;
+		this.modsets = app.doodoo.comp.modsets;
+		this.modsetIndex = 0;
 		this.modInEditor = "none";
+
+		this.addRef({
+			obj: this,
+			ref: 'modsetIndex',
+			callback: value => {
+				if (value > this.modsets.length - 1) {
+					const addSet = confirm("Add new set?");
+					if (addSet) {
+						this.modsets.push(structuredClone(defaultModSet))
+						this.addSet(value);
+					}
+				}
+			}
+		});
+
+		this.addBreak();
+
+		this.setsRow = this.add(new UIRow({ id: "sets-row" }));
+
+		for (let i = 0; i < this.modsets.length; i++) {
+			this.addSet(i);
+		}
 
 		// this.add(new UILabel({ text: "add mod "}));
 		this.propSelect = this.add(new UIInputSearch({
@@ -24,6 +49,12 @@ export class ModulatorsPanel extends UIPanel {
 				if (this.propSelect.value.length === 0) {
 					this.propSelect.focus();
 				} else {
+
+					if (this.modsetIndex > 0 && compModList.includes(this.propSelect.value)) {
+						alert('comp mods must go in modset 0');
+						return;
+					}
+
 					this.addMod(this.propSelect.value);
 					this.propSelect.value = "";
 				}
@@ -34,7 +65,7 @@ export class ModulatorsPanel extends UIPanel {
 			key: "shift-p",
 			text: "print",
 			callback: () => {
-				console.log('mods', this.mods);
+				console.log('mods', this.modsets);
 			}
 		});
 
@@ -47,11 +78,50 @@ export class ModulatorsPanel extends UIPanel {
 		});
 
 		this.modsRow = this.add(new UIRow({ id: "mods-row", class: "break" }));
+	}
 
-		// ui -- delete
-		let partModRows = [], partModIndex = 0;
-		let openModPart = -1;
-		let openToggle;
+	addSet(index) {
+
+		const set = this.modsets[index];
+		const row = this.setsRow.add(new UIRow());
+		row.add(new UILabel({ text: `set ${index}`}));
+
+		row.add(new UIButton({
+			text: "X",
+			callback: () => {
+				if (this.modsets.length > 0) {
+					this.modsets.splice(index, 1);
+					this.setsRow.remove(row);
+				}
+			}
+		}));
+
+		row.add(new UIButton({
+			text: "print",
+			callback: () => {
+				console.log(index, set);
+			}
+		}))
+
+		row.add(new UIButton({
+			text: "edit",
+			callback: () => {
+				this.modsRow.clear();
+				this.children.modsetIndex.update(index);
+				for (const k in set.mods) {
+					this.addMod(k);
+				}
+			}
+		}));
+
+		row.addBreak();
+		row.add(new UILabel({ text: "parts" }));
+		row.add(new UIList({
+			itemClass: UIToggleCheck,
+			obj: set,
+			ref: "parts",
+			isFixed: true,
+		}));
 	}
 
 	addMod(propName) {
@@ -59,8 +129,10 @@ export class ModulatorsPanel extends UIPanel {
 		if (!propName) return;
 		if (this.modsRow.children[propName]) return; // one mod per part
 
-		if (!this.mods[propName]) {
-			this.mods[propName] = structuredClone(defaults[propName]);
+		const mods = this.modsets[this.modsetIndex].mods;
+
+		if (!mods[propName]) {
+			mods[propName] = structuredClone(defaults[propName]);
 		}
 
 		// ui
@@ -71,7 +143,7 @@ export class ModulatorsPanel extends UIPanel {
 		row.add(new UIButton({
 			text: "x",
 			callback: () => {
-				delete this.mods[propName];
+				delete mods[propName];
 				if (this.modInEditor === propName) {
 					this.closeEditor();
 				}
@@ -82,8 +154,8 @@ export class ModulatorsPanel extends UIPanel {
 		row.add(new UIButton({
 			text: "print",
 			callback: () => {
-				console.log(propName, this.mods[propName]);
-				console.log(JSON.stringify(this.mods[propName]));
+				console.log(propName, mods[propName]);
+				console.log(JSON.stringify(mods[propName]));
 			}
 		}));
 
@@ -95,7 +167,7 @@ export class ModulatorsPanel extends UIPanel {
 					this.closeEditor();
 					this.modInEditor = propName;
 					row.addClass('prop-edit');
-					this.ui.panels.modEditor.set(propName);
+					this.ui.panels.modEditor.set(this.modsetIndex, propName);
 					this.ui.sections[this.section].addPanel('modEditor');
 				} else {
 					this.closeEditor();
@@ -115,11 +187,21 @@ export class ModulatorsPanel extends UIPanel {
 	
 	load() {
 
+		this.setsRow.clear();
 		this.modsRow.clear();
-		this.mods = this.doodoo.comp.mods;
+		// this.mods = this.doodoo.comp.mods;
+		
+		this.modsets = this.doodoo.comp.modsets;
 
-		for (const mod in this.mods) {
-			this.addMod(mod);
+
+		for (let i = 0; i < this.modsets.length; i++) {
+			this.addSet(i);
+
+			if (i === this.modsetIndex) {
+				for (const k in this.modsets[i].mods) {
+					this.addMod(k);
+				}
+			}
 		}
 
 		return;

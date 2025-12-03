@@ -33,3 +33,14 @@ export const ToneFX = [
 	'tremolo', 
 	'vibrato',
 ];
+
+export const defaultModSet = {
+	mods: {},
+	parts: new Array(8).fill(true),
+};
+
+export const compModList = [
+	"bpm",
+	"transpose",
+	"scale",
+];

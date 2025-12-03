@@ -1,10 +1,11 @@
 import * as Tone from 'tone';
-import { random, chance, getDate, assert } from '../../cool/cool.js';
+import { random, chance, getDate, assert, Bitmask8 } from '../../cool/cool.js';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES } from './midi.js';
 import { Part } from './part.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
+import { defaultModSet, compModList } from './constants.js';
 
 /**
  * main greg class for music generation and playback
@@ -58,7 +59,7 @@ export class Doodoo {
 			timeBar: params.timeBar ?? 4,
 			timeBeat: params.timeBeat ?? 4,
 			sequence: params.sequence ?? [[true]],
-			modsets: [], // { mods, parts }
+			modsets: params.modsets ?? [structuredClone(defaultModSet)], // { mods, parts }
 			mods: params.mods ?? {}, // props vs mods ... 
 			parts: params.parts ?? [],
 			partMods: params.partMods ?? [],
@@ -117,24 +118,25 @@ export class Doodoo {
 
 		this.parts = []; // reset parts
 
-		const mods = structuredClone(this.comp.mods); // props vs mods ... 
-		for (const prop in defaults) {
-			if (mods.hasOwnProperty(prop)) continue;
-			mods[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
-		}
+		// const mods = structuredClone(this.comp.mods); // props vs mods ... 
+		// for (const prop in defaults) {
+		// 	if (mods.hasOwnProperty(prop)) continue;
+		// 	mods[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
+		// }
 
 		// mods that effect entire composition
-		this.mods = {};		
-		if (mods.scale) {
-			this.mods.scale = createProperty(mods.scale, 'scale');
+		const compMods = structuredClone(this.comp.modsets[0].mods);
+		this.mods = {};
+		if (compMods.scale) {
+			this.mods.scale = createProperty(compMods.scale, 'scale');
 		}
 
-		if (mods.transpose) {
-			this.mods.transpose = createProperty(mods.transpose, 'transpose');
+		if (compMods.transpose) {
+			this.mods.transpose = createProperty(compMods.transpose, 'transpose');
 		}
 		
-		if (mods.bpm) {
-			this.mods.bpm = createProperty(mods.bpm, 'bpm');
+		if (compMods.bpm) {
+			this.mods.bpm = createProperty(compMods.bpm, 'bpm');
 		}
 
 		// have to get default beat before going through the parts ...
@@ -147,30 +149,57 @@ export class Doodoo {
 		});
 
 		// check beat list for possible smaller beats 
-		mods.beatList?.list.forEach(beat => {
-			if (beat > parseInt(this.config.defaultBeat)) {
-				this.config.defaultBeat = beat + 'n';
-			}
+		this.comp.modsets.forEach(set => {
+			set.mods.beatList?.list.forEach(beat => {
+				if (beat > parseInt(this.config.defaultBeat)) {
+					this.config.defaultBeat = beat + 'n';
+				}
+			})
 		});
 
 		// create parts with mods
+		const partMods = [];
 		for (let i = 0; i < this.comp.parts.length; i++) {
-			const partMods = this.comp.partMods[i] ?
-				{ ...mods, ...structuredClone(this.comp.partMods[i]) } :
-				{ ...mods };
-			this.parts.push(new Part(this.comp.parts[i], partMods, this.config.defaultBeat, this.comp));
+			
+			partMods[i] = {};
+
+			for (let j = 0; j < this.comp.modsets.length; j++) {
+				if (this.comp.modsets[j].parts[i]) {
+					for (const k in this.comp.modsets[j].mods) {
+						partMods[i][k] = structuredClone(this.comp.modsets[j].mods[k]);
+					}
+				}
+			}
+
+			if (this.config.useDefaultProps) {
+				for (const k in defaults) {
+					if (partMods[i].hasOwnProperty(k)) continue;
+					if (compModList.includes(k)) continue;
+					partMods[i][k] = structuredClone(defaults[k]);
+				}
+			}
+
+			this.parts.push(new Part(
+				this.comp.parts[i], 
+				partMods[i], 
+				this.config.defaultBeat, 
+				this.comp
+			));
 		}
 
 		// load instruments
-		assert(!mods.instruments.list, 'instruments prop is list!');
-		assert(!mods.instruments.value, 'instruments prop is value!');
+		assert(!partMods[0].instruments.list, 'instruments prop is list!');
+		assert(!partMods[0].instruments.value, 'instruments prop is value!');
 
 		// reset instruments loaded ... or use a loaded dict to get loaded
 
 		let loadList = [
-			...mods.instruments?.stack?.flatMap(e => e.list),
-			...this.comp.partMods?.flatMap(m => m.instruments.stack)
-				.flatMap(e => e.list),
+			// ...mods.instruments?.stack?.flatMap(e => e.list),
+			// ...this.comp.partMods?.flatMap(m => m.instruments.stack)
+				// .flatMap(e => e.list),
+			...partMods
+				.flatMap(m => m.instruments.stack)
+				.flatMap(s => s.list),
 			...this.comp.startLoops
 				.flatMap(count => count.loops)
 				.flatMap(loop => loop)

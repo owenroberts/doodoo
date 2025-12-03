@@ -16,7 +16,9 @@ export class FilesPanel extends UIPanel {
 		this.savedOn = getDate();
 		this.title = 'doodoo-' + getDate();
 
-		this.addRef({ obj: this, ref: "title", });
+		this.addRef({ obj: this, ref: "title", ignoreSettings: true });
+
+		this.addBreak();
 
 		this.addButton({ 
 			callback: () => {
@@ -98,8 +100,9 @@ export class FilesPanel extends UIPanel {
 		
 		this.app.doodoo.comp.parts = data.parts;
 		this.app.doodoo.comp.sequence = data.sequence;
-		this.app.doodoo.comp.mods = data.mods;
-		this.app.doodoo.comp.partMods = data.partMods;
+		// this.app.doodoo.comp.mods = data.mods;
+		this.app.doodoo.comp.modsets = data.modsets;
+		// this.app.doodoo.comp.partMods = data.partMods;
 		this.app.doodoo.comp.startLoops = data.startLoops;
 
 		// don't need to pass data ... 
@@ -177,7 +180,6 @@ export class FilesPanel extends UIPanel {
 		}
 
 		console.log('save', localSave)
-
 		return localSave;
 	}
 

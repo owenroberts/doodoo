@@ -31,7 +31,8 @@ export class ModEditorPanel extends UIPanel {
 		super({ id: "modEditor", ui: app.ui });
 
 		this.doodoo = app.doodoo;
-		this.mods = app.doodoo.comp.mods;
+		// this.mods = app.doodoo.comp.mods;
+		this.modsets = app.doodoo.comp.modsets;
 
 		this.addButton({
 			text: "close",
@@ -55,7 +56,8 @@ export class ModEditorPanel extends UIPanel {
 	}
 
 	load() {
-		this.mods = this.doodoo.comp.mods;
+		// this.mods = this.doodoo.comp.mods;
+		this.modsets = this.doodoo.comp.modsets;
 	}
 
 	clear() {
@@ -91,31 +93,33 @@ export class ModEditorPanel extends UIPanel {
 		return type;
 	}
 
-	set(propName) {
+	set(index, propName) {
+		// console.log(index, this.modsets);
+		const mods = this.modsets[index].mods;
 
-		if (!this.mods[propName]) {
-			this.mods[propName] = {};
+		if (!mods[propName]) {
+			mods[propName] = {};
 		}
 
-		if (this.mods[propName].isBundle) {
+		if (mods[propName].isBundle) {
 			
 			this.propsRow.add(new UILabel({ text: `${propName} bundle` }));
 			this.propsRow.addBreak();
 
-			for (const k in this.mods[propName]) {
+			for (const k in mods[propName]) {
 				if (k === 'isBundle') continue; // still have to do this??
 
 				const propRow = this.paramsRow.add(new UIRow());
 				propRow.add(new UILabel({ text: k }));
 				propRow.addBreak();
 				propRow.add(new UILabel({ text: "type" })); // need better term than type
-				this.addModEdit(propRow, k, this.mods[propName][k]);
+				this.addModEdit(propRow, k, mods[propName][k]);
 			}
 		} else {
 			this.propsRow.add(new UILabel({ text: propName }));
 			this.propsRow.addBreak();
 			this.paramsRow.add(new UILabel({ text: "type" })); // need better term than type
-			this.addModEdit(this.paramsRow, propName, this.mods[propName]);
+			this.addModEdit(this.paramsRow, propName, mods[propName]);
 		}
 	}
 
@@ -150,6 +154,7 @@ export class ModEditorPanel extends UIPanel {
 
 	addParams(row, propName, propRef) {
 		const type = this.getType(propRef);
+		if (!propRef.type) propRef.type = type;
 
 		switch(type) {
 			case "number":
@@ -162,7 +167,6 @@ export class ModEditorPanel extends UIPanel {
 			case 'graph-list':
 			case 'input-list':
 			case 'note-list':
-				propRef.index = 0;
 				this.addList(row, propName, propRef);
 			break;
 
@@ -188,6 +192,7 @@ export class ModEditorPanel extends UIPanel {
 	}
 
 	addList(row, propName, propRef, level=0, label) {
+
 
 		let uiListClass = UIList;
 		let uiListParams = {
@@ -217,7 +222,6 @@ export class ModEditorPanel extends UIPanel {
 		}
 
 		const listUI = new uiListClass(uiListParams);
-
 		
 		row.add(new UILabel({ text: 'list' }));
 		row.addBreak();
@@ -228,7 +232,7 @@ export class ModEditorPanel extends UIPanel {
 		const indexUI = row.add(new UINumberStep({
 			obj: propRef,
 			ref: "index",
-			value: 0,
+			value: propRef.index ?? 0,
 		}));
 
 		this.addMod(row, "index", propRef, level);
