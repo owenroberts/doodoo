@@ -18,7 +18,7 @@ export const defaults = {
 		type: 'note-list',
 	},
 	scale: {
-		type: 'bundle',
+		isBundle: true,
 		chance: { value: 0, min: 0, max: 1, step: 0.1 },
 		index: { value: 0 },
 		step: { list: [1, -1, 2, -2] },
@@ -28,7 +28,6 @@ export const defaults = {
 	},
 
 	// part level mods
-	
 	instruments: {
 		stack: [{ list: ['choir'] }],
 		options: ['choir', 'fmSynth', ...Object.keys(SamplePaths)],
@@ -59,7 +58,7 @@ export const defaults = {
 		}
 	}, // number of voices per part
 	harmony: {
-		type: 'bundle',
+		isBundle: true,
 		chance: {
 			value: 0, 
 			step: 0.01,
@@ -113,7 +112,7 @@ export const defaults = {
 		}
 	},
 	playBeat: {
-		type: 'bundle',
+		isBundle: true,
 		chance: {
 			type: "chance",
 			value: 0.5,
@@ -176,7 +175,7 @@ export const defaults = {
 	},
 	// chance to slice a part of the melody and concat to end
 	slice: {
-		type: 'bundle',
+		isBundle: true,
 		chance: { value: 0.1, step: 0.05 },
 		length: {
 			value: 1,
@@ -206,7 +205,7 @@ export const defaults = {
 	},
 	// chance to shift the first note in melody off
 	shift: {
-		type: 'bundle',
+		isBundle: true,
 		chance: { value: 0.2, step: 0.05, },
 		length: {
 			value: 16,
@@ -340,12 +339,12 @@ export const defaults = {
 		}
 	},
 	reverb: {
-		type: 'bundle',
+		isBundle: true,
 		chance: { value: 1 },
 		decay: { value: 5, step: 0.1, range: [0.5, 32] },
 	},
 	distortion: {
-		type: 'bundle',
+		isBundle: true,
 		chance: { value: 0.1, type: "chance" },
 		distortion: {
 			value: 0.1,

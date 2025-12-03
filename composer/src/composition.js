@@ -78,12 +78,12 @@ export class CompositionPanel extends UIPanel {
 		});
 	}
 
-	load(data) {
-		for (const k in data) {
+	load() {
+		for (const k in this.doodoo.comp) {
 			// console.log(k);
 			if (this.children[k]) {
 				// console.log(k, data[k], this.children[k].update);
-				this.children[k].update(data[k]);
+				this.children[k].update(this.doodoo.comp[k]);
 			}
 		}
 	}

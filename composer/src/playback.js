@@ -14,6 +14,12 @@ export class PlaybackPanel extends UIPanel {
 		this.doodoo = app.doodoo;
 		this.saveOnPlay = false;
 
+		this.add(new UILabel({ text: 'Loop' }));
+		const loopCountDisplay = this.add(new UILabel({
+			id: 'loop-count',
+			text: '0',
+		}));
+
 		this.addButton({
 			callback: () => { this.play({ withCount: false, }); },
 			key: "/",
@@ -66,13 +72,8 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
-		this.addBreak();
 
-		this.add(new UILabel({ text: 'Loop' }));
-		const loopCountDisplay = this.add(new UILabel({
-			id: 'loop-count',
-			text: '0',
-		}));
+		
 
 		this.addBreak();
 

@@ -49,7 +49,7 @@ export class MeterPanel extends UIPanel {
 			this.draw() 
 		});
 		if (!this.toneMeter) return;
-		if (!this.isOpen()) return;
+		if (!document.body.contains(this.el)) return;
 		
 		const time = performance.now();
 		if (time > this.timer + this.interval) {

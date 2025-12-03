@@ -58,6 +58,7 @@ export class Doodoo {
 			timeBar: params.timeBar ?? 4,
 			timeBeat: params.timeBeat ?? 4,
 			sequence: params.sequence ?? [[true]],
+			modsets: [], // { mods, parts }
 			mods: params.mods ?? {}, // props vs mods ... 
 			parts: params.parts ?? [],
 			partMods: params.partMods ?? [],

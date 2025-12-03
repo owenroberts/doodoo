@@ -94,8 +94,7 @@ export class FilesPanel extends UIPanel {
 
 	load(data) {
 
-		console.log('data', data);
-
+		console.log('load', data);
 		
 		this.app.doodoo.comp.parts = data.parts;
 		this.app.doodoo.comp.sequence = data.sequence;
@@ -103,11 +102,14 @@ export class FilesPanel extends UIPanel {
 		this.app.doodoo.comp.partMods = data.partMods;
 		this.app.doodoo.comp.startLoops = data.startLoops;
 
-		this.app.ui.panels.composition.load(data);
-		this.app.ui.panels.melody.load(data);
+		// don't need to pass data ... 
+		this.app.ui.panels.composition.load();
+		this.app.ui.panels.melody.load();
+		this.app.ui.panels.modulators.load();
+		this.app.ui.panels.modEditor.load();
 
-		// this.app.modulators.load(data);
 		// this.app.startLoops.load(data);
+		// console.log('data', JSON.stringify((data.mods.bpm)))
 
 		if (data.versions) {
 			this.clearVersions();
@@ -129,15 +131,7 @@ export class FilesPanel extends UIPanel {
 
 	saveLocal(needsTitleConfirm=true) { 
 
-		// this needs big update ...
-
-		// const composition = app.composition.get();
-		
 		const composition = structuredClone(this.app.doodoo.comp);
-		// console.log('save', composition)
-		// parts
-		// sequence
-		// melody
 
 		if (composition.parts.length === 0) {
 			let continueSave = confirm('No melody, continue save?');
@@ -168,7 +162,6 @@ export class FilesPanel extends UIPanel {
 
 		if (this.versions.length > 0) {
 			localSave.versions = this.versions;
-
 		}
 
 		try {
@@ -183,7 +176,7 @@ export class FilesPanel extends UIPanel {
 			}
 		}
 
-		console.log(localSave)
+		console.log('save', localSave)
 
 		return localSave;
 	}
@@ -194,7 +187,6 @@ export class FilesPanel extends UIPanel {
 		if (!title) title = localStorage.getItem('greg-title');
 		if (!title) prompt('Search title');
 		if (!title) return alert('No title.');
-
 
 		const localData = localStorage.getItem('greg-' + title);
 		if (!localData) {
@@ -211,7 +203,7 @@ export class FilesPanel extends UIPanel {
 
 	listLocal() {
 		const m = new UIModal({
-			app: this.app,
+			ui: this.ui,
 			title: 'Local Saves',
 		});
 

@@ -9,9 +9,9 @@ export const modDefaults = {
 	max: { value: 1, step: 1 },
 	step: { value: 1, step: 0.1 },
 	kick: { value: 0, step: 1 },
-	chance: { value: 0.5, step: 0.05 },
+	chance: { value: 0.5, step: 0.1 },
 	mode: { value: Modes.VALUE },
-	bound: { value: Bounds.stay },
+	bound: { value: Bounds.STAY },
 };
 
 export let propDefaults = {

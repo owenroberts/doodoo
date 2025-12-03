@@ -123,7 +123,7 @@ export class MelodyPanel extends UIPanel {
 		let note = new UICollection({ class: "note-collection" });
 		note.addClass('b' + beat.replace(/\./g, 'dot'));
 		
-		let pitchEdit = new UIInputStep({ 
+		note.pitch = note.add(new UIInputStep({ 
 			value: pitch, 
 			class: 'pitch-edit', 
 			options: ["rest", ...MIDI_NOTES],
@@ -131,9 +131,9 @@ export class MelodyPanel extends UIPanel {
 				this.update();
 				this.display();
 			}
-		});
+		}));
 		
-		let beatEdit = new UIInputStep({ 
+		note.beat = note.add(new UIInputStep({ 
 			value: beat,
 			class: 'beat-edit',
 			callback: value => {
@@ -143,38 +143,38 @@ export class MelodyPanel extends UIPanel {
 					} else {
 						value = beat;
 					}
-					beatEdit.value = value;
+					note.beat.value = value;
 				}
 				note.el.className = 'note-collection b' + value.replace(/\./g, 'dot');
 				this.update();
 				this.display();
 			},
 			options: [...this.beatList],
-		});
+		}));
 
-		let doubleBtn = new UIButton({
+		note.add(new UIButton({
 			text: "+",
 			class: 'double-btn',
 			callback: () => {
-				this.addNote(pitchEdit.value, beatEdit.value, partIndex, false, note);
+				this.addNote(note.pitch.value, note.beat.value, partIndex, false, note);
 			}
-		});
+		}));
 
-		let endBtn = new UIButton({
+		note.add(new UIButton({
 			text: ">",
 			class: 'end-btn',
 			callback: () => {
-				this.addNote(pitchEdit.value, beatEdit.value, partIndex, false, false);
+				this.addNote(note.pitch.value, note.beat.value, partIndex, false, false);
 			}
-		});
+		}));
 
-		let restBtn = new UIButton({
+		note.add(new UIButton({
 			text: '𝄽',
 			class: 'rest-btn',
-			callback: () => { pitchEdit.value = 'rest'; },
-		});
+			callback: () => { note.pitch.value = 'rest'; },
+		}));
 
-		let removeBtn = new UIButton({ 
+		note.add(new UIButton({ 
 			text: "x",
 			class: 'remove-btn',
 			callback: () => {
@@ -182,7 +182,7 @@ export class MelodyPanel extends UIPanel {
 				this.update();
 				this.display();
 			}
-		});
+		}));
 
 		if (insertBefore) {
 			row.insert(note, insertBefore);
@@ -190,13 +190,6 @@ export class MelodyPanel extends UIPanel {
 			row.append(note);
 		}
 		
-		note.append(pitchEdit, 'pitch');
-		note.append(beatEdit, 'beat');
-		note.append(endBtn);
-		note.append(restBtn);
-		note.append(doubleBtn);
-		note.append(removeBtn);
-
 		if (!skipUpdate) this.update();
 		if (!skipUpdate) this.display();
 	}
@@ -340,22 +333,22 @@ export class MelodyPanel extends UIPanel {
 		this.partRows.forEach(part => part.clear());
 	}
 
-	load(data) {
+	load() {
 		this.clearAll();
 		this.partRows = [];
 
-		if (data.sequence) {
+		if (this.doodoo.comp.sequence) {
 			// data.sequence = [[true], [true]]
 			// this.sequence = structuredClone(data.sequence);
-			this.sequenceGrid.update(data.sequence);
+			this.sequenceGrid.update(this.doodoo.comp.sequence);
 		}
 
-		if (data.parts) {
+		if (this.doodoo.comp.parts) {
 			this.clearAll();
 
-			for (let i = 0; i < data.parts.length; i++) {
+			for (let i = 0; i < this.doodoo.comp.parts.length; i++) {
 				if (i > 0) this.addPart();
-				this.addNotes(data.parts[i], i);
+				this.addNotes(this.doodoo.comp.parts[i], i);
 			}
 		}
 
