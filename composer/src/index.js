@@ -14,8 +14,8 @@ import { MeterPanel } from './meter.js';
 import { ModulatorsPanel } from './modulators.js';
 import { ModEditorPanel } from './mod-editor.js';
 import { StartLoopsPanel } from './start-loops.js';
+import { LivePanel } from './live.js';
 
-// import { Live } from './Live.js';
 // import { Score } from './Score.js';
 
 import DefaultWorkspace from '../workspaces/Default.json';
@@ -51,9 +51,8 @@ app.ui.addPanel(new MeterPanel(app));
 app.ui.addPanel(new ModulatorsPanel(app));
 app.ui.addPanel(new ModEditorPanel(app));
 app.ui.addPanel(new StartLoopsPanel(app));
+app.ui.addPanel(new LivePanel(app));
 
-// app.startLoops = StartLoops(app, defaults);
-// app.live = Live(app);
 // app.score = Score(app);
 
 app.ui.settings.load(); // wtf -- load settings and shit ...

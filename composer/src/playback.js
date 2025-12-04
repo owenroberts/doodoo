@@ -116,17 +116,10 @@ export class PlaybackPanel extends UIPanel {
 			// app.ui.panels.score.update(doodoo.voices);
 		};
 
-		this.doodoo.onStop = () => {
-			this.app.ui.panels.live.off();
-		};
+		
 	}
 
-	// wont need this .. 
-	updateLive(loopControls) {
-		this.doodoo.updateLive(loopControls);
-	}
-
-	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false, loopControls }={}) {
+	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false }={}) {
 
 		if (this.doodoo.isPlaying) {
 			this.doodoo.stop();

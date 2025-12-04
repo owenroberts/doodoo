@@ -19,7 +19,7 @@ export class Part {
 	 */
 	constructor(melody, props, defaultBeat, comp) {
 		
-		this.melody = melody;
+		this.melody = structuredClone(melody);
 		this.defaultBeat = defaultBeat;
 		this.comp = comp;
 		this.mods = {};
@@ -106,7 +106,7 @@ export class Part {
 	 */
 	get(startLoops, voiceCountOverride, comp) {
 
-		const voices = []; // need a better word, voices? instruments?
+		const voices = [];
 		let voiceCount = startLoops.length > 0 ? startLoops.length : this.mods.voiceNum.getInt();
 		if (voiceCountOverride > 0) {
 			voiceCount = voiceCountOverride;

@@ -5,7 +5,7 @@ import { MIDI_NOTES } from './midi.js';
 import { Part } from './part.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
-import { defaultModSet, compModList } from './constants.js';
+import { defaultModSet, compModList, LoopStates } from './constants.js';
 
 /**
  * main greg class for music generation and playback
@@ -74,7 +74,7 @@ export class Doodoo {
 		
 		// this.startLoops = params.startLoops ?? [];
 	
-		this.loopControls = params.loopControls;
+		this.loopControls = params.loopControls ?? [];
 		this.voiceCountOverride = 0; // for live mod
 		if (this.config.isLiveMode) {
 			this.comp.startLoops = []; // use liveLoops or something instead?
@@ -372,7 +372,7 @@ export class Doodoo {
 					}
 				 	starts = startIndex < this.comp.startLoops.length ? this.comp.startLoops[startIndex].loops : [];
 				}
-				const partVoices = this.parts[i].get(starts, this.config.voiceCountOverride, this.comp);
+				const partVoices = this.parts[i].get(starts, this.voiceCountOverride, this.comp);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});
@@ -549,14 +549,12 @@ export class Doodoo {
 
 	updateLive(newLoopControls) {
 
-		if (newLoopControls) this.loopControls = newLoopControls;
-
 		// reset start loops
 		this.comp.startLoops = [];
 
 		// assign voices to loops
 		for (let i = 0; i < this.loopControls.length; i++) {
-			if (this.loopControls[i] === 1) {
+			if (this.loopControls[i] === LoopStates.KEEP) {
 				let isLoopFound = false;
 				for (let j = 0; j < this.voices.length; j++) {
 					if (this.voices[j].liveLoopIndex === i) {
@@ -579,7 +577,7 @@ export class Doodoo {
 
 		// add new loops if needed
 		// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
-		let voiceCount = this.loopControls.filter(c => c > 0).length;
+		let voiceCount = this.loopControls.filter(c => c !== LoopStates.KILL).length;
 		if (voiceCount > this.comp.startLoops.length) {
 			this.voiceCountOverride = voiceCount;
 		} else {

@@ -44,3 +44,13 @@ export const compModList = [
 	"transpose",
 	"scale",
 ];
+
+/**
+ * loop states for live mode
+ * @type {enum}
+ */
+export const LoopStates = {
+	KILL: 0,
+	MOD: 1,
+	KEEP: 2,
+};

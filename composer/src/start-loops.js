@@ -1,8 +1,3 @@
-/*
-	ui for start loops
-	set params for the beginning of the composition
-*/
-
 import { UIPanel, UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText, UISelect } from '../../../ui/src/oi.js';
 import { SamplePaths } from '../../src/sample-paths.js';
 
@@ -19,6 +14,9 @@ const startLoopDefaults = {
 	counterpoint: { value: false },
 };
 
+/**
+ * set params for beginning counts of play back
+ */
 export class StartLoopsPanel extends UIPanel {
 	constructor(app) {
 		super({ id: "startLoops", ui: app.ui });
