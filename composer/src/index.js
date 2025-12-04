@@ -13,8 +13,8 @@ import { MonitorPanel } from './monitor.js';
 import { MeterPanel } from './meter.js';
 import { ModulatorsPanel } from './modulators.js';
 import { ModEditorPanel } from './mod-editor.js';
+import { StartLoopsPanel } from './start-loops.js';
 
-// import { StartLoops } from './StartLoops.js';
 // import { Live } from './Live.js';
 // import { Score } from './Score.js';
 
@@ -50,6 +50,7 @@ app.ui.addPanel(new MonitorPanel(app));
 app.ui.addPanel(new MeterPanel(app));
 app.ui.addPanel(new ModulatorsPanel(app));
 app.ui.addPanel(new ModEditorPanel(app));
+app.ui.addPanel(new StartLoopsPanel(app));
 
 // app.startLoops = StartLoops(app, defaults);
 // app.live = Live(app);

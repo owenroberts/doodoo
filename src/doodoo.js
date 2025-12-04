@@ -60,9 +60,9 @@ export class Doodoo {
 			timeBeat: params.timeBeat ?? 4,
 			sequence: params.sequence ?? [[true]],
 			modsets: params.modsets ?? [structuredClone(defaultModSet)], // { mods, parts }
-			mods: params.mods ?? {}, // props vs mods ... 
+			// mods: params.mods ?? {}, // props vs mods ... 
 			parts: params.parts ?? [],
-			partMods: params.partMods ?? [],
+			// partMods: params.partMods ?? [],
 			startLoops: params.startLoops ?? [],
 		};
 
@@ -72,12 +72,12 @@ export class Doodoo {
 		this.modCount = 0; // num mods --> different from total plays? -- idts
 		this.isPlaying = false;
 		
-		this.startLoops = params.startLoops ?? [];
+		// this.startLoops = params.startLoops ?? [];
 	
 		this.loopControls = params.loopControls;
 		this.voiceCountOverride = 0; // for live mod
 		if (this.config.isLiveMode) {
-			this.startLoops = []; // use liveLoops or something instead?
+			this.comp.startLoops = []; // use liveLoops or something instead?
 		}
 
 		this.toneLoop; // main loop, created in start and keeps time
@@ -359,18 +359,18 @@ export class Doodoo {
 				const partCount = this.parts[i].loopCount;
 				let starts;
 				if (this.config.isLiveMode) {
-					starts = this.startLoops;
+					starts = this.comp.startLoops;
 				} else {
 					let startIndex = 0;
-					for (let j = 0; j < this.startLoops.length; j++) {
-						if (partCount < startIndex + this.startLoops[j].counts) {
+					for (let j = 0; j < this.comp.startLoops.length; j++) {
+						if (partCount < startIndex + this.comp.startLoops[j].counts) {
 							startIndex = j;
 							break;
 						} else {
-							startIndex += this.startLoops[j].counts;
+							startIndex += this.comp.startLoops[j].counts;
 						}
 					}
-				 	starts = startIndex < this.startLoops.length ? this.startLoops[startIndex].loops : [];
+				 	starts = startIndex < this.comp.startLoops.length ? this.comp.startLoops[startIndex].loops : [];
 				}
 				const partVoices = this.parts[i].get(starts, this.config.voiceCountOverride, this.comp);
 				partVoices.forEach(l => {
@@ -552,7 +552,7 @@ export class Doodoo {
 		if (newLoopControls) this.loopControls = newLoopControls;
 
 		// reset start loops
-		this.startLoops = [];
+		this.comp.startLoops = [];
 
 		// assign voices to loops
 		for (let i = 0; i < this.loopControls.length; i++) {
@@ -560,7 +560,7 @@ export class Doodoo {
 				let isLoopFound = false;
 				for (let j = 0; j < this.voices.length; j++) {
 					if (this.voices[j].liveLoopIndex === i) {
-						this.startLoops.push(this.cloneVoice(this.voices[j]));
+						this.comp.startLoops.push(this.cloneVoice(this.voices[j]));
 						isLoopFound = true;
 					}
 				}
@@ -570,7 +570,7 @@ export class Doodoo {
 						if (this.voices[j].hasOwnProperty('liveLoopIndex')) continue;
 						let v = this.cloneVoice(this.voices[j]);
 						v.liveLoopIndex = i;
-						this.startLoops.push(v);
+						this.comp.startLoops.push(v);
 						isLoopFound = true;
 					}
 				}
@@ -580,7 +580,7 @@ export class Doodoo {
 		// add new loops if needed
 		// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
 		let voiceCount = this.loopControls.filter(c => c > 0).length;
-		if (voiceCount > this.startLoops.length) {
+		if (voiceCount > this.comp.startLoops.length) {
 			this.voiceCountOverride = voiceCount;
 		} else {
 			this.voiceCountOverride = 0;

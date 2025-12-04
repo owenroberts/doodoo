@@ -110,9 +110,8 @@ export class FilesPanel extends UIPanel {
 		this.app.ui.panels.melody.load();
 		this.app.ui.panels.modulators.load();
 		this.app.ui.panels.modEditor.load();
+		this.app.ui.panels.startLoops.load();
 
-		// this.app.startLoops.load(data);
-		// console.log('data', JSON.stringify((data.mods.bpm)))
 
 		if (data.versions) {
 			this.clearVersions();

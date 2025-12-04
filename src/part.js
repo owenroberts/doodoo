@@ -173,7 +173,9 @@ export class Part {
 			// could be this.mods.harmony.chance.get(), this.mods.harmony.interval.get() ... 
 			const playBeat = this.mods.playBeat.get();
 
-			if (chance(harmony.chance) && !isCounterpoint) {
+			const harmonyInStartLoop = startLoops?.[i]?.harmony !== undefined;
+
+			if (chance(harmony.chance) && !isCounterpoint && !harmonyInStartLoop) {
 				isHarmony = true;
 				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.harmonyScaleOnly);
 			} else {

@@ -15,6 +15,24 @@ export class ModulatorsPanel extends UIPanel {
 		this.modsetIndex = 0;
 		this.modInEditor = "none";
 
+		this.addButton({
+			key: "shift-p",
+			text: "print",
+			callback: () => {
+				console.log('mods', this.modsets);
+			}
+		});
+
+		this.addButton({
+			text: "clear",
+			callback: () => {
+				this.modsets = [];
+				this.modsRow.clear();
+			}
+		});
+
+		this.addBreak();
+
 		this.addRef({
 			obj: this,
 			ref: 'modsetIndex',
@@ -33,11 +51,6 @@ export class ModulatorsPanel extends UIPanel {
 
 		this.setsRow = this.add(new UIRow({ id: "sets-row" }));
 
-		for (let i = 0; i < this.modsets.length; i++) {
-			this.addSet(i);
-		}
-
-		// this.add(new UILabel({ text: "add mod "}));
 		this.propSelect = this.add(new UIInputSearch({
 			listName: "prop-list",
 			options: Object.keys(defaults),
@@ -60,22 +73,6 @@ export class ModulatorsPanel extends UIPanel {
 				}
 			}
 		}));
-
-		this.addButton({
-			key: "shift-p",
-			text: "print",
-			callback: () => {
-				console.log('mods', this.modsets);
-			}
-		});
-
-		this.addButton({
-			text: "clear",
-			callback: () => {
-				mods = {};
-				this.modsRow.clear();
-			}
-		});
 
 		this.modsRow = this.add(new UIRow({ id: "mods-row", class: "break" }));
 	}
@@ -106,6 +103,7 @@ export class ModulatorsPanel extends UIPanel {
 		row.add(new UIButton({
 			text: "edit",
 			callback: () => {
+				this.closeEditor();
 				this.modsRow.clear();
 				this.children.modsetIndex.update(index);
 				for (const k in set.mods) {
@@ -115,8 +113,9 @@ export class ModulatorsPanel extends UIPanel {
 		}));
 
 		row.addBreak();
-		row.add(new UILabel({ text: "parts" }));
+		// row.add(new UILabel({ text: "parts" }));
 		row.add(new UIList({
+			treeTitle: "parts",
 			itemClass: UIToggleCheck,
 			obj: set,
 			ref: "parts",
@@ -178,6 +177,7 @@ export class ModulatorsPanel extends UIPanel {
 
 	closeEditor() {
 		if (this.modInEditor !== "none") {
+			console.log(this.modInEditor, this.modsRow.children)
 			this.modsRow.children[this.modInEditor].children.toggle.off();
 			this.modsRow.children[this.modInEditor].removeClass('prop-edit');
 			this.modInEditor = "none";
@@ -193,35 +193,8 @@ export class ModulatorsPanel extends UIPanel {
 		
 		this.modsets = this.doodoo.comp.modsets;
 
-
 		for (let i = 0; i < this.modsets.length; i++) {
 			this.addSet(i);
-
-			if (i === this.modsetIndex) {
-				for (const k in this.modsets[i].mods) {
-					this.addMod(k);
-				}
-			}
-		}
-
-		return;
-
-		if (data.partMods.length === 0) return;
-		
-		partModRow.clear();
-		partMods = [];
-		for (let i = 0; i < data.partMods.length; i++) {
-			const mods = data.partMods[i];
-			if (mods) {
-				partMods[i] = {};
-				// addPartModTree(i);
-				addPartModUI(i);
-				for (const mod in mods) {
-					partMods[i][mod] = structuredClone(mods[mod]);
-					addModUI(mod, i);
-				}
-			}
 		}
 	}
 }
-
