@@ -1,4 +1,4 @@
-import { UIRow, UITree, UIButton, UIRange, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey, UIPanel, UIText } from '../../../ui/src/oi.js';
+import { UIRow, UITree, UIButton, UIRange, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey, UIPanel, UIText } from '../../../oi/src/oi.js';
 import { Modes, Bounds } from '../../src/constants.js';
 import { defaults } from '../../src/defaults.js';
 import { MIDI_NOTES } from '../../src/midi.js';
@@ -27,12 +27,11 @@ let typeOptions = [
  * edit params of specific mods
  */
 export class ModEditorPanel extends UIPanel {
-	constructor(app) {
-		super({ id: "modEditor", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "modEditor", ui });
 
-		this.doodoo = app.doodoo;
-		// this.mods = app.doodoo.comp.mods;
-		this.modsets = app.doodoo.comp.modsets;
+		this.doodoo = doodoo;
+		this.modsets = this.doodoo.comp.modsets;
 
 		this.addButton({
 			text: "close",

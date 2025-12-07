@@ -79,17 +79,16 @@
 		.beat-edit,
 		.pitch-edit {
 			margin: 0;
-			// .btn { margin: 0; }
 			input[type=text] { 
 				width: 2.5em; 
 				padding: 2px;
 			}
 		}
 
-		.remove-btn,
-		.end-btn,
-		.rest-btn,
-		.double-btn {
+		button.remove,
+		button.end,
+		button.rest,
+		button.double {
 			grid-column: 2 / span 1;
 			grid-row: 1 / span 1;
 			background: darkgray;
@@ -105,18 +104,18 @@
 			border-radius: 0;
 		}
 
-		.double-btn,
-		.rest-btn,
-		.end-btn {
+		button.double,
+		button.rest,
+		button.end {
 			top: 0;
 			bottom: auto;
 		}
 
-		.end-btn {
+		button.end {
 			right: 14px;
 		}
 
-		.rest-btn {
+		button.rest {
 			right: 28px;
 		}
 
@@ -132,8 +131,6 @@
 		&.b8n { grid-column: span calc(var(--default-beat) / 8); }
 		&.b8ndot { grid-column: span calc(var(--default-beat) / 8 + var(--default-beat) / 16); }
 		
-		// &.b16n { grid-column: span calc(var(--default-beat) / 16); }
-		// &.b32n { grid-column: span calc(var(--default-beat) / 32); }
 	}
 }
 

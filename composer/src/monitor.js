@@ -1,11 +1,11 @@
-import { UIRow, UILabel, UIPanel, UIElement, UICollection } from '../../../ui/src/oi.js';
+import { UIRow, UILabel, UIPanel, UIElement, UICollection } from '../../../oi/src/oi.js';
 
 /**
  * monitor property values in realtime
  */
 export class MonitorPanel extends UIPanel {
-	constructor(app) {
-		super({ id: 'monitor', ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: 'monitor', ui });
 
 
 		this.props = {

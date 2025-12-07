@@ -1,5 +1,5 @@
 import { MIDI_NOTES } from '../../src/midi.js';
-import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '../../../ui/src/oi.js';
+import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '../../../oi/src/oi.js';
 
 /**
  * for composing
@@ -7,18 +7,15 @@ import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UI
  */
 export class MelodyPanel extends UIPanel {
 
-	constructor(app) {
-		super({ id: "melody", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "melody", ui });
 
-		this.doodoo = app.doodoo;
+		this.doodoo = doodoo;
 
 		this.partIndex = 0;
 		this.partRows = [];
 		this.noteWidth = 80;
 		this.notesPerLine = 4;
-
-		// this.parts = []; // comp
-		// this.sequence = [[true]]; // comp
 
 		this.defaultBeat = '4n';
 		this.beatList = ['32n', '16n', '8n', '4n', '2n', '1n']; // n.s are hard use rests for now
@@ -43,6 +40,7 @@ export class MelodyPanel extends UIPanel {
 		this.addRef({
 			obj: this,
 			ref: 'partIndex',
+			ignoreSettings: true,
 		});
 		
 		this.addButton({ 
@@ -60,8 +58,10 @@ export class MelodyPanel extends UIPanel {
 			obj: this.doodoo.comp,
 			ref: "sequence",
 			type: "UIToggleGrid",
-			// label: "part sequencer",
+			ignoreSettings: true,
 		});
+
+		// console.log(this.sequenceGrid)
 
 		this.addRow({ id: 'melody', class: 'break' });
 
@@ -154,7 +154,7 @@ export class MelodyPanel extends UIPanel {
 
 		note.add(new UIButton({
 			text: "+",
-			class: 'double-btn',
+			class: 'double',
 			callback: () => {
 				this.addNote(note.pitch.value, note.beat.value, partIndex, false, note);
 			}
@@ -162,7 +162,7 @@ export class MelodyPanel extends UIPanel {
 
 		note.add(new UIButton({
 			text: ">",
-			class: 'end-btn',
+			class: 'end',
 			callback: () => {
 				this.addNote(note.pitch.value, note.beat.value, partIndex, false, false);
 			}
@@ -170,13 +170,13 @@ export class MelodyPanel extends UIPanel {
 
 		note.add(new UIButton({
 			text: '𝄽',
-			class: 'rest-btn',
+			class: 'rest',
 			callback: () => { note.pitch.value = 'rest'; },
 		}));
 
 		note.add(new UIButton({ 
 			text: "x",
-			class: 'remove-btn',
+			class: 'remove',
 			callback: () => {
 				row.remove(note);
 				this.update();
@@ -218,14 +218,7 @@ export class MelodyPanel extends UIPanel {
 			class: 'part',
 		});
 		row.addClass('break-line-up');
-
-		this.partRows.push(row); // need this ? just add a k?
-		// this.partIndex = partRows.length - 1;
-		// this.ui.faces.partIndex.update(this.partIndex, true);
-
-		// set this instead of push?
-		// this.doodoo.comp.sequence.push();
-		// this.sequenceGrid.update();
+		this.partRows.push(row);
 		this.updateSequence();
 	}
 
@@ -338,8 +331,8 @@ export class MelodyPanel extends UIPanel {
 		this.partRows = [];
 
 		if (this.doodoo.comp.sequence) {
-			// data.sequence = [[true], [true]]
-			// this.sequence = structuredClone(data.sequence);
+			console.log(this.doodoo.comp.sequence)
+			console.log(this.sequenceGrid);
 			this.sequenceGrid.update(this.doodoo.comp.sequence);
 		}
 

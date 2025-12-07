@@ -3,7 +3,7 @@ import '../css/composer.scss';
 import { Doodoo } from '../../src/doodoo.js';
 import { getDate } from '../../../cool/cool.js';
 
-import { Interface, Settings } from '../../../ui/src/oi.js';
+import { Interface, Settings } from '../../../oi/src/oi.js';
 
 import { CompositionPanel } from './composition.js';
 import { FilesPanel } from './files.js';
@@ -15,48 +15,36 @@ import { ModulatorsPanel } from './modulators.js';
 import { ModEditorPanel } from './mod-editor.js';
 import { StartLoopsPanel } from './start-loops.js';
 import { LivePanel } from './live.js';
-
 // import { Score } from './Score.js';
 
-import DefaultWorkspace from '../workspaces/Default.json';
+import defaultWorkspace from '../workspaces/default.json';
 
-const app = {
-	doodoo: new Doodoo({ 
-		autoLoad: false, 
-		autoPlay: false,
-		isEditor: true, 
-	}),
-};
-
-app.ui = new Interface(app, { 
-	useMain: true,
-	settings: {
-		name: 'doodoo',
-		workspaceFields: ['noteWidth'],
-		workspaces: [{
-			text: 'Default',
-			url: DefaultWorkspace,
-		}]
-	}
+const doodoo = new Doodoo({ 
+	autoLoad: false, 
+	autoPlay: false,
+	isEditor: true, 
 });
 
-// app.ui.setup();
+const ui = new Interface({ 
+	name: 'doodoo',
+	workspaces: [{
+		text: 'default',
+		url: defaultWorkspace,
+	}],
+});
 
-app.ui.addPanel(new CompositionPanel(app));
-app.ui.addPanel(new FilesPanel(app));
-app.ui.addPanel(new PlaybackPanel(app));
-app.ui.addPanel(new MelodyPanel(app));
-app.ui.addPanel(new MonitorPanel(app));
-app.ui.addPanel(new MeterPanel(app));
-app.ui.addPanel(new ModulatorsPanel(app));
-app.ui.addPanel(new ModEditorPanel(app));
-app.ui.addPanel(new StartLoopsPanel(app));
-app.ui.addPanel(new LivePanel(app));
-
+ui.addPanel(new CompositionPanel(doodoo, ui));
+ui.addPanel(new FilesPanel(doodoo, ui));
+ui.addPanel(new PlaybackPanel(doodoo, ui));
+ui.addPanel(new MelodyPanel(doodoo, ui));
+ui.addPanel(new MonitorPanel(doodoo, ui));
+ui.addPanel(new MeterPanel(doodoo, ui));
+ui.addPanel(new ModulatorsPanel(doodoo, ui));
+ui.addPanel(new ModEditorPanel(doodoo, ui));
+ui.addPanel(new StartLoopsPanel(doodoo, ui));
+ui.addPanel(new LivePanel(doodoo, ui));
 // app.score = Score(app);
 
-app.ui.settings.load(); // wtf -- load settings and shit ...
-// app.composition.load({});
-// app.score.draw([]);
+ui.settings.load();
 
-console.log('app', app);
+console.log({ doodoo, ui });

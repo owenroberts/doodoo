@@ -11,7 +11,7 @@ button, input, select {
 }
 
 button + button, button + select, span + button, button + span {
-	margin-left: 1em;
+/*	margin-left: 1em;*/
 }
 
 input {

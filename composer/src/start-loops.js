@@ -1,4 +1,4 @@
-import { UIPanel, UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText, UISelect } from '../../../ui/src/oi.js';
+import { UIPanel, UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText, UISelect } from '../../../oi/src/oi.js';
 import { SamplePaths } from '../../src/sample-paths.js';
 
 const startLoopDefaults = {
@@ -18,10 +18,10 @@ const startLoopDefaults = {
  * set params for beginning counts of play back
  */
 export class StartLoopsPanel extends UIPanel {
-	constructor(app) {
-		super({ id: "startLoops", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "startLoops", ui });
 		
-		this.doodoo = app.doodoo;
+		this.doodoo = doodoo;
 		this.startLoops = this.doodoo.comp.startLoops;
 
 		this.addButton({

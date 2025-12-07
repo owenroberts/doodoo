@@ -1,12 +1,12 @@
 import { map } from '../../../cool/cool.js';
-import { UIPanel } from '../../../ui/src/oi.js';
+import { UIPanel } from '../../../oi/src/oi.js';
 
 /**
  * visualize overall loudness of the output
  */
 export class MeterPanel extends UIPanel {
-	constructor(app) {
-		super({ id: 'meter', ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: 'meter', ui });
 
 		this.toneMeter;
 
@@ -37,8 +37,8 @@ export class MeterPanel extends UIPanel {
 			this.draw() 
 		});
 
-		app.doodoo.config.useMeter = true;
-		app.doodoo.config.updateMeter = meter => {
+		doodoo.config.useMeter = true;
+		doodoo.config.updateMeter = meter => {
 			this.toneMeter = meter;
 		}
 	}

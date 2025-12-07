@@ -56,8 +56,8 @@ export class Doodoo {
 			harmonyScaleOnly: params.harmonyScaleOnly ?? true, // harmony can only have notes from scale
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
 			isRegularTime: params.isRegularTime ?? false,
-			timeBar: params.timeBar ?? 4,
-			timeBeat: params.timeBeat ?? 4,
+			bar: params.bar ?? 4, // beat per bar
+			beat: params.beat ?? 4, // beat
 			sequence: params.sequence ?? [[true]],
 			modsets: params.modsets ?? [structuredClone(defaultModSet)], // { mods, parts }
 			// mods: params.mods ?? {}, // props vs mods ... 
@@ -275,7 +275,7 @@ export class Doodoo {
 				resonance: 4000,
 				octaves: 1.5,
 			}).toDestination();
-			this.metroCount = this.comp.timeBar;
+			this.metroCount = this.comp.bar;
 			this.metroCounter = this.metroCount - 1;
 		}
 
@@ -401,7 +401,7 @@ export class Doodoo {
 			}
 
 			// get remainer beats if exist
-			let defaultBeatsInBar = this.comp.timeBar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.timeBeat));
+			let defaultBeatsInBar = this.comp.bar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.beat));
 			let beatsLeftOver = this.beatCount % defaultBeatsInBar;
 			if (beatsLeftOver > 0) {
 				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;

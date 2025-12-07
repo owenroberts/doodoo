@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 import { Doodoo } from '../../src/doodoo.js';
-import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '../../../ui/src/oi.js';
+import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '../../../oi/src/oi.js';
 
 /**
  * play, stop, etc.
@@ -8,10 +8,10 @@ import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '../../../ui/src/
  */
 export class PlaybackPanel extends UIPanel {
 	
-	constructor(app) {
-		super({ id: 'playback', ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: 'playback', ui });
 		
-		this.doodoo = app.doodoo;
+		this.doodoo = doodoo;
 		this.saveOnPlay = false;
 
 		this.add(new UILabel({ text: 'Loop' }));
@@ -72,9 +72,6 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
-
-		
-
 		this.addBreak();
 
 		this.addRef({
@@ -96,7 +93,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.addButton({
 			key: "p",
-			text: "Print voices",
+			text: "log voices",
 			callback: () => {
 				this.doodoo.printVoices();
 			}
@@ -104,7 +101,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.addButton({
 			key: "shift-p",
-			text: "Print params",
+			text: "log params",
 			callback: () => {
 				this.doodoo.printParams();
 			}
@@ -112,8 +109,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.doodoo.config.onMod = loopCount => {
 			loopCountDisplay.setText(loopCount);
-			app.ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
-			// app.ui.panels.score.update(doodoo.voices);
+			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
 		};
 
 		
@@ -144,9 +140,8 @@ export class PlaybackPanel extends UIPanel {
 		this.doodoo.setup(); // resets parts
 		this.doodoo.play();
 		if (this.saveOnPlay) {
-			this.app.ui.panels.files.saveLocal(false);
+			this.ui.panels.files.saveLocal(false);
 		}
-		// this.app.score.update(doodoo.voices);
 	}
 
 	playPerformance(withRecording) {

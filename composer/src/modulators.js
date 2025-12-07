@@ -1,4 +1,4 @@
-import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch, UIList, UIToggleCheck } from '../../../ui/src/oi.js';
+import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch, UIList, UIToggleCheck } from '../../../oi/src/oi.js';
 import { defaults } from '../../src/defaults.js';
 import { defaultModSet, compModList } from '../../src/constants.js';
 
@@ -6,12 +6,11 @@ import { defaultModSet, compModList } from '../../src/constants.js';
  * add new mods
  */
 export class ModulatorsPanel extends UIPanel {
-	constructor(app) {
-		super({ id: "modulators", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "modulators", ui });
 
-		this.doodoo = app.doodoo;
-		// this.mods = app.doodoo.comp.mods;
-		this.modsets = app.doodoo.comp.modsets;
+		this.doodoo = doodoo;
+		this.modsets = this.doodoo.comp.modsets;
 		this.modsetIndex = 0;
 		this.modInEditor = "none";
 

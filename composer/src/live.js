@@ -4,7 +4,7 @@
  */
 
 import { whichKeyMap } from '../../../cool/cool.js';
-import { UIPanel, UILabel, UIButton, UIElement } from '../../../ui/src/oi.js';
+import { UIPanel, UILabel, UIButton, UIElement } from '../../../oi/src/oi.js';
 import { LoopStates } from '../../src/constants.js';
 
 function getLoopState(n) {
@@ -14,10 +14,10 @@ function getLoopState(n) {
 }
 
 export class LivePanel extends UIPanel {
-	constructor(app) {
-		super({ id: "live", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "live", ui });
 
-		this.doodoo = app.doodoo;
+		this.doodoo = doodoo;
 		this.loopControls = this.doodoo.loopControls;
 
 		this.isActive = false;
@@ -35,7 +35,7 @@ export class LivePanel extends UIPanel {
 
 		this.addButton({
 			callback: () => {
-				app.ui.panels.playback.play({ isLiveMode: true });
+				ui.panels.playback.play({ isLiveMode: true });
 				this.isActive = true;
 			},
 			text: "play",

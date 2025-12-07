@@ -1,16 +1,18 @@
 import { saveAs } from 'file-saver';
 import { getDate } from '../../../cool/cool.js';
-import { UIPanel, UIModal, UIButton } from '../../../ui/src/oi.js';
+import { UIPanel, UIModal, UIButton } from '../../../oi/src/oi.js';
 
 /**
  * load and save files
+ * move to doodoo/src?
  */
 export class FilesPanel extends UIPanel {
 
-	constructor(app) {
-		super({ id: "files", ui: app.ui });
+	constructor(doodoo, ui) {
+		super({ id: "files", ui });
 		
-		this.app = app;
+		this.ui = ui;
+		this.doodoo = doodoo;
 
 		this.versions = [];
 		this.savedOn = getDate();
@@ -98,19 +100,16 @@ export class FilesPanel extends UIPanel {
 
 		console.log('load', data);
 		
-		this.app.doodoo.comp.parts = data.parts;
-		this.app.doodoo.comp.sequence = data.sequence;
-		// this.app.doodoo.comp.mods = data.mods;
-		this.app.doodoo.comp.modsets = data.modsets;
-		// this.app.doodoo.comp.partMods = data.partMods;
-		this.app.doodoo.comp.startLoops = data.startLoops;
+		this.doodoo.comp.parts = data.parts;
+		this.doodoo.comp.sequence = data.sequence;
+		this.doodoo.comp.modsets = data.modsets;
+		this.doodoo.comp.startLoops = data.startLoops;
 
-		// don't need to pass data ... 
-		this.app.ui.panels.composition.load();
-		this.app.ui.panels.melody.load();
-		this.app.ui.panels.modulators.load();
-		this.app.ui.panels.modEditor.load();
-		this.app.ui.panels.startLoops.load();
+		this.ui.panels.composition.load();
+		this.ui.panels.melody.load();
+		this.ui.panels.modulators.load();
+		this.ui.panels.modEditor.load();
+		this.ui.panels.startLoops.load();
 
 
 		if (data.versions) {
@@ -124,7 +123,7 @@ export class FilesPanel extends UIPanel {
 	}
 
 	clearLocal() {
-		const title = app.ui.faces.title.value;
+		const title = this.ui.faces.title.value;
 		if (!title) alert('No title');
 		localStorage.removeItem('greg-' + title);
 		localStorage.removeItem('greg-title');
@@ -133,14 +132,14 @@ export class FilesPanel extends UIPanel {
 
 	saveLocal(needsTitleConfirm=true) { 
 
-		const composition = structuredClone(this.app.doodoo.comp);
+		const composition = structuredClone(this.doodoo.comp);
 
 		if (composition.parts.length === 0) {
 			let continueSave = confirm('No melody, continue save?');
 			if (!continueSave) return;
 		}
 
-		let title = this.app.ui.faces.title.value;
+		let title = this.ui.faces.title.value;
 		if (!title || needsTitleConfirm) {
 			
 			let confirmTitle = confirm(`Confirm title: ${title}`);
@@ -151,15 +150,12 @@ export class FilesPanel extends UIPanel {
 			title = prompt('New title');
 		}
 		
-		this.app.ui.faces.title.update(title);
+		this.ui.faces.title.update(title);
 		
 		const localSave = { 
 			...composition,
 			savedOn: this.savedOn,
 			title: title,
-			// mods: app.modulators.getMods(),
-			// partMods: app.modulators.getPartMods(),
-			// startLoops: app.startLoops.get(),
 		};
 
 		if (this.versions.length > 0) {
@@ -205,7 +201,7 @@ export class FilesPanel extends UIPanel {
 	listLocal() {
 		const m = new UIModal({
 			ui: this.ui,
-			title: 'Local Saves',
+			title: "local saves",
 		});
 
 		const localSaves = Object.keys(localStorage)
@@ -234,19 +230,19 @@ export class FilesPanel extends UIPanel {
 	}
 
 	clear() {
-		this.app.melody.clearAll();
+		this.ui.panels.melody.clearAll();
 		this.clearLocal();
 	}
 
 	saveFile() {
-		if (this.app.playback.isRecording()) return;
+		if (this.ui.panels.playback.isRecording()) return;
 		
 		const json = this.saveLocal();
 		const blob = new Blob([JSON.stringify(json)], { type: 'application/x-download;charset=utf-8' });
 		const name = prompt("Name file", json.title);
 		if (!name) return;
 		saveAs(blob, name + '.json');
-		this.app.ui.faces.title.update(name);
+		this.ui.faces.title.update(name);
 	}
 
 	loadMidi(data, fileName, filePath) {
@@ -263,12 +259,12 @@ export class FilesPanel extends UIPanel {
 						let delta = time - (prev.time + prev.duration);
 						if (delta > 0) {
 							// melody ??
-							this.app.composition.addNote('rest', Tone.Time(delta).toNotation(), isLastNote);
+							this.ui.panels.melody.addNote('rest', Tone.Time(delta).toNotation(), isLastNote);
 						}
 					}
 
 					// melody?
-					this.app.composition.addNote(note, Tone.Time(duration).toNotation(), isLastNote);
+					this.ui.panels.melody.addNote(note, Tone.Time(duration).toNotation(), isLastNote);
 				}
 			});
 		});
@@ -291,12 +287,12 @@ export class FilesPanel extends UIPanel {
 
 	loadVersion(value) {
 		if (value === 'current') return;
-		const saveCurrent = confirm('Save current to new version?');
+		const saveCurrent = confirm('save current to new version?');
 		if (saveCurrent) this.addVersion();
 	
 		const m = new UIModal({
-			app: this.app,
-			title: 'Versions',
+			ui: this.ui,
+			title: 'versions',
 		});
 
 		for (let i = 0; i < this.versions.length; i++) {
