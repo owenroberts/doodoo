@@ -84,10 +84,10 @@ export function getMelody(melody, tonic, transpose, scale) {
  * @param  {number}  interval         harmony as numericinterval
  * @param  {array}   scale             scale of key expressed as numeric intervals
  * @param  {boolean} useOctave        
- * @param  {boolean} harmonyScaleOnly 
+ * @param  {boolean} isScaleNotesOnly 
  * @return {array}                   [
  */
-export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, harmonyScaleOnly=true) {
+export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, isScaleNotesOnly=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
@@ -109,7 +109,6 @@ export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=
 
 			// if note is not in scale
 			if (scaleIndex === -1) {
-				// console.log({harmonyScaleOnly})
 				// test -- what do do here? find closest in scale or just interval
 				// up or down?
 				
@@ -124,7 +123,7 @@ export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=
 				}
 				midiHarmony = scale[(newIndex + interval - 1) % scale.length];
 					
-				if (!harmonyScaleOnly) {
+				if (!isScaleNotesOnly) {
 					// this is actually goofy as fuck but whatever
 					midiHarmony += midiPitch - (midiTonic + scale[newIndex]);
 				}

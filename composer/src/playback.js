@@ -12,7 +12,7 @@ export class PlaybackPanel extends UIPanel {
 		super({ id: 'playback', ui });
 		
 		this.doodoo = doodoo;
-		this.saveOnPlay = false;
+		this.isSaveOnPlay = false;
 
 		this.add(new UILabel({ text: 'Loop' }));
 		const loopCountDisplay = this.add(new UILabel({
@@ -75,13 +75,18 @@ export class PlaybackPanel extends UIPanel {
 		this.addBreak();
 
 		this.addRef({
+			obj: this.doodoo,
+			ref: "metroCount",
+			ignoreSettings: true,
+		});
+		this.addRef({
 			obj: this.doodoo.config,
-			ref: "useMetro",
+			ref: "isMetronomeOn",
 		});
 
 		this.addRef({
 			obj: this,
-			ref: "saveOnPlay",
+			ref: "isSaveOnPlay",
 		});
 
 		this.addRef({
@@ -139,7 +144,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.doodoo.setup(); // resets parts
 		this.doodoo.play();
-		if (this.saveOnPlay) {
+		if (this.isSaveOnPlay) {
 			this.ui.panels.files.saveLocal(false);
 		}
 	}

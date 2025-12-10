@@ -52,7 +52,7 @@ export class StartLoopsPanel extends UIPanel {
 			class: 'left-end',
 			callback: () => {
 				this.startLoops.pop();
-				this.startLoopsRow.removeK('count' + startLoops.length);
+				this.startLoopsRow.removeK(`count-${this.startLoops.length}`);
 			}
 		}));
 
@@ -88,7 +88,7 @@ export class StartLoopsPanel extends UIPanel {
 			class: 'left-end',
 			callback: () => {
 				this.startLoops[index].loops.pop();
-				countRow.removeK(`loop-${startLoops[index].loops.length}`);
+				countRow.removeK(`loop-${this.startLoops[index].loops.length}`);
 			}
 		}));
 

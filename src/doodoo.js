@@ -30,7 +30,7 @@ export class Doodoo {
 			updateMeter: params.updateMeter ?? false,
 			useFFT: params.useFFT ?? false, // this is used for four compositions
 			getFFT: params.getFFT ?? false, // this is used for four compositions
-			useMetro: params.useMetro ?? false,
+			isMetronomeOn: params.isMetronomeOn ?? false,
 			withRecording: params.withRecording ?? false,
 			withCount: params.withCount ?? false,
 			waitForModTrigger: params.waitForModTrigger ?? false,
@@ -53,7 +53,7 @@ export class Doodoo {
 			tonic: params.tonic ?? 'C4', // assert tonic is midi note name?
 			transpose: params.transpose ?? params.tonic ?? 'C4', // tranpose key -- because melody is relative to tonic
 			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
-			harmonyScaleOnly: params.harmonyScaleOnly ?? true, // harmony can only have notes from scale
+			isScaleNotesOnly: params.isScaleNotesOnly ?? true, // harmony can only have notes from scale
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
 			isRegularTime: params.isRegularTime ?? false,
 			bar: params.bar ?? 4, // beat per bar
@@ -86,6 +86,9 @@ export class Doodoo {
 		this.voices = [];
 		this.beatCount = 0;
 		this.beatCounter = 0;
+
+		this.metroCount = params.metroCount ?? 4;
+		this.metroCounter = this.metroCount - 1;
 
 		this.performance = { 
 			loops: [],
@@ -261,7 +264,7 @@ export class Doodoo {
 			this.playNext();
 		}
 
-		if (this.config.useMetro) {
+		if (this.config.isMetronomeOn) {
 			this.metro = new Tone.MetalSynth({
 				volume: -12,
 				frequency: 250,
@@ -275,8 +278,6 @@ export class Doodoo {
 				resonance: 4000,
 				octaves: 1.5,
 			}).toDestination();
-			this.metroCount = this.comp.bar;
-			this.metroCounter = this.metroCount - 1;
 		}
 
 		this.isPlaying = true;
@@ -284,7 +285,7 @@ export class Doodoo {
 	}
 
 	playLoop(time) {
-		if (this.config.useMetro) {
+		if (this.config.isMetronomeOn) {
 			if (this.metroCounter === this.metroCount - 1) {
 				this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
 				this.metroCounter = 0;
@@ -674,13 +675,14 @@ export class Doodoo {
 		// 	return;
 		// }
 		this.isPlaying = true;
+
+		// DRY?
+		this.metroCounter = this.metroCount - 1;
 		
 		this.playNext();
-
 		this.toneLoop.start(Tone.Transport.seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
-
 		if (this.config.withRecording) this.recorder.start();
 	}
 

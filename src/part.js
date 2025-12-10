@@ -177,7 +177,7 @@ export class Part {
 
 			if (chance(harmony.chance) && !isCounterpoint && !harmonyInStartLoop) {
 				isHarmony = true;
-				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.harmonyScaleOnly);
+				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.isScaleNotesOnly);
 			} else {
 				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale);
 			}

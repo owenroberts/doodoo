@@ -331,8 +331,6 @@ export class MelodyPanel extends UIPanel {
 		this.partRows = [];
 
 		if (this.doodoo.comp.sequence) {
-			console.log(this.doodoo.comp.sequence)
-			console.log(this.sequenceGrid);
 			this.sequenceGrid.update(this.doodoo.comp.sequence);
 		}
 

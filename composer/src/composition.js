@@ -5,7 +5,7 @@ import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '../../../oi/sr
 
 /**
  * edit composition level params for doodoo
- * tonic, transpose, bpm, useOctve, harmonyScaleOnly, isRegularTime, bar, beat, scale
+ * tonic, transpose, bpm, useOctve, isScaleNotesOnly, isRegularTime, bar, beat, scale
  * title?
  */
 export class CompositionPanel extends UIPanel {
@@ -46,7 +46,7 @@ export class CompositionPanel extends UIPanel {
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'harmonyScaleOnly', 
+			ref: 'isScaleNotesOnly', 
 			// label: 'Notes in key',
 		});
 		
