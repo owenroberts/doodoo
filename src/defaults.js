@@ -15,7 +15,7 @@ export const defaults = {
 		index: 60,
 		list: ['C4'],
 		options: [...MIDI_NOTES],
-		type: 'note-list',
+		// type: 'note-list',
 	},
 	scale: {
 		isBundle: true,
@@ -113,10 +113,7 @@ export const defaults = {
 	},
 	playBeat: {
 		isBundle: true,
-		chance: {
-			type: "chance",
-			value: 0.5,
-		},
+		chance: { value: 0.5, },
 		beat: {
 			list: [4, 16, 8, 4, 2, 1],
 			index: 0,
@@ -345,7 +342,7 @@ export const defaults = {
 	},
 	distortion: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		distortion: {
 			value: 0.1,
 			step: 0.01,
@@ -358,7 +355,7 @@ export const defaults = {
 	},
 	bitCrush: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		bits: {
 			list: [3, 4, 6, 8, 12, 16],
 			mod: {
@@ -371,7 +368,7 @@ export const defaults = {
 	},
 	autoFilter: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
 			mod: {
@@ -384,7 +381,7 @@ export const defaults = {
 	},
 	autoPanner: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			list: ['2n', '4n', '8n', '16n', '32n'],
 			mod: {
@@ -397,7 +394,7 @@ export const defaults = {
 	},
 	cheby: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		order: {
 			value: 16,
 			mod: {
@@ -410,7 +407,7 @@ export const defaults = {
 	},
 	chorus: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			value: 4,
 			mod: {
@@ -435,14 +432,14 @@ export const defaults = {
 			mod: {
 				min: { value: 0 },
 				max: { value: 1 },
-				type: { value: Modes.RANGE },
+				mode: { value: Modes.RANGE },
 				chance: { value: 1 }
 			}
 		},
 	},
 	feedback: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		feedback: {
 			value: 0.25,
 			mod: {
@@ -465,7 +462,7 @@ export const defaults = {
 	},
 	phaser: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			value: 15,
 			mod: {
@@ -496,7 +493,7 @@ export const defaults = {
 	},
 	pingPong: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		feedback: {
 			value: 0.25,
 			mod: {
@@ -519,7 +516,7 @@ export const defaults = {
 	},
 	tremolo: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			value: 9,
 			mod: {
@@ -542,7 +539,7 @@ export const defaults = {
 	},
 	vibrato: {
 		isBundle: true,
-		chance: { value: 0.1, type: "chance" },
+		chance: { value: 0.1, },
 		frequency: {
 			value: 9,
 			mod: {

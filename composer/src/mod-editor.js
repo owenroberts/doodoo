@@ -13,7 +13,7 @@ const modDefaults = {
 	bound: { value: Bounds.STAY },
 };
 
-let typeOptions = [
+let uiDataTypeOptions = [
 	'number', 
 	'chance', 
 	'number-list', 
@@ -79,16 +79,22 @@ export class ModEditorPanel extends UIPanel {
 			});
 	}
 
-	getType(propRef) {
-		// const mod = this.mods[propName];
+	getUIDataType(propRef) {
 		let type = 'number';
-		if (propRef.hasOwnProperty('type')) {
+		if (propRef.hasOwnProperty('uiDataType')) {
 			type = propRef.type;
+		} else if (propRef.options?.[0] === "C_1") {
+			type = "note-list";
 		} else if (propRef.hasOwnProperty('list')) {
-			if (typeof propRef.list[0] === 'string') type = 'string-list';
-			if (typeof propRef.list[0] === 'number') type = 'number-list';
+			if (typeof propRef.list[0] === 'string') {
+				type = 'string-list';
+			}
+			if (typeof propRef.list[0] === 'number') {
+				type = 'number-list';
+			}
+		}else if (propRef.hasOwnProperty('stack')) {
+			type = 'stack';
 		}
-		else if (propRef.hasOwnProperty('stack')) type = 'stack';
 		return type;
 	}
 
@@ -111,20 +117,20 @@ export class ModEditorPanel extends UIPanel {
 				const propRow = this.paramsRow.add(new UIRow());
 				propRow.add(new UILabel({ text: k }));
 				propRow.addBreak();
-				propRow.add(new UILabel({ text: "type" })); // need better term than type
+				propRow.add(new UILabel({ text: "data type" }));
 				this.addModEdit(propRow, k, mods[propName][k]);
 			}
 		} else {
 			this.propsRow.add(new UILabel({ text: propName }));
 			this.propsRow.addBreak();
-			this.paramsRow.add(new UILabel({ text: "type" })); // need better term than type
+			this.paramsRow.add(new UILabel({ text: "data type" }));
 			this.addModEdit(this.paramsRow, propName, mods[propName]);
 		}
 	}
 
 	addModEdit(row, propName, propRef) {
 		if (propName.includes("chance") || propRef.isChance) {
-			propRef.type = "chance";
+			propRef.uiDataType = "chance";
 		}
 		this.addTypeSelector(row, propName, propRef);
 		this.addParams(row, propName, propRef);
@@ -133,8 +139,8 @@ export class ModEditorPanel extends UIPanel {
 	addTypeSelector(row, propName, propRef, isBundle=false) {
 		
 		const propTypeSelect = row.append(new UISelect({
-			value: this.getType(propRef),
-			options: typeOptions,
+			value: this.getUIDataType(propRef),
+			options: uiDataTypeOptions,
 			callback: value => { 
 				this.paramsRow.clear();
 				
@@ -142,7 +148,7 @@ export class ModEditorPanel extends UIPanel {
 				for (const k in propRef) {
 					delete propRef[k];
 				}
-				propRef.type = value;
+				propRef.uiDataType = value;
 
 				this.addParams(row, propName, propRef); // renew params
 			}
@@ -152,10 +158,10 @@ export class ModEditorPanel extends UIPanel {
 	}
 
 	addParams(row, propName, propRef) {
-		const type = this.getType(propRef);
-		if (!propRef.type) propRef.type = type;
+		const uiDataType = this.getUIDataType(propRef);
+		if (!propRef.uiDataType) propRef.uiDataType = uiDataType;
 
-		switch(type) {
+		switch(uiDataType) {
 			case "number":
 			case "chance":
 				this.addValue(row, "value", propRef);
@@ -181,7 +187,7 @@ export class ModEditorPanel extends UIPanel {
 
 		row.add(new UILabel({ text: label ?? propName }));
 		// console.log(propName)
-		const uiClass = propRef.type === "chance" ? UIRange : UINumberStep;
+		const uiClass = propRef.uiDataType === "chance" ? UIRange : UINumberStep;
 		row.add(new uiClass({
 			obj: propRef,
 			ref: propName,
@@ -200,7 +206,7 @@ export class ModEditorPanel extends UIPanel {
 			list: propRef.list ?? [],
 		};
 
-		switch(propRef.type) {
+		switch(propRef.uiDataType) {
 			case "note-list":
 				// uiListParams.list = propRef.list;
 				uiListParams.itemClass = UIInputStep;

@@ -1,20 +1,12 @@
 body { 
-	/*text-align: center; */
 	background: radial-gradient(plum, lightblue);
+	height: 16px;
 	font-family: verdana;
 	color: slateblue;
-/*	font-size:  18px;*/
 }
 
-button, input, select {
-/*	font-size:  18px;*/
-}
 
-button + button, button + select, span + button, button + span {
-/*	margin-left: 1em;*/
-}
-
-input {
+/*input {
 	width: 40px;
 }
 
@@ -32,4 +24,4 @@ input.scale-input {
 
 .note {
 	margin-right: 0.5em;
-}
+}*/

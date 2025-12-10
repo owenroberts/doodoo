@@ -39,6 +39,10 @@ export const defaultModSet = {
 	parts: new Array(8).fill(true),
 };
 
+/**
+ * mods for the whole composition, not individual parts
+ * @type {array}
+ */
 export const compModList = [
 	"bpm",
 	"transpose",
