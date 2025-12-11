@@ -16,7 +16,7 @@ export class ModulatorsPanel extends UIPanel {
 
 		this.addButton({
 			key: "shift-p",
-			text: "print",
+			text: "log",
 			callback: () => {
 				console.log('mods', this.modsets);
 			}
@@ -93,7 +93,7 @@ export class ModulatorsPanel extends UIPanel {
 		}));
 
 		row.add(new UIButton({
-			text: "print",
+			text: "log",
 			callback: () => {
 				console.log(index, set);
 			}
@@ -115,6 +115,7 @@ export class ModulatorsPanel extends UIPanel {
 		// row.add(new UILabel({ text: "parts" }));
 		row.add(new UIList({
 			treeTitle: "parts",
+			isListItemsOpen: false,
 			itemClass: UIToggleCheck,
 			obj: set,
 			ref: "parts",
@@ -150,7 +151,7 @@ export class ModulatorsPanel extends UIPanel {
 		}));
 
 		row.add(new UIButton({
-			text: "print",
+			text: "log",
 			callback: () => {
 				console.log(propName, mods[propName]);
 				console.log(JSON.stringify(mods[propName]));

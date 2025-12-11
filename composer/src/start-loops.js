@@ -25,6 +25,14 @@ export class StartLoopsPanel extends UIPanel {
 		this.startLoops = this.doodoo.comp.startLoops;
 
 		this.addButton({
+			text: 'log',
+			callback: () => { 
+				console.log('start loops', this.startLoops);
+				console.log('start loops', this.doodoo.comp.startLoops);
+			}
+		});
+
+		this.addButton({
 			text: 'collapse',
 			callback: () => {
 				startLoopsRow.children
@@ -33,14 +41,6 @@ export class StartLoopsPanel extends UIPanel {
 							c.close(); 
 						}
 					});
-			}
-		});
-
-		this.addButton({
-			text: 'print',
-			callback: () => { 
-				console.log('start loops', this.startLoops);
-				console.log('start loops', this.doodoo.comp.startLoops);
 			}
 		});
 

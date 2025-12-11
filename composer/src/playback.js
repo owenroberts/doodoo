@@ -63,7 +63,6 @@ export class PlaybackPanel extends UIPanel {
 			callback: () => { this.play({ withRecording: true }) },
 		});
 
-		
 		this.addButton({
 			key: 'x',
 			text: "Play performance",
@@ -79,6 +78,7 @@ export class PlaybackPanel extends UIPanel {
 			ref: "metroCount",
 			ignoreSettings: true,
 		});
+
 		this.addRef({
 			obj: this.doodoo.config,
 			ref: "isMetronomeOn",

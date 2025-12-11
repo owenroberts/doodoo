@@ -7,6 +7,7 @@ import { Interface, Settings } from '../../../oi/src/oi.js';
 
 import { CompositionPanel } from './composition.js';
 import { FilesPanel } from './files.js';
+import { VersionsPanel } from './versions.js';
 import { PlaybackPanel } from './playback.js';
 import { MelodyPanel } from './melody.js';
 import { MonitorPanel } from './monitor.js';
@@ -35,6 +36,7 @@ const ui = new Interface({
 
 ui.addPanel(new CompositionPanel(doodoo, ui));
 ui.addPanel(new FilesPanel(doodoo, ui));
+ui.addPanel(new VersionsPanel(doodoo, ui));
 ui.addPanel(new PlaybackPanel(doodoo, ui));
 ui.addPanel(new MelodyPanel(doodoo, ui));
 ui.addPanel(new MonitorPanel(doodoo, ui));
