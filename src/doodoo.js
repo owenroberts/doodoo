@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { random, chance, getDate, assert, Bitmask8 } from '../../cool/cool.js';
+import { random, chance, getDate, assert, defineSafeProperty } from '../../cool/cool.js';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES } from './midi.js';
 import { Part } from './part.js';
@@ -18,7 +18,7 @@ export class Doodoo {
 		 * configuration of doodoo instance
 		 * @type {object}
 		 */
-		this.config = {
+		const config = {
 			debug: false,
 			defaultBeat: '4n', // smallest unit of time
 			autoLoad: params.autoLoad ?? true,
@@ -44,11 +44,14 @@ export class Doodoo {
 			isEditor: params.isEditor ?? false,
 		};
 
+		// prevents reassignment from UI which uses pass by ref
+		defineSafeProperty(this, "config", config);
+
 		/**
 		 * composition properties
 		 * @type {object}
 		 */
-		this.comp = {
+		const comp = {
 			bpm: params.bpm ?? 120,
 			tonic: params.tonic ?? 'C4', // assert tonic is midi note name?
 			transpose: params.transpose ?? params.tonic ?? 'C4', // tranpose key -- because melody is relative to tonic
@@ -57,7 +60,7 @@ export class Doodoo {
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
 			isRegularTime: params.isRegularTime ?? false,
 			bar: params.bar ?? 4, // beat per bar
-			beat: params.beat ?? 4, // beat
+			beat: params.beat ?? "4n", // beat
 			sequence: params.sequence ?? [[true]],
 			modsets: params.modsets ?? [structuredClone(defaultModSet)], // { mods, parts }
 			// mods: params.mods ?? {}, // props vs mods ... 
@@ -65,6 +68,9 @@ export class Doodoo {
 			// partMods: params.partMods ?? [],
 			startLoops: params.startLoops ?? [],
 		};
+
+		// prevents reassignment from UI which uses pass by ref
+		defineSafeProperty(this, "comp", comp);
 
 		this.sequenceIndex = 0; // previously currentPart
 		this.sequenceLength = this.comp.sequence[0].length;
@@ -189,11 +195,15 @@ export class Doodoo {
 				this.comp
 			));
 		}
+		
+		if (partMods.length > 0) {
+			// intruments not designed to handle non-stack
+			assert(!partMods[0].instruments.list, 'instruments prop is list!');
+			assert(!partMods[0].instruments.value, 'instruments prop is value!');
+		}
+
 
 		// load instruments
-		assert(!partMods[0].instruments.list, 'instruments prop is list!');
-		assert(!partMods[0].instruments.value, 'instruments prop is value!');
-
 		// reset instruments loaded ... or use a loaded dict to get loaded
 
 		let loadList = [
@@ -678,6 +688,7 @@ export class Doodoo {
 
 		// DRY?
 		this.metroCounter = this.metroCount - 1;
+		this.loopCount = 0;
 		
 		this.playNext();
 		this.toneLoop.start(Tone.Transport.seconds);

@@ -1,54 +1,61 @@
 import { UIPanel, UIButton, UIRow, UILabel } from '../../../oi/src/oi.js';
-import { getDate } from '../../../cool/cool.js';
-
 
 /**
  * manage versions of composition
  */
 export class VersionsPanel extends UIPanel {
 
-	constructor(doodoo, ui) {
+	constructor(fm, ui) {
 		super({ id: "versions", ui });
 
-		this.doodoo = doodoo;
-		this.files = ui.panels.files;
+		this.fm = fm;
 
 		this.addRef({
-			obj: this.files.data,
-			ref: "versionIndex",
+			// obj: this.fm.data,
+			min: 0,
+			value: this.fm.data.versionIndex,
+			label: "versionIndex",
+			face: "versionIndex",
 			callback: value => {
-				console.log(value, this);
-				this.files.loadVersion(value);
+				this.switchVersion(value);
+				// this.fm.loadVersion();
 			},
 			ignoreSettings: true,
 		});
 
 		this.addButton({ 
 			callback: () => {
-				this.addVersion();
+				this.newVersion();
 			}, 
 			key: "v", 
 			text: "+",
 		});
 
-		// this.addBreak();
-
 		this.versionsRow = this.add(new UIRow({ id: "versions" }));
 		this.load();
 	}
 
-	addVersion(index) {
+	newVersion() {
+		const tag = prompt("tag new version?", "new version");
+		if (!tag) return;
+		this.fm.addVersion(tag);
+		this.addVersion(this.fm.data.versions.length - 1);
+	}
 
-		if (!Number.isFinite(index)) {
-			index = this.files.data.versions.length;
-			this.files.data.versions.push({
-				comp: structuredClone(this.doodoo.comp),
-				tag: prompt("tag current version?", "initial version"),
-				createdOn: getDate(),
-				lastSavedOn: getDate(),
-			});
-			this.ui.faces.versionIndex.update(index);
+	switchVersion(index) {
+		if (index === this.fm.data.versionIndex) return;
+		if (!confirm("switching versions will lose current changes")) return;
+
+		if (index > this.fm.data.versions.length - 1) {
+			this.newVersion();
+		} else {
+			this.fm.data.versionIndex = index;
+			this.fm.loadVersion();
+			this.ui.panels.files.loadVersion();
 		}
+	}
+
+	addVersion(index) {
 
 		if (index > 0) {
 			this.versionsRow.addBreak();
@@ -65,28 +72,29 @@ export class VersionsPanel extends UIPanel {
 
 		this.versionsRow.add(new UIButton({
 			text: "log",
-			callback: () => { console.log(this.files.data.versions[index]); },
+			callback: () => { console.log(this.fm.data.versions[index]); },
 		}));
 
 		this.versionsRow.add(new UIButton({
 			text: "tag",
-			callback: () => { console.log(this.files.data.versions[index].tag); },
+			callback: () => { console.log(this.fm.data.versions[index].tag); },
 		}));
 
 		this.versionsRow.add(new UIButton({
 			text: "select",
 			callback: () => {
-				this.ui.faces.versionIndex.update(index); // example where update is really set
-				this.files.loadVersion(index);
+				this.switchVersion(index);
+				// this.ui.faces.versionIndex.update(index); // example where set makes more sense than update
+				// this.fm.loadVersion();
+				this.ui.faces.versionIndex.update(index, true);
+				// this.ui.panels.files.loadVersion();
 			}
 		}));
-
-		
 	}
 
 	load() {
 		this.versionsRow.clear();
-		for (let i = 0; i < this.files.data.versions.length; i++) {
+		for (let i = 0; i < this.fm.data.versions.length; i++) {
 			this.addVersion(i);
 		}
 	}

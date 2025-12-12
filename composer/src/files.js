@@ -1,35 +1,18 @@
 import { saveAs } from 'file-saver';
-import { getDate, assert } from '../../../cool/cool.js';
 import { UIPanel, UIModal, UIButton } from '../../../oi/src/oi.js';
 
 /**
- * load and save files
- * move to doodoo/src?
+ * panel for greg file manager
  */
 export class FilesPanel extends UIPanel {
 
-	constructor(doodoo, ui) {
+	constructor(fm, ui) {
 		super({ id: "files", ui });
 		
+		this.fm = fm; // file manager
 		this.ui = ui;
-		this.doodoo = doodoo;
 
-		// should this be part of index.js ... 
-		// or src
-		this.data = {
-			title: `doodoo-${getDate()}`,
-			createdOn: getDate(),
-			lastSavedOn: getDate(),
-			versionIndex: 0,
-			versions: [{
-				comp: {},
-				tag: "initial",
-				createdOn: getDate(),
-				lastSavedOn: getDate(),
-			}],
-		};
-
-		this.addRef({ obj: this.data, ref: "title", ignoreSettings: true });
+		this.addRef({ obj: this.fm.data, ref: "title", ignoreSettings: true });
 
 		this.addBreak();
 
@@ -43,7 +26,7 @@ export class FilesPanel extends UIPanel {
 
 		this.addButton({ 
 			callback: () => {
-				this.saveFile();
+				this.fm.saveFile();
 			},
 			key: 'alt-s', 
 			text: 'save file',
@@ -54,7 +37,7 @@ export class FilesPanel extends UIPanel {
 				this.loadLocal();
 			},
 			key: 'l', 
-			text: 'Load Local',
+			text: 'load local',
 		});
 
 		this.addButton({ 
@@ -62,50 +45,43 @@ export class FilesPanel extends UIPanel {
 				this.listLocal();
 			},
 			key: 'ctrl-l', 
-			text: 'List Local',
+			text: 'list local',
 		});
 
 		this.addButton({ 
 			callback: () => {
 				this.clear();
 			},
-			text: 'Clear Local' 
-		});
-
-		this.addButton({ 
-			type: 'UIFile',
-			callback: () => { this.load(); },
-			key: 'o', 
-			text: 'Load File',
+			text: 'clear local' 
 		});
 
 		this.addButton({
-			type: 'UIFile',
-			callback: () => { this.loadMidi(); },
-			text: 'Load Midi',
-			fileType: 'audio/midi'
+			isFile: true, 
+			callback: data => { this.load(data); },
+			key: 'o', 
+			text: 'open file',
 		});
 
+		this.addButton({
+			isFile: true,
+			callback: () => { this.fm.loadMidi(); },
+			text: 'load midi',
+			fileType: 'audio/midi'
+		});
 	}
 
 	load(data) {
-		assert(data.hasOwnProperty("versionIndex"), "old version");
-
 		console.log('load', data);
-
-		// cant overwrite ref
-		for (const k in data) {
-			this.data[k] = data[k];
-		}
-
-		this.ui.faces.title.update(this.data.title);
-		this.ui.faces.versionIndex.update(this.data.versionIndex);
+		this.fm.load(data);
+		
+		this.ui.faces.title.update(this.fm.data.title);
+		this.ui.faces.versionIndex.update(this.fm.data.versionIndex, true);
 		this.ui.panels.versions.load();
+		
 		this.loadVersion();
 	}
 
 	loadVersion() {
-		this.doodoo.comp = structuredClone(this.data.versions[this.data.versionIndex].comp);
 		this.ui.panels.composition.load();
 		this.ui.panels.melody.load();
 		this.ui.panels.modulators.load();
@@ -114,52 +90,20 @@ export class FilesPanel extends UIPanel {
 	}
 
 	clearLocal() {
-		const title = this.ui.faces.title.value;
-		if (!title) alert('No title');
-		localStorage.removeItem('greg-' + title);
+		if (!confirm("remove local save?")) return;
+
+		localStorage.removeItem(`greg-${this.data.title}`);
 		localStorage.removeItem('greg-title');
-		this.clearVersions()
 	}
 
-	saveLocal(needsTitleConfirm=true) { 
+	saveLocal(needsTitleConfirm=true) {
 
-		const comp = structuredClone(this.doodoo.comp);
-
-		if (comp.parts.length === 0) {
-			const continueSave = confirm('no melody, continue save?');
-			if (!continueSave) return;
-		}
-
-		if (needsTitleConfirm) {
-			const confirmTitle = confirm(`confirm title: ${this.data.title}`);
-			if (!confirmTitle) {
-				const newTitle = prompt('new title', this.data.title);
-				if (!newTitle) return;
-				this.data.title = newTitle;
-			}
-		}
-
-		// title can't be "title", will mess up local storage of title for loading
-		if (this.data.title === "title") {
-			alert("no title title");
-			return;
-		}
-		
-		this.ui.faces.title.update(this.data.title);
-
-		console.log(this.data.versionIndex);
-
-		const localSave = {
-			...this.data,
-			lastSavedOn: getDate(),
-		};
-
-		localSave.versions[this.data.versionIndex].comp = comp;
-		localSave.versions[this.data.versionIndex].lastSavedOn = getDate();
+		const saveData = this.fm.save();
+		this.ui.faces.title.update(this.fm.data.title);
 
 		try {
-			localStorage.setItem('greg-' + title, JSON.stringify(localSave));
-			localStorage.setItem('greg-title', title);
+			localStorage.setItem(`greg-${this.fm.data.title}`, JSON.stringify(saveData));
+			localStorage.setItem('greg-title', this.fm.data.title);
 		} catch (error) {
 			if (error.name === 'QuotaExceededError') {
 				alert('Local storage full');
@@ -169,8 +113,8 @@ export class FilesPanel extends UIPanel {
 			}
 		}
 
-		console.log('save', localSave)
-		return localSave;
+		console.log('save', saveData);
+		return saveData;
 	}
 
 	loadLocal(titleFromList) {
@@ -210,7 +154,7 @@ export class FilesPanel extends UIPanel {
 			m.add(new UIButton({
 				text: "X",
 				callback: () => {
-					const confirmDelete = confirm(`Delete local save ${title}?`);
+					const confirmDelete = confirm(`delete local save ${title}?`);
 					if (confirmDelete) {
 						localStorage.removeItem(title);
 						m.clear();
@@ -224,17 +168,6 @@ export class FilesPanel extends UIPanel {
 	clear() {
 		this.ui.panels.melody.clearAll();
 		this.clearLocal();
-	}
-
-	saveFile() {
-		if (this.doodoo.isRecording()) return;
-		
-		const json = this.saveLocal();
-		const blob = new Blob([JSON.stringify(json)], { type: 'application/x-download;charset=utf-8' });
-		const name = prompt("Name file", json.title);
-		if (!name) return;
-		saveAs(blob, name + '.json');
-		this.ui.faces.title.update(name);
 	}
 
 	loadMidi(data, fileName, filePath) {
@@ -260,46 +193,5 @@ export class FilesPanel extends UIPanel {
 				}
 			});
 		});
-	}
-
-	_clearVersions() {
-		this.versions = [];
-	}
-
-	_addVersion() {
-		const data = this.saveLocal();
-		const tag = prompt("Tag current version?");
-		const copy = {};
-		if (tag !== undefined) copy.tag = tag;
-		copy.versionedOn = getDate();
-		for (const k in data) {
-			if (k === 'versions') continue;
-			if (k === 'title') continue;
-			copy[k] = data[k];
-		}
-		this.versions.push(copy);
-		this.saveLocal(false);
-	}
-
-	_loadVersion(value) {
-		if (value === 'current') return;
-		const saveCurrent = confirm('save current to new version?');
-		if (saveCurrent) this.addVersion();
-	
-		const m = new UIModal({
-			ui: this.ui,
-			title: 'versions',
-		});
-
-		for (let i = 0; i < this.versions.length; i++) {
-			const v = this.versions[i];
-			m.add(new UIButton({
-				text: v.tag,
-				callback: () => {
-					this.load(v);
-					m.clear();
-				}
-			}));
-		}
 	}
 }

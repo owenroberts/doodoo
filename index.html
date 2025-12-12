@@ -15,7 +15,19 @@
 	<div id="composition">
 		<p><a href="composer/">composer</a></p>
 	</div>
-	<!-- <script src='./src/index.js' type="module"></script> -->
+	<div id="examples">
+		<label>compositions</label>
+		<select id="comp-select">
+			<option value="acl_theme_1.json">a crooked line theme</option>
+			<option value="drummys.json">free will is cringe</option>
+		</select>
+		<br>
+		<label>loop count</label>
+		<input type="number" id="loop-count" value="16" style="width: 40px">
+		<button id="play">play</button>
+		<button id="stop">stop</button>
+	</div>
+	<script src='./src/index.js' type="module"></script>
 </body>
 </html>
 

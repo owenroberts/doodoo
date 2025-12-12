@@ -11,77 +11,73 @@ import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '../../../oi/sr
 export class CompositionPanel extends UIPanel {
 
 	constructor(doodoo, ui) {
-		super({ id: 'composition', ui });
+		super({ id: "composition", ui });
 
 		this.doodoo = doodoo;
+
+		this.addButton({
+			text: "log",
+			callback: () => {
+				console.log(JSON.stringify(this.doodoo.comp));
+				console.log(this.doodoo.comp);
+			}
+		});
 		
 		this.addRef({
 			obj: this.doodoo.comp, 
-			ref: 'tonic', 
+			ref: "tonic",
 			options: [...MIDI_NOTES],
-			class: 'note-edit',
-			type: 'UIInputStep', // guess later
 		});
 		
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'transpose',
+			ref: "transpose",
 			options: [...MIDI_NOTES],
-			class: 'note-edit',
-			type: 'UIInputStep', 
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'bpm',
+			ref: "bpm",
 			range: [10, 300],
-			type: 'UINumberStep',
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'useOctave', 
-			// label: 'Multiple octaves',
+			ref: "useOctave",
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'isScaleNotesOnly', 
-			// label: 'Notes in key',
+			ref: "isScaleNotesOnly",
 		});
 		
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'isRegularTime', 
-			// label: 'Regular time',
+			ref: "isRegularTime",
 		});
 		
-
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'bar', 
+			ref: "bar",
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'beat', 
-			// label: 'Beat',
-			type: 'UISelect',
+			ref: "beat",
 			options: ['1n', '2n', '4n', '8n', '16n'],
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: 'scale',
+			ref: "scale",
 			itemClass: UINumberStep,
 		});
 	}
 
 	load() {
 		for (const k in this.doodoo.comp) {
-			// console.log(k);
 			if (this.children[k]) {
-				// console.log(k, data[k], this.children[k].update);
+				// console.log(k, this.doodoo.comp[k]);
 				this.children[k].update(this.doodoo.comp[k]);
 			}
 		}

@@ -7,12 +7,6 @@ import { whichKeyMap } from '../../../cool/cool.js';
 import { UIPanel, UILabel, UIButton, UIElement } from '../../../oi/src/oi.js';
 import { LoopStates } from '../../src/constants.js';
 
-function getLoopState(n) {
-	if (n === 0) return 'X';
-	if (n === 1) return 'M';
-	if (n === 2) return 'K';
-}
-
 export class LivePanel extends UIPanel {
 	constructor(doodoo, ui) {
 		super({ id: "live", ui });
@@ -46,7 +40,7 @@ export class LivePanel extends UIPanel {
 			this.addRow();
 			this.add(new UILabel({ text: `loop ${i}` }));
 			this.loopUI[i] = this.add(new UILabel({
-				text: getLoopState(this.loopControls[i]),
+				text: this.getLoopState(this.loopControls[i]),
 			}));
 		}
 
@@ -57,6 +51,7 @@ export class LivePanel extends UIPanel {
 
 	/* keys */
 	keyDown(ev) {
+		if (!this.isActive) return;
 		let k = whichKeyMap[ev.which];
 		if (!Number.isFinite(+k)) return;
 		this.loopControls[+k] = (this.loopControls[+k] + 1) % 3; // cycle loop controls
@@ -66,7 +61,13 @@ export class LivePanel extends UIPanel {
 
 	updateLoopUI() {
 		for (let i = 0; i < this.loopControls.length; i++) {
-			this.loopUI[i].setText(getLoopState(this.loopControls[i]));
+			this.loopUI[i].setText(this.getLoopState(this.loopControls[i]));
 		}
+	}
+
+	getLoopState(n) {
+		if (n === 0) return 'X';
+		if (n === 1) return 'M';
+		if (n === 2) return 'K';
 	}
 }

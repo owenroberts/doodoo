@@ -103,6 +103,7 @@ export class MelodyPanel extends UIPanel {
 		let sharp = pitch.includes('#') ? '#' : '';
 
 		if (isNaN(+number) || !'ABCDEFG'.includes(letter)) {
+			console.log(pitch, number, letter)
 			return false;
 		}
 
