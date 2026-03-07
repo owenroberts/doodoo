@@ -28,7 +28,7 @@ const doodoo = new Doodoo({
 });
 
 const ui = new Interface({ 
-	name: 'doodoo',
+	name: 'greg',
 	workspaces: [{
 		text: 'default',
 		url: defaultWorkspace,

@@ -9,32 +9,34 @@ export class MonitorPanel extends UIPanel {
 
 
 		this.props = {
-			melody: true,
-			harmony: true,
-			counterpoint: true,
-			count: true,
-			counter: true,
-			instrument: true,
-			attack: true,
-			curve: true,
-			release: true,
-			double: true,
-			fx: true,
-			playBeat: true,
-			transpose: true,
-			scale: true,
-			bpm: true,
+			"monitor-melody": true,
+			"monitor-harmony": true,
+			"monitor-counterpoint": true,
+			"monitor-count": true,
+			"monitor-counter": true,
+			"monitor-instrument": true,
+			"monitor-attack": true,
+			"monitor-curve": true,
+			"monitor-release": true,
+			"monitor-double": true,
+			"monitor-fx": true,
+			"monitor-playBeat": true,
+			"monitor-transpose": true,
+			"monitor-scale": true,
+			"monitor-bpm": true,
 		};
 
 		this.propList = Object.keys(this.props);
 
 		this.propRow = this.addRow({ id: "prop-row" });
 		for (const prop in this.props) {
+			this.addLabel(prop.replace("monitor-", ""));
 			this.addRef({
 				obj: this.props,
 				ref: prop, // `monitor-${prop}`,
 				class: 'monitor-prop',
 				noRow: true,
+				noLabel: true,
 			});
 		}
 
@@ -50,7 +52,8 @@ export class MonitorPanel extends UIPanel {
 		for (let i = 0; i < this.propList.length; i++) {
 			this.tcols[i + 1] = colGroup.add(new UIElement({ tag: "col" }));
 			const k = this.propList[i];
-			thr.add(new UIElement({ tag: "th", text: k }));
+			const propKey = k.replace("monitor-", "");
+			thr.add(new UIElement({ tag: "th", text: propKey }));
 		}
 		
 		this.tbody = table.add(new UIElement({ tag: "tbody" }));
@@ -90,13 +93,14 @@ export class MonitorPanel extends UIPanel {
 			const voice = voices[i];
 			for (let j = 0; j < this.propList.length; j++) {
 				const k = this.propList[j];
+				const propKey = k.replace("monitor-", "");
 				let value = ".";
-				if (this.props[k] && voice.hasOwnProperty(k)) {
-					value = this.formatProp(k, voice[k]);
+				if (this.props[k] && voice.hasOwnProperty(propKey)) {
+					value = this.formatProp(k, voice[propKey]);
 				} else if (this.props[k] && i === 0) {
-					if (k === "bpm") value = comp.bpm;
-					if (k === "transpose") value = comp.transpose;
-					if (k === "scale") value = JSON.stringify(comp.scale);
+					if (propKey === "bpm") value = comp.bpm;
+					if (propKey === "transpose") value = comp.transpose;
+					if (propKey === "scale") value = JSON.stringify(comp.scale);
 				}
 				tr.add(new UIElement({ tag: "td", text: value }));
 			}
