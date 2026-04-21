@@ -9,6 +9,7 @@ window.addEventListener("load", function() {
 	const doodoo = new Doodoo({ 
 		autoLoad: false,
 		autoPlay: false,
+		samplesURL: './samples/'
 	});
 	const fm = new FileManager(doodoo);
 

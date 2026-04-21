@@ -6,7 +6,7 @@ export default defineConfig({
       devSourcemap: true,
     },
 	server: {
-		port: 8787
+		port: 4998
 	},
 	build: {
 		rollupOptions: {
