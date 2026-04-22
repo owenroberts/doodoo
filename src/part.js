@@ -109,11 +109,19 @@ export class Part {
 	get(startLoops, voiceCountOverride, comp) {
 
 		const voices = [];
-		let voiceCount = startLoops.length > 0 ? startLoops.length : this.mods.voiceNum.getInt();
+
+		let startLoopCount = 0;
+		for (let i = 0; i < startLoops.length; i++) {
+			if (startLoops[i].counterpoint === false) {
+				startLoopCount++;
+			} 
+		}
+
+		let voiceCount = startLoopCount > 0 ? startLoopCount : this.mods.voiceNum.getInt();
 		if (voiceCountOverride > 0) {
 			voiceCount = voiceCountOverride;
 		}
-		
+
 		const beatMods = [...Array(voiceCount)].map(() => this.mods.beatList.get());
 		const maxBeat = Math.min(...beatMods);
 		
@@ -189,7 +197,7 @@ export class Part {
 				counter: 0, // count through loop
 				count: melody.length,
 				harmony: isHarmony ? harmony.interval : 0,
-				counterpoint: false, // is counter point or has counter point??
+				counterpoint: false, // counter point added as separate loop .. 
 				instrument: this.mods.instruments.get(i),
 				attack: this.mods.attack.get(),
 				curve: this.mods.curve.get(),

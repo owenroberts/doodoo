@@ -5,11 +5,13 @@ import { DoodooFiles } from '../../src/doodoo-files.js';
 
 import { Interface, Settings } from '../../../oi/src/oi.js';
 
-import { FilesPanel } from '../../composer/src/files.js';
-import { PlaybackPanel } from '../../composer/src/playback.js';
+import { FilesPanel } from './files.js';
+import { PlaybackPanel } from './playback.js';
+import { LivePanel } from './live.js';
+
+// no changes needed here ... 
 import { MonitorPanel } from '../../composer/src/monitor.js';
 import { MeterPanel } from '../../composer/src/meter.js';
-import { LivePanel } from '../../composer/src/live.js';
 
 // import defaultWorkspace from '../workspaces/default.json';
 

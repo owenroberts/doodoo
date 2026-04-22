@@ -39,7 +39,7 @@ export class DoodooFiles {
 		const version = this.data.versions[this.data.versionIndex];
 		for (const k in this.doodoo.comp) {
 			if (!version.comp.hasOwnProperty(k)) continue;
-			console.log(k)
+			// console.log(k)
 			this.doodoo.comp[k] = version.comp[k];
 		}
 	}

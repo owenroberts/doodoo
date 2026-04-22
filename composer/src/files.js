@@ -81,6 +81,7 @@ export class FilesPanel extends UIPanel {
 		this.loadVersion();
 	}
 
+	// this is more like load everything ... 
 	loadVersion() {
 		this.ui.panels.composition.load();
 		this.ui.panels.melody.load();

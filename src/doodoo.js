@@ -44,9 +44,6 @@ export class Doodoo {
 			isEditor: params.isEditor ?? false,
 		};
 
-		// prevents reassignment from UI which uses pass by ref
-		defineSafeProperty(this, "config", config);
-
 		/**
 		 * composition properties
 		 * @type {object}
@@ -70,6 +67,7 @@ export class Doodoo {
 		};
 
 		// prevents reassignment from UI which uses pass by ref
+		defineSafeProperty(this, "config", config);
 		defineSafeProperty(this, "comp", comp);
 
 		this.sequenceIndex = 0; // previously currentPart
@@ -191,8 +189,8 @@ export class Doodoo {
 			this.parts.push(new Part(
 				this.comp.parts[i], 
 				partMods[i], 
-				this.config.defaultBeat, 
-				this.comp
+				this.config.defaultBeat,
+				this.comp,
 			));
 		}
 		
@@ -223,6 +221,10 @@ export class Doodoo {
 		loadList = loadList.filter(i => !i.includes("Synth"));
 		loadList = [...new Set(loadList)];
 		this.instruments.loadList = loadList;
+
+		if (this.config.isLiveMode) {
+			// this.comp.startLoops = [{ playBeat: parseInt(this.config.defaultBeat) }]; // use liveLoops or something instead?
+		}
 	}
 
 	// start tone using async func to wait for tone
@@ -244,8 +246,7 @@ export class Doodoo {
 		Tone.Transport.start();
 		Tone.Transport.bpm.value = this.comp.bpm;
 		this.toneLoop.start(Tone.Transport.seconds);
-		// console.log(params.bpm, Tone.Transport.bpm.value)
-
+		
 		// master ing
 		var compressor = new Tone.Compressor({
 			"threshold": -30,
@@ -270,10 +271,6 @@ export class Doodoo {
 			this.config.getFFT(fft);
 		}
 		
-		if (this.config.autoStart || this.config.playOnStart) {
-			this.playNext();
-		}
-
 		if (this.config.isMetronomeOn) {
 			this.metro = new Tone.MetalSynth({
 				volume: -12,
@@ -291,6 +288,9 @@ export class Doodoo {
 		}
 
 		this.isPlaying = true;
+		if (this.config.autoStart || this.config.playOnStart) {
+			this.playNext();
+		}
 		if (this.config.withRecording) this.recorder.start();
 	}
 
@@ -675,6 +675,7 @@ export class Doodoo {
 	}
 
 	play() {
+		// re-check instruments ... 
 		if (!this.config.autoLoad && !this.instruments.isLoaded) {
 			return this.loadTone();
 		}
@@ -715,6 +716,7 @@ export class Doodoo {
 	}
 
 	playNext(time) {
+		if (!this.isPlaying) this.isPlaying = true; // right?
 		// with waitForModTrigger
 		if (this.config.isPerformance) {
 			this.getPerformanceLoop();
