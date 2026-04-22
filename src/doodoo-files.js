@@ -3,7 +3,7 @@ import { getDate, assert, defineSafeProperty } from '../../cool/cool.js';
 /**
  * handle loading and saving greg files
  */
-export class FileManager {
+export class DoodooFiles {
 
 	constructor(doodoo) {
 
@@ -38,6 +38,8 @@ export class FileManager {
 	loadVersion() {
 		const version = this.data.versions[this.data.versionIndex];
 		for (const k in this.doodoo.comp) {
+			if (!version.comp.hasOwnProperty(k)) continue;
+			console.log(k)
 			this.doodoo.comp[k] = version.comp[k];
 		}
 	}

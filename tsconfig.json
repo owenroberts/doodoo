@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "allowJs": true,
+    "strict": true,
+    "pretty": true
+  },
+  "include": [
+    "composer/src/**/*.js",
+    "src/**/*.js" // Adjust this to match your project's file structure
+  ]
+}

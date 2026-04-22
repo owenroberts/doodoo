@@ -1,5 +1,5 @@
-import { UIRow, UITree, UIButton, UIRange, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIInputStep, UIList, labelFromKey, UIPanel, UIText } from '../../../oi/src/oi.js';
-import { Modes, Bounds } from '../../src/constants.js';
+import { UIButton, UIGraph, UIInputStep, UILabel, UIList, UINumberStep, UIPanel, UIRange, UIRow, UISelect, UIText, UITree } from '../../../oi/src/oi.js';
+import { Bounds, Modes } from '../../src/constants.js';
 import { defaults } from '../../src/defaults.js';
 import { MIDI_NOTES } from '../../src/midi.js';
 

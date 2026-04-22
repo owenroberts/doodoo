@@ -20,6 +20,10 @@ export const Modes = {
 	WALK_DOWN: "walkDown",
 };
 
+/**
+ * list of fx from tone lib
+ * @type {array}
+ */
 export const ToneFX = [
 	'distortion', 
 	'bitCrush', 
@@ -34,6 +38,11 @@ export const ToneFX = [
 	'vibrato',
 ];
 
+
+/**
+ * default mod set with all parts active
+ * @type {object}
+ */
 export const defaultModSet = {
 	mods: {},
 	parts: new Array(8).fill(true),

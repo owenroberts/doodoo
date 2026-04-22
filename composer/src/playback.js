@@ -1,5 +1,4 @@
 import * as Tone from 'tone';
-import { Doodoo } from '../../src/doodoo.js';
 import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '../../../oi/src/oi.js';
 
 /**
@@ -23,7 +22,7 @@ export class PlaybackPanel extends UIPanel {
 		this.addButton({
 			callback: () => { this.play({ withCount: false, }); },
 			key: "/",
-			text: "Play",
+			text: "play",
 		});
 
 		this.addButton({ 
@@ -31,12 +30,12 @@ export class PlaybackPanel extends UIPanel {
 				this.play({ withRecording: false, withCount: 1 }); 
 			}, 
 			key: '.', 
-			text: 'Play 1',
+			text: 'play 1',
 		});
 
 		this.addButton({ 
 			key: 'c',
-			text: 'Play N', 
+			text: 'play n', 
 			callback: () => { 
 				this.play({ 
 					withRecording: false, 
@@ -47,25 +46,25 @@ export class PlaybackPanel extends UIPanel {
 
 		this.addButton({ 
 			key: ',', 
-			text: 'Stop',
+			text: 'stop',
 			callback: () => { this.doodoo.stop(); }, 
 		});
 
 		this.addButton({ 
 			key: 'shift-,', 
-			text: 'Stop next',
+			text: 'stop next',
 			callback: () => { this.doodoo.stopNext(); }, 
 		});
 
 		this.addButton({ 
 			key: 'r', 
-			text: 'Record', 
+			text: 'record', 
 			callback: () => { this.play({ withRecording: true }) },
 		});
 
 		this.addButton({
 			key: 'x',
-			text: "Play performance",
+			text: "performance",
 			callback: () => {
 				this.playPerformance();
 			}
