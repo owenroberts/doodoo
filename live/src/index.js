@@ -1,7 +1,7 @@
 import '../../composer/css/composer.scss';
 
 import { Doodoo } from '../../src/doodoo.js';
-import { FileManager } from '../../src/file-manager.js';
+import { DoodooFiles } from '../../src/doodoo-files.js';
 
 import { Interface, Settings } from '../../../oi/src/oi.js';
 
@@ -18,7 +18,7 @@ const doodoo = new Doodoo({
 	autoPlay: false,
 	// isEditor: true,
 });
-const fm = new FileManager(doodoo);
+const fm = new DoodooFiles(doodoo);
 
 const ui = new Interface({ 
 	name: 'greg-live',

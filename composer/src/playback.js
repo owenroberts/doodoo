@@ -115,8 +115,6 @@ export class PlaybackPanel extends UIPanel {
 			loopCountDisplay.setText(loopCount);
 			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
 		};
-
-		
 	}
 
 	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false }={}) {

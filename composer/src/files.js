@@ -143,7 +143,7 @@ export class FilesPanel extends UIPanel {
 		});
 
 		const localSaves = Object.keys(localStorage)
-			.filter(k => k.includes('greg') && !k.includes('title'));
+			.filter(k => k.includes('greg') && !k.includes('title') && !k.includes("settings"));
 
 		localSaves.forEach(title => {
 			m.add(new UIButton({
