@@ -1,3 +1,4 @@
+import { strLog } from '../../../cool/cool.js';
 import { MIDI_NOTES } from '../../src/midi.js';
 import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '../../../oi/src/oi.js';
 
@@ -60,8 +61,6 @@ export class MelodyPanel extends UIPanel {
 			type: "UIToggleGrid",
 			ignoreSettings: true,
 		});
-
-		// console.log(this.sequenceGrid)
 
 		this.addRow({ id: 'melody', class: 'break' });
 
@@ -240,15 +239,18 @@ export class MelodyPanel extends UIPanel {
 	}
 
 	updateSequence() {
-		const seq = [];
-		for (let i = 0; i < this.partRows.length; i++) {
-			if (this.doodoo.comp.sequence[i]) {
-				seq[i] = this.doodoo.comp.sequence[i];
-			} else {
-				seq[i] = Array(this.doodoo.comp.sequence[0].length).fill(true)
+		// add a part if there are new parts
+		if (this.partRows.length > this.doodoo.comp.sequence.length) {
+			for (let i = this.doodoo.comp.sequence.length; i < this.partRows.length; i++) {
+				this.doodoo.comp.sequence.push(Array(this.doodoo.comp.sequence[0].length).fill(true));
+				this.sequenceGrid.update(this.doodoo.comp.sequence);
+			}
+		} else if (this.partRows.length < this.doodoo.comp.sequence.length) {
+			for (let i = this.partRows.length; i >= this.doodoo.comp.sequence.length; i--) {
+				this.doodoo.comp.sequence.pop();
+				this.sequenceGrid.update(this.doodoo.comp.sequence);
 			}
 		}
-		this.sequenceGrid.update(seq);
 	}
 
 	double() {
@@ -332,6 +334,7 @@ export class MelodyPanel extends UIPanel {
 		this.partRows = [];
 
 		if (this.doodoo.comp.sequence) {
+			strLog('mel load', this.doodoo.comp.sequence);
 			this.sequenceGrid.update(this.doodoo.comp.sequence);
 		}
 

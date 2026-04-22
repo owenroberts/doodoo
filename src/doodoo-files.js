@@ -1,4 +1,4 @@
-import { getDate, assert, defineSafeProperty } from '../../cool/cool.js';
+import { getDate, assert, defineSafeProperty, log, strLog } from '../../cool/cool.js';
 
 /**
  * handle loading and saving greg files
@@ -39,7 +39,6 @@ export class DoodooFiles {
 		const version = this.data.versions[this.data.versionIndex];
 		for (const k in this.doodoo.comp) {
 			if (!version.comp.hasOwnProperty(k)) continue;
-			// console.log(k)
 			this.doodoo.comp[k] = version.comp[k];
 		}
 	}
@@ -57,7 +56,6 @@ export class DoodooFiles {
 	save(needsTitleConfirm=true) { 
 
 		const comp = structuredClone(this.doodoo.comp);
-		console.log(JSON.stringify((comp)))
 
 		if (comp.parts.length === 0) {
 			const continueSave = confirm('no melody, continue save?');
