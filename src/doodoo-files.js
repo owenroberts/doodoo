@@ -44,7 +44,6 @@ export class DoodooFiles {
 
 		// doodoo gets live mode on play ... 
 		this.doodoo.setupLive();
-		console.log('doodoo loop controls', this.doodoo.loopControls);
 	}
 
 	addVersion(tag) {

@@ -1,12 +1,11 @@
-/*
-	live loop mode
-	choose what loops to keep, mod, kill
- */
-
 import { whichKeyMap } from '../../../cool/cool.js';
 import { UIPanel, UILabel, UIButton, UIElement } from '../../../oi/src/oi.js';
 import { LoopStates } from '../../src/constants.js';
 
+/**
+ * live loop panel
+ * choose what loops to keep, mod, kill
+ */
 export class LivePanel extends UIPanel {
 	constructor(doodoo, ui) {
 		super({ id: "live", ui });

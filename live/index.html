@@ -16,13 +16,13 @@
 		#live-table {
 			width: 100%; 
 			text-align: left;
-			
+
 			tr { display: flex; width: 100%; }
-			th:first-child { flex-grow: 1; }
-			td:first-child { flex-grow: 1; }
+			th, td { min-width: 24px; text-align: right; }
+			th:first-child { flex-grow: 1; text-align: left; }
+			td:first-child { flex-grow: 1; text-align: left; }
 			th:nth-child(2) { margin-left: auto; }
 			td:nth-child(2) { margin-left: auto; }
-			th, td { min-width: 24px; }
 		}
 
 		/* idk */

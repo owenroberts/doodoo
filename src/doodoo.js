@@ -123,6 +123,7 @@ export class Doodoo {
 
 	setup() {
 
+		this.instruments.isLoaded = false; // force sample reload
 		this.parts = []; // reset parts
 
 		// const mods = structuredClone(this.comp.mods); // props vs mods ... 
@@ -456,8 +457,6 @@ export class Doodoo {
 				
 			}
 		}
-
-		console.log(this.voices);
 
 		this.beatCount = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
 
