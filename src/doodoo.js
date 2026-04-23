@@ -391,6 +391,7 @@ export class Doodoo {
 				const partVoices = this.parts[i].get(starts, this.voiceCountOverrides[i], this.comp);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
+					l.partIndex = i;
 				});
 				partsInSequence.push(partVoices);
 			}
@@ -451,10 +452,12 @@ export class Doodoo {
 				const harmony = voiceParams.harmony;
 
 				const toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-				this.voices.push({ ...voiceParams, toneInstrument });
+				this.voices.push({ ...voiceParams, toneInstrument,  });
 				
 			}
 		}
+
+		console.log(this.voices);
 
 		this.beatCount = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
 
@@ -581,6 +584,7 @@ export class Doodoo {
 				if (partControls[j] === LoopStates.KEEP) {
 					let isLoopFound = false;
 					for (let k = 0; k < this.voices.length; k++) {
+						if (this.voices[k].partIndex !== i) continue;
 						if (this.voices[k].liveLoopIndex === j) {
 							this.liveLoops[i].push(this.cloneVoice(this.voices[k]));
 							isLoopFound = true;

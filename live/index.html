@@ -13,20 +13,22 @@
 		}
 
 		/* move to oi later  */
-		table { width: 100%; text-align: left; }
-		tr { display: flex; width: 100%; }
-		/* First cell stays left */
-		th:first-child { flex-grow: 1; }
-		td:first-child { flex-grow: 1; }
-		/* Second cell pushes itself and others to the right */
-		th:nth-child(2) { margin-left: auto; }
-		td:nth-child(2) { margin-left: auto; }
+		#live-table {
+			width: 100%; 
+			text-align: left;
+			
+			tr { display: flex; width: 100%; }
+			th:first-child { flex-grow: 1; }
+			td:first-child { flex-grow: 1; }
+			th:nth-child(2) { margin-left: auto; }
+			td:nth-child(2) { margin-left: auto; }
+			th, td { min-width: 24px; }
+		}
 
-
-		th, td { min-width: 24px; }
-
-/*		th:nth-child(n+3) { margin-left: 1em; }*/
-/*		td:nth-child(n+3) { margin-left: 1em; }*/
+		/* idk */
+		.toggle-check {
+			zoom: unset !important;
+		}
 	
 	</style>
 </head>

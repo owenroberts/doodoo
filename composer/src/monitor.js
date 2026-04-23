@@ -7,7 +7,6 @@ export class MonitorPanel extends UIPanel {
 	constructor(doodoo, ui) {
 		super({ id: 'monitor', ui });
 
-
 		this.props = {
 			"monitor-melody": true,
 			"monitor-harmony": true,

@@ -12,15 +12,16 @@ export class LivePanel extends UIPanel {
 		super({ id: "live", ui });
 
 		this.doodoo = doodoo;
-		this.partIndex = 0;
 		this.loopControls = this.doodoo.loopControls;
+		this.partIndex = 0;
+		this.liveLoopCount = 8;
 
 		this.isActive = false;
 		this.loopUI = [];
 
 		for (let i = 0; i < this.loopControls.length; i++) {
 			this.loopControls[i][0] = LoopStates.KEEP;
-			for (let j = 1; j < 10; j++) {
+			for (let j = 1; j < this.liveLoopCount; j++) {
 				this.loopControls[i][j] = LoopStates.KILL;
 			}
 		}
@@ -73,7 +74,7 @@ export class LivePanel extends UIPanel {
 
 		for (let i = 0; i < this.loopControls.length; i++) {
 			this.loopControls[i][0] = LoopStates.KEEP;
-			for (let k = 1; k < 10; k++) {
+			for (let k = 1; k < this.liveLoopCount; k++) {
 				this.loopControls[i][k] = LoopStates.KILL;
 			}
 		}
@@ -90,7 +91,7 @@ export class LivePanel extends UIPanel {
 			thr.add(new UIElement({ tag: "th", text: i }));
 		}
 
-		for (let k = 0; k < 10; k++) {
+		for (let k = 0; k < this.liveLoopCount; k++) {
 			const tr = this.tbody.add(new UIElement({ tag: "tr" }));
 			tr.add(new UIElement({ tag: "td", text: k }));
 			
@@ -117,7 +118,7 @@ export class LivePanel extends UIPanel {
 
 	updateLoopUI() {
 		for (let i = 0; i < this.loopControls.length; i++) {
-			for (let k = 0; k < 10; k++) {
+			for (let k = 0; k < this.liveLoopCount; k++) {
 				const val = this.getLoopState(this.loopControls[i][k]);
 				this.loopUI[i][k].setText(val);
 			}
