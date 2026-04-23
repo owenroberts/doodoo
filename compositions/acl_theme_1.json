@@ -4,6 +4,12 @@
     "lastSavedOn": "Mon-Feb-17-2025",
     "createdOn": "Mon-Feb-17-2025",
     "versionIndex": 0,
+    "samples": {
+        "drill": { "key": "a", "src": "samples/acl/drill.ogg" },
+        "footsteps": { "key": "s", "src": "samples/acl/footsteps.ogg" },
+        "loon": { "key": "d", "src": "samples/acl/loon.ogg" },
+        "waves": { "key": "f", "src": "samples/acl/waves.ogg" }
+    },
     "versions": [
 	{
 		"tag": "latest, old versioning",

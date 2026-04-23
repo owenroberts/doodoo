@@ -14,6 +14,7 @@ export class DoodooFiles {
 			createdOn: getDate(),
 			lastSavedOn: getDate(),
 			versionIndex: 0,
+			samples: {},
 			versions: [{
 				comp: {},
 				tag: "initial",

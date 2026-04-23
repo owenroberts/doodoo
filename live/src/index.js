@@ -8,6 +8,7 @@ import { Interface, Settings } from '../../../oi/src/oi.js';
 import { FilesPanel } from './files.js';
 import { PlaybackPanel } from './playback.js';
 import { LivePanel } from './live.js';
+import { SamplerPanel } from './sampler.js';
 
 // no changes needed here ... 
 import { MonitorPanel } from '../../composer/src/monitor.js';
@@ -35,7 +36,8 @@ ui.addPanel(new PlaybackPanel(doodoo, ui));
 ui.addPanel(new MonitorPanel(doodoo, ui));
 ui.addPanel(new MeterPanel(doodoo, ui));
 ui.addPanel(new LivePanel(doodoo, ui));
+ui.addPanel(new SamplerPanel(doodoo, ui, fm));
 
 ui.settings.load();
 
-console.log({ doodoo, ui });
+console.log({ doodoo, ui, fm });

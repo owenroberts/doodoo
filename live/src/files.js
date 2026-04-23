@@ -52,8 +52,8 @@ export class FilesPanel extends UIPanel {
 		console.log('load', data);
 		this.fm.load(data);
 		this.ui.faces.title.update(this.fm.data.title);
-		// console.log(this.ui);
 		this.ui.panels.live.load();
+		this.ui.panels.sampler.load();
 	}
 
 	loadLocal(titleFromList) {
