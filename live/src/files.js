@@ -38,12 +38,22 @@ export class FilesPanel extends UIPanel {
 			key: 'shift-o', 
 			text: 'open file',
 		});
+
+		this.addButton({ 
+			callback: () => {
+				this.saveLocal();
+			},
+			key: 'shift-s',
+			text: 'save local' 
+		});
 	}
 
 	load(data) {
 		console.log('load', data);
 		this.fm.load(data);
 		this.ui.faces.title.update(this.fm.data.title);
+		// console.log(this.ui);
+		this.ui.panels.live.load();
 	}
 
 	loadLocal(titleFromList) {
@@ -92,5 +102,26 @@ export class FilesPanel extends UIPanel {
 			}));
 			m.addBreak();
 		});
+	}
+
+	saveLocal(needsTitleConfirm=true) {
+
+		const saveData = this.fm.save();
+		this.ui.faces.title.update(this.fm.data.title);
+
+		try {
+			localStorage.setItem(`greg-${this.fm.data.title}`, JSON.stringify(saveData));
+			localStorage.setItem('greg-title', this.fm.data.title);
+		} catch (error) {
+			if (error.name === 'QuotaExceededError') {
+				alert('Local storage full');
+			} else {
+				console.log(error);
+				alert(error.name);
+			}
+		}
+
+		console.log('save', saveData);
+		return saveData;
 	}
 }

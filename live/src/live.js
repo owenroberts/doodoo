@@ -12,17 +12,19 @@ export class LivePanel extends UIPanel {
 		super({ id: "live", ui });
 
 		this.doodoo = doodoo;
+		this.partIndex = 0;
 		this.loopControls = this.doodoo.loopControls;
 
 		this.isActive = false;
 		this.loopUI = [];
 
-		this.loopControls[0] = LoopStates.KEEP;
-		
-		for (let i = 1; i < 10; i++) {
-			this.loopControls[i] = LoopStates.KILL;
+		for (let i = 0; i < this.loopControls.length; i++) {
+			this.loopControls[i][0] = LoopStates.KEEP;
+			for (let j = 1; j < 10; j++) {
+				this.loopControls[i][j] = LoopStates.KILL;
+			}
 		}
-
+		
 		document.addEventListener("keydown", ev => {
 			this.keyDown(ev);
 		}, false);
@@ -33,20 +35,72 @@ export class LivePanel extends UIPanel {
 				this.isActive = true;
 			},
 			text: "play live",
-			key: 'z',
+			key: "shift-/",
 		});
 
-		for (let i = 0; i < this.loopControls.length; i++) {
-			this.addRow();
-			this.add(new UILabel({ text: `loop ${i}` }));
-			this.loopUI[i] = this.add(new UILabel({
-				text: this.getLoopState(this.loopControls[i]),
-			}));
-		}
+		const partIndexRef = this.addRef({
+			obj: this,
+			ref: 'partIndex',
+			key: '`',
+			keyHandler: index => {
+				this.partIndex += 1;
+				if (this.partIndex === -1) {
+					partIndexRef.update(this.doodoo.comp.parts.length - 1);
+				}
+				else if (this.partIndex >= this.doodoo.comp.parts.length) {
+					partIndexRef.update(0);
+				}
+				else {
+					partIndexRef.update(this.partIndex, true);
+				}
+				// add asterisk to index
+			},
+		});
+
+		this.addBreak();
+
+		const table = this.add(new UIElement({ tag: "table", id: "live-table" }));
+		this.thead = table.add(new UIElement({ tag: "thead" }));
+		this.tbody = table.add(new UIElement({ tag: "tbody" }));
 
 		this.doodoo.onStop = () => {
 			this.isActive = false;
 		};
+	}
+
+	load() {
+		this.loopControls = this.doodoo.loopControls; // reactivate ref
+
+		for (let i = 0; i < this.loopControls.length; i++) {
+			this.loopControls[i][0] = LoopStates.KEEP;
+			for (let k = 1; k < 10; k++) {
+				this.loopControls[i][k] = LoopStates.KILL;
+			}
+		}
+
+		this.loopUI = Array.from({ length: this.loopControls.length }, () => []);
+
+		this.thead.clear();
+		this.tbody.clear();
+
+		const thr = this.thead.add(new UIElement({ tag: "tr"}));
+		thr.add(new UIElement({ tag: "th", text: "loop" }));
+
+		for (let i = 0; i < this.loopControls.length; i++) {
+			thr.add(new UIElement({ tag: "th", text: i }));
+		}
+
+		for (let k = 0; k < 10; k++) {
+			const tr = this.tbody.add(new UIElement({ tag: "tr" }));
+			tr.add(new UIElement({ tag: "td", text: k }));
+			
+			for (let i = 0; i < this.loopControls.length; i++) {
+				this.loopUI[i][k] = tr.add(new UIElement({ 
+					tag: "td", 
+					text: this.getLoopState(this.loopControls[i][k]),
+				}));
+			}
+		}
 	}
 
 	/* keys */
@@ -54,14 +108,19 @@ export class LivePanel extends UIPanel {
 		if (!this.isActive) return;
 		let k = whichKeyMap[ev.which];
 		if (!Number.isFinite(+k)) return;
-		this.loopControls[+k] = (this.loopControls[+k] + 1) % 3; // cycle loop controls
+
+		const val = this.loopControls[this.partIndex][+k];
+		this.loopControls[this.partIndex][+k] = (val + 1) % 3; // cycle loop controls
 		this.doodoo.updateLive();
 		this.updateLoopUI();
 	}
 
 	updateLoopUI() {
 		for (let i = 0; i < this.loopControls.length; i++) {
-			this.loopUI[i].setText(this.getLoopState(this.loopControls[i]));
+			for (let k = 0; k < 10; k++) {
+				const val = this.getLoopState(this.loopControls[i][k]);
+				this.loopUI[i][k].setText(val);
+			}
 		}
 	}
 

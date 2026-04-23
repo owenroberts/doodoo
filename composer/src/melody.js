@@ -242,6 +242,7 @@ export class MelodyPanel extends UIPanel {
 		// add a part if there are new parts
 		if (this.partRows.length > this.doodoo.comp.sequence.length) {
 			for (let i = this.doodoo.comp.sequence.length; i < this.partRows.length; i++) {
+				// fill fine bc its primitive
 				this.doodoo.comp.sequence.push(Array(this.doodoo.comp.sequence[0].length).fill(true));
 				this.sequenceGrid.update(this.doodoo.comp.sequence);
 			}

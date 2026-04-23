@@ -41,6 +41,10 @@ export class DoodooFiles {
 			if (!version.comp.hasOwnProperty(k)) continue;
 			this.doodoo.comp[k] = version.comp[k];
 		}
+
+		// doodoo gets live mode on play ... 
+		this.doodoo.setupLive();
+		console.log('doodoo loop controls', this.doodoo.loopControls);
 	}
 
 	addVersion(tag) {

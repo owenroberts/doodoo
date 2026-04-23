@@ -6,6 +6,29 @@
 	<link rel="shortcut icon" href="../favicon.ico" >
 	<link href="../style.css" type="text/css" rel="stylesheet">
 	<title>greg live</title>
+	<style> 
+		body { 
+			background: radial-gradient(ellipse at right, #d0aad0, #fff9c4);
+			height: 256px;
+		}
+
+		/* move to oi later  */
+		table { width: 100%; text-align: left; }
+		tr { display: flex; width: 100%; }
+		/* First cell stays left */
+		th:first-child { flex-grow: 1; }
+		td:first-child { flex-grow: 1; }
+		/* Second cell pushes itself and others to the right */
+		th:nth-child(2) { margin-left: auto; }
+		td:nth-child(2) { margin-left: auto; }
+
+
+		th, td { min-width: 24px; }
+
+/*		th:nth-child(n+3) { margin-left: 1em; }*/
+/*		td:nth-child(n+3) { margin-left: 1em; }*/
+	
+	</style>
 </head>
 <body>
 	<div id="container"></div>

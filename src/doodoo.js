@@ -76,12 +76,12 @@ export class Doodoo {
 		this.modCount = 0; // num mods --> different from total plays? -- idts
 		this.isPlaying = false;
 		
-		// this.startLoops = params.startLoops ?? [];
-	
 		this.loopControls = params.loopControls ?? [];
-		this.voiceCountOverride = 0; // for live mod
+		this.liveLoops = [];
+		this.voiceCountOverrides = [];
+		
 		if (this.config.isLiveMode) {
-			this.comp.startLoops = []; // use liveLoops or something instead?
+			// this.comp.startLoops = []; // use liveLoops or something instead?
 		}
 
 		this.toneLoop; // main loop, created in start and keeps time
@@ -221,10 +221,15 @@ export class Doodoo {
 		loadList = loadList.filter(i => !i.includes("Synth"));
 		loadList = [...new Set(loadList)];
 		this.instruments.loadList = loadList;
+	}
 
-		if (this.config.isLiveMode) {
-			// this.comp.startLoops = [{ playBeat: parseInt(this.config.defaultBeat) }]; // use liveLoops or something instead?
-		}
+	setupLive() {
+		const partCount = this.comp.parts.length;
+		this.loopControls = Array.from({ length: partCount }, () => []);
+		this.liveLoops = Array.from({ length: partCount }, () => []);
+		this.voiceCountOverrides = Array.from({ length: partCount }, () => 0);
+
+		// update to not direct set, break refs
 	}
 
 	// start tone using async func to wait for tone
@@ -370,7 +375,7 @@ export class Doodoo {
 				const partCount = this.parts[i].loopCount;
 				let starts;
 				if (this.config.isLiveMode) {
-					starts = this.comp.startLoops;
+					starts = this.liveLoops[i];
 				} else {
 					let startIndex = 0;
 					for (let j = 0; j < this.comp.startLoops.length; j++) {
@@ -383,7 +388,7 @@ export class Doodoo {
 					}
 				 	starts = startIndex < this.comp.startLoops.length ? this.comp.startLoops[startIndex].loops : [];
 				}
-				const partVoices = this.parts[i].get(starts, this.voiceCountOverride, this.comp);
+				const partVoices = this.parts[i].get(starts, this.voiceCountOverrides[i], this.comp);
 				partVoices.forEach(l => {
 					if (l.melody.length > longestMelody) longestMelody = l.melody.length;
 				});
@@ -561,41 +566,52 @@ export class Doodoo {
 	updateLive(newLoopControls) {
 
 		// reset start loops
-		this.comp.startLoops = [];
+		// this.comp.startLoops = [];
 
+		for (let i = 0; i < this.liveLoops.length; i++) {
+			this.liveLoops[i] = []; // reset each part's live loops
+		}
+
+		let totalVoices = 0;
+		
 		// assign voices to loops
 		for (let i = 0; i < this.loopControls.length; i++) {
-			if (this.loopControls[i] === LoopStates.KEEP) {
-				let isLoopFound = false;
-				for (let j = 0; j < this.voices.length; j++) {
-					if (this.voices[j].liveLoopIndex === i) {
-						this.comp.startLoops.push(this.cloneVoice(this.voices[j]));
-						isLoopFound = true;
+			const partControls = this.loopControls[i];
+			for (let j = 0; j < partControls.length; j++) {
+				if (partControls[j] === LoopStates.KEEP) {
+					let isLoopFound = false;
+					for (let k = 0; k < this.voices.length; k++) {
+						if (this.voices[k].liveLoopIndex === j) {
+							this.liveLoops[i].push(this.cloneVoice(this.voices[k]));
+							isLoopFound = true;
+						}
 					}
-				}
-				if (!isLoopFound) {
-					for (let j = 0; j < this.voices.length; j++) {
-						if (isLoopFound) continue;
-						if (this.voices[j].hasOwnProperty('liveLoopIndex')) continue;
-						let v = this.cloneVoice(this.voices[j]);
-						v.liveLoopIndex = i;
-						this.comp.startLoops.push(v);
-						isLoopFound = true;
+					if (!isLoopFound) {
+						for (let k = 0; k < this.voices.length; k++) {
+							if (isLoopFound) continue;
+							if (this.voices[k].hasOwnProperty('liveLoopIndex')) continue;
+							let v = this.cloneVoice(this.voices[k]);
+							v.liveLoopIndex = j;
+							this.liveLoops[i].push(v);
+							isLoopFound = true;
+						}
 					}
 				}
 			}
+
+			// add new loops if needed
+			// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
+			let voiceCount = this.loopControls[i].filter(c => c !== LoopStates.KILL).length;
+			if (voiceCount > this.liveLoops[i].length) {
+				this.voiceCountOverrides[i] = voiceCount;
+			} else {
+				this.voiceCountOverrides[i] = 0;
+			}
+
+			totalVoices += voiceCount;
 		}
 
-		// add new loops if needed
-		// doesn't totally make sense because if length is greater voiceCountOverride doesn't matter ... 
-		let voiceCount = this.loopControls.filter(c => c !== LoopStates.KILL).length;
-		if (voiceCount > this.comp.startLoops.length) {
-			this.voiceCountOverride = voiceCount;
-		} else {
-			this.voiceCountOverride = 0;
-		}
-
-		if (voiceCount === 0) {
+		if (totalVoices === 0) {
 			this.stop();
 		} else if (!this.isPlaying) {
 			this.play();

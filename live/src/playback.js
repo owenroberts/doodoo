@@ -49,7 +49,7 @@ export class PlaybackPanel extends UIPanel {
 		});
 
 		this.addButton({
-			key: 'shift-/',
+			key: 'shift-.',
 			text: "play performance",
 			callback: () => {
 				this.playPerformance();
