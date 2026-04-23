@@ -61,7 +61,7 @@ export class MeterPanel extends UIPanel {
 			const left = map(v[0], -266, 0, 1, this.w - this.m * 8, true);
 			const right = map(v[1], -266, 0, 1, this.w - this.m * 8, true);
 
-			this.ctx.fillStyle = 'LawnGreen';
+			this.ctx.fillStyle = 'Cyan';
 			this.ctx.fillRect(this.m, this.m, left, this.m * 2);
 			this.ctx.fillRect(this.m, this.m * 4, right, this.m * 2);
 

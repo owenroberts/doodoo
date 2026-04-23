@@ -8,8 +8,17 @@
 	<title>greg live</title>
 	<style> 
 		body { 
-			background: radial-gradient(ellipse at right, #d0aad0, #fff9c4);
+/*			background: radial-gradient(ellipse at right, #d0aad0, #fff9c4);*/
 			height: 256px;
+			background: radial-gradient(ellipse at right, #d0aad0, #fff9c4);
+			background-size: 200% 100%;
+			animation: shiftGradient 8s ease-in-out infinite;
+		}
+
+		@keyframes shiftGradient {
+			0%   { background-position: 0% 50%; }
+			50%  { background-position: 100% 50%; }
+			100% { background-position: 0% 50%; }
 		}
 
 		/* move to oi later  */
