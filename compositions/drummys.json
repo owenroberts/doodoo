@@ -3,6 +3,16 @@
     "lastSavedOn": "Wed-Mar-06-2024",
     "createdOn": "Tue-Mar-05-2024",
     "versionIndex": 1,
+    "samples": {
+        "rick_garbage": { "key": "a", "src": "samples/free_will/rick_garbage.ogg" },
+        "rick_death": { "key": "b", "src": "samples/free_will/rick_death.ogg" },
+        "rain_2": { "key": "c", "src": "samples/free_will/rain_2.ogg" },
+        "rain_1": { "key": "d", "src": "samples/free_will/rain_1.ogg" },
+        "lekha_1": { "key": "e", "src": "samples/free_will/lekha_1.ogg" },
+        "paradise_lost_fate": { "key": "f", "src": "samples/free_will/paradise_lost_fate.ogg" },
+        "crow_1": { "key": "g", "src": "samples/free_will/crow_1.ogg" },
+        "bones": { "key": "h", "src": "samples/free_will/bones.ogg" }
+    },
     "versions": [
     {
         "tag": "original simple melody",

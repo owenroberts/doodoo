@@ -377,6 +377,7 @@ export class Doodoo {
 				let starts;
 				if (this.config.isLiveMode) {
 					starts = this.liveLoops[i];
+					console.log(i, starts);
 				} else {
 					let startIndex = 0;
 					for (let j = 0; j < this.comp.startLoops.length; j++) {
@@ -584,6 +585,7 @@ export class Doodoo {
 					let isLoopFound = false;
 					for (let k = 0; k < this.voices.length; k++) {
 						if (this.voices[k].partIndex !== i) continue;
+						console.log(i, this.voices[k].partIndex, this.voices[k].liveLoopIndex);
 						if (this.voices[k].liveLoopIndex === j) {
 							this.liveLoops[i].push(this.cloneVoice(this.voices[k]));
 							isLoopFound = true;
@@ -593,6 +595,7 @@ export class Doodoo {
 						for (let k = 0; k < this.voices.length; k++) {
 							if (isLoopFound) continue;
 							if (this.voices[k].hasOwnProperty('liveLoopIndex')) continue;
+							if (this.voices[k].partIndex !== i) continue;
 							let v = this.cloneVoice(this.voices[k]);
 							v.liveLoopIndex = j;
 							this.liveLoops[i].push(v);
