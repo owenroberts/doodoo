@@ -1,7 +1,7 @@
-import { UIButton, UIGraph, UIInputStep, UILabel, UIList, UINumberStep, UIPanel, UIRange, UIRow, UISelect, UIText, UITree } from '../../../oi/src/oi.js';
-import { Bounds, Modes } from '../../src/constants.js';
-import { defaults } from '../../src/defaults.js';
-import { MIDI_NOTES } from '../../src/midi.js';
+import { UIButton, UIGraph, UIInputStep, UILabel, UIList, UINumberStep, UIPanel, UIRange, UIRow, UISelect, UIText, UITree } from '@b/oi';
+import { Bounds, Modes } from '@b/doodoo/src/constants.js';
+import { defaults } from '@b/doodoo/src/defaults.js';
+import { MIDI_NOTES } from '@b/doodoo/src/midi.js';
 
 const modDefaults = {
 	min: { value: 0, step: 1 },

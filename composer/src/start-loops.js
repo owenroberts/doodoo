@@ -1,5 +1,5 @@
-import { UIPanel, UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText, UISelect } from '../../../oi/src/oi.js';
-import { SamplePaths } from '../../src/sample-paths.js';
+import { UIPanel, UIRow, UILabel, UIButton, UITree, UINumberStep, UISelectButton, UIToggleCheck, UIText, UISelect } from '@b/oi';
+import { SamplePaths } from '@b/doodoo/src/sample-paths.js';
 
 const startLoopDefaults = {
 	instrument: {

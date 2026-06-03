@@ -3,7 +3,7 @@
 	display is very convoluted nonsense that i should document at some point ...
 */
 
-import { MIDI_NOTES } from '../../src/midi.js';
+import { MIDI_NOTES } from '@b/doodoo/src/midi.js';
 
 export function Score(app) {
 

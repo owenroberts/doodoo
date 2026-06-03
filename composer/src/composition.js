@@ -1,7 +1,7 @@
-import { getDate } from '../../../cool/cool.js';
-import { MIDI_NOTES, getMIDINote } from '../../src/midi.js';
-import { defaults } from '../../src/defaults.js';
-import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '../../../oi/src/oi.js';
+import { getDate } from '@b/cool';
+import { MIDI_NOTES, getMIDINote } from '@b/doodoo/src/midi.js';
+import { defaults } from '@b/doodoo/src/defaults.js';
+import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '@b/oi';
 
 /**
  * edit composition level params for doodoo

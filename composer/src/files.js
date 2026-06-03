@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver';
-import { UIPanel, UIModal, UIButton } from '../../../oi/src/oi.js';
+import { UIPanel, UIModal, UIButton } from '@b/oi';
 
 /**
  * panel for greg file manager

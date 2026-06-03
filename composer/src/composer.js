@@ -1,10 +1,10 @@
-import '../css/composer.scss';
+import '@b/doodoo/composer/css/composer.scss';
 
-import { Doodoo } from '../../src/doodoo.js';
-import { DoodooFiles } from '../../src/doodoo-files.js';
-import { getDate } from '../../../cool/cool.js';
+import { Doodoo } from '@b/doodoo/src/doodoo.js';
+import { DoodooFiles } from '@b/doodoo/src/doodoo-files.js';
+import { getDate } from '@b/cool';
 
-import { Interface, Settings } from '../../../oi/src/oi.js';
+import { Interface, Settings } from '@b/oi';
 
 import { CompositionPanel } from './composition.js';
 import { FilesPanel } from './files.js';

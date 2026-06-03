@@ -1,5 +1,7 @@
 {
-	"name": "doodoo",
+	"name": "@b/doodoo",
+	"type": "module",
+	
 	"version": "0.0.1",
 	"description": "infinite background music",
 	"repository": {

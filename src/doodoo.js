@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { random, chance, getDate, assert, defineSafeProperty } from '../../cool/cool.js';
+import { random, chance, getDate, assert, defineSafeProperty } from '@b/cool';
 import { defaults } from './defaults.js';
 import { MIDI_NOTES } from './midi.js';
 import { Part } from './part.js';
@@ -377,7 +377,6 @@ export class Doodoo {
 				let starts;
 				if (this.config.isLiveMode) {
 					starts = this.liveLoops[i];
-					console.log(i, starts);
 				} else {
 					let startIndex = 0;
 					for (let j = 0; j < this.comp.startLoops.length; j++) {
@@ -585,7 +584,6 @@ export class Doodoo {
 					let isLoopFound = false;
 					for (let k = 0; k < this.voices.length; k++) {
 						if (this.voices[k].partIndex !== i) continue;
-						console.log(i, this.voices[k].partIndex, this.voices[k].liveLoopIndex);
 						if (this.voices[k].liveLoopIndex === j) {
 							this.liveLoops[i].push(this.cloneVoice(this.voices[k]));
 							isLoopFound = true;

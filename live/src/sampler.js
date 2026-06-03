@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { whichKeyMap } from '../../../cool/cool.js';
+import { whichKeyMap } from '@b/cool';
 import { UIPanel, UILabel, UIButton, UIElement, UIModal, UIText } from '../../../oi/src/oi.js';
 
 export class SamplerPanel extends UIPanel {
@@ -63,6 +63,10 @@ export class SamplerPanel extends UIPanel {
 
 	async keyDown(ev) {
 		if (!this.isLoaded) return;
+		if (ev.ctrlKey) return;
+		if (ev.shiftKey) return;
+		if (ev.altKey) return;
+		
 		let k = whichKeyMap[ev.which];
 		const sample = this.keyMap[k];
 

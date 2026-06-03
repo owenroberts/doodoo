@@ -1,5 +1,5 @@
+import { random, randInt, chance } from '@b/cool';
 import { Bundle } from './bundle.js';
-import { random, randInt, chance } from '../../cool/cool.js';
 import { getMelody, getHarmony, getCounterpoint } from './midi.js';
 import { createProperty } from './create-property.js';
 

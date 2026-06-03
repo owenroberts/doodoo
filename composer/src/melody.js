@@ -1,6 +1,6 @@
-import { strLog } from '../../../cool/cool.js';
-import { MIDI_NOTES } from '../../src/midi.js';
-import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '../../../oi/src/oi.js';
+import { strLog } from '@b/cool';
+import { MIDI_NOTES } from '@b/doodoo/src/midi.js';
+import { UIPanel, UILabel, UICollection, UIInputStep, UIButton, UIToggleGrid, UISelect } from '@b/oi';
 
 /**
  * for composing

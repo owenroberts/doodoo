@@ -1,7 +1,7 @@
 import * as Tone from 'tone';
+import { random, assert } from '@b/cool';
 import { SamplePaths } from './sample-paths.js';
 import { getFX } from './fx.js';
-import { random, assert } from '../../cool/cool.js';
 
 /**
  * loads samples and provides instruments

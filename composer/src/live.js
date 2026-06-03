@@ -3,9 +3,9 @@
 	choose what loops to keep, mod, kill
  */
 
-import { whichKeyMap } from '../../../cool/cool.js';
-import { UIPanel, UILabel, UIButton, UIElement } from '../../../oi/src/oi.js';
-import { LoopStates } from '../../src/constants.js';
+import { whichKeyMap } from '@b/cool';
+import { UIPanel, UILabel, UIButton, UIElement } from '@b/oi';
+import { LoopStates } from '@b/doodoo/src/constants.js';
 
 export class LivePanel extends UIPanel {
 	constructor(doodoo, ui) {

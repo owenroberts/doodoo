@@ -1,6 +1,6 @@
+import { random, chance, getNumberPrecision } from '@b/cool';
 import { createProperty } from './create-property.js';
 import { Modes, Bounds } from './constants.js';
-import { random, chance, getNumberPrecision } from '../../cool/cool.js';
 
 /**
  * modulators change property values over time

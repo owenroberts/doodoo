@@ -1,4 +1,4 @@
-import { UIPanel, UIButton, UIRow, UILabel } from '../../../oi/src/oi.js';
+import { UIPanel, UIButton, UIRow, UILabel } from '@b/oi';
 
 /**
  * manage versions of composition

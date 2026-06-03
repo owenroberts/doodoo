@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '../../../oi/src/oi.js';
+import { UIPanel, UILabel, UIModal, UIButton, UIElement } from '@b/oi';
 
 /**
  * play, stop, etc.

@@ -1,4 +1,4 @@
-import { whichKeyMap } from '../../../cool/cool.js';
+import { whichKeyMap } from '@b/cool';
 import { UIPanel, UILabel, UIButton, UIElement } from '../../../oi/src/oi.js';
 import { LoopStates } from '../../src/constants.js';
 

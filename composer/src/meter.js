@@ -1,5 +1,5 @@
-import { map } from '../../../cool/cool.js';
-import { UIPanel } from '../../../oi/src/oi.js';
+import { map } from '@b/cool';
+import { UIPanel } from '@b/oi';
 
 /**
  * visualize overall loudness of the output

@@ -1,6 +1,6 @@
-import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch, UIList, UIToggleCheck } from '../../../oi/src/oi.js';
-import { defaults } from '../../src/defaults.js';
-import { defaultModSet, compModList } from '../../src/constants.js';
+import { UIRow, UITree, UIButton, UINumberStep, UIGraph, UILabel, UISelect, UISelectButton, UIToggle, labelFromKey, UIPanel, UIInputSearch, UIList, UIToggleCheck } from '@b/oi';
+import { defaults } from '@b/doodoo/src/defaults.js';
+import { defaultModSet, compModList } from '@b/doodoo/src/constants.js';
 
 /**
  * add new mods

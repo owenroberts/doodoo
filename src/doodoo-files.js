@@ -1,4 +1,4 @@
-import { getDate, assert, defineSafeProperty, log, strLog } from '../../cool/cool.js';
+import { getDate, assert, defineSafeProperty, log, strLog } from '@b/cool';
 
 /**
  * handle loading and saving greg files

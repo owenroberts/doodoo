@@ -1,4 +1,4 @@
-import { choice, coinFlip, assert } from '../../cool/cool.js';
+import { choice, coinFlip, assert } from '@b/cool';
 
 const debug = false && import.meta.env.DEV;
 

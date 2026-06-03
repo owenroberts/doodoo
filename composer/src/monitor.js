@@ -1,4 +1,4 @@
-import { UIRow, UILabel, UIPanel, UIElement, UICollection } from '../../../oi/src/oi.js';
+import { UIRow, UILabel, UIPanel, UIElement, UICollection } from '@b/oi';
 
 /**
  * monitor property values in realtime

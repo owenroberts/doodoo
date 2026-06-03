@@ -1,6 +1,6 @@
+import { random } from '@b/cool';
 import { Modulator } from './modulator.js';
 import { Property } from './property.js';
-import { random } from '../../cool/cool.js';
 
 /**
  * stack property
