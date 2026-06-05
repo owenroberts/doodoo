@@ -246,6 +246,7 @@ export class Doodoo {
 	}
 
 	start() {
+		if (this.toneLoop) this.toneLoop.dispose();
 		this.toneLoop = new Tone.Loop(time => {
 			this.playLoop(time);
 		}, this.config.defaultBeat);
