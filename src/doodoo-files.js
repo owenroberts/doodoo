@@ -67,12 +67,9 @@ export class DoodooFiles {
 		}
 
 		if (needsTitleConfirm) {
-			const confirmTitle = confirm(`confirm title: ${this.data.title}`);
-			if (!confirmTitle) {
-				const newTitle = prompt('new title', this.data.title);
-				if (!newTitle) return;
-				this.data.title = newTitle;
-			}
+			const newTitle = prompt('confirm title', this.data.title);
+			if (!newTitle) return;
+			this.data.title = newTitle;
 		}
 
 		// title can't be "title", will mess up local storage of title for loading

@@ -102,8 +102,6 @@ export class FilesPanel extends UIPanel {
 		const saveData = this.fm.save();
 		this.ui.faces.title.update(this.fm.data.title);
 
-		
-
 		try {
 			localStorage.setItem(`greg-${this.fm.data.title}`, JSON.stringify(saveData));
 			localStorage.setItem('greg-title', this.fm.data.title);
