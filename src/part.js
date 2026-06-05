@@ -108,13 +108,15 @@ export class Part {
 	 */
 	get(startLoops, voiceCountOverride, comp) {
 
+
 		const voices = [];
 
 		let startLoopCount = 0;
 		for (let i = 0; i < startLoops.length; i++) {
-			if (startLoops[i].counterpoint === false) {
+			// if (startLoops[i].counterpoint === false) {
+			if (!startLoops[i].counterpoint) {
 				startLoopCount++;
-			} 
+			}
 		}
 
 		let voiceCount = startLoopCount > 0 ? startLoopCount : this.mods.voiceNum.getInt();
@@ -189,7 +191,7 @@ export class Part {
 				isHarmony = true;
 				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.isScaleNotesOnly);
 			} else {
-				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale);
+				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale, comp.isScaleNotesOnly);
 			}
 
 			const voice = {

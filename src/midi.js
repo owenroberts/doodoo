@@ -65,27 +65,60 @@ export function constrainNoteRange(midiNoteNum) {
  * @param  {array}  scale     key scale intervals
  * @return {array}           
  */
-export function getMelody(melody, tonic, transpose, scale) {
+export function getMelody(melody, tonic, transpose, scale, isScaleNotesOnly=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
+			const scaleIndex = getScaleIndex(note[0], tonic, scale);
 			const midiPitch = MIDI_NOTES.indexOf(note[0]) - getMidiInterval(tonic, transpose);
-			note[0] = MIDI_NOTES[constrainNoteRange(midiPitch)];
+			if (scaleIndex === -1 && isScaleNotesOnly) {
+				const midiTonic = MIDI_NOTES.indexOf(tonic);
+				const newScaleIndex = getClosestScaleIndex(midiPitch, midiTonic, scale);
+				const diff = midiPitch - midiTonic;
+				const octaveDiff = (Math.floor(midiPitch / 12) - Math.floor(midiTonic / 12)) * 12;
+				const newPitch = scale[(newScaleIndex) % scale.length];
+				let offset = Math.floor(Math.abs(diff) / 12) * 12 * Math.sign(diff); 
+				let newMidi = MIDI_NOTES.indexOf(tonic) + newPitch + offset + octaveDiff;
+				note[0] = MIDI_NOTES[constrainNoteRange(newMidi)];
+				
+			} else {
+				note[0] = MIDI_NOTES[constrainNoteRange(midiPitch)];
+			}
 			return note;
 		}
 	});
 }
 
 /**
+ * get scale closest scale index of note
+ * @param  {number} midiPitch - pitch as midi
+ * @param  {number} midiTonic - tonic as midi
+ * @param  {array} scale      - scale intervals
+ * @return {number}           - new pitch scale index
+ */
+function getClosestScaleIndex(midiPitch, midiTonic, scale) {
+	let closest = 12;
+	let newIndex = 0;
+	for (let i = 0; i < scale.length; i++) {
+		let int = Math.abs(midiPitch - (midiTonic + scale[i]));
+		if (int < closest) {
+			closest = int;
+			newIndex = i;
+		}
+	}
+	return newIndex;
+}
+
+/**
  * get haromy sequence from melody
  * @param  {array}   melody           
- * @param  {string}  tonic            tonic as midi
- * @param  {string}  transpose        transpose key as midi
- * @param  {number}  interval         harmony as numericinterval
- * @param  {array}   scale             scale of key expressed as numeric intervals
+ * @param  {string}  tonic            - tonic as midi
+ * @param  {string}  transpose        - transpose key as midi
+ * @param  {number}  interval         - harmony as numericinterval
+ * @param  {array}   scale            - scale of key expressed as numeric intervals
  * @param  {boolean} useOctave        
  * @param  {boolean} isScaleNotesOnly 
- * @return {array}                   [
+ * @return {array}
  */
 export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, isScaleNotesOnly=true) {
 	return melody.map(note => {
@@ -111,6 +144,7 @@ export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=
 			if (scaleIndex === -1) {
 				// test -- what do do here? find closest in scale or just interval
 				// up or down?
+				const newScaleIndex = getClosestScaleIndex(midiPitch, midiTonic, scale);
 				
 				let closest = 12;
 				let newIndex = 0;
