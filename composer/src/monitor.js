@@ -95,7 +95,7 @@ export class MonitorPanel extends UIPanel {
 				const propKey = k.replace("monitor-", "");
 				let value = ".";
 				if (this.props[k] && voice.hasOwnProperty(propKey)) {
-					value = this.formatProp(k, voice[propKey]);
+					value = this.formatProp(propKey, voice[propKey]);
 				} else if (this.props[k] && i === 0) {
 					if (propKey === "bpm") value = comp.bpm;
 					if (propKey === "transpose") value = comp.transpose;
