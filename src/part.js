@@ -114,6 +114,7 @@ export class Part {
 		let startLoopCount = 0;
 		for (let i = 0; i < startLoops.length; i++) {
 			// if (startLoops[i].counterpoint === false) {
+			// counterpoint undefined in start loops, or false in live loops
 			if (!startLoops[i].counterpoint) {
 				startLoopCount++;
 			}

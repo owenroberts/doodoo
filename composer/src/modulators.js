@@ -177,7 +177,6 @@ export class ModulatorsPanel extends UIPanel {
 
 	closeEditor() {
 		if (this.modInEditor !== "none") {
-			console.log(this.modInEditor, this.modsRow.children)
 			this.modsRow.children[this.modInEditor].children.toggle.off();
 			this.modsRow.children[this.modInEditor].removeClass('prop-edit');
 			this.modInEditor = "none";

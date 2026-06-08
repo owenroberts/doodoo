@@ -77,7 +77,6 @@ export class CompositionPanel extends UIPanel {
 	load() {
 		for (const k in this.doodoo.comp) {
 			if (this.children[k]) {
-				// console.log(k, this.doodoo.comp[k]);
 				this.children[k].update(this.doodoo.comp[k]);
 			}
 		}

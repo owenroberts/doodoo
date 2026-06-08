@@ -114,7 +114,6 @@ export class FilesPanel extends UIPanel {
 			}
 		}
 
-		console.log('save', saveData);
 		return saveData;
 	}
 
@@ -126,13 +125,19 @@ export class FilesPanel extends UIPanel {
 		if (!title) return alert('No title.');
 
 		const localData = localStorage.getItem('greg-' + title);
+		
 		if (!localData) {
 			const localSaves = Object.keys(localStorage).filter(k => k.includes('greg'));
 			return alert('No data, Locals saves: ' + localSaves);
 		}
 
-		const data = JSON.parse(localData);
-		this.load(data);
+		try {
+			const data = JSON.parse(localData);
+			this.load(data);
+		} catch(error) {
+			console.warn(`file ${title} has no data`);
+			alert("no data, try list local");
+		}
 	}
 
 	listLocal() {
@@ -145,20 +150,22 @@ export class FilesPanel extends UIPanel {
 			.filter(k => k.includes('greg') && !k.includes('title') && !k.includes("settings"));
 
 		localSaves.forEach(title => {
-			m.add(new UIButton({
+			const titleButton = m.add(new UIButton({
 				text: title.replace('greg-', ''),
 				callback: () => { 
 					this.loadLocal(title.replace('greg-', ''));
 					m.clear();
 				}
 			}));
-			m.add(new UIButton({
+			const removeButton = m.add(new UIButton({
 				text: "X",
 				callback: () => {
 					const confirmDelete = confirm(`delete local save ${title}?`);
 					if (confirmDelete) {
 						localStorage.removeItem(title);
-						m.clear();
+						titleButton.remove();
+						removeButton.remove();
+						// m.clear();
 					}
 				}
 			}));

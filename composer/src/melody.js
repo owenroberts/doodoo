@@ -18,6 +18,9 @@ export class MelodyPanel extends UIPanel {
 		this.noteWidth = 80;
 		this.notesPerLine = 4;
 
+		this.isNoteDisplay = true;
+		this.addClass("note-display");
+
 		this.defaultBeat = '4n';
 		this.beatList = ['32n', '16n', '8n', '4n', '2n', '1n']; // n.s are hard use rests for now
 
@@ -33,6 +36,12 @@ export class MelodyPanel extends UIPanel {
 		this.addRef({
 			obj: this,
 			ref: "notesPerLine",
+			callback: () => { this.display(); },
+		});
+
+		this.addRef({
+			obj: this,
+			ref: 'isNoteDisplay',
 			callback: () => { this.display(); },
 		});
 		
@@ -91,7 +100,7 @@ export class MelodyPanel extends UIPanel {
 		this.addBreak();
 
 		this.partRows[0] = this.addRow({ id: "part-0", class: "part" });
-		this.partRows[0].addClass("break-line-up");
+		this.partRows[0].addClass("break-line-up"); 
 	}
 
 	midiFormat(pitch) {
@@ -171,7 +180,10 @@ export class MelodyPanel extends UIPanel {
 		note.add(new UIButton({
 			text: '𝄽',
 			class: 'rest',
-			callback: () => { note.pitch.value = 'rest'; },
+			callback: () => { 
+				note.pitch.value = 'rest';
+				this.update();
+			},
 		}));
 
 		note.add(new UIButton({ 
@@ -308,18 +320,25 @@ export class MelodyPanel extends UIPanel {
 
 		// get number of parts and width of comp area
 		const n = parts.length;
-		
-		const width = this.el.getBoundingClientRect().width;
+
+		// get width of the panel - -6 six for padding
+		const width = Math.floor(this.el.getBoundingClientRect().width - 6);
 
 		// get smallest note
 		const beats = parts.flatMap(p => { return p.map(n => n[1]) });
 		let noteDivision = Math.max(...beats.map(d => parseInt(d)));
-		if (beats.includes(noteDivision + 'n.')) noteDivision * 2;
+		// if (beats.includes(noteDivision + 'n.')) noteDivision * 2; no . for now
 		if (noteDivision < 0) noteDivision = '4n';
 
-		this.setStyle('--column-width', Math.floor((width - 3 * this.notesPerLine ) / this.notesPerLine));
+		this.setStyle('--column-width', Math.floor((width - 2 * this.notesPerLine) / this.notesPerLine));
 		this.setStyle('--notes-per-row', this.notesPerLine);
 		this.setStyle('--default-beat', noteDivision);
+
+		if (this.isNoteDisplay) {
+			this.addClass("note-display");
+		} else {
+			this.removeClass("note-display");
+		}
 	}
 
 	clearPart() {

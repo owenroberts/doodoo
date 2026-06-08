@@ -1,10 +1,10 @@
-@use "../../../oi/css/_global.scss" as *;
-@use "../../../oi/css/_colors.scss" as *;
-@use "../../../oi/css/_layout.scss" as *;
-@use "../../../oi/css/_mixins.scss" as *;
-@use "../../../oi/css/_mobile.scss" as *;
-@use "../../../oi/css/_panel.scss" as *;
-@use "../../../oi/css/_components.scss" as *;
+@use "@b/oi/css/_global.scss" as *;
+@use "@b/oi/css/_colors.scss" as *;
+@use "@b/oi/css/_layout.scss" as *;
+@use "@b/oi/css/_mixins.scss" as *;
+@use "@b/oi/css/_mobile.scss" as *;
+@use "@b/oi/css/_panel.scss" as *;
+@use "@b/oi/css/_components.scss" as *;
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Music&display=swap');
 
@@ -14,6 +14,29 @@
 
 #melody-panel {
 	--ui-scale: 12;
+	--column-width: 80;
+	--notes-per-row: 4;
+	--default-beat: 4;
+
+	&.b1n, &.b4n, &.b8n, &.b16n {
+		grid-column: span 2;
+	}
+
+	&.note-display {
+		.b1n { grid-column: span calc(var(--default-beat) / 1); }
+		// &.b1ndot { grid-column: span calc(var(--default-beat) / 1 + var(--default-beat) / 2); }
+
+		.b2n { grid-column: span calc(var(--default-beat) / 2); }
+		// &.b2ndot { grid-column: span calc(var(--default-beat) / 2 + var(--default-beat) / 4); }
+		
+		.b4n { grid-column: span calc(var(--default-beat) / 4); }
+		// &.b4ndot { grid-column: span calc(var(--default-beat) / 4 + var(--default-beat) / 8); }
+		
+		.b8n { grid-column: span calc(var(--default-beat) / 8); }
+		// &.b8ndot { grid-column: span calc(var(--default-beat) / 8 + var(--default-beat) / 16); }
+
+		.b16n { grid-column: span calc(var(--default-beat) / 16); }
+	}
 }
 
 // #melody *,
@@ -22,38 +45,37 @@
 	font-size: calc(var(--ui-scale) * 1px);
 }
 
-#melody {
-	--note-width: 80;
-	--notes-per-row: 4;
-	--column-width: 80;
-	--num-rows: 1; 
-	--row-height: 60;
-	--default-beat: 4;
-}
-
 // #melody,
 .panel .row.part {
 
 	display: grid;
 	grid-template-columns: repeat(
-		var(--notes-per-row), 
-		calc(var(--column-width) * 1px)
+		var(--notes-per-row),
+		minmax(0, 1fr),
 	);
 	grid-gap: 2px;
+	// justify-content: space-around;
 	padding-top: 2px;
-	// grid-template-rows: repeat(var(--num-rows), calc(var(--row-height) * 1px));
-	// grid-template-rows: repeat(var(--num-rows), auto);
+	margin-right: 0;
 
 	.note-collection {
 
+		// width: calc(var(--column-width) * 1px);
+
 		// border: 1px dotted $text-color;
 		background: #cbcbff;
+		
+		overflow: hidden;
+		word-break: break-word;
+		min-width: 0;
 		
 		// padding: 2px;
 		// margin: 2px;
 		position: relative;
 		display: block;
 		margin-left: 0;
+		margin-right: 0;
+		
 
 		input[type=text] {
 			margin: 0;
@@ -67,6 +89,10 @@
 				background: $ui-highlight;
 				color: white;
 			}
+		}
+
+		.ui-collection {
+			flex-wrap: nowrap;
 		}
 
 		.pitch-edit { 
@@ -118,19 +144,6 @@
 		button.rest {
 			right: 28px;
 		}
-
-		&.b1n { grid-column: span calc(var(--default-beat) / 1); }
-		&.b1ndot { grid-column: span calc(var(--default-beat) / 1 + var(--default-beat) / 2); }
-
-		&.b2n { grid-column: span calc(var(--default-beat) / 2); }
-		&.b2ndot { grid-column: span calc(var(--default-beat) / 2 + var(--default-beat) / 4); }
-		
-		&.b4n { grid-column: span calc(var(--default-beat) / 4); }
-		&.b4ndot { grid-column: span calc(var(--default-beat) / 4 + var(--default-beat) / 8); }
-		
-		&.b8n { grid-column: span calc(var(--default-beat) / 8); }
-		&.b8ndot { grid-column: span calc(var(--default-beat) / 8 + var(--default-beat) / 16); }
-		
 	}
 }
 

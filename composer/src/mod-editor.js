@@ -82,7 +82,7 @@ export class ModEditorPanel extends UIPanel {
 	getUIDataType(propRef) {
 		let type = 'number';
 		if (propRef.hasOwnProperty('uiDataType')) {
-			type = propRef.type;
+			type = propRef.uiDataType;
 		} else if (propRef.options?.[0] === "C_1") {
 			type = "note-list";
 		} else if (propRef.hasOwnProperty('list')) {
@@ -92,14 +92,14 @@ export class ModEditorPanel extends UIPanel {
 			if (typeof propRef.list[0] === 'number') {
 				type = 'number-list';
 			}
-		}else if (propRef.hasOwnProperty('stack')) {
+		} else if (propRef.hasOwnProperty('stack')) {
 			type = 'stack';
 		}
 		return type;
 	}
 
 	set(index, propName) {
-		// console.log(index, this.modsets);
+		// console.log(index, propName, this.modsets[index].mods[propName]);
 		const mods = this.modsets[index].mods;
 
 		if (!mods[propName]) {
@@ -184,7 +184,6 @@ export class ModEditorPanel extends UIPanel {
 	}
 
 	addValue(row, propName, propRef, level=0, label) {
-
 		row.add(new UILabel({ text: label ?? propName }));
 		// console.log(propName)
 		const uiClass = propRef.uiDataType === "chance" ? UIRange : UINumberStep;
@@ -198,6 +197,7 @@ export class ModEditorPanel extends UIPanel {
 
 	addList(row, propName, propRef, level=0, label) {
 
+		console.log(propRef)
 
 		let uiListClass = UIList;
 		let uiListParams = {
@@ -225,6 +225,8 @@ export class ModEditorPanel extends UIPanel {
 				uiListParams.ui = this.ui;
 			break;
 		}
+
+		console.log({uiListClass, uiListParams});
 
 		const listUI = new uiListClass(uiListParams);
 		

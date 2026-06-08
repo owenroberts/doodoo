@@ -13,7 +13,7 @@ export class PlaybackPanel extends UIPanel {
 		this.doodoo = doodoo;
 		this.isSaveOnPlay = false;
 
-		this.add(new UILabel({ text: 'Loop' }));
+		this.add(new UILabel({ text: 'loop' }));
 		const loopCountDisplay = this.add(new UILabel({
 			id: 'loop-count',
 			text: '0',
