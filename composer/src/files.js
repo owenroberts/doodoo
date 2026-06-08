@@ -127,8 +127,7 @@ export class FilesPanel extends UIPanel {
 		const localData = localStorage.getItem('greg-' + title);
 		
 		if (!localData) {
-			const localSaves = Object.keys(localStorage).filter(k => k.includes('greg'));
-			return alert('No data, Locals saves: ' + localSaves);
+			alert("no data, try list local");
 		}
 
 		try {

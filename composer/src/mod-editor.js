@@ -197,8 +197,6 @@ export class ModEditorPanel extends UIPanel {
 
 	addList(row, propName, propRef, level=0, label) {
 
-		console.log(propRef)
-
 		let uiListClass = UIList;
 		let uiListParams = {
 			obj: propRef,
@@ -247,7 +245,7 @@ export class ModEditorPanel extends UIPanel {
 
 	addStack(row, propName, propRef, level=0, label) {
 		// make this a ui?
-		
+
 		const stacks = [];
 
 		row.add(new UIButton({
@@ -266,14 +264,14 @@ export class ModEditorPanel extends UIPanel {
 			text: '+',
 			class: 'right-end',
 			callback: () => {
-				addStack(stacks.length);
+				addNewStack(stacks.length);
 				updateStack(); 
 			}
 		}));
 
 		row.addBreak();
 
-		function addStack(i, list) {
+		function addNewStack(i, list) {
 			// console.log('add stack', i, list);
 			const stackRow = row.add(new UIRow());
 			stackRow.add(new UILabel({ text: 'stack ' + i }));
@@ -308,7 +306,7 @@ export class ModEditorPanel extends UIPanel {
 		}
 
 		for (let i = 0; i < propRef.stack.length; i++) {
-			addStack(i, propRef.stack[i].list);
+			addNewStack(i, propRef.stack[i].list);
 		}
 	}
 
