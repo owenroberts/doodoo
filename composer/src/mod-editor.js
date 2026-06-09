@@ -176,7 +176,7 @@ export class ModEditorPanel extends UIPanel {
 			break;
 
 			case "stack":
-				propRef.stack = [[]];
+				// propRef.stack = [[]]; // why??? 
 				propRef.options = defaults[propName].options ?? [];
 				this.addStack(row, propName, propRef);
 			break;
