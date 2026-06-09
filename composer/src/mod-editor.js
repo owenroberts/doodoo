@@ -108,20 +108,20 @@ export class ModEditorPanel extends UIPanel {
 
 		if (mods[propName].isBundle) {
 			
-			this.propsRow.add(new UILabel({ text: `${propName} bundle` }));
+			this.propsRow.add(new UILabel({ text: `${propName} bundle`, class: "mod-prop-label" }));
 			this.propsRow.addBreak();
 
 			for (const k in mods[propName]) {
 				if (k === 'isBundle') continue; // still have to do this??
 
 				const propRow = this.paramsRow.add(new UIRow());
-				propRow.add(new UILabel({ text: k }));
+				propRow.add(new UILabel({ text: k, class: "mod-prop-label" }));
 				propRow.addBreak();
 				propRow.add(new UILabel({ text: "data type" }));
 				this.addModEdit(propRow, k, mods[propName][k]);
 			}
 		} else {
-			this.propsRow.add(new UILabel({ text: propName }));
+			this.propsRow.add(new UILabel({ text: propName, class: "mod-prop-label" }));
 			this.propsRow.addBreak();
 			this.paramsRow.add(new UILabel({ text: "data type" }));
 			this.addModEdit(this.paramsRow, propName, mods[propName]);

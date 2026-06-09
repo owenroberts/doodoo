@@ -135,6 +135,7 @@ export class Doodoo {
 		// mods that effect entire composition
 		const compMods = structuredClone(this.comp.modsets[0].mods);
 		this.mods = {};
+		
 		if (compMods.scale) {
 			this.mods.scale = createProperty(compMods.scale, 'scale');
 		}
