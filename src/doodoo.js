@@ -251,9 +251,9 @@ export class Doodoo {
 		this.toneLoop = new Tone.Loop(time => {
 			this.playLoop(time);
 		}, this.config.defaultBeat);
-		Tone.Transport.start();
-		Tone.Transport.bpm.value = this.comp.bpm;
-		this.toneLoop.start(Tone.Transport.seconds);
+		Tone.getTransport().start();
+		Tone.getTransport().bpm.value = this.comp.bpm;
+		this.toneLoop.start(Tone.getTransport().seconds);
 		
 		// master ing
 		var compressor = new Tone.Compressor({
@@ -357,13 +357,15 @@ export class Doodoo {
 	generateLoop(time) {
 		if (this.config.withCount) {
 			if (this.loopCount >= this.config.withCount * this.sequenceLength) {
-				Tone.Transport.stop(time);
+				Tone.getTransport().stop(time);
 				this.isPlaying = false;
 				this.saveRecording();
 				this.savePerformance();
 				return;
 			}
 		}
+
+		// console.log('gen', JSON.stringify(this.comp.sequence));
 
 		this.beatCounter = 0;
 		this.instruments.dispose();
@@ -464,6 +466,12 @@ export class Doodoo {
 
 		const smallestBeat = Math.max(...this.voices.flatMap(v => v.melody.map(b => parseInt(b[1]))));
 		this.toneLoop.interval = smallestBeat + 'n';
+
+		// console.log('gen', this.beatCount, this.voices);
+		// for catslair, not sure if it works for normal
+		if (this.beatCount === 0 && this.voices.length === 0) {
+			this.isPlaying = false;
+		}
 		
 		for (let i = 0; i < this.parts.length; i++) {
 			if (this.comp.sequence[i][this.sequenceIndex]) {
@@ -489,7 +497,7 @@ export class Doodoo {
 
 		if (this.mods.bpm) {
 			this.comp.bpm = this.mods.bpm.get();
-			Tone.Transport.bpm.value = this.comp.bpm;
+			Tone.getTransport().bpm.value = this.comp.bpm;
 		}
 
 		if (this.config.onMod) {
@@ -504,8 +512,8 @@ export class Doodoo {
 
 		this.loopCount++;
 		
-		if (Tone.Transport.state === 'stopped') {
-			Tone.Transport.start();
+		if (Tone.getTransport().state === 'stopped') {
+			Tone.getTransport().start();
 		}
 		
 		if (this.config.isSavePerformance) {
@@ -527,7 +535,7 @@ export class Doodoo {
 
 	getPerformanceLoop() {
 		if (this.performanceLoopIndex >= this.performance.loops.length) {
-			Tone.Transport.stop();
+			Tone.getTransport().stop();
 			this.isPlaying = false;
 			saveRecording();
 			return;
@@ -547,7 +555,7 @@ export class Doodoo {
 			this.voices[i].toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
 		}
 
-		if (Tone.Transport.state === 'stopped') Tone.Transport.start();
+		if (Tone.getTransport().state === 'stopped') Tone.getTransport().start();
 		if (this.config.onLoop) {
 			this.config.onLoop(this.loopCount);
 		}
@@ -657,12 +665,12 @@ export class Doodoo {
 
 	shiftBPM(n) {
 		this.comp.bpm += n;
-		Tone.Transport.bpm.value = this.comp.bpm;
+		Tone.getTransport().bpm.value = this.comp.bpm;
 	}
 
 	setBPM(bpm) {
 		this.comp.bpm += bmp;
-		Tone.Transport.bpm.value = this.comp.bpm;
+		Tone.getTransport().bpm.value = this.comp.bpm;
 	}
 
 	shiftScale(index, step) {
@@ -714,14 +722,20 @@ export class Doodoo {
 		this.loopCount = 0;
 		
 		this.playNext();
-		this.toneLoop.start(Tone.Transport.seconds);
+
+		// fix for catslair time issue
+		Tone.getTransport().stop();
+		Tone.getTransport().start();
+		// end fix
+
+		this.toneLoop.start(Tone.getTransport().seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
 		if (this.config.withRecording) this.recorder.start();
 	}
 
 	stop() {
-		Tone.Transport.stop();
+		Tone.getTransport().stop();
 		this.toneLoop.stop();
 		for (let i = 0; i < this.voices.length; i++) {
 			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');

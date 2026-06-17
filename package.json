@@ -1,7 +1,7 @@
 {
 	"name": "@b/doodoo",
 	"type": "module",
-	
+	"main": "src/doodoo.js",
 	"version": "0.0.1",
 	"description": "infinite background music",
 	"repository": {

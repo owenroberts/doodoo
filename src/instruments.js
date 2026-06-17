@@ -19,6 +19,10 @@ export class Instruments {
 
 	load(callback) {
 
+		if (this.isLoaded) {
+			return callback();
+		}
+
 		if (this.loadList.length === 0) {
 			this.isLoaded = true;
 			return callback();

@@ -238,32 +238,34 @@ export class MelodyPanel extends UIPanel {
 		const row = this.partRows.pop();
 
 		if (this.partIndex > this.partRows.length - 1) {
-			this.partIndex = this.partIndex - 1;
+			// this.partIndex = this.partIndex - 1;
+			this.children.partIndex.update(this.partIndex - 1);
 		}
 		
 		this.removeRow(row);
 		// this.ui.faces.partIndex.update(this.partIndex, true);
 
-		// this.doodoo.comp.sequence.pop();
+		this.doodoo.comp.sequence.pop();
 		
 		this.update();
 		this.updateSequence();
 	}
 
 	updateSequence() {
+
 		// add a part if there are new parts
 		if (this.partRows.length > this.doodoo.comp.sequence.length) {
 			for (let i = this.doodoo.comp.sequence.length; i < this.partRows.length; i++) {
 				// fill fine bc its primitive
 				this.doodoo.comp.sequence.push(Array(this.doodoo.comp.sequence[0].length).fill(true));
-				this.sequenceGrid.update(this.doodoo.comp.sequence);
 			}
 		} else if (this.partRows.length < this.doodoo.comp.sequence.length) {
 			for (let i = this.partRows.length; i >= this.doodoo.comp.sequence.length; i--) {
 				this.doodoo.comp.sequence.pop();
-				this.sequenceGrid.update(this.doodoo.comp.sequence);
 			}
 		}
+
+		this.sequenceGrid.update(this.doodoo.comp.sequence);
 	}
 
 	double() {

@@ -130,13 +130,17 @@ export class FilesPanel extends UIPanel {
 			alert("no data, try list local");
 		}
 
-		try {
-			const data = JSON.parse(localData);
-			this.load(data);
-		} catch(error) {
-			console.warn(`file ${title} has no data`);
-			alert("no data, try list local");
-		}
+		const data = JSON.parse(localData);
+		this.load(data);
+
+		// idk wtf this is but obscuring an error ...
+		// try {
+		// 	const data = JSON.parse(localData);
+		// 	this.load(data);
+		// } catch(error) {
+		// 	console.warn(`file ${title} has no data`);
+		// 	alert("no data, try list local");
+		// }
 	}
 
 	listLocal() {
