@@ -245,6 +245,8 @@ export class ModEditorPanel extends UIPanel {
 
 	addStack(row, propName, propRef, level=0, label) {
 		// make this a ui?
+		
+		console.log('add stack', propName, propRef);
 
 		const stacks = [];
 
