@@ -126,7 +126,12 @@ export class PlaybackPanel extends UIPanel {
 
 		this.doodoo.reset();
 		this.doodoo.config.withRecording = withRecording;
-		this.doodoo.config.withCount = withCount;
+		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 
+		if (withRecording) {
+			this.doodoo.config.withCount = +prompt("record number of loops?", 12);
+		} else {
+			this.doodoo.config.withCount = withCount;
+		}
 		this.doodoo.config.isLiveMode = isLiveMode;
 
 		if (localPerformance) {

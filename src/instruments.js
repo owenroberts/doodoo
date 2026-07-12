@@ -12,7 +12,7 @@ export class Instruments {
 		this.samples = {};
 		this.isLoaded = false;
 		this.samplesURL = params.samplesURL;
-		this.withRecording = params.withRecording ?? false;
+		// this.withRecording = params.withRecording ?? false;
 		this.toDispose = [];
 		this.loadList = [];
 	}
@@ -68,12 +68,12 @@ export class Instruments {
 			this.getSynth(voiceParams) :
 			this.getSampler(instrument, voiceParams);
 
-		if (this.withRecording) i.chain(Tone.Destination, recorder);
+		if (recorder) i.chain(Tone.Destination, recorder);
 		else i.toDestination();
 
 		for (const fxName in voiceParams.fx) {
 			const f = getFX(fxName, voiceParams.fx[fxName]);
-			if (this.withRecording) f.chain(Tone.Destination, recorder);
+			if (recorder) f.chain(Tone.Destination, recorder);
 			else f.toDestination();
 			i.connect(f);
 			this.toDispose.push(f);

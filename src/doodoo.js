@@ -295,11 +295,24 @@ export class Doodoo {
 			}).toDestination();
 		}
 
+		
+		if (this.config.withRecording) {
+			if (!this.recorder) {
+				this.recorder = new Tone.Recorder();
+				if (!this.config.withCount) {
+					this.config.withCount = +prompt("record number of loops?", 12);
+				}
+			}
+			this.recorder.start();
+		} else {
+			if (this.recorder) this.recorder.dispose();
+			this.recorder = undefined;
+		}
+
 		this.isPlaying = true;
 		if (this.config.autoStart || this.config.playOnStart) {
 			this.playNext();
 		}
-		if (this.config.withRecording) this.recorder.start();
 	}
 
 	playLoop(time) {
@@ -632,30 +645,34 @@ export class Doodoo {
 		}
 	}
 
+	checkMeter() {
+		if (this.meter.getValue()[0] < -256) {
+			clearInterval(this.saveInterval);
+			this.saveFile();
+		}
+	}
+
+	async saveFile() {
+		const recording = await this.recorder.stop();
+		const url = URL.createObjectURL(recording);
+		const anchor = document.createElement("a");
+		const title = (localStorage.getItem("greg-title") ?? "greg") + "-" + getDate().toLowerCase();
+		const audioName = prompt('Name clip', title);
+		anchor.download = audioName + ".webm";
+		anchor.href = url;
+		anchor.click();
+	}
+
 	saveRecording() {
 		if (!this.config.withRecording) return;
 		if (!this.recorder.state === 'started') return;
 		if (!this.recorder) return;
 	
-		function checkMeter() {
-			if (this.meter.getValue()[0] < -256) {
-				clearInterval(saveInterval);
-				saveFile();
-			}
-		}
 			
-		async function saveFile() {
-			const recording = await this.recorder.stop();
-			const url = URL.createObjectURL(recording);
-			const anchor = document.createElement("a");
-			const audioName = prompt('Name clip', params.title || "Doodoo_" + new Date().toDateString().replace(/ /g, '-'));
-			anchor.download = audioName + ".webm";
-			anchor.href = url;
-			anchor.click();
-		}
-
 		// wait for sound to stop
-		let saveInterval = setInterval(checkMeter, 1000 / 30);
+		this.saveInterval = setInterval(() => {
+			this.checkMeter();
+		}, 1000 / 30);
 	}
 
 	shiftTranspose(dir) {
