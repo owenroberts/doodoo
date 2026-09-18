@@ -12,12 +12,20 @@ export class Instruments {
 		this.samples = {};
 		this.isLoaded = false;
 		this.samplesURL = params.samplesURL;
+		this.isServer = params.isServer;
 		// this.withRecording = params.withRecording ?? false;
 		this.toDispose = [];
 		this.loadList = [];
+		this.active = [];
+
+		console.log(this);
 	}
 
 	load(callback) {
+
+		if (this.isServer) {
+			this.isLoaded = true;
+		}
 
 		if (this.isLoaded) {
 			return callback();
@@ -63,7 +71,8 @@ export class Instruments {
 		});
 	}
 
-	get(instrument, voiceParams, recorder) {
+	add(instrument, voiceParams, recorder) {
+		if (this.isServer) return;
 		const i = instrument.includes('Synth') ?
 			this.getSynth(voiceParams) :
 			this.getSampler(instrument, voiceParams);
@@ -79,7 +88,18 @@ export class Instruments {
 			this.toDispose.push(f);
 		}
 		this.toDispose.push(i);
-		return i;
+		this.active.push(i);
+		return this.active.indexOf(i);
+	}
+
+	play(index, pitch, beat, time, velocity) {
+		if (this.isServer) return;
+		this.active[index].triggerAttackRelease(pitch, beat, time, velocity);
+	}
+
+	release(index) {
+		if (this.isServer) return;
+		this.active[index].triggerRelease();
 	}
 
 	getSynth(voiceParams) {
@@ -128,6 +148,7 @@ export class Instruments {
 	}
 
 	dispose() {
+		if (this.isServer) return;
 		
 		const disposeMe = [];
 
@@ -144,5 +165,6 @@ export class Instruments {
 		}
 
 		this.toDispose = [];
+		this.active = [];
 	}
 }

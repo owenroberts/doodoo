@@ -14,11 +14,13 @@ export class Doodoo {
 
 	constructor(params, callback) {
 
+		//  defineSafeProperty prevents reassignment from UI which uses pass by ref
+
 		/**
 		 * configuration of doodoo instance
 		 * @type {object}
 		 */
-		const config = {
+		defineSafeProperty(this, "config", {
 			debug: false,
 			defaultBeat: '4n', // smallest unit of time
 			autoLoad: params.autoLoad ?? true,
@@ -43,13 +45,13 @@ export class Doodoo {
 			isPerformance: params.isPerformance ?? false, // playback of a performance
 			isEditor: params.isEditor ?? false,
 			isServer: params.isServer ?? false, // server generates comp and nothing else ... 
-		};
+		});
 
 		/**
 		 * composition properties
 		 * @type {object}
 		 */
-		const comp = {
+		defineSafeProperty(this, "comp", {
 			bpm: params.bpm ?? 120,
 			tonic: params.tonic ?? 'C4', // assert tonic is midi note name?
 			transpose: params.transpose ?? params.tonic ?? 'C4', // tranpose key -- because melody is relative to tonic
@@ -65,11 +67,7 @@ export class Doodoo {
 			parts: params.parts ?? [],
 			// partMods: params.partMods ?? [],
 			startLoops: params.startLoops ?? [],
-		};
-
-		// prevents reassignment from UI which uses pass by ref
-		defineSafeProperty(this, "config", config);
-		defineSafeProperty(this, "comp", comp);
+		});
 
 		this.sequenceIndex = 0; // previously currentPart
 		this.sequenceLength = this.comp.sequence[0].length;
@@ -341,13 +339,16 @@ export class Doodoo {
 					beat = parseInt(beat) * 2 + 'n';
 					let t = Tone.Time(beat).toSeconds();
 					try {
-						voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
-						voice.toneInstrument.triggerAttackRelease(pitch, beat, time + t, velocity);
+						this.instruments.play(voice.instrumentIndex, pitch, beat, time, velocity);
+						this.instruments.play(voice.instrumentIndex, pitch, beat, time + t, velocity);
+						// voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
+						// voice.toneInstrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
 						this.thatDamnError({ voice, pitch, beat, time, t, velocity, err});
 					}
 				} else {
-					voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
+					this.instruments.play(voice.instrumentIndex, pitch, beat, time, velocity);
+					// voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 
 			}
@@ -475,9 +476,9 @@ export class Doodoo {
 				const voiceParams = partVoices[j];
 				const harmony = voiceParams.harmony;
 
-				const toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-				this.voices.push({ ...voiceParams, toneInstrument,  });
-				
+				const instrumentIndex = this.instruments.add(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
+
+				this.voices.push({ ...voiceParams, instrumentIndex });
 			}
 		}
 
@@ -571,7 +572,7 @@ export class Doodoo {
 
 		for (let i = 0; i < this.voices.length; i++) {
 			const voiceParams = this.voices[i];
-			this.voices[i].toneInstrument = this.instruments.get(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
+			this.voices[i].instrumentIndex = this.instruments.add(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
 		}
 
 		if (Tone.getTransport().state === 'stopped') Tone.getTransport().start();
@@ -729,9 +730,7 @@ export class Doodoo {
 
 	play() {
 		// re-check instruments ... 
-		if (this.config.isServer) {
-
-		} else if (!this.config.autoLoad && !this.instruments.isLoaded) {
+		if (!this.config.autoLoad && !this.instruments.isLoaded) {
 			return this.loadTone();
 		}
 
@@ -764,7 +763,8 @@ export class Doodoo {
 		this.toneLoop.stop();
 		for (let i = 0; i < this.voices.length; i++) {
 			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
-			this.voices[i].toneInstrument.triggerRelease();
+			// this.voices[i].toneInstrument.triggerRelease();
+			this.instruments.release(this.voices[i].instrumentIndex);
 		}
 		this.instruments.dispose();
 		this.isPlaying = false;
