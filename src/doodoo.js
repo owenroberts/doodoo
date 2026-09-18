@@ -42,6 +42,7 @@ export class Doodoo {
 			isSavePerformance: params.isSavePerformance ?? false, // save data of play
 			isPerformance: params.isPerformance ?? false, // playback of a performance
 			isEditor: params.isEditor ?? false,
+			isServer: params.isServer ?? false, // server generates comp and nothing else ... 
 		};
 
 		/**
@@ -316,6 +317,7 @@ export class Doodoo {
 	}
 
 	playLoop(time) {
+
 		if (this.config.isMetronomeOn) {
 			if (this.metroCounter === this.metroCount - 1) {
 				this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
@@ -342,15 +344,7 @@ export class Doodoo {
 						voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
 						voice.toneInstrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
-						console.log('that null error!'); // but its not a null value, its prob Infinity value for t
-						console.log('voice', voice);
-						console.log('pitch', pitch);
-						console.log('beat', beat);
-						console.log('time', time);
-						console.log('t', t);
-						console.log('time + t', time + t);
-						console.log('velocity', velocity);
-						console.warn(err);
+						this.thatDamnError({ voice, pitch, beat, time, t, velocity, err});
 					}
 				} else {
 					voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
@@ -365,6 +359,18 @@ export class Doodoo {
 		if (this.beatCounter === this.beatCount && !this.config.waitForModTrigger) {
 			this.playNext(time);
 		}
+	}
+
+	thatDamnError({ voice, pitch, beat, time, t, velocity, err}) {
+		console.log('that null error!'); // but its not a null value, its prob Infinity value for t
+		console.log('voice', voice);
+		console.log('pitch', pitch);
+		console.log('beat', beat);
+		console.log('time', time);
+		console.log('t', t);
+		console.log('time + t', time + t);
+		console.log('velocity', velocity);
+		console.warn(err);
 	}
 
 	generateLoop(time) {
@@ -723,7 +729,9 @@ export class Doodoo {
 
 	play() {
 		// re-check instruments ... 
-		if (!this.config.autoLoad && !this.instruments.isLoaded) {
+		if (this.config.isServer) {
+
+		} else if (!this.config.autoLoad && !this.instruments.isLoaded) {
 			return this.loadTone();
 		}
 

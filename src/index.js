@@ -2,7 +2,7 @@
 // can also load directly into doodoo download file and adding to doodoo params .. 
 
 import { Doodoo } from './doodoo.js';
-import { DoodooFiles } from './doodoo-files.js';	
+import { DoodooFiles } from './doodoo-files';	
 
 window.addEventListener("load", function() {
 	
