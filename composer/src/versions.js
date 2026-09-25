@@ -5,10 +5,11 @@ import { UIPanel, UIButton, UIRow, UILabel } from '@b/oi';
  */
 export class VersionsPanel extends UIPanel {
 
-	constructor(fm, ui) {
+	constructor(ui, doodoo) {
 		super({ id: "versions", ui });
 
-		this.fm = fm;
+
+		this.fm = doodoo.fm;
 
 		this.addRef({
 			// obj: this.fm.data,

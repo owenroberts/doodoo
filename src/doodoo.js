@@ -6,6 +6,7 @@ import { Part } from './part.js';
 import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
 import { defaultModSet, compModList, LoopStates } from './constants.js';
+import { FileManager } from './doodoo-file-manager';
 
 /**
  * main greg class for music generation and playback
@@ -14,8 +15,57 @@ export class Doodoo {
 
 	constructor(params, callback) {
 
-		//  defineSafeProperty prevents reassignment from UI which uses pass by ref
+		this.isToneSetup = false;
+		this.isConfigured = false; // parts are setup with mod
+		this.isPlaying = false;
 
+		this.initConfig(params);
+		this.initComp(params);
+		this.initEvents(params);
+
+		this.reset();
+
+		this.fm = new FileManager(this);
+		
+		this.loopControls = params.loopControls ?? [];
+		this.liveLoops = [];
+		this.voiceCountOverrides = [];
+		
+		if (this.config.isLiveMode) {
+			// this.comp.startLoops = []; // use liveLoops or something instead?
+		}
+
+		this.performance = { 
+			loops: [],
+			date: getDate(), 
+		};
+		
+		
+		this.instruments = new Instruments(params);
+
+		if (!this.config.isEditor) {
+			this.buildParts();
+		} else if (this.config.isPerformance) {
+			this.loadPerformance(params.performance);
+		}
+
+		if (this.config.withRecording) {
+			this.recorder = new Tone.Recorder();
+			if (!this.config.withCount) {
+				withCount = +prompt('Record number of loops?', 10);
+			}
+		}
+
+		if (this.config.autoLoad) {
+			this.loadTone(() => {
+				if (this.config.autoPlay || this.config.playOnStart) {
+					this.play();
+				}
+			});
+		}
+	}
+
+	initConfig(params) {
 		/**
 		 * configuration of doodoo instance
 		 * @type {object}
@@ -29,23 +79,35 @@ export class Doodoo {
 			playOnStart: false, // if trying to play before loaded
 			volume: params.volume ?? 0,
 			useMeter: params.useMeter ?? false,
-			updateMeter: params.updateMeter ?? false,
 			useFFT: params.useFFT ?? false, // this is used for four compositions
-			getFFT: params.getFFT ?? false, // this is used for four compositions
 			isMetronomeOn: params.isMetronomeOn ?? false,
+			metroCount: params.metroCount ?? 4,
 			withRecording: params.withRecording ?? false,
 			withCount: params.withCount ?? false,
 			waitForModTrigger: params.waitForModTrigger ?? false,
-			onLoop: params.onLoop ?? false,
-			onNote: params.onNote ?? false,
-			onMod: params.onMod ?? false,
 			isLiveMode: params.isLiveMode ?? false,
 			useDefaultProps: params.useDefaultProps ?? true,
 			isSavePerformance: params.isSavePerformance ?? false, // save data of play
 			isPerformance: params.isPerformance ?? false, // playback of a performance
 			isEditor: params.isEditor ?? false,
+			// networked greg
 			isServer: params.isServer ?? false, // server generates comp and nothing else ... 
+			isClient: params.isClient ?? false,
 		});
+	}
+
+	initEvents(params) {
+		defineSafeProperty(this, "events", {
+			onLoop: params.onLoop ?? false,
+			onNote: params.onNote ?? false,
+			onMod: params.onMod ?? false,
+			onMeterInit: params.onMeterInit ?? false,
+			onFFTInit: params.useFFT ?? false,
+			onStop: params.onStop ?? false,
+		});
+	}
+
+	initComp(params) {
 
 		/**
 		 * composition properties
@@ -68,61 +130,42 @@ export class Doodoo {
 			// partMods: params.partMods ?? [],
 			startLoops: params.startLoops ?? [],
 		});
+	}
 
-		this.sequenceIndex = 0; // previously currentPart
+	reset() {
+		this.sequenceIndex = 0;
 		this.sequenceLength = this.comp.sequence[0].length;
-		this.loopCount = 0; // track total plays of comp -- differnt than part play count (could be)
-		this.modCount = 0; // num mods --> different from total plays? -- idts
-		this.isPlaying = false;
+		this.loopCount = 0; // total plays of comp
+		this.modCount = 0;  // num mods --> different from total plays? -- idts, but maybe could be ... 
 		
-		this.loopControls = params.loopControls ?? [];
-		this.liveLoops = [];
-		this.voiceCountOverrides = [];
-		
-		if (this.config.isLiveMode) {
-			// this.comp.startLoops = []; // use liveLoops or something instead?
-		}
-
-		this.toneLoop; // main loop, created in start and keeps time
-		// [ comp [ part [ note 'C4', '4n'], ['A4', '4n']]]
-		this.parts = [];
-		this.voices = [];
 		this.beatCount = 0;
 		this.beatCounter = 0;
 
-		this.metroCount = params.metroCount ?? 4;
+		this.metroCount = this.config.metroCount;
 		this.metroCounter = this.metroCount - 1;
 
-		this.performance = { 
-			loops: [],
-			date: getDate(), 
-		};
 		this.performanceLoopIndex = 0;
-		
-		this.instruments = new Instruments(params);
 
-		if (!this.config.isEditor) {
-			this.setup();
-		} else if (this.config.isPerformance) {
-			this.performance = structuredClone(params.performance);
-			// need to get instruments to load here ... 
-		}
+		this.parts = [];
+		this.voices = [];
 
-		if (this.config.withRecording) {
-			this.recorder = new Tone.Recorder();
-			if (!this.config.withCount) {
-				withCount = +prompt('Record number of loops?', 10);
-			}
-		}
-
-		if (this.config.autoLoad) {
-			this.loadTone();
-		}
+		this.isConfigured = false;
 	}
 
-	setup() {
+	load(json) {
+		this.fm.load(json);
+		this.reset();
+		this.isConfigured = false;
+		this.instruments.isLoaded = false;
+	}
 
-		this.instruments.isLoaded = false; // force sample reload
+	buildParts() {
+
+		if (this.comp.parts.length === 0) {
+			return;
+		}
+
+		
 		this.parts = []; // reset parts
 
 		// const mods = structuredClone(this.comp.mods); // props vs mods ... 
@@ -201,11 +244,8 @@ export class Doodoo {
 			assert(!partMods[0].instruments.value, 'instruments prop is value!');
 		}
 
-
-		// load instruments
-		// reset instruments loaded ... or use a loaded dict to get loaded
-
-		let loadList = [
+		// need partmods for load list
+		this.loadList = [
 			// ...mods.instruments?.stack?.flatMap(e => e.list),
 			// ...this.comp.partMods?.flatMap(m => m.instruments.stack)
 				// .flatMap(e => e.list),
@@ -219,9 +259,10 @@ export class Doodoo {
 				.map(loop => loop.instrument)
 		];
 
-		loadList = loadList.filter(i => !i.includes("Synth"));
-		loadList = [...new Set(loadList)];
-		this.instruments.loadList = loadList;
+		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
+		this.loadList = [...new Set(this.loadList)].sort();
+
+		this.isConfigured = true;
 	}
 
 	setupLive() {
@@ -234,21 +275,22 @@ export class Doodoo {
 	}
 
 	// start tone using async func to wait for tone
-	async loadTone() {
+	async loadTone(callback) {
+		if (this.isToneSetup) return callback();
+
 		try {
 			await Tone.start();
-			this.instruments.load(() => {
-				this.start();
-			}); 
+			this.setupTone();
+			callback();
 		} catch(err) {
 			console.error('load tone error', err);
 		}
 	}
 
-	start() {
+	setupTone() {
 		if (this.toneLoop) this.toneLoop.dispose();
 		this.toneLoop = new Tone.Loop(time => {
-			this.playLoop(time);
+			this.step(time);
 		}, this.config.defaultBeat);
 		Tone.getTransport().start();
 		Tone.getTransport().bpm.value = this.comp.bpm;
@@ -269,13 +311,13 @@ export class Doodoo {
 		if (this.config.useMeter) {
 			this.meter = new Tone.Meter({ channelCount: 2 });
 			Tone.Destination.connect(this.meter);
-			this.config.updateMeter(this.meter);
+			this.events.onMeterInit(this.meter);
 		}
 
 		if (this.config.useFFT) {
 			const fft = new Tone.FFT(16); // is bands
 			Tone.Destination.connect(fft);
-			this.config.getFFT(fft);
+			this.config.onFFTInit(fft);
 		}
 		
 		if (this.config.isMetronomeOn) {
@@ -293,7 +335,6 @@ export class Doodoo {
 				octaves: 1.5,
 			}).toDestination();
 		}
-
 		
 		if (this.config.withRecording) {
 			if (!this.recorder) {
@@ -308,13 +349,12 @@ export class Doodoo {
 			this.recorder = undefined;
 		}
 
-		this.isPlaying = true;
-		if (this.config.autoStart || this.config.playOnStart) {
-			this.playNext();
-		}
+		this.isToneSetup = true;
 	}
 
-	playLoop(time) {
+	step(time) {
+
+		// console.log("step", this.loopCount, time);
 
 		if (this.config.isMetronomeOn) {
 			if (this.metroCounter === this.metroCount - 1) {
@@ -341,40 +381,28 @@ export class Doodoo {
 					try {
 						this.instruments.play(voice.instrumentIndex, pitch, beat, time, velocity);
 						this.instruments.play(voice.instrumentIndex, pitch, beat, time + t, velocity);
-						// voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
-						// voice.toneInstrument.triggerAttackRelease(pitch, beat, time + t, velocity);
 					} catch(err) {
 						this.thatDamnError({ voice, pitch, beat, time, t, velocity, err});
 					}
 				} else {
 					this.instruments.play(voice.instrumentIndex, pitch, beat, time, velocity);
-					// voice.toneInstrument.triggerAttackRelease(pitch, beat, time, velocity);
 				}
 
 			}
-			if (this.config.onNote) this.config.onNote({ voiceIndex: i, note });
+			if (this.events.onNote) {
+				this.events.onNote({ voiceIndex: i, note });
+			}
 			voice.counter += 1; // voice.counter;
 		}
 
 		this.beatCounter++;
 		if (this.beatCounter === this.beatCount && !this.config.waitForModTrigger) {
-			this.playNext(time);
+			this.next(time);
 		}
 	}
 
-	thatDamnError({ voice, pitch, beat, time, t, velocity, err}) {
-		console.log('that null error!'); // but its not a null value, its prob Infinity value for t
-		console.log('voice', voice);
-		console.log('pitch', pitch);
-		console.log('beat', beat);
-		console.log('time', time);
-		console.log('t', t);
-		console.log('time + t', time + t);
-		console.log('velocity', velocity);
-		console.warn(err);
-	}
-
 	generateLoop(time) {
+
 		if (this.config.withCount) {
 			if (this.loopCount >= this.config.withCount * this.sequenceLength) {
 				Tone.getTransport().stop(time);
@@ -474,13 +502,12 @@ export class Doodoo {
 			let partVoices = partsInSequence[i];
 			for (let j = 0; j < partVoices.length; j++) {
 				const voiceParams = partVoices[j];
-				const harmony = voiceParams.harmony;
-
-				const instrumentIndex = this.instruments.add(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-
-				this.voices.push({ ...voiceParams, instrumentIndex });
+				// const harmony = voiceParams.harmony;
+				this.voices.push({ ...partVoices[j] });
 			}
 		}
+
+		this.addInstruments();
 
 		this.beatCount = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
 
@@ -520,8 +547,9 @@ export class Doodoo {
 			Tone.getTransport().bpm.value = this.comp.bpm;
 		}
 
-		if (this.config.onMod) {
-			this.config.onMod(this.loopCount, this.loopCount / this.sequenceLength);
+		// this is the same as onLoop, but comes before increment ... figure out which one is right ... 
+		if (this.events.onMod) {
+			this.events.onMod(this.loopCount, this.loopCount / this.sequenceLength);
 		}
 		
 		// move to next index in sequence (if more than one)
@@ -548,8 +576,14 @@ export class Doodoo {
 			this.updateLive();
 		}
 
-		if (this.config.onLoop) {
-			this.config.onLoop(this.loopCount);
+		if (this.events.onLoop) {
+			this.events.onLoop(this.loopCount);
+		}
+	}
+
+	addInstruments() {
+		for (let i = 0; i < this.voices.length; i++) {
+			this.voices[i].instrumentIndex = this.instruments.add({ ...this.voices[i], volume: this.config.volume }, this.recorder);
 		}
 	}
 
@@ -557,7 +591,7 @@ export class Doodoo {
 		if (this.performanceLoopIndex >= this.performance.loops.length) {
 			Tone.getTransport().stop();
 			this.isPlaying = false;
-			saveRecording();
+			this.saveRecording();
 			return;
 		}
 		
@@ -570,17 +604,14 @@ export class Doodoo {
 		this.toneLoop.interval = loop.interval;
 		this.loopCount++;
 
-		for (let i = 0; i < this.voices.length; i++) {
-			const voiceParams = this.voices[i];
-			this.voices[i].instrumentIndex = this.instruments.add(voiceParams.instrument, { ...voiceParams, volume: this.config.volume }, this.recorder);
-		}
+		this.addInstruments();
 
 		if (Tone.getTransport().state === 'stopped') Tone.getTransport().start();
-		if (this.config.onLoop) {
-			this.config.onLoop(this.loopCount);
+		if (this.events.onLoop) {
+			this.events.onLoop(this.loopCount);
 		}
-		if (params.config.onMod) {
-			params.config.onMod(this.loopCount, this.loopCount / this.performance.loops.length);
+		if (this.events.onMod) {
+			this.events.onMod(this.loopCount, this.loopCount / this.performance.loops.length);
 		}
 		this.performanceLoopIndex++;
 	}
@@ -712,16 +743,36 @@ export class Doodoo {
 		return this.recorder.state === 'started' || this.recorder.state === 'paused';
 	}
 
+	loadPerformance(data) {
+		this.reset();
+		this.performance = structuredClone(data);
+		console.log(this.performance);
+
+		// need to get instruments to load here ... 
+		this.loadList = [
+			...this.performance.loops
+				.flatMap(l => l.voices)
+				.flatMap(v => v.instrument)
+		];
+		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
+		this.loadList = [...new Set(this.loadList)].sort();
+	}
+
 	savePerformance() {
-		if (!this.config.isPerformance) return;
+		if (!this.config.isSavePerformance) return;
+		console.log('save perf')
 		
+		// dont need this anymore ... 
 		this.performance.loops.forEach(loop => {
 			loop.voices.forEach(voice => {
 				voice.counter = 0;
 				delete voice.toneInstrument;
 			})
 		});
+
 		let perf = JSON.stringify(this.performance);
+		console.log(perf);
+
 		let title = prompt("Name performance", "Name");
 		localStorage.setItem('greg-perf-' + title, perf);
 		const blob = new Blob([perf], { type: 'application/x-download;charset=utf-8' });
@@ -729,60 +780,68 @@ export class Doodoo {
 	}
 
 	play() {
-		// re-check instruments ... 
-		if (!this.config.autoLoad && !this.instruments.isLoaded) {
-			return this.loadTone();
-		}
 
-		// what does this do?
-		// if (this.instruments.isLoaded) {
-		// 	this.config.playOnStart = true;
-		// 	return;
-		// }
-		this.isPlaying = true;
 
 		// DRY?
 		this.metroCounter = this.metroCount - 1;
 		this.loopCount = 0;
-		
-		this.playNext();
+
+		if (!this.isConfigured) {
+			this.buildParts();
+		}
+
+		// has to happen after parts
+		if (!this.instruments.isLoaded) {
+			return this.instruments.loadSamples(this.loadList, () => {
+				this.play();
+			});
+		}
+
+		if (!this.isToneSetup) {
+			return this.loadTone(() => {
+				this.play();
+			});
+		}
+
+		this.isPlaying = true;
+		this.next(); // get next loop (or performance);
 
 		// fix for catslair time issue
 		Tone.getTransport().stop();
 		Tone.getTransport().start();
 		// end fix
 
-		this.toneLoop.start(Tone.getTransport().seconds);
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
-		if (this.config.withRecording) this.recorder.start();
+		this.toneLoop.start(Tone.getTransport().seconds);
+		
+		if (this.config.withRecording && this.recorder) {
+			this.recorder.start();	
+		}
+	}
+
+	next(time) {
+		if (!this.isPlaying) this.isPlaying = true; // right?
+		// with waitForModTrigger
+		if (this.config.isPerformance) {
+			this.getPerformanceLoop();
+		} else if (!this.config.isClient) {
+			this.generateLoop(time);
+		}
 	}
 
 	stop() {
 		Tone.getTransport().stop();
 		this.toneLoop.stop();
-		for (let i = 0; i < this.voices.length; i++) {
-			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
-			// this.voices[i].toneInstrument.triggerRelease();
-			this.instruments.release(this.voices[i].instrumentIndex);
-		}
+		this.instruments.releaseAll();
 		this.instruments.dispose();
 		this.isPlaying = false;
 		
 		this.saveRecording();
 		this.savePerformance();
-		if (this.config.onStop) {
-			this.config.onStop();
-		}
-	}
 
-	playNext(time) {
-		if (!this.isPlaying) this.isPlaying = true; // right?
-		// with waitForModTrigger
-		if (this.config.isPerformance) {
-			this.getPerformanceLoop();
-		} else {
-			this.generateLoop(time);
+		if (this.events.onStop) {
+			this.events.onStop();
 		}
 	}
 
@@ -790,27 +849,21 @@ export class Doodoo {
 		this.config.withCount = this.loopCount;
 	}
 
-	reset() {
-		this.sequenceIndex = 0;
-		this.sequenceLength = this.comp.sequence[0].length;
-		this.loopCount = 0; 
-		this.modCount = 0;
-		this.isPlaying = false;
-		this.beatCount = 0;
-		this.beatCounter = 0;
-		this.performanceLoopIndex = 0;
-	}
-
 	// debug
-	printVoices() {
-		console.log('voices', this.voices); 
-	}
+	printVoices() { console.log('voices', this.voices); }
+	printParams() { console.log('params', this.parts.map(p => p.getParams())); }
+	printComp() { console.log('composition', this.comp); }
+	printConfig() { console.log("config", this.config); }
 
-	printParams() {
-		console.log('params', this.parts.map(p => p.getParams())); 
-	}
-
-	printComp() {
-		console.log('composition', this.comp);
+	thatDamnError({ voice, pitch, beat, time, t, velocity, err}) {
+		console.log('that null error!'); // but its not a null value, its prob Infinity value for t
+		console.log('voice', voice);
+		console.log('pitch', pitch);
+		console.log('beat', beat);
+		console.log('time', time);
+		console.log('t', t);
+		console.log('time + t', time + t);
+		console.log('velocity', velocity);
+		console.warn(err);
 	}
 }

@@ -1,7 +1,6 @@
 import '@b/doodoo/composer/css/composer.scss';
 
 import { Doodoo } from '@b/doodoo/src/doodoo.js';
-import { DoodooFiles } from '@b/doodoo/src/doodoo-files.js';
 import { getDate } from '@b/cool';
 
 import { Interface, Settings } from '@b/oi';
@@ -35,11 +34,9 @@ const ui = new Interface({
 	}],
 });
 
-const fm = new DoodooFiles(doodoo);
-
 ui.addPanel(new CompositionPanel(doodoo, ui));
-ui.addPanel(new FilesPanel(fm, ui));
-ui.addPanel(new VersionsPanel(fm, ui));
+ui.addPanel(new FilesPanel(ui, doodoo));
+ui.addPanel(new VersionsPanel(ui, doodoo));
 ui.addPanel(new PlaybackPanel(doodoo, ui));
 ui.addPanel(new MelodyPanel(doodoo, ui));
 ui.addPanel(new MonitorPanel(doodoo, ui));

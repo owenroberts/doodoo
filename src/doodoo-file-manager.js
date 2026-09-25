@@ -3,7 +3,7 @@ import { getDate, assert, defineSafeProperty, log, strLog } from '@b/cool';
 /**
  * handle loading and saving greg files
  */
-export class DoodooFiles {
+export class FileManager {
 
 	constructor(doodoo) {
 

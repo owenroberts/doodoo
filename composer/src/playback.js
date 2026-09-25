@@ -111,6 +111,14 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
+		this.addButton({
+			key: "shift-c",
+			text: "log config",
+			callback: () => {
+				this.doodoo.printConfig();
+			}
+		});
+
 		this.doodoo.config.onMod = loopCount => {
 			loopCountDisplay.setText(loopCount);
 			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
@@ -125,6 +133,7 @@ export class PlaybackPanel extends UIPanel {
 		}
 
 		this.doodoo.reset();
+
 		this.doodoo.config.withRecording = withRecording;
 		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 
 		if (withRecording) {
@@ -144,8 +153,9 @@ export class PlaybackPanel extends UIPanel {
 			this.doodoo.config.isPerformance = false;
 		}
 
-		this.doodoo.setup(); // resets parts
+		// this.doodoo.setup(); // resets parts
 		this.doodoo.play();
+
 		if (this.isSaveOnPlay) {
 			this.ui.panels.files.saveLocal(false);
 		}
@@ -153,8 +163,8 @@ export class PlaybackPanel extends UIPanel {
 
 	playPerformance(withRecording) {
 		const m = new UIModal({
-			app: this.app,
-			title: "Saved performances",
+			ui: this.ui,
+			title: "saved performances",
 		});
 
 		const savedPerformances = Object.keys(localStorage)
@@ -165,10 +175,18 @@ export class PlaybackPanel extends UIPanel {
 				text: title.replace('greg-', ''),
 				callback: () => {
 					const perf = JSON.parse(localStorage.getItem(title));
-					this.play({ withRecording, localPerformance: perf }); 
+					this.doodoo.loadPerformance(perf);
+					this.play({ withRecording, localPerformance: perf });
 					m.clear();
 				}
 			}));
+			m.add(new UIButton({
+				text: "x",
+				callback: () => {
+					localStorage.removeItem(title);
+					m.clear();
+				}
+			}))
 			m.addBreak();
 		});
 	}

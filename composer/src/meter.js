@@ -38,7 +38,7 @@ export class MeterPanel extends UIPanel {
 		});
 
 		doodoo.config.useMeter = true;
-		doodoo.config.updateMeter = meter => {
+		doodoo.events.onMeterInit = meter => {
 			this.toneMeter = meter;
 		}
 	}

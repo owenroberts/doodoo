@@ -6,10 +6,10 @@ import { UIPanel, UIModal, UIButton } from '@b/oi';
  */
 export class FilesPanel extends UIPanel {
 
-	constructor(fm, ui) {
+	constructor(ui, doodoo) {
 		super({ id: "files", ui });
 		
-		this.fm = fm; // file manager
+		this.fm = doodoo.fm; // file manager
 		this.ui = ui;
 
 		this.addRef({ obj: this.fm.data, ref: "title", ignoreSettings: true });

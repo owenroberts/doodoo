@@ -16,12 +16,26 @@ export class Instruments {
 		// this.withRecording = params.withRecording ?? false;
 		this.toDispose = [];
 		this.loadList = [];
-		this.active = [];
-
-		console.log(this);
+		this.active = []; // same as toDispose right ?
 	}
 
-	load(callback) {
+	loadSamples(loadList, callback) {
+
+		// compare to existing samples ... 
+
+		// load lists are the same
+		if (loadList.length === this.loadList.length) {
+			if (loadList.every((v, i) => v === this.loadList[i])) {
+				this.isLoaded = true;
+				return callback();
+			}
+		}
+
+		this.loadList = loadList;
+
+		if (this.loadList.length === 0) {
+			this.isLoaded = true;
+		}
 
 		if (this.isServer) {
 			this.isLoaded = true;
@@ -30,11 +44,7 @@ export class Instruments {
 		if (this.isLoaded) {
 			return callback();
 		}
-
-		if (this.loadList.length === 0) {
-			this.isLoaded = true;
-			return callback();
-		}
+		
 
 		const urls = {};
 		for (let i = 0; i < this.loadList.length; i++) {
@@ -71,11 +81,11 @@ export class Instruments {
 		});
 	}
 
-	add(instrument, voiceParams, recorder) {
+	add(voiceParams, recorder) {
 		if (this.isServer) return;
-		const i = instrument.includes('Synth') ?
+		const i = voiceParams.instrument.includes('Synth') ?
 			this.getSynth(voiceParams) :
-			this.getSampler(instrument, voiceParams);
+			this.getSampler(voiceParams.instrument, voiceParams);
 
 		if (recorder) i.chain(Tone.Destination, recorder);
 		else i.toDestination();
@@ -100,6 +110,16 @@ export class Instruments {
 	release(index) {
 		if (this.isServer) return;
 		this.active[index].triggerRelease();
+	}
+
+	releaseAll() {
+		if (this.isServer) return;
+		for (let i = 0; i < this.active.length; i++) {
+			// voices[i].toneInstrument.volume.rampTo(-128, 0.1, '+0');
+			// this.voices[i].toneInstrument.triggerRelease();
+			this.active[i].triggerRelease();
+		}
+
 	}
 
 	getSynth(voiceParams) {

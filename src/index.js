@@ -2,7 +2,6 @@
 // can also load directly into doodoo download file and adding to doodoo params .. 
 
 import { Doodoo } from './doodoo.js';
-import { DoodooFiles } from './doodoo-files';	
 
 window.addEventListener("load", function() {
 	
@@ -11,7 +10,6 @@ window.addEventListener("load", function() {
 		autoPlay: false,
 		samplesURL: './samples/'
 	});
-	const fm = new DoodooFiles(doodoo);
 
 	const compSelect = document.getElementById("comp-select");
 	const playBtn = document.getElementById("play");
@@ -30,9 +28,9 @@ window.addEventListener("load", function() {
 		const url = `./compositions/${compSelect.value}`;
 		const res = await fetch(url);
 		const json = await res.json();
-		fm.load(json);
+		doodoo.load(json);
 		doodoo.config.withCount = +loopCountInput.value;
-		doodoo.setup();
+		// doodoo.buildParts();
 		doodoo.play();
 	}
 });
