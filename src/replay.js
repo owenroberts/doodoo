@@ -1,7 +1,7 @@
 import * as Tone from 'tone';
 import { getDate } from '@b/cool';
 
-export class PerformanceManager {
+export class Replay {
 
 	constructor(doodoo) {
 		this.doodoo = doodoo;
@@ -56,12 +56,8 @@ export class PerformanceManager {
 
 	load(data) {
 
-		console.log('data', data);
-
 		this.reset();
 		this.active = structuredClone(data);
-
-		console.log('active', this.active);
 
 		const list = [
 			...this.active.loops
@@ -72,8 +68,7 @@ export class PerformanceManager {
 	}
 
 	save() {
-		if (!this.doodoo.config.isSavePerformance) return;
-		console.log('save perf')
+		if (!this.doodoo.config.isSaveReplay) return;
 		
 		// dont need this anymore ... 
 		this.active.loops.forEach(loop => {
@@ -83,13 +78,11 @@ export class PerformanceManager {
 			});
 		});
 
-		let perf = JSON.stringify(this.active);
+		let replay = JSON.stringify(this.active);
 
-		console.log('perf', perf);
-
-		let title = prompt("name performance", "name");
-		localStorage.setItem('greg-perf-' + title, perf);
-		const blob = new Blob([perf], { type: 'application/x-download;charset=utf-8' });
+		let title = prompt("name replay", "name");
+		localStorage.setItem('greg-replay-' + title, replay);
+		const blob = new Blob([replay], { type: 'application/x-download;charset=utf-8' });
 		saveAs(blob, title + '.json');
 	}
 

@@ -7,7 +7,7 @@ import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
 import { defaultModSet, compModList, LoopStates } from './constants.js';
 import { FileManager } from './doodoo-file-manager';
-import { PerformanceManager } from './performance';
+import { Replay } from './replay';
 
 /**
  * main greg class for music generation and playback
@@ -28,7 +28,7 @@ export class Doodoo {
 
 		this.fm = new FileManager(this);
 		this.instruments = new Instruments(params);
-		this.performance = new PerformanceManager(this);
+		this.replay = new Replay(this);
 		
 		this.loopControls = params.loopControls ?? [];
 		this.liveLoops = [];
@@ -40,8 +40,8 @@ export class Doodoo {
 
 		if (!this.config.isEditor) {
 			this.buildParts();
-		} else if (this.config.isPerformance) {
-			this.performance.load(params.performance);
+		} else if (this.config.isReplay) {
+			this.replay.load(params.replay);
 		}
 
 		if (this.config.withRecording) {
@@ -82,8 +82,8 @@ export class Doodoo {
 			waitForModTrigger: params.waitForModTrigger ?? false,
 			isLiveMode: params.isLiveMode ?? false,
 			useDefaultProps: params.useDefaultProps ?? true,
-			isSavePerformance: params.isSavePerformance ?? false, // save data of play
-			isPerformance: params.isPerformance ?? false, // playback of a performance
+			isSaveReplay: params.isSaveReplay ?? false, // save data of play
+			isReplay: params.isReplay ?? false, // playback of a replay
 			isEditor: params.isEditor ?? false,
 			// networked greg
 			isServer: params.isServer ?? false, // server generates comp and nothing else ... 
@@ -406,7 +406,7 @@ export class Doodoo {
 				Tone.getTransport().stop(time);
 				this.isPlaying = false;
 				this.saveRecording();
-				this.performance.save();
+				this.replay.save();
 				return;
 			}
 		}
@@ -562,8 +562,8 @@ export class Doodoo {
 			Tone.getTransport().start();
 		}
 		
-		if (this.config.isSavePerformance) {
-			this.performance.addLoop({
+		if (this.config.isSaveReplay) {
+			this.replay.addLoop({
 				voices: this.voices,
 				beatCount: this.beatCount,
 				interval: smallestBeat + 'n', // toneLoop.interval
@@ -714,8 +714,8 @@ export class Doodoo {
 
 	play() {
 
-		if (this.config.isSavePerformance) {
-			this.performance.reset();
+		if (this.config.isSaveReplay) {
+			this.replay.reset();
 		}
 
 		// DRY?
@@ -740,7 +740,7 @@ export class Doodoo {
 		}
 
 		this.isPlaying = true;
-		this.next(); // get next loop (or performance);
+		this.next(); // get next loop (or replay);
 
 		// fix for catslair time issue
 		Tone.getTransport().stop();
@@ -759,9 +759,9 @@ export class Doodoo {
 	next(time) {
 		if (!this.isPlaying) this.isPlaying = true; // right?
 		// with waitForModTrigger
-		if (this.config.isPerformance) {
-			console.log(this.performance);
-			this.performance.getNextLoop();
+		if (this.config.isReplay) {
+			console.log(this.replay);
+			this.replay.getNextLoop();
 		} else if (!this.config.isClient) {
 			this.generateLoop(time);
 		}
@@ -775,7 +775,7 @@ export class Doodoo {
 		this.isPlaying = false;
 		
 		this.saveRecording();
-		this.performance.save();
+		this.replay.save();
 
 		if (this.events.onStop) {
 			this.events.onStop();

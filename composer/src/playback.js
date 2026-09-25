@@ -64,9 +64,9 @@ export class PlaybackPanel extends UIPanel {
 
 		this.addButton({
 			key: 'x',
-			text: "performance",
+			text: "replay",
 			callback: () => {
-				this.playPerformance();
+				this.playReplay();
 			}
 		});
 
@@ -90,7 +90,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.addRef({
 			obj: this.doodoo.config,
-			ref: "isSavePerformance",
+			ref: "isSaveReplay",
 		});
 
 		this.addBreak();
@@ -125,7 +125,7 @@ export class PlaybackPanel extends UIPanel {
 		};
 	}
 
-	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false }={}) {
+	play({ withRecording=false, withCount=false, localReplay, isLiveMode=false }={}) {
 
 		if (this.doodoo.isPlaying) {
 			this.doodoo.stop();
@@ -143,14 +143,14 @@ export class PlaybackPanel extends UIPanel {
 		}
 		this.doodoo.config.isLiveMode = isLiveMode;
 
-		if (localPerformance) {
-			this.doodoo.performance.load(localPerformance);
-			this.doodoo.config.isPerformance = true;
+		if (localReplay) {
+			this.doodoo.replay.load(localReplay);
+			this.doodoo.config.isReplay = true;
 		} else {
 			if (this.doodoo.comp.parts.every(p => p.length === 0)) {
 				return alert('Add notes to the melody.');
 			}
-			this.doodoo.config.isPerformance = false;
+			this.doodoo.config.isReplay = false;
 		}
 
 		// this.doodoo.setup(); // resets parts
@@ -161,22 +161,22 @@ export class PlaybackPanel extends UIPanel {
 		}
 	}
 
-	playPerformance(withRecording) {
+	playReplay(withRecording) {
 		const m = new UIModal({
 			ui: this.ui,
-			title: "saved performances",
+			title: "saved replays",
 		});
 
-		const savedPerformances = Object.keys(localStorage)
-			.filter(k => k.includes('greg-perf'));
+		const savedReplays = Object.keys(localStorage)
+			.filter(k => k.includes('greg-replay'));
 
-		savedPerformances.forEach(title => {
+		savedReplays.forEach(title => {
 			m.add(new UIButton({
 				text: title.replace('greg-', ''),
 				callback: () => {
-					const perf = JSON.parse(localStorage.getItem(title));
+					const replay = JSON.parse(localStorage.getItem(title));
 					
-					this.play({ withRecording, localPerformance: perf });
+					this.play({ withRecording, localReplay: replay });
 					m.clear();
 				}
 			}));
