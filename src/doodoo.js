@@ -7,6 +7,7 @@ import { Instruments } from './instruments.js';
 import { createProperty } from './create-property.js';
 import { defaultModSet, compModList, LoopStates } from './constants.js';
 import { FileManager } from './doodoo-file-manager';
+import { PerformanceManager } from './performance';
 
 /**
  * main greg class for music generation and playback
@@ -26,6 +27,8 @@ export class Doodoo {
 		this.reset();
 
 		this.fm = new FileManager(this);
+		this.instruments = new Instruments(params);
+		this.performance = new PerformanceManager(this);
 		
 		this.loopControls = params.loopControls ?? [];
 		this.liveLoops = [];
@@ -35,18 +38,10 @@ export class Doodoo {
 			// this.comp.startLoops = []; // use liveLoops or something instead?
 		}
 
-		this.performance = { 
-			loops: [],
-			date: getDate(), 
-		};
-		
-		
-		this.instruments = new Instruments(params);
-
 		if (!this.config.isEditor) {
 			this.buildParts();
 		} else if (this.config.isPerformance) {
-			this.loadPerformance(params.performance);
+			this.performance.load(params.performance);
 		}
 
 		if (this.config.withRecording) {
@@ -143,8 +138,6 @@ export class Doodoo {
 
 		this.metroCount = this.config.metroCount;
 		this.metroCounter = this.metroCount - 1;
-
-		this.performanceLoopIndex = 0;
 
 		this.parts = [];
 		this.voices = [];
@@ -245,7 +238,7 @@ export class Doodoo {
 		}
 
 		// need partmods for load list
-		this.loadList = [
+		const sampleList = [
 			// ...mods.instruments?.stack?.flatMap(e => e.list),
 			// ...this.comp.partMods?.flatMap(m => m.instruments.stack)
 				// .flatMap(e => e.list),
@@ -258,11 +251,16 @@ export class Doodoo {
 				.filter(loop => loop.instrument)
 				.map(loop => loop.instrument)
 		];
-
-		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
-		this.loadList = [...new Set(this.loadList)].sort();
+		this.setupSampleList(sampleList);
+		
 
 		this.isConfigured = true;
+	}
+
+	setupSampleList(list) {
+		list = list.filter(i => !i.includes("Synth"));
+		list = [...new Set(list)].sort();
+		this.sampleList = [...list];
 	}
 
 	setupLive() {
@@ -408,7 +406,7 @@ export class Doodoo {
 				Tone.getTransport().stop(time);
 				this.isPlaying = false;
 				this.saveRecording();
-				this.savePerformance();
+				this.performance.save();
 				return;
 			}
 		}
@@ -565,7 +563,7 @@ export class Doodoo {
 		}
 		
 		if (this.config.isSavePerformance) {
-			this.performance.loops.push({
+			this.performance.addLoop({
 				voices: this.voices,
 				beatCount: this.beatCount,
 				interval: smallestBeat + 'n', // toneLoop.interval
@@ -585,35 +583,6 @@ export class Doodoo {
 		for (let i = 0; i < this.voices.length; i++) {
 			this.voices[i].instrumentIndex = this.instruments.add({ ...this.voices[i], volume: this.config.volume }, this.recorder);
 		}
-	}
-
-	getPerformanceLoop() {
-		if (this.performanceLoopIndex >= this.performance.loops.length) {
-			Tone.getTransport().stop();
-			this.isPlaying = false;
-			this.saveRecording();
-			return;
-		}
-		
-		this.beatCounter = 0;
-		this.instruments.dispose();
-		
-		const loop = structuredClone(this.performance.loops[this.performanceLoopIndex]); 
-		this.voices = loop.voices;
-		this.beatCount = loop.beatCount;
-		this.toneLoop.interval = loop.interval;
-		this.loopCount++;
-
-		this.addInstruments();
-
-		if (Tone.getTransport().state === 'stopped') Tone.getTransport().start();
-		if (this.events.onLoop) {
-			this.events.onLoop(this.loopCount);
-		}
-		if (this.events.onMod) {
-			this.events.onMod(this.loopCount, this.loopCount / this.performance.loops.length);
-		}
-		this.performanceLoopIndex++;
 	}
 
 	cloneVoice(voice) {
@@ -743,44 +712,11 @@ export class Doodoo {
 		return this.recorder.state === 'started' || this.recorder.state === 'paused';
 	}
 
-	loadPerformance(data) {
-		this.reset();
-		this.performance = structuredClone(data);
-		console.log(this.performance);
-
-		// need to get instruments to load here ... 
-		this.loadList = [
-			...this.performance.loops
-				.flatMap(l => l.voices)
-				.flatMap(v => v.instrument)
-		];
-		this.loadList = this.loadList.filter(i => !i.includes("Synth"));
-		this.loadList = [...new Set(this.loadList)].sort();
-	}
-
-	savePerformance() {
-		if (!this.config.isSavePerformance) return;
-		console.log('save perf')
-		
-		// dont need this anymore ... 
-		this.performance.loops.forEach(loop => {
-			loop.voices.forEach(voice => {
-				voice.counter = 0;
-				delete voice.toneInstrument;
-			})
-		});
-
-		let perf = JSON.stringify(this.performance);
-		console.log(perf);
-
-		let title = prompt("Name performance", "Name");
-		localStorage.setItem('greg-perf-' + title, perf);
-		const blob = new Blob([perf], { type: 'application/x-download;charset=utf-8' });
-		saveAs(blob, title + '.json');
-	}
-
 	play() {
 
+		if (this.config.isSavePerformance) {
+			this.performance.reset();
+		}
 
 		// DRY?
 		this.metroCounter = this.metroCount - 1;
@@ -792,7 +728,7 @@ export class Doodoo {
 
 		// has to happen after parts
 		if (!this.instruments.isLoaded) {
-			return this.instruments.loadSamples(this.loadList, () => {
+			return this.instruments.loadSamples(this.sampleList, () => {
 				this.play();
 			});
 		}
@@ -824,7 +760,8 @@ export class Doodoo {
 		if (!this.isPlaying) this.isPlaying = true; // right?
 		// with waitForModTrigger
 		if (this.config.isPerformance) {
-			this.getPerformanceLoop();
+			console.log(this.performance);
+			this.performance.getNextLoop();
 		} else if (!this.config.isClient) {
 			this.generateLoop(time);
 		}
@@ -838,7 +775,7 @@ export class Doodoo {
 		this.isPlaying = false;
 		
 		this.saveRecording();
-		this.savePerformance();
+		this.performance.save();
 
 		if (this.events.onStop) {
 			this.events.onStop();

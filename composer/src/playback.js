@@ -119,7 +119,7 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
-		this.doodoo.config.onMod = loopCount => {
+		this.doodoo.events.onMod = loopCount => {
 			loopCountDisplay.setText(loopCount);
 			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
 		};
@@ -144,7 +144,7 @@ export class PlaybackPanel extends UIPanel {
 		this.doodoo.config.isLiveMode = isLiveMode;
 
 		if (localPerformance) {
-			this.doodoo.performance = localPerformance;
+			this.doodoo.performance.load(localPerformance);
 			this.doodoo.config.isPerformance = true;
 		} else {
 			if (this.doodoo.comp.parts.every(p => p.length === 0)) {
@@ -175,7 +175,7 @@ export class PlaybackPanel extends UIPanel {
 				text: title.replace('greg-', ''),
 				callback: () => {
 					const perf = JSON.parse(localStorage.getItem(title));
-					this.doodoo.loadPerformance(perf);
+					
 					this.play({ withRecording, localPerformance: perf });
 					m.clear();
 				}

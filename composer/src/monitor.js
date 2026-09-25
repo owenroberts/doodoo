@@ -45,7 +45,7 @@ export class MonitorPanel extends UIPanel {
 		const colGroup = table.add(new UIElement({ tag: "colgroup" }));
 		const thead = table.add(new UIElement({ tag: "thead" }));
 		const thr = thead.add(new UIElement({ tag: "tr"}));
-		thr.add(new UIElement({ tag: "th", text: "loop" }));
+		thr.add(new UIElement({ tag: "th", text: "voice" }));
 
 		this.tcols = [colGroup.add(new UIElement({ tag: "col" }))];
 		for (let i = 0; i < this.propList.length; i++) {
