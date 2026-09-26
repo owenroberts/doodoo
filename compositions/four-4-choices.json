@@ -1,0 +1,46 @@
+{
+	"title": "choices",
+	"createdOn": "Wed-Mar-06-2024",
+	"lastSavedOn": "Wed-Mar-06-2024",
+	"versionIndex": 0,
+	"samples": {},
+	"versions": [
+		{
+			"tag": "initial",
+        	"createdOn": "Wed-Mar-06-2024",
+        	"lastSavedOn": "Wed-Mar-06-2024",
+			"comp": {
+				"bpm": 96,
+				"tonic": "C4",
+    			"transpose": "G3",
+    			"useOctave": true,
+    			"scale": [0, 2, 4, 5, 7, 9, 11],
+    			"sequence": [
+    			    [true],
+    			    [true]
+    			],
+    			"parts": [
+			        [
+			            ["F3", "2n"],
+			            ["E3", "2n"],
+			            ["F3", "2n"],
+			            ["G3", "2n"]
+			        ],
+			        [
+			            ["A3", "2n"],
+			            ["G3", "2n"],
+			            ["A3", "2n"],
+			            ["B3", "2n"]
+			        ]
+			    ],
+			    "startLoops": [],
+			    "modsets": [
+	            	{
+	            		"mods": {},
+	            		"parts": [true, true, true, true, true, true, true, true]
+	            	}
+	            ]
+			}
+		}
+	]
+}

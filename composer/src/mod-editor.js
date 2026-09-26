@@ -224,8 +224,6 @@ export class ModEditorPanel extends UIPanel {
 			break;
 		}
 
-		console.log({uiListClass, uiListParams});
-
 		const listUI = new uiListClass(uiListParams);
 		
 		row.add(new UILabel({ text: 'list' }));

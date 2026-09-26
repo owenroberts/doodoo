@@ -9,7 +9,7 @@ export class FileManager {
 
 		this.doodoo = doodoo;
 
-		const data = {
+		defineSafeProperty(this, "data", {
 			title: `doodoo-${getDate()}`,
 			createdOn: getDate(),
 			lastSavedOn: getDate(),
@@ -21,9 +21,7 @@ export class FileManager {
 				createdOn: getDate(),
 				lastSavedOn: getDate(),
 			}],
-		};
-
-		defineSafeProperty(this, "data", data);
+		});
 	}
 
 	load(data) {
@@ -37,6 +35,7 @@ export class FileManager {
 		}
 
 		this.loadVersion();
+		this.doodoo.buildParts();
 	}
 
 	loadVersion() {

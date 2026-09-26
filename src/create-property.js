@@ -14,8 +14,10 @@ export function createProperty(params={}, name) {
 	if (params.isBundle) {
 		return new Bundle(params, name);	
 	}
-
 	if (params.hasOwnProperty('value')) {
+
+		// why didn't i explain these errors??
+
 		if (params.hasOwnProperty('list')) throw new Error(`uh oh ${params}`);
 		if (params.hasOwnProperty('stack')) throw new Error(`uh oh ${params}`);
 		return new ValueProperty(params, name);

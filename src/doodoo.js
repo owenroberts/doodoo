@@ -147,9 +147,6 @@ export class Doodoo {
 
 	load(json) {
 		this.fm.load(json);
-		this.reset();
-		this.isConfigured = false;
-		this.instruments.isLoaded = false;
 	}
 
 	buildParts() {
@@ -157,7 +154,6 @@ export class Doodoo {
 		if (this.comp.parts.length === 0) {
 			return;
 		}
-
 		
 		this.parts = []; // reset parts
 
@@ -252,7 +248,6 @@ export class Doodoo {
 				.map(loop => loop.instrument)
 		];
 		this.setupSampleList(sampleList);
-		
 
 		this.isConfigured = true;
 	}
@@ -388,7 +383,7 @@ export class Doodoo {
 
 			}
 			if (this.events.onNote) {
-				this.events.onNote({ voiceIndex: i, note });
+				this.events.onNote({ voiceIndex: i, voiceCounter: voice.counter, note });
 			}
 			voice.counter += 1; // voice.counter;
 		}
