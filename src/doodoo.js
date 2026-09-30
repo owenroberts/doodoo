@@ -8,13 +8,14 @@ import { createProperty } from './create-property.js';
 import { defaultModSet, compModList, LoopStates } from './constants.js';
 import { FileManager } from './doodoo-file-manager';
 import { Replay } from './replay';
+import { Metronome } from './metronome';
 
 /**
  * main greg class for music generation and playback
  */
 export class Doodoo {
 
-	constructor(params, callback) {
+	constructor(params) {
 
 		this.isToneSetup = false;
 		this.isConfigured = false; // parts are setup with mod
@@ -24,6 +25,7 @@ export class Doodoo {
 		this.initComp(params);
 		this.initEvents(params);
 
+		this.metronome = new Metronome(this);
 		this.reset();
 
 		this.fm = new FileManager(this);
@@ -46,8 +48,8 @@ export class Doodoo {
 
 		if (this.config.withRecording) {
 			this.recorder = new Tone.Recorder();
-			if (!this.config.withCount) {
-				withCount = +prompt('Record number of loops?', 10);
+			if (!this.config.loopsInPlay) {
+				this.config.loopsInPlay = +prompt("record number of loops?", 10);
 			}
 		}
 
@@ -76,9 +78,9 @@ export class Doodoo {
 			useMeter: params.useMeter ?? false,
 			useFFT: params.useFFT ?? false, // this is used for four compositions
 			isMetronomeOn: params.isMetronomeOn ?? false,
-			metroCount: params.metroCount ?? 4,
+			metroInterval: params.metroInterval ?? 4,
 			withRecording: params.withRecording ?? false,
-			withCount: params.withCount ?? false,
+			loopsInPlay: params.loopsInPlay ?? false,
 			waitForModTrigger: params.waitForModTrigger ?? false,
 			isLiveMode: params.isLiveMode ?? false,
 			useDefaultProps: params.useDefaultProps ?? true,
@@ -133,11 +135,10 @@ export class Doodoo {
 		this.loopCount = 0; // total plays of comp
 		this.modCount = 0;  // num mods --> different from total plays? -- idts, but maybe could be ... 
 		
-		this.beatCount = 0;
-		this.beatCounter = 0;
+		this.stepIndex = 0;
+		this.stepsInLoop = 0;
 
-		this.metroCount = this.config.metroCount;
-		this.metroCounter = this.metroCount - 1;
+		this.metronome.reset();
 
 		this.parts = [];
 		this.voices = [];
@@ -312,28 +313,14 @@ export class Doodoo {
 			Tone.Destination.connect(fft);
 			this.config.onFFTInit(fft);
 		}
-		
-		if (this.config.isMetronomeOn) {
-			this.metro = new Tone.MetalSynth({
-				volume: -12,
-				frequency: 250,
-				envelope: {
-					attack: 0.01,
-					decay: 0.01,
-					release: 0.2
-				},
-				harmonicity: 3.1,
-				modulationIndex: 32,
-				resonance: 4000,
-				octaves: 1.5,
-			}).toDestination();
-		}
+
+		this.metronome.setup();
 		
 		if (this.config.withRecording) {
 			if (!this.recorder) {
 				this.recorder = new Tone.Recorder();
-				if (!this.config.withCount) {
-					this.config.withCount = +prompt("record number of loops?", 12);
+				if (!this.config.loopsInPlay) {
+					this.config.loopsInPlay = +prompt("record number of loops?", 12);
 				}
 			}
 			this.recorder.start();
@@ -347,22 +334,15 @@ export class Doodoo {
 
 	step(time) {
 
-		// console.log("step", this.loopCount, time);
+		// console.log("step", this.stepIndex, time);
 
-		if (this.config.isMetronomeOn) {
-			if (this.metroCounter === this.metroCount - 1) {
-				this.metro.triggerAttackRelease('C4', '4n', time, 0.1);
-				this.metroCounter = 0;
-			} else {
-				this.metroCounter++;
-			}
-		}
+		this.metronome.update(time);
 
 		for (let i = 0; i < this.voices.length; i++) {
 			const voice = this.voices[i];
-			if (voice.counter >= voice.count) continue;
-			if (voice.counter % 1 !== 0) continue;
-			const noteIndex = Math.floor(voice.counter) % voice.melody.length;
+			if (voice.stepIndex >= voice.totalSteps) continue;
+			if (voice.stepIndex % 1 !== 0) continue;
+			const noteIndex = Math.floor(voice.stepIndex) % voice.melody.length;
 			const note = voice.melody[noteIndex];
 			if (note[0] !== null && note[0] !== 'rest') {
 				let [pitch, beat, velocity] = note;
@@ -383,21 +363,21 @@ export class Doodoo {
 
 			}
 			if (this.events.onNote) {
-				this.events.onNote({ voiceIndex: i, voiceCounter: voice.counter, note });
+				this.events.onNote({ voiceIndex: i, stepIndex: voice.stepIndex, note });
 			}
-			voice.counter += 1; // voice.counter;
+			voice.stepIndex += 1;
 		}
 
-		this.beatCounter++;
-		if (this.beatCounter === this.beatCount && !this.config.waitForModTrigger) {
+		this.stepIndex++;
+		if (this.stepsInLoop === this.stepIndex && !this.config.waitForModTrigger) {
 			this.next(time);
 		}
 	}
 
 	generateLoop(time) {
 
-		if (this.config.withCount) {
-			if (this.loopCount >= this.config.withCount * this.sequenceLength) {
+		if (this.config.loopsInPlay) {
+			if (this.loopCount >= this.config.loopsInPlay * this.sequenceLength) {
 				Tone.getTransport().stop(time);
 				this.isPlaying = false;
 				this.saveRecording();
@@ -408,7 +388,7 @@ export class Doodoo {
 
 		// console.log('gen', JSON.stringify(this.comp.sequence));
 
-		this.beatCounter = 0;
+		this.stepsInLoop = 0;
 		this.instruments.dispose();
 		this.voices = []; // play all voices from parts together
 
@@ -449,29 +429,28 @@ export class Doodoo {
 			// get voice with longest beat count
 			let partIndex = -1;
 			let voiceIndex = -1;
-			let beatCount = -1;
 
 			for (let i = 0; i < partsInSequence.length; i++) {
 				const voices = partsInSequence[i];
 				for (let j = 0; j < voices.length; j++) {
 					const voice = voices[j];
-					if (voice.count > this.beatCount) {
+					if (voice.totalSteps > this.stepsInLoop) {
 						partIndex = i;
 						voiceIndex = j;
-						this.beatCount = voice.count;
+						this.stepsInLoop = voice.totalSteps;
 					}
 				}
 			}
 
 			// get remainer beats if exist
 			let defaultBeatsInBar = this.comp.bar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.beat));
-			let beatsLeftOver = this.beatCount % defaultBeatsInBar;
+			let beatsLeftOver = this.stepsInLoop % defaultBeatsInBar;
 			if (beatsLeftOver > 0) {
 				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;
 				for (let i = 0; i < makeUpBeats; i++) {
 					partsInSequence[partIndex][voiceIndex].melody.push([null, this.defaultBeat]);
 				}
-				partsInSequence[partIndex][voiceIndex].count += makeUpBeats;
+				partsInSequence[partIndex][voiceIndex].totalSteps += makeUpBeats;
 			}
 		}
 
@@ -486,7 +465,7 @@ export class Doodoo {
 					const copy = structuredClone(clone);
 					voice.melody = voice.melody.concat(copy);
 				}
-				voice.count = voice.melody.length;
+				voice.totalSteps = voice.melody.length;
 			}
 		}
 
@@ -502,14 +481,13 @@ export class Doodoo {
 
 		this.addInstruments();
 
-		this.beatCount = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
+		this.stepsInLoop = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
 
 		const smallestBeat = Math.max(...this.voices.flatMap(v => v.melody.map(b => parseInt(b[1]))));
 		this.toneLoop.interval = smallestBeat + 'n';
 
-		// console.log('gen', this.beatCount, this.voices);
 		// for catslair, not sure if it works for normal
-		if (this.beatCount === 0 && this.voices.length === 0) {
+		if (this.stepsInLoop === 0 && this.voices.length === 0) {
 			this.isPlaying = false;
 		}
 		
@@ -519,7 +497,7 @@ export class Doodoo {
 			}
 		}
 
-		// comp level mods
+		// comp level mods - move to another func?
 		for (const k in this.mods) {
 			this.mods[k].update();
 		}
@@ -540,11 +518,20 @@ export class Doodoo {
 			Tone.getTransport().bpm.value = this.comp.bpm;
 		}
 
-		// this is the same as onLoop, but comes before increment ... figure out which one is right ... 
-		if (this.events.onMod) {
-			this.events.onMod(this.loopCount, this.loopCount / this.sequenceLength);
+		if (this.config.isSaveReplay) {
+			this.replay.addLoop({
+				voices: this.voices,
+				stepsInLoop: this.stepsInLoop,
+				interval: smallestBeat + 'n', // toneLoop.interval
+			});
 		}
-		
+
+		if (this.events.onLoop) {
+			this.events.onLoop(this.loopCount);
+		}
+
+		// move increment to another func?
+
 		// move to next index in sequence (if more than one)
 		this.sequenceIndex++;
 		if (this.sequenceIndex >= this.sequenceLength) {
@@ -557,20 +544,9 @@ export class Doodoo {
 			Tone.getTransport().start();
 		}
 		
-		if (this.config.isSaveReplay) {
-			this.replay.addLoop({
-				voices: this.voices,
-				beatCount: this.beatCount,
-				interval: smallestBeat + 'n', // toneLoop.interval
-			});
-		}
-
+		// live in module, before or after increment?
 		if (this.config.isLiveMode) {
 			this.updateLive();
-		}
-
-		if (this.events.onLoop) {
-			this.events.onLoop(this.loopCount);
 		}
 	}
 
@@ -698,7 +674,7 @@ export class Doodoo {
 	}
 
 	modulate() {
-		this.modCount++;
+		this.modCount++; // this is how mod can be separate, but does count matter?
 		this.parts.forEach(part => { part.update(); });
 	}
 
@@ -714,7 +690,7 @@ export class Doodoo {
 		}
 
 		// DRY?
-		this.metroCounter = this.metroCount - 1;
+		this.metronome.reset();
 		this.loopCount = 0;
 
 		if (!this.isConfigured) {
@@ -778,7 +754,7 @@ export class Doodoo {
 	}
 
 	stopNext() {
-		this.config.withCount = this.loopCount;
+		this.config.loopsInPlay = this.loopCount;
 	}
 
 	// debug

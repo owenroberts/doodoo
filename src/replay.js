@@ -28,12 +28,12 @@ export class Replay {
 			return;
 		}
 		
-		this.doodoo.beatCounter = 0;
+		this.doodoo.stepIndex = 0;
 		this.doodoo.instruments.dispose();
 		
 		const loop = structuredClone(this.active.loops[this.loopIndex]); 
 		this.doodoo.voices = loop.voices;
-		this.doodoo.beatCount = loop.beatCount;
+		this.doodoo.stepsInLoop = loop.stepsInLoop;
 		this.doodoo.toneLoop.interval = loop.interval;
 		this.doodoo.loopCount++;
 
@@ -70,11 +70,10 @@ export class Replay {
 	save() {
 		if (!this.doodoo.config.isSaveReplay) return;
 		
-		// dont need this anymore ... 
 		this.active.loops.forEach(loop => {
 			loop.voices.forEach(voice => {
-				voice.counter = 0;
-				delete voice.toneInstrument;
+				voice.stepIndex = 0;
+				// delete voice.toneInstrument;
 			});
 		});
 

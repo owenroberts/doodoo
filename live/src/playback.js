@@ -20,7 +20,7 @@ export class PlaybackPanel extends UIPanel {
 		}));
 
 		this.addButton({
-			callback: () => { this.play({ withCount: false, }); },
+			callback: () => { this.play({ loopsInPlay: false, }); },
 			key: "/",
 			text: "play",
 		});
@@ -31,7 +31,7 @@ export class PlaybackPanel extends UIPanel {
 			callback: () => { 
 				this.play({ 
 					withRecording: false, 
-					withCount: +prompt('Loop count?', 10) 
+					loopsInPlay: +prompt('target loop count?', 10) 
 				}); 
 			},
 		});
@@ -69,7 +69,7 @@ export class PlaybackPanel extends UIPanel {
 		};
 	}
 
-	play({ withRecording=false, withCount=false, localPerformance, isLiveMode=false }={}) {
+	play({ withRecording=false, loopsInPlay=false, localPerformance, isLiveMode=false }={}) {
 
 		if (this.doodoo.isPlaying) {
 			this.doodoo.stop();
@@ -78,7 +78,7 @@ export class PlaybackPanel extends UIPanel {
 
 		this.doodoo.reset();
 		this.doodoo.config.withRecording = withRecording;
-		this.doodoo.config.withCount = withCount;
+		this.doodoo.config.loopsInPlay = loopsInPlay;
 		this.doodoo.config.isLiveMode = isLiveMode;
 
 		if (localPerformance) {

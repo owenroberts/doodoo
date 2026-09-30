@@ -14,7 +14,7 @@ window.addEventListener("load", function() {
 	const compSelect = document.getElementById("comp-select");
 	const playBtn = document.getElementById("play");
 	const stopBtn = document.getElementById("stop");
-	const loopCountInput = document.getElementById("loop-count");
+	const loopsInPlayInput = document.getElementById("loop-count");
 
 	playBtn.addEventListener("click", () => {
 		play();
@@ -29,7 +29,7 @@ window.addEventListener("load", function() {
 		const res = await fetch(url);
 		const json = await res.json();
 		doodoo.load(json);
-		doodoo.config.withCount = +loopCountInput.value;
+		doodoo.config.loopsInPlay = +loopsInPlayInput.value;
 		// doodoo.buildParts();
 		doodoo.play();
 	}

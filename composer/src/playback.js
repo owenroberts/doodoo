@@ -20,14 +20,14 @@ export class PlaybackPanel extends UIPanel {
 		}));
 
 		this.addButton({
-			callback: () => { this.play({ withCount: false, }); },
+			callback: () => { this.play({ loopsInPlay: false, }); },
 			key: "/",
 			text: "play",
 		});
 
 		this.addButton({ 
 			callback: () => { 
-				this.play({ withRecording: false, withCount: 1 }); 
+				this.play({ withRecording: false, loopsInPlay: 1 }); 
 			}, 
 			key: '.', 
 			text: 'play 1',
@@ -39,7 +39,7 @@ export class PlaybackPanel extends UIPanel {
 			callback: () => { 
 				this.play({ 
 					withRecording: false, 
-					withCount: +prompt('Loop count?', 10) 
+					loopsInPlay: +prompt("loop count?", 10) 
 				}); 
 			},
 		});
@@ -73,14 +73,14 @@ export class PlaybackPanel extends UIPanel {
 		this.addBreak();
 
 		this.addRef({
-			obj: this.doodoo,
-			ref: "metroCount",
-			ignoreSettings: true,
+			obj: this.doodoo.config,
+			ref: "isMetronomeOn",
 		});
 
 		this.addRef({
 			obj: this.doodoo.config,
-			ref: "isMetronomeOn",
+			ref: "metroInterval",
+			ignoreSettings: true,
 		});
 
 		this.addRef({
@@ -119,13 +119,13 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
-		this.doodoo.events.onMod = loopCount => {
+		this.doodoo.events.onLoop = loopCount => {
 			loopCountDisplay.setText(loopCount);
 			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);
 		};
 	}
 
-	play({ withRecording=false, withCount=false, localReplay, isLiveMode=false }={}) {
+	play({ withRecording=false, loopsInPlay=false, localReplay, isLiveMode=false }={}) {
 
 		if (this.doodoo.isPlaying) {
 			this.doodoo.stop();
@@ -137,9 +137,9 @@ export class PlaybackPanel extends UIPanel {
 		this.doodoo.config.withRecording = withRecording;
 		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 
 		if (withRecording) {
-			this.doodoo.config.withCount = +prompt("record number of loops?", 12);
+			this.doodoo.config.loopsInPlay = +prompt("record number of loops?", 12);
 		} else {
-			this.doodoo.config.withCount = withCount;
+			this.doodoo.config.loopsInPlay = loopsInPlay;
 		}
 		this.doodoo.config.isLiveMode = isLiveMode;
 

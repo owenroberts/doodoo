@@ -197,8 +197,8 @@ export class Part {
 
 			const voice = {
 				melody,
-				counter: 0, // count through loop
-				count: melody.length,
+				stepIndex: 0, // count through loop
+				totalSteps: melody.length,
 				harmony: isHarmony ? harmony.interval : 0,
 				counterpoint: false, // counter point added as separate loop .. 
 				instrument: this.mods.instruments.get(i),
