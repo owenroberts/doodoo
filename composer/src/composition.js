@@ -5,7 +5,7 @@ import { UILabel, UIList, UINumberStep, UISelect, UIPanel } from '@b/oi';
 
 /**
  * edit composition level params for doodoo
- * tonic, transpose, bpm, useOctve, isScaleNotesOnly, isRegularTime, bar, beat, scale
+ * tonic, transpose, bpm, useOctve, restrictNotesToScale, forceStandardMeter, bar, beat, scale
  * title?
  */
 export class CompositionPanel extends UIPanel {
@@ -43,17 +43,17 @@ export class CompositionPanel extends UIPanel {
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: "useOctave",
+			ref: "allowOctaveJump",
 		});
 
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: "isScaleNotesOnly",
+			ref: "restrictNotesToScale",
 		});
 		
 		this.addRef({
 			obj: this.doodoo.comp,
-			ref: "isRegularTime",
+			ref: "forceStandardMeter",
 		});
 		
 		this.addRef({

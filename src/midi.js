@@ -65,13 +65,13 @@ export function constrainNoteRange(midiNoteNum) {
  * @param  {array}  scale     key scale intervals
  * @return {array}           
  */
-export function getMelody(melody, tonic, transpose, scale, isScaleNotesOnly=true) {
+export function getMelody(melody, tonic, transpose, scale, restrictNotesToScale=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
 			const scaleIndex = getScaleIndex(note[0], tonic, scale);
 			const midiPitch = MIDI_NOTES.indexOf(note[0]) - getMidiInterval(tonic, transpose);
-			if (scaleIndex === -1 && isScaleNotesOnly) {
+			if (scaleIndex === -1 && restrictNotesToScale) {
 				const midiTonic = MIDI_NOTES.indexOf(tonic);
 				const newScaleIndex = getClosestScaleIndex(midiPitch, midiTonic, scale);
 				const diff = midiPitch - midiTonic;
@@ -116,11 +116,11 @@ function getClosestScaleIndex(midiPitch, midiTonic, scale) {
  * @param  {string}  transpose        - transpose key as midi
  * @param  {number}  interval         - harmony as numericinterval
  * @param  {array}   scale            - scale of key expressed as numeric intervals
- * @param  {boolean} useOctave        
- * @param  {boolean} isScaleNotesOnly 
+ * @param  {boolean} allowOctaveJump        
+ * @param  {boolean} restrictNotesToScale 
  * @return {array}
  */
-export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=false, isScaleNotesOnly=true) {
+export function getHarmony(melody, tonic, transpose, interval, scale, allowOctaveJump=false, restrictNotesToScale=true) {
 	return melody.map(note => {
 		if (note[0] === null || note[0] == 'rest') { return note; }
 		else {
@@ -157,13 +157,13 @@ export function getHarmony(melody, tonic, transpose, interval, scale, useOctave=
 				}
 				midiHarmony = scale[(newIndex + interval - 1) % scale.length];
 					
-				if (!isScaleNotesOnly) {
+				if (!restrictNotesToScale) {
 					// this is actually goofy as fuck but whatever
 					midiHarmony += midiPitch - (midiTonic + scale[newIndex]);
 				}
 			}
 			
-			if (useOctave) {
+			if (allowOctaveJump) {
 				// add 12 * index n above the scale 
 				midiHarmony += Math.floor((scaleIndex + interval - 1) / scale.length) * 12;
 			}

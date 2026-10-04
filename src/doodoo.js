@@ -75,15 +75,13 @@ export class Doodoo {
 			// >> really necessary? 
 			playOnStart: false, // if trying to play before loaded
 			volume: params.volume ?? 0,
-			useMeter: params.useMeter ?? false,
-			useFFT: params.useFFT ?? false, // this is used for four compositions
 			isMetronomeOn: params.isMetronomeOn ?? false,
 			metroInterval: params.metroInterval ?? 4,
 			withRecording: params.withRecording ?? false,
 			loopsInPlay: params.loopsInPlay ?? false,
-			waitForModTrigger: params.waitForModTrigger ?? false,
+			waitForModTrigger: params.waitForModTrigger ?? false, // more like loop trigger ... 
+			mergeDefaultModset: params.mergeDefaultModset ?? true,
 			isLiveMode: params.isLiveMode ?? false,
-			useDefaultProps: params.useDefaultProps ?? true,
 			isSaveReplay: params.isSaveReplay ?? false, // save data of play
 			isReplay: params.isReplay ?? false, // playback of a replay
 			isEditor: params.isEditor ?? false,
@@ -99,7 +97,7 @@ export class Doodoo {
 			onNote: params.onNote ?? false,
 			onMod: params.onMod ?? false,
 			onMeterInit: params.onMeterInit ?? false,
-			onFFTInit: params.useFFT ?? false,
+			onFFTInit: params.onFFTInit ?? false,
 			onStop: params.onStop ?? false,
 		});
 	}
@@ -114,10 +112,10 @@ export class Doodoo {
 			bpm: params.bpm ?? 120,
 			tonic: params.tonic ?? 'C4', // assert tonic is midi note name?
 			transpose: params.transpose ?? params.tonic ?? 'C4', // tranpose key -- because melody is relative to tonic
-			useOctave: params.useOctave ?? false, // in transposition, continue through to octave vs looping around to begging of octave
-			isScaleNotesOnly: params.isScaleNotesOnly ?? true, // harmony can only have notes from scale
+			allowOctaveJump: params.allowOctaveJump ?? false, // in transposition, continue through to octave vs looping around to begging of octave
+			restrictNotesToScale: params.restrictNotesToScale ?? true, // harmony can only have notes from scale
 			scale: params.scale ?? [0, 2, 4, 5, 7, 9, 11], // major default
-			isRegularTime: params.isRegularTime ?? false,
+			forceStandardMeter: params.forceStandardMeter ?? false,
 			bar: params.bar ?? 4, // beat per bar
 			beat: params.beat ?? "4n", // beat
 			sequence: params.sequence ?? [[true]],
@@ -161,7 +159,7 @@ export class Doodoo {
 		// const mods = structuredClone(this.comp.mods); // props vs mods ... 
 		// for (const prop in defaults) {
 		// 	if (mods.hasOwnProperty(prop)) continue;
-		// 	mods[prop] = this.config.useDefaultProps ? structuredClone(defaults[prop]) : {};
+		// 	mods[prop] = this.config.mergeDefaultModset ? structuredClone(defaults[prop]) : {};
 		// }
 
 		// mods that effect entire composition
@@ -212,7 +210,7 @@ export class Doodoo {
 				}
 			}
 
-			if (this.config.useDefaultProps) {
+			if (this.config.mergeDefaultModset) {
 				for (const k in defaults) {
 					if (partMods[i].hasOwnProperty(k)) continue;
 					if (compModList.includes(k)) continue;
@@ -249,6 +247,9 @@ export class Doodoo {
 				.map(loop => loop.instrument)
 		];
 		this.setupSampleList(sampleList);
+
+		// have to reload samples after configuration
+		this.instruments.isLoaded = false;
 
 		this.isConfigured = true;
 	}
@@ -302,19 +303,24 @@ export class Doodoo {
 		// Tone.Master.chain(compressor);
 		// Tone.Master.chain(limiter);
 
-		if (this.config.useMeter) {
+		this.metronome.setup();
+
+		if (this.events.onMeterInit) {
 			this.meter = new Tone.Meter({ channelCount: 2 });
 			Tone.Destination.connect(this.meter);
 			this.events.onMeterInit(this.meter);
 		}
 
-		if (this.config.useFFT) {
-			const fft = new Tone.FFT(16); // is bands
-			Tone.Destination.connect(fft);
-			this.config.onFFTInit(fft);
-		}
+		if (this.events.onFFTInit) {
+			const split = new Tone.Split();
+			const fftLeft = new Tone.FFT(64); // is bands
+			const fftRight = new Tone.FFT(64); // is bands
 
-		this.metronome.setup();
+			Tone.Destination.connect(split);
+			split.connect(fftLeft, 0, 0);
+			split.connect(fftRight, 1, 0);
+			this.events.onFFTInit({ fftLeft, fftRight });
+		}
 		
 		if (this.config.withRecording) {
 			if (!this.recorder) {
@@ -334,7 +340,7 @@ export class Doodoo {
 
 	step(time) {
 
-		// console.log("step", this.stepIndex, time);
+		// console.log("step", this.stepIndex, this.stepsInLoop);
 
 		this.metronome.update(time);
 
@@ -369,7 +375,7 @@ export class Doodoo {
 		}
 
 		this.stepIndex++;
-		if (this.stepsInLoop === this.stepIndex && !this.config.waitForModTrigger) {
+		if (this.stepIndex === this.stepsInLoop && !this.config.waitForModTrigger) {
 			this.next(time);
 		}
 	}
@@ -388,7 +394,7 @@ export class Doodoo {
 
 		// console.log('gen', JSON.stringify(this.comp.sequence));
 
-		this.stepsInLoop = 0;
+		this.stepIndex = 0;
 		this.instruments.dispose();
 		this.voices = []; // play all voices from parts together
 
@@ -424,7 +430,7 @@ export class Doodoo {
 		}
 
 		// make playback have regular bar lengths
-		if (this.comp.isRegularTime) {
+		if (this.comp.forceStandardMeter) {
 			
 			// get voice with longest beat count
 			let partIndex = -1;

@@ -271,6 +271,7 @@ export const defaults = {
 	},
 	curve: {
 		list: ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"],
+		options: ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"],
 		index: 0,
 		mod: {
 			chance: { value: 0.1 },

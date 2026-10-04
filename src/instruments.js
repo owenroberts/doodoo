@@ -119,7 +119,6 @@ export class Instruments {
 			// this.voices[i].toneInstrument.triggerRelease();
 			this.active[i].triggerRelease();
 		}
-
 	}
 
 	getSynth(voiceParams) {

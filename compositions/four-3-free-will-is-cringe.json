@@ -23,7 +23,7 @@
             "transpose": "C4",
             "bpm": 160,
             "scale": [0, 2, 4, 5, 7, 9, 11],
-            "useOctave": false,
+            "allowOctaveJump": false,
             "sequence": [
                 [true],
                 [false]
@@ -386,7 +386,7 @@
             "transpose": "C4",
             "bpm": 160,
             "scale": [0, 2, 4, 5, 7, 9, 11],
-            "useOctave": true,
+            "allowOctaveJump": true,
             "sequence": [
                 [true, true, true, true],
                 [false, false, true, true],

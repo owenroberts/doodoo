@@ -1,18 +1,1 @@
-{
-    "title": "Lines Theme Mid",
-    "tonic": "C#4",
-    "scale": ["0", "2", "4", "5", "7", "9", "11"],
-    "duration": "4n",
-    "bpm": "108",
-    "samples": "synth",
-    "parts": [
-        ["C#5", "8n"],
-        ["D5", "8n"],
-        ["C#5", "8n"],
-        ["D5", "8n"],
-        ["C#5", "8n"],
-        ["D5", "8n"],
-        ["C#5", "8n"],
-        ["D5", "8n"]
-    ]
-}
+{"title":"lines_theme_mid","createdOn":"Fri-Oct-02-2026","lastSavedOn":"Fri-Oct-02-2026","versionIndex":0,"samples":{},"versions":[{"comp":{"bpm":108,"tonic":"C#4","transpose":"C#4","allowOctaveJump":false,"restrictNotesToScale":true,"scale":[0,2,4,5,7,9,11],"forceStandardMeter":false,"bar":4,"beat":"","sequence":[[true]],"modsets":[{"mods":{"instruments":{"stack":[{"list":["fmSynth"]}],"options":["choir","fmSynth","bamboo","piano","trumpet","flute","guitar","strings","toms","crow_bass","kr55","choirA","choirE","choirI","choirO","choirU"],"uiDataType":"stack"}},"parts":[true,true,true,true,true,true,true,true]}],"parts":[[["C#5","4n"],["D5","4n"],["C#5","4n"],["D5","4n"],["C#5","4n"],["D5","4n"],["C#5","4n"],["D5","4n"]]],"startLoops":[]},"tag":"initial","createdOn":"Fri-Oct-02-2026","lastSavedOn":"Fri-Oct-02-2026"}]}

@@ -63,7 +63,7 @@ export class Part {
 			
 			if (chance(slice.harmChance)) {
 				const harm = slice.harmList;
-				addSlice = getHarmony(addSlice, this.comp.tonic, this.comp.transpose, harm, this.comp.scale, this.comp.useOctave);
+				addSlice = getHarmony(addSlice, this.comp.tonic, this.comp.transpose, harm, this.comp.scale, this.comp.allowOctaveJump);
 			}
 			this.melody.push(...addSlice);
 		}
@@ -190,9 +190,9 @@ export class Part {
 
 			if (chance(harmony.chance) && !isCounterpoint && !harmonyInStartLoop) {
 				isHarmony = true;
-				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.useOctave, comp.isScaleNotesOnly);
+				melody = getHarmony(melody, comp.tonic, comp.transpose, harmony.interval, comp.scale, comp.allowOctaveJump, comp.restrictNotesToScale);
 			} else {
-				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale, comp.isScaleNotesOnly);
+				melody = getMelody(melody, comp.tonic, comp.transpose, comp.scale, comp.restrictNotesToScale);
 			}
 
 			const voice = {

@@ -6,26 +6,24 @@ export class Metronome {
 
 		this.doodoo = doodoo;
 
-		this.isActive = this.doodoo.config.isMetronomeOn;
 		this.interval = this.doodoo.config.metroInterval;
 	}
 
 	reset() {
-		this.isActive = this.doodoo.config.isMetronomeOn;
 		this.interval = this.doodoo.config.metroInterval;
 
-		if (this.isActive && !this.synth) {
+		if (this.doodoo.config.isMetronomeOn && !this.synth) {
 			this.setup();
 		}
 
-		if (!this.isActive && this.synth) {
+		if (!this.doodoo.config.isMetronomeOn && this.synth) {
 			this.synth.dispose();
 			this.synth = undefined;
 		}
 	}
 
 	setup() {
-		if (!this.isActive) return;
+		if (!this.doodoo.config.isMetronomeOn) return;
 		this.synth = new Tone.MetalSynth({
 			volume: -12,
 			frequency: 250,
@@ -42,7 +40,7 @@ export class Metronome {
 	}
 
 	update(time) {
-		if (!this.isActive) return;
+		if (!this.doodoo.config.isMetronomeOn) return;
 		if (this.doodoo.stepIndex % this.interval === 0) {
 			this.synth.triggerAttackRelease('C4', '4n', time, 0.1);
 		}
