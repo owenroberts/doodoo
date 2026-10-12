@@ -12,7 +12,7 @@ export class Modulator {
 	/**
 	 * create modulator
 	 * @param  {number} value  - starting value of property
-	 * @param  {object} params 
+	 * @param  {object} params - min, max, step, kick, chance, mode, bound
 	 * @param  {string} name   - name of property being modded
 	 */
 	constructor(value, params, name) {
@@ -29,7 +29,7 @@ export class Modulator {
 		this.max = createProperty(params.max ?? { value: 1 }, `${name} max`);
 
 		this.step = createProperty(params.step ?? { value: 1 }, `${name} step`);
-	
+
 		// "kick in" count, wait plays before starting
 		this.kick = createProperty(params.kick ?? { value: 0 }, `${name} kick`);
 		this.isKicked = this.kick.get() > 0 ? false : true;
@@ -94,8 +94,6 @@ export class Modulator {
 				break;
 			}
 		}
-
-
 
 		this.clamp();
 	}

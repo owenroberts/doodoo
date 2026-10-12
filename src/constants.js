@@ -1,5 +1,6 @@
 /**
  * behavior of random walk at bounds
+ * STAY, RESET, REVERSE
  * @type {enum}
  */
 export const Bounds = {
@@ -10,6 +11,7 @@ export const Bounds = {
 
 /**
  * mode of modulator update
+ * VALUE, RANGE, WALK, WALK_UP, WALK_DOWN
  * @type {enum}
  */
 export const Modes = {

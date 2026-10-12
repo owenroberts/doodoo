@@ -28,6 +28,7 @@ export class FileManager {
 		assert(data.hasOwnProperty("versionIndex"), "old version");
 		this.doodoo.reset();
 		this.isConfigured = false;
+		this.doodoo.isToneSetup = false;
 		this.doodoo.instruments.isLoaded = false;
 
 		for (const k in data) {

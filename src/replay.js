@@ -34,7 +34,7 @@ export class Replay {
 		const loop = structuredClone(this.active.loops[this.loopIndex]); 
 		this.doodoo.voices = loop.voices;
 		this.doodoo.stepsInLoop = loop.stepsInLoop;
-		this.doodoo.toneLoop.interval = loop.interval;
+		this.doodoo.toneLoop.interval = loop.stepInterval;
 		this.doodoo.loopCount++;
 
 		this.doodoo.addInstruments();

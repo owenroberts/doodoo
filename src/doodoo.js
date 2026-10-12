@@ -35,7 +35,7 @@ export class Doodoo {
 		this.loopControls = params.loopControls ?? [];
 		this.liveLoops = [];
 		this.voiceCountOverrides = [];
-		
+
 		if (this.config.isLiveMode) {
 			// this.comp.startLoops = []; // use liveLoops or something instead?
 		}
@@ -69,7 +69,7 @@ export class Doodoo {
 		 */
 		defineSafeProperty(this, "config", {
 			debug: false,
-			defaultBeat: '4n', // smallest unit of time
+			stepInterval: '4n', // smallest unit of time
 			autoLoad: params.autoLoad ?? true,
 			autoStart: params.autoStart ?? true,
 			// >> really necessary? 
@@ -181,8 +181,8 @@ export class Doodoo {
 		// have to get default beat before going through the parts ...
 		this.comp.parts.forEach(part => {
 			part.forEach(note => {
-				if (parseInt(note[1]) > parseInt(this.config.defaultBeat)) {
-					this.config.defaultBeat = note[1];
+				if (parseInt(note[1]) > parseInt(this.config.stepInterval)) {
+					this.config.stepInterval = note[1];
 				}
 			});
 		});
@@ -190,8 +190,8 @@ export class Doodoo {
 		// check beat list for possible smaller beats 
 		this.comp.modsets.forEach(set => {
 			set.mods.beatList?.list.forEach(beat => {
-				if (beat > parseInt(this.config.defaultBeat)) {
-					this.config.defaultBeat = beat + 'n';
+				if (beat > parseInt(this.config.stepInterval)) {
+					this.config.stepInterval = beat + 'n';
 				}
 			})
 		});
@@ -221,7 +221,7 @@ export class Doodoo {
 			this.parts.push(new Part(
 				this.comp.parts[i], 
 				partMods[i], 
-				this.config.defaultBeat,
+				this.config.stepInterval,
 				this.comp,
 			));
 		}
@@ -283,13 +283,14 @@ export class Doodoo {
 	}
 
 	setupTone() {
+		console.log("setup tone");
 		if (this.toneLoop) this.toneLoop.dispose();
 		this.toneLoop = new Tone.Loop(time => {
 			this.step(time);
-		}, this.config.defaultBeat);
-		Tone.getTransport().start();
+		}, this.config.stepInterval);
+		// Tone.getTransport().start();
 		Tone.getTransport().bpm.value = this.comp.bpm;
-		this.toneLoop.start(Tone.getTransport().seconds);
+		// this.toneLoop.start(Tone.getTransport().seconds);
 		
 		// master ing
 		var compressor = new Tone.Compressor({
@@ -382,6 +383,8 @@ export class Doodoo {
 
 	generateLoop(time) {
 
+		// console.log('time', time);
+		
 		if (this.config.loopsInPlay) {
 			if (this.loopCount >= this.config.loopsInPlay * this.sequenceLength) {
 				Tone.getTransport().stop(time);
@@ -391,8 +394,6 @@ export class Doodoo {
 				return;
 			}
 		}
-
-		// console.log('gen', JSON.stringify(this.comp.sequence));
 
 		this.stepIndex = 0;
 		this.instruments.dispose();
@@ -449,12 +450,12 @@ export class Doodoo {
 			}
 
 			// get remainer beats if exist
-			let defaultBeatsInBar = this.comp.bar * (parseInt(this.config.defaultBeat) / parseInt(this.comp.beat));
-			let beatsLeftOver = this.stepsInLoop % defaultBeatsInBar;
+			let beatsInBar = this.comp.bar * (parseInt(this.config.stepInterval) / parseInt(this.comp.beat));
+			let beatsLeftOver = this.stepsInLoop % beatsInBar;
 			if (beatsLeftOver > 0) {
-				let makeUpBeats = defaultBeatsInBar - beatsLeftOver;
+				let makeUpBeats = beatsInBar - beatsLeftOver;
 				for (let i = 0; i < makeUpBeats; i++) {
-					partsInSequence[partIndex][voiceIndex].melody.push([null, this.defaultBeat]);
+					partsInSequence[partIndex][voiceIndex].melody.push([null, this.stepInterval]);
 				}
 				partsInSequence[partIndex][voiceIndex].totalSteps += makeUpBeats;
 			}
@@ -488,9 +489,7 @@ export class Doodoo {
 		this.addInstruments();
 
 		this.stepsInLoop = Math.max(0, Math.max(...this.voices.map(l => l.melody.length)));
-
-		const smallestBeat = Math.max(...this.voices.flatMap(v => v.melody.map(b => parseInt(b[1]))));
-		this.toneLoop.interval = smallestBeat + 'n';
+		this.stepInterval = Math.max(...this.voices.flatMap(v => v.melody.map(b => parseInt(b[1])))) + 'n';
 
 		// for catslair, not sure if it works for normal
 		if (this.stepsInLoop === 0 && this.voices.length === 0) {
@@ -528,7 +527,7 @@ export class Doodoo {
 			this.replay.addLoop({
 				voices: this.voices,
 				stepsInLoop: this.stepsInLoop,
-				interval: smallestBeat + 'n', // toneLoop.interval
+				stepInterval: this.stepInterval, // toneLoop.interval
 			});
 		}
 
@@ -546,9 +545,9 @@ export class Doodoo {
 
 		this.loopCount++;
 		
-		if (Tone.getTransport().state === 'stopped') {
-			Tone.getTransport().start();
-		}
+		// if (Tone.getTransport().state === 'stopped') {
+		// 	Tone.getTransport().start();
+		// }
 		
 		// live in module, before or after increment?
 		if (this.config.isLiveMode) {
@@ -670,7 +669,7 @@ export class Doodoo {
 	}
 
 	setBPM(bpm) {
-		this.comp.bpm += bmp;
+		this.comp.bpm = bpm;
 		Tone.getTransport().bpm.value = this.comp.bpm;
 	}
 
@@ -723,6 +722,8 @@ export class Doodoo {
 		Tone.getTransport().stop();
 		Tone.getTransport().start();
 		// end fix
+		
+		this.toneLoop.interval = this.config.stepInterval;
 
 		// seconds causes error with mystery fragments, 2 doodoos
 		// toneLoop.start(Tone.now()); // this actually makes it not play the second time ... 
@@ -734,8 +735,8 @@ export class Doodoo {
 	}
 
 	next(time) {
-		if (!this.isPlaying) this.isPlaying = true; // right?
-		// with waitForModTrigger
+		if (!this.isPlaying) this.isPlaying = true; // for on trigger next mode ... 
+		
 		if (this.config.isReplay) {
 			console.log(this.replay);
 			this.replay.getNextLoop();
@@ -745,6 +746,7 @@ export class Doodoo {
 	}
 
 	stop() {
+		// console.trace("stop");
 		Tone.getTransport().stop();
 		this.toneLoop.stop();
 		this.instruments.releaseAll();
