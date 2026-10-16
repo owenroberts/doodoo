@@ -26,6 +26,7 @@ export class Doodoo {
 		this.initEvents(params);
 
 		this.metronome = new Metronome(this);
+
 		this.reset();
 
 		this.fm = new FileManager(this);
@@ -133,6 +134,9 @@ export class Doodoo {
 		this.loopCount = 0; // total plays of comp
 		this.modCount = 0;  // num mods --> different from total plays? -- idts, but maybe could be ... 
 		
+		this.isStopNextLoop = false; // less insane than loopsInPlay thing ... 
+		this.isStopNextStep = false;
+		
 		this.stepIndex = 0;
 		this.stepsInLoop = 0;
 
@@ -146,6 +150,14 @@ export class Doodoo {
 
 	load(json) {
 		this.fm.load(json);
+	}
+
+	loadSamples(callback) {
+		// load samples before playing
+		this.buildParts();
+		this.instruments.loadSamples(this.sampleList, () => {
+			if (callback) callback();
+		});
 	}
 
 	buildParts() {
@@ -276,14 +288,14 @@ export class Doodoo {
 		try {
 			await Tone.start();
 			this.setupTone();
-			callback();
+			if (callback) callback();
 		} catch(err) {
 			console.error('load tone error', err);
 		}
 	}
 
 	setupTone() {
-		console.log("setup tone");
+
 		if (this.toneLoop) this.toneLoop.dispose();
 		this.toneLoop = new Tone.Loop(time => {
 			this.step(time);
@@ -341,6 +353,11 @@ export class Doodoo {
 
 	step(time) {
 
+		if (this.isStopNextStep) {
+			this.stop();
+			return;
+		}
+
 		// console.log("step", this.stepIndex, this.stepsInLoop);
 
 		this.metronome.update(time);
@@ -383,17 +400,21 @@ export class Doodoo {
 
 	generateLoop(time) {
 
-		// console.log('time', time);
+		// also should stopNext be for steps???
+		if (this.isStopNextLoop) {
+			this.stop();
+			return;
+		}
 		
+		// this is actually insane if loopsInPlay can just be false and also set by stopNext ... 
+		// why isn't this just stop?
 		if (this.config.loopsInPlay) {
 			if (this.loopCount >= this.config.loopsInPlay * this.sequenceLength) {
-				Tone.getTransport().stop(time);
-				this.isPlaying = false;
-				this.saveRecording();
-				this.replay.save();
+				this.stop();
 				return;
 			}
 		}
+
 
 		this.stepIndex = 0;
 		this.instruments.dispose();
@@ -738,7 +759,6 @@ export class Doodoo {
 		if (!this.isPlaying) this.isPlaying = true; // for on trigger next mode ... 
 		
 		if (this.config.isReplay) {
-			console.log(this.replay);
 			this.replay.getNextLoop();
 		} else if (!this.config.isClient) {
 			this.generateLoop(time);
@@ -759,10 +779,18 @@ export class Doodoo {
 		if (this.events.onStop) {
 			this.events.onStop();
 		}
+		this.reset();
 	}
 
 	stopNext() {
-		this.config.loopsInPlay = this.loopCount;
+		// doesn't work if sequenceLength > 1 ***
+		// this.config.loopsInPlay = this.loopCount; // insane
+		this.isStopNextLoop = true;
+	}
+
+	stopNextStep() {
+		this.isStopNextLoop = true;
+		this.isStopNextStep = true;
 	}
 
 	// debug
