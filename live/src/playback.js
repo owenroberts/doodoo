@@ -76,7 +76,6 @@ export class PlaybackPanel extends UIPanel {
 			Tone.Transport.cancel();
 		}
 
-		this.doodoo.reset();
 		this.doodoo.config.withRecording = withRecording;
 		this.doodoo.config.loopsInPlay = loopsInPlay;
 		this.doodoo.config.isLiveMode = isLiveMode;
@@ -91,7 +90,6 @@ export class PlaybackPanel extends UIPanel {
 			this.doodoo.config.isPerformance = false;
 		}
 
-		this.doodoo.setup(); // resets parts
 		this.doodoo.play();
 		if (this.isSaveOnPlay) {
 			this.ui.panels.files.saveLocal(false);

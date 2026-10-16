@@ -74,8 +74,8 @@ export class Instruments {
 			baseUrl: this.samplesURL || '../samples/',
 			onload: () => {
 				console.timeEnd(`load ${this.loadList.join(', ')}`);
-				if (callback) callback();
 				this.isLoaded = true;
+				if (callback) callback();
 			},
 			onerror: error => { console.error(error); },
 		});

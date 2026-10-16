@@ -27,7 +27,8 @@ export class Doodoo {
 
 		this.metronome = new Metronome(this);
 
-		this.reset();
+		this.resetCounters();
+		this.resetMods();
 
 		this.fm = new FileManager(this);
 		this.instruments = new Instruments(params);
@@ -128,7 +129,7 @@ export class Doodoo {
 		});
 	}
 
-	reset() {
+	resetCounters() {
 		this.sequenceIndex = 0;
 		this.sequenceLength = this.comp.sequence[0].length;
 		this.loopCount = 0; // total plays of comp
@@ -136,15 +137,19 @@ export class Doodoo {
 		
 		this.isStopNextLoop = false; // less insane than loopsInPlay thing ... 
 		this.isStopNextStep = false;
+
+		this.isPauseNextStep = false;
+		this.isPauseNextLoop = false;
 		
 		this.stepIndex = 0;
 		this.stepsInLoop = 0;
 
 		this.metronome.reset();
+	}
 
+	resetMods() {
 		this.parts = [];
 		this.voices = [];
-
 		this.isConfigured = false;
 	}
 
@@ -352,13 +357,18 @@ export class Doodoo {
 	}
 
 	step(time) {
+		
+		console.log("step", this.stepIndex, this.stepsInLoop);
 
 		if (this.isStopNextStep) {
 			this.stop();
 			return;
 		}
 
-		// console.log("step", this.stepIndex, this.stepsInLoop);
+		if (this.isPauseNextStep) {
+			this.pause();
+			return;
+		}
 
 		this.metronome.update(time);
 
@@ -400,9 +410,16 @@ export class Doodoo {
 
 	generateLoop(time) {
 
+		console.log("generate", this.loopCount);
+
 		// also should stopNext be for steps???
 		if (this.isStopNextLoop) {
 			this.stop();
+			return;
+		}
+
+		if (this.isPauseNextLoop) {
+			this.pause();
 			return;
 		}
 		
@@ -717,7 +734,7 @@ export class Doodoo {
 
 		// DRY?
 		this.metronome.reset();
-		this.loopCount = 0;
+		// this.loopCount = 0;
 
 		if (!this.isConfigured) {
 			this.buildParts();
@@ -779,7 +796,8 @@ export class Doodoo {
 		if (this.events.onStop) {
 			this.events.onStop();
 		}
-		this.reset();
+		this.resetCounters();
+		this.resetMods();
 	}
 
 	stopNext() {
@@ -791,6 +809,25 @@ export class Doodoo {
 	stopNextStep() {
 		this.isStopNextLoop = true;
 		this.isStopNextStep = true;
+	}
+	
+	pause() {
+		Tone.getTransport().stop();
+		this.toneLoop.stop();
+		this.instruments.releaseAll();
+		this.instruments.dispose();
+		this.isPlaying = false;
+		this.isPauseNextLoop = false;
+		this.isPauseNextStep = false;
+	}
+
+	pauseNext() {
+		this.isPauseNextLoop = true;
+	}
+
+	// will not start with middle of sequence, generates new on play
+	pauseNextStep() {
+		this.isPauseNextStep = true;
 	}
 
 	// debug

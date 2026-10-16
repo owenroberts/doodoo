@@ -132,8 +132,6 @@ export class PlaybackPanel extends UIPanel {
 			Tone.Transport.cancel();
 		}
 
-		this.doodoo.reset();
-
 		this.doodoo.config.withRecording = withRecording;
 		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 
 		if (withRecording) {
