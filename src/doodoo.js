@@ -20,6 +20,7 @@ export class Doodoo {
 		this.isToneSetup = false;
 		this.isConfigured = false; // parts are setup with mod
 		this.isPlaying = false;
+		this.isGettingReadyToPlay = false; // dont spam play
 
 		this.initConfig(params);
 		this.initComp(params);
@@ -286,10 +287,8 @@ export class Doodoo {
 		// update to not direct set, break refs
 	}
 
-	// start tone using async func to wait for tone
 	async loadTone(callback) {
 		if (this.isToneSetup) return callback();
-
 		try {
 			await Tone.start();
 			this.setupTone();
@@ -358,7 +357,7 @@ export class Doodoo {
 
 	step(time) {
 		
-		console.log("step", this.stepIndex, this.stepsInLoop);
+		// console.log("step", this.stepIndex, this.stepsInLoop);
 
 		if (this.isStopNextStep) {
 			this.stop();
@@ -410,9 +409,8 @@ export class Doodoo {
 
 	generateLoop(time) {
 
-		console.log("generate", this.loopCount);
+		// console.log("generate", this.loopCount);
 
-		// also should stopNext be for steps???
 		if (this.isStopNextLoop) {
 			this.stop();
 			return;
@@ -423,15 +421,12 @@ export class Doodoo {
 			return;
 		}
 		
-		// this is actually insane if loopsInPlay can just be false and also set by stopNext ... 
-		// why isn't this just stop?
 		if (this.config.loopsInPlay) {
 			if (this.loopCount >= this.config.loopsInPlay * this.sequenceLength) {
 				this.stop();
 				return;
 			}
 		}
-
 
 		this.stepIndex = 0;
 		this.instruments.dispose();
@@ -728,6 +723,10 @@ export class Doodoo {
 
 	play() {
 
+
+		if (this.isGettingReadyToPlay) return;
+		this.isGettingReadyToPlay = true;
+
 		if (this.config.isSaveReplay) {
 			this.replay.reset();
 		}
@@ -743,17 +742,21 @@ export class Doodoo {
 		// has to happen after parts
 		if (!this.instruments.isLoaded) {
 			return this.instruments.loadSamples(this.sampleList, () => {
+				this.isGettingReadyToPlay = false;
 				this.play();
 			});
 		}
 
 		if (!this.isToneSetup) {
 			return this.loadTone(() => {
+				this.isGettingReadyToPlay = false;
 				this.play();
 			});
 		}
-
-		this.isPlaying = true;
+		
+		
+		this.isGettingReadyToPlay = false;
+		// this.isPlaying = true;
 		this.next(); // get next loop (or replay);
 
 		// fix for catslair time issue
@@ -773,7 +776,7 @@ export class Doodoo {
 	}
 
 	next(time) {
-		if (!this.isPlaying) this.isPlaying = true; // for on trigger next mode ... 
+		this.isPlaying = true; // for on trigger next mode ... 
 		
 		if (this.config.isReplay) {
 			this.replay.getNextLoop();
