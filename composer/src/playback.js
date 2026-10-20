@@ -119,6 +119,14 @@ export class PlaybackPanel extends UIPanel {
 			}
 		});
 
+		this.addButton({
+			key: "m",
+			text: "log tone state",
+			callback: () => {
+				this.doodoo.printState();
+			}
+		});
+
 		this.doodoo.events.onLoop = loopCount => {
 			loopCountDisplay.setText(loopCount);
 			ui.panels.monitor.update(this.doodoo.voices, this.doodoo.comp);

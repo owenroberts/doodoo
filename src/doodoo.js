@@ -73,11 +73,12 @@ export class Doodoo {
 		defineSafeProperty(this, "config", {
 			debug: false,
 			stepInterval: '4n', // smallest unit of time
-			autoLoad: params.autoLoad ?? true,
-			autoStart: params.autoStart ?? true,
-			// >> really necessary? 
+			latencyHint: params.latencyHint ?? "interactive", // "interactive" is tone default, balanced, playback
+			lookAhead: params.lookAhead ?? 0.1, // tone default is 0.1
 			playOnStart: false, // if trying to play before loaded
+			autoLoad: params.autoLoad ?? true,
 			volume: params.volume ?? 0,
+			autoStart: params.autoStart ?? true,
 			isMetronomeOn: params.isMetronomeOn ?? false,
 			metroInterval: params.metroInterval ?? 4,
 			withRecording: params.withRecording ?? false,
@@ -290,11 +291,37 @@ export class Doodoo {
 	async loadTone(callback) {
 		if (this.isToneSetup) return callback();
 		try {
+			Tone.setContext(new Tone.Context({
+				latencyHint: this.config.latencyHint,
+			}));
+
 			await Tone.start();
+			Tone.context.lookAhead = this.config.lookAhead;
+			this.setupCrashDetection();
 			this.setupTone();
 			if (callback) callback();
 		} catch(err) {
 			console.error('load tone error', err);
+		}
+	}
+
+	setupCrashDetection() {
+		Tone.getContext().rawContext.addEventListener("statechange", () => {
+			console.log("state change");
+			const state = Tone.getContext().state;
+			console.log(`tone state changed to ${state}`);
+			if (state === "interrupted" || state === "suspended") {
+				this.attemptRecovery();
+			}
+		});
+	}
+
+	async attemptRecovery() {
+		try {
+			await Tone.getContext().resume();
+			console.log("tone resumed");
+		} catch (err) {
+			console.log(`tone failed to resume ${err}`);
 		}
 	}
 
@@ -324,7 +351,7 @@ export class Doodoo {
 
 		if (this.events.onMeterInit) {
 			this.meter = new Tone.Meter({ channelCount: 2 });
-			Tone.Destination.connect(this.meter);
+			Tone.getDestination().connect(this.meter);
 			this.events.onMeterInit(this.meter);
 		}
 
@@ -333,7 +360,7 @@ export class Doodoo {
 			const fftLeft = new Tone.FFT(64); // is bands
 			const fftRight = new Tone.FFT(64); // is bands
 
-			Tone.Destination.connect(split);
+			Tone.getDestination().connect(split);
 			split.connect(fftLeft, 0, 0);
 			split.connect(fftRight, 1, 0);
 			this.events.onFFTInit({ fftLeft, fftRight });
@@ -739,6 +766,14 @@ export class Doodoo {
 			this.buildParts();
 		}
 
+		// tone setup makes new context ...
+		if (!this.isToneSetup) {
+			return this.loadTone(() => {
+				this.isGettingReadyToPlay = false;
+				this.play();
+			});
+		}
+
 		// has to happen after parts
 		if (!this.instruments.isLoaded) {
 			return this.instruments.loadSamples(this.sampleList, () => {
@@ -747,14 +782,6 @@ export class Doodoo {
 			});
 		}
 
-		if (!this.isToneSetup) {
-			return this.loadTone(() => {
-				this.isGettingReadyToPlay = false;
-				this.play();
-			});
-		}
-		
-		
 		this.isGettingReadyToPlay = false;
 		// this.isPlaying = true;
 		this.next(); // get next loop (or replay);
@@ -786,12 +813,17 @@ export class Doodoo {
 	}
 
 	stop() {
+		this.isPlaying = false;
+
+		if (!this.isToneSetup) {
+			return;
+		}
+
 		// console.trace("stop");
 		Tone.getTransport().stop();
 		this.toneLoop.stop();
 		this.instruments.releaseAll();
 		this.instruments.dispose();
-		this.isPlaying = false;
 		
 		this.saveRecording();
 		this.replay.save();
@@ -838,6 +870,7 @@ export class Doodoo {
 	printParams() { console.log('params', this.parts.map(p => p.getParams())); }
 	printComp() { console.log('composition', this.comp); }
 	printConfig() { console.log("config", this.config); }
+	printState() { console.log("tone state", Tone.getContext().state); }
 
 	thatDamnError({ voice, pitch, beat, time, t, velocity, err}) {
 		console.log('that null error!'); // but its not a null value, its prob Infinity value for t

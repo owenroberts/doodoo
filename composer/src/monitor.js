@@ -45,11 +45,17 @@ export class MonitorPanel extends UIPanel {
 		const colGroup = table.add(new UIElement({ tag: "colgroup" }));
 		const thead = table.add(new UIElement({ tag: "thead" }));
 		const thr = thead.add(new UIElement({ tag: "tr"}));
+
+		thr.add(new UIElement({ tag: "th", text: "part" }));
 		thr.add(new UIElement({ tag: "th", text: "voice" }));
 
-		this.tcols = [colGroup.add(new UIElement({ tag: "col" }))];
+		// this is goofy and hard coded ***
+		this.tcols = [
+			colGroup.add(new UIElement({ tag: "col" })),
+			colGroup.add(new UIElement({ tag: "col" })),
+		];
 		for (let i = 0; i < this.propList.length; i++) {
-			this.tcols[i + 1] = colGroup.add(new UIElement({ tag: "col" }));
+			this.tcols[i + 2] = colGroup.add(new UIElement({ tag: "col" }));
 			const k = this.propList[i];
 			const propKey = k.replace("monitor-", "");
 			thr.add(new UIElement({ tag: "th", text: propKey }));
@@ -77,19 +83,21 @@ export class MonitorPanel extends UIPanel {
 		for (let i = 0; i < this.propList.length; i++) {
 			const k = this.propList[i];
 			if (this.props[k]) {
-				this.tcols[i + 1].removeClass('collapsed');
+				this.tcols[i + 2].removeClass('collapsed');
 			} else {
-				this.tcols[i + 1].addClass('collapsed');
+				this.tcols[i + 2].addClass('collapsed');
 			}
 		}
 
 		for (let i = 0; i < voices.length; i++) {
+			const voice = voices[i];
 			// const row = this.monitorRow.add(new UIRow({ class: 'break' }));
 			// row.add(new UILabel({ text: `Loop ${i}: `}));
+			
 			const tr = this.tbody.add(new UIElement({ tag: "tr" }));
+			tr.add(new UIElement({ tag: "td", text: voice.partIndex }));
 			tr.add(new UIElement({ tag: "td", text: i }));
 
-			const voice = voices[i];
 			for (let j = 0; j < this.propList.length; j++) {
 				const k = this.propList[j];
 				const propKey = k.replace("monitor-", "");

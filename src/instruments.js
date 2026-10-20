@@ -87,12 +87,12 @@ export class Instruments {
 			this.getSynth(voiceParams) :
 			this.getSampler(voiceParams.instrument, voiceParams);
 
-		if (recorder) i.chain(Tone.Destination, recorder);
+		if (recorder) i.chain(Tone.getDestination(), recorder);
 		else i.toDestination();
 
 		for (const fxName in voiceParams.fx) {
 			const f = getFX(fxName, voiceParams.fx[fxName]);
-			if (recorder) f.chain(Tone.Destination, recorder);
+			if (recorder) f.chain(Tone.getDestination(), recorder);
 			else f.toDestination();
 			i.connect(f);
 			this.toDispose.push(f);
@@ -171,7 +171,7 @@ export class Instruments {
 		
 		const disposeMe = [];
 
-		// don't remember why this works but it does error otherwise		
+		// don't remember why this works but it gets error otherwise		
 		for (let i = 0; i < this.toDispose.length; i++) {
 			disposeMe.push(this.toDispose[i]);
 		}
@@ -180,6 +180,7 @@ export class Instruments {
 			const d = disposeMe[i];
 			setTimeout(() => {
 				disposeMe[i].dispose(); // way to calculate this??
+				disposeMe[i] = null;
 			}, 2000);
 		}
 

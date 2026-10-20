@@ -36,8 +36,13 @@ export class ModulatorsPanel extends UIPanel {
 			obj: this,
 			ref: 'modsetIndex',
 			callback: value => {
+				// ignore if nothing is loaded yet
+				if (this.doodoo.comp.parts.length === 0) {
+					return;
+				}
+
 				if (value > this.modsets.length - 1) {
-					const addSet = confirm("Add new set?");
+					const addSet = confirm("add new set?");
 					if (addSet) {
 						this.modsets.push(structuredClone(defaultModSet))
 						this.addSet(value);

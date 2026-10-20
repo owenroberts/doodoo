@@ -23,7 +23,10 @@ import defaultWorkspace from '../workspaces/default.json';
 const doodoo = new Doodoo({ 
 	autoLoad: false, 
 	autoPlay: false,
-	isEditor: true, 
+	isEditor: true,
+	
+	// latencyHint: "playback",
+	// lookAhead: 0.2,
 });
 
 const ui = new Interface({ 

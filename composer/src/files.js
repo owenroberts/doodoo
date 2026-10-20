@@ -99,12 +99,23 @@ export class FilesPanel extends UIPanel {
 
 	saveLocal(needsTitleConfirm=true) {
 
+		let doodooIsPlaying = this.fm.doodoo.isPlaying;
+		if (this.fm.doodoo.isPlaying) {
+			this.fm.doodoo.stop(); // yikes?? ***
+		}
+
 		const saveData = this.fm.save();
 		this.ui.faces.title.update(this.fm.data.title);
 
 		try {
 			localStorage.setItem(`greg-${this.fm.data.title}`, JSON.stringify(saveData));
 			localStorage.setItem('greg-title', this.fm.data.title);
+
+			if (doodooIsPlaying) {
+				this.fm.doodoo.play();
+			} 
+
+		
 		} catch (error) {
 			if (error.name === 'QuotaExceededError') {
 				alert('Local storage full');

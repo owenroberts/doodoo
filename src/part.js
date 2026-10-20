@@ -145,14 +145,18 @@ export class Part {
 
 			let startIndex = this.mods.startIndex.getInt();
 			if (startIndex > 0) {
-				// find the next note
-				while (melody[startIndex][0] === null) {
-					startIndex++;
-					if (startIndex >= melody.length) {
-						startIndex = 0;
-					}
-				}
-				melody = melody.slice(startIndex).concat(melody.slice(0, startIndex));
+				
+				// // find the next note
+				// old thing to avoid rests ... who cares
+				// while (melody[startIndex][0] === null) {
+				// 	startIndex++;
+				// 	if (startIndex >= melody.length) {
+				// 		startIndex = 0;
+				// 	}
+				// }
+				
+				const newIndex = startIndex % melody.length;
+				melody = melody.slice(newIndex).concat(melody.slice(0, newIndex));
 			}
 
 			const startDelay = i > 0 ? this.mods.startDelay.getInt() : 0;
