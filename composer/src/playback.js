@@ -150,7 +150,7 @@ export class PlaybackPanel extends UIPanel {
 			Tone.Transport.cancel();
 		}
 
-		this.doodoo.reset();
+		// this.doodoo.resetCounters();
 
 		// need to reset comp data that can change during playback
 		this.resetComp();
