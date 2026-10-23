@@ -17,6 +17,7 @@ export class Instruments {
 		this.toDispose = [];
 		this.loadList = [];
 		this.active = []; // same as toDispose right ?
+
 	}
 
 	loadSamples(loadList, callback) {
@@ -89,6 +90,11 @@ export class Instruments {
 
 		if (recorder) i.chain(Tone.getDestination(), recorder);
 		else i.toDestination();
+
+		if (!this.reverb) this.reverb = new Tone.Reverb(5);
+		if (recorder) this.reverb.chain(Tone.getDestination(), recorder);
+		else this.reverb.toDestination();
+		i.connect(this.reverb);
 
 		for (const fxName in voiceParams.fx) {
 			const f = getFX(fxName, voiceParams.fx[fxName]);

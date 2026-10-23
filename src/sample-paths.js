@@ -7,6 +7,18 @@ export const SamplePaths = {
 		"A4": "A4.mp3",
 		"C4": "C4.mp3",
 	},
+	"ooh": {
+		"C4": "c4.ogg",
+	},
+	"ahh": {
+		"C4": "c4.ogg",
+	},
+	"harp": {
+		"C4": "c4.ogg",
+	},
+	"voice": {
+		"C4": "c4.ogg",
+	},
 	"trumpet": { "C4": "C4.wav" },
 	"flute": { "C5": "C5.wav" },
 	"guitar": { "C4": "C4.wav" },

@@ -36,9 +36,15 @@ export class CompositionPanel extends UIPanel {
 		});
 
 		this.addRef({
+			value: 120,
 			obj: this.doodoo.comp,
 			ref: "bpm",
 			range: [10, 300],
+			callback: value => {
+				if (this.doodoo.isPlaying) {
+					this.doodoo.setBPM(value);
+				}
+			}
 		});
 
 		this.addRef({

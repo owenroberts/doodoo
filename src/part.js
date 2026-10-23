@@ -179,9 +179,9 @@ export class Part {
 			}
 
 			// always add reverb ... 
-			if (chance(this.mods.reverb.get().chance)) {
-				fx.reverb = this.mods.reverb.get();
-			}
+			// if (chance(this.mods.reverb.get().chance)) {
+			// 	fx.reverb = this.mods.reverb.get();
+			// }
 
 			const isCounterpoint = chance(this.mods.counterpoint.get());
 			

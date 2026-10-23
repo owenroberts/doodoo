@@ -346,6 +346,11 @@ export class Doodoo {
 		// Tone.Master.chain(compressor, limiter);
 		// Tone.Master.chain(compressor);
 		// Tone.Master.chain(limiter);
+		// 
+		
+		// make this a setting ... 
+		// const reverb = new Tone.Reverb(3);
+		// Tone.getDestination().chain(reverb);
 
 		this.metronome.setup();
 
@@ -791,6 +796,7 @@ export class Doodoo {
 		Tone.getTransport().start();
 		// end fix
 		
+		Tone.getTransport().bpm.value = this.comp.bpm;
 		this.toneLoop.interval = this.config.stepInterval;
 
 		// seconds causes error with mystery fragments, 2 doodoos

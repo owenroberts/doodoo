@@ -139,6 +139,7 @@ export class FilesPanel extends UIPanel {
 		
 		if (!localData) {
 			alert("no data, try list local");
+			return;
 		}
 
 		const data = JSON.parse(localData);

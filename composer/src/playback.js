@@ -133,12 +133,27 @@ export class PlaybackPanel extends UIPanel {
 		};
 	}
 
+	resetComp() {
+		const compMods = ["bpm", "scale", "transpose"];
+
+		for (let i = 0; i < compMods.length; i++) {
+			const m = compMods[i];
+			const v = this.ui.faces[m].value;
+			if (v) this.doodoo.comp[m] = v;
+		}
+	}
+
 	play({ withRecording=false, loopsInPlay=false, localReplay, isLiveMode=false }={}) {
 
 		if (this.doodoo.isPlaying) {
 			this.doodoo.stop();
 			Tone.Transport.cancel();
 		}
+
+		this.doodoo.reset();
+
+		// need to reset comp data that can change during playback
+		this.resetComp();
 
 		this.doodoo.config.withRecording = withRecording;
 		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 

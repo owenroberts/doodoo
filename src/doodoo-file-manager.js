@@ -26,9 +26,11 @@ export class FileManager {
 
 	load(data) {
 		assert(data.hasOwnProperty("versionIndex"), "old version");
+		
 		this.doodoo.resetCounters();
 		this.doodoo.resetMods();
-		this.doodoo.isToneSetup = false;
+		this.isConfigured = false;
+		// this.doodoo.isToneSetup = false;
 		this.doodoo.instruments.isLoaded = false;
 
 		for (const k in data) {
@@ -94,11 +96,21 @@ export class FileManager {
 
 	saveFile() {
 		if (this.doodoo.isRecording()) return;
+
+		let isDoodooPlaying = this.doodoo.isPlaying; // not DRY ... 
+		if (isDoodooPlaying) {
+			this.doodoo.stop();
+		}
+		
 		const json = this.save(false);
 		const blob = new Blob([JSON.stringify(json)], { type: 'application/x-download;charset=utf-8' });
 		const name = prompt("Name file", json.title);
 		if (!name) return;
 		saveAs(blob, name + '.json');
+		
+		if (isDoodooPlaying) {
+			this.doodoo.play();
+		}
 	}
 
 	// fix later if needed
