@@ -150,10 +150,11 @@ export class PlaybackPanel extends UIPanel {
 			Tone.Transport.cancel();
 		}
 
-		// this.doodoo.resetCounters();
 
 		// need to reset comp data that can change during playback
 		this.resetComp();
+		this.doodoo.resetCounters();
+		this.doodoo.resetMods();
 
 		this.doodoo.config.withRecording = withRecording;
 		// this.doodoo.instruments.withRecording = withRecording; // fuck *** 
